@@ -1,0 +1,4 @@
+<resources>
+	<string name="app_name" translatable="false">Yukimi for Developer</string>
+	<string name="strict_mode">Strict mode</string>
+</resources>

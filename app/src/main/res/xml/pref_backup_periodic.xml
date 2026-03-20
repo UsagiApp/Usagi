@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:title="@string/periodic_backups">
+
+	<SwitchPreferenceCompat
+		android:defaultValue="false"
+		android:key="backup_periodic"
+		android:layout="@layout/preference_toggle_header"
+		android:title="@string/periodic_backups_enable" />
+
+	<Preference
+		android:dependency="backup_periodic"
+		android:key="backup_periodic_output"
+		android:title="@string/backups_output_directory" />
+
+	<ListPreference
+		android:defaultValue="7"
+		android:dependency="backup_periodic"
+		android:entries="@array/backup_frequency"
+		android:entryValues="@array/values_backup_frequency"
+		android:key="backup_periodic_freq"
+		android:title="@string/backup_frequency"
+		app:useSimpleSummaryProvider="true" />
+
+	<SwitchPreferenceCompat
+		android:defaultValue="true"
+		android:dependency="backup_periodic"
+		android:key="backup_periodic_trim"
+		android:summary="@string/delete_old_backups_summary"
+		android:title="@string/delete_old_backups" />
+
+	<org.koitharu.kotatsu.settings.utils.SliderPreference
+		android:dependency="backup_periodic_trim"
+		android:key="backup_periodic_count"
+		android:stepSize="1"
+		android:title="@string/max_backups_count"
+		android:valueFrom="1"
+		android:valueTo="32"
+		app:defaultValue="10"
+		app:useSimpleSummaryProvider="true" />
+
+	<Preference
+		android:dependency="backup_periodic"
+		android:icon="@drawable/ic_info_outline"
+		android:key="backup_periodic_last"
+		android:persistent="false"
+		android:selectable="false"
+		app:isPreferenceVisible="false" />
+
+	<PreferenceCategory
+		android:key="backup_periodic_tg"
+		android:title="@string/telegram_integration"
+		app:isPreferenceVisible="false"
+		tools:isPreferenceVisible="true">
+
+		<SwitchPreferenceCompat
+			android:defaultValue="false"
+			android:dependency="backup_periodic"
+			android:key="backup_periodic_tg_enabled"
+			android:title="@string/send_backups_telegram" />
+
+		<EditTextPreference
+			android:dependency="backup_periodic_tg_enabled"
+			android:inputType="text"
+			android:key="backup_periodic_tg_chat_id"
+			android:title="@string/telegram_chat_id" />
+
+		<Preference
+			android:dependency="backup_periodic_tg_enabled"
+			android:key="backup_periodic_tg_open"
+			android:persistent="false"
+			android:summary="@string/open_telegram_bot_summary"
+			android:title="@string/open_telegram_bot" />
+
+		<Preference
+			android:dependency="backup_periodic_tg_enabled"
+			android:key="backup_periodic_tg_test"
+			android:persistent="false"
+			android:title="@string/test_connection" />
+
+	</PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="breadcrumbs_separator" translatable="false"><![CDATA[" < "]]></string>
+    <string name="hide_broken_sources">إخفاء المصادر المكسورة</string>
+    <string name="hide_broken_sources_summary">إخفاء المصادر التي تم تمييزها على أنها معطلة من قوائم المصادر</string>
+</resources>

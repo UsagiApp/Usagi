@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+	<include
+		domain="sharedpref"
+		path="." />
+	<exclude
+		domain="sharedpref"
+		path="_local_index.xml" />
+	<exclude domain="database" />
+	<exclude domain="device_database" />
+	<exclude domain="external" />
+</full-backup-content>

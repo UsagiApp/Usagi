@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="themes" translatable="false">
+		<item>@string/follow_system</item>
+		<item>@string/light</item>
+		<item>@string/dark</item>
+	</string-array>
+	<string-array name="zoom_modes" translatable="false">
+		<item>@string/zoom_mode_fit_center</item>
+		<item>@string/zoom_mode_fit_height</item>
+		<item>@string/zoom_mode_fit_width</item>
+		<item>@string/zoom_mode_keep_start</item>
+	</string-array>
+	<string-array name="track_sources" translatable="false">
+		<item>@string/favourites</item>
+		<item>@string/history</item>
+	</string-array>
+	<string-array name="list_modes" translatable="false">
+		<item>@string/list</item>
+		<item>@string/detailed_list</item>
+		<item>@string/grid</item>
+	</string-array>
+	<string-array name="screenshots_policy" translatable="false">
+		<item>@string/screenshots_allow</item>
+		<item>@string/screenshots_block_nsfw</item>
+		<item>@string/screenshots_block_incognito</item>
+		<item>@string/screenshots_block_all</item>
+	</string-array>
+	<string-array name="network_policy" translatable="false">
+		<item>@string/always</item>
+		<item>@string/only_using_wifi</item>
+		<item>@string/never</item>
+	</string-array>
+	<string-array name="doh_providers" translatable="false">
+		<item>@string/disabled</item>
+		<item>Google</item>
+		<item>CloudFlare</item>
+		<item>AdGuard</item>
+		<item>v.recipes (0ms)</item>
+	</string-array>
+	<string-array name="image_proxies" translatable="false">
+		<item>@string/none</item>
+		<item>wsrv.nl</item>
+		<item>v.recipes (0ms.dev)</item>
+	</string-array>
+	<string-array name="reader_modes" translatable="false">
+		<item>@string/standard</item>
+		<item>@string/right_to_left</item>
+		<item>@string/vertical</item>
+		<item>@string/webtoon</item>
+	</string-array>
+	<string-array name="scrobbling_statuses" translatable="false">
+		<item>@string/status_planned</item>
+		<item>@string/status_reading</item>
+		<item>@string/status_re_reading</item>
+		<item>@string/status_completed</item>
+		<item>@string/status_on_hold</item>
+		<item>@string/status_dropped</item>
+	</string-array>
+	<string-array name="proxy_types" translatable="false">
+		<item>@string/disabled</item>
+		<item>HTTP</item>
+		<item>SOCKS (v4/v5)</item>
+	</string-array>
+	<string-array name="reader_backgrounds" translatable="false">
+		<item>@string/system_default</item>
+		<item>@string/color_light</item>
+		<item>@string/color_dark</item>
+		<item>@string/color_white</item>
+		<item>@string/color_black</item>
+	</string-array>
+	<string-array name="reader_animation" translatable="false">
+		<item>@string/disabled</item>
+		<item>@string/system_default</item>
+		<item>@string/advanced</item>
+	</string-array>
+	<string-array name="backup_frequency" translatable="false">
+		<item>@string/frequency_every_6_hours</item>
+		<item>@string/frequency_every_day</item>
+		<item>@string/frequency_every_2_days</item>
+		<item>@string/frequency_once_per_week</item>
+		<item>@string/frequency_twice_per_month</item>
+		<item>@string/frequency_once_per_month</item>
+	</string-array>
+	<string-array name="details_tabs" translatable="false">
+		<item>@string/last_used</item>
+		<item>@string/chapters</item>
+		<item>@string/pages</item>
+		<item>@string/bookmarks</item>
+	</string-array>
+	<string-array name="details_ui" translatable="false">
+		<item>@string/details_ui_modern</item>
+		<item>@string/details_ui_classic</item>
+	</string-array>
+	<string-array name="download_formats" translatable="false">
+		<item>@string/automatic</item>
+		<item>@string/single_cbz_file</item>
+		<item>@string/multiple_cbz_files</item>
+	</string-array>
+	<string-array name="tracker_frequency" translatable="false">
+		<item>@string/manual</item>
+		<item>@string/less_frequently</item>
+		<item>@string/system_default</item>
+		<item>@string/more_frequently</item>
+	</string-array>
+	<string-array name="reader_crop" translatable="false">
+		<item>@string/pages</item>
+		<item>@string/webtoon</item>
+	</string-array>
+	<string-array name="progress_indicators" translatable="false">
+		<item>@string/disabled</item>
+		<item>@string/percent_read</item>
+		<item>@string/percent_left</item>
+		<item>@string/chapters_read</item>
+		<item>@string/chapters_left</item>
+	</string-array>
+	<string-array name="tracker_download_strategies" translatable="false">
+		<item>@string/never</item>
+		<item>@string/manga_with_downloaded_chapters</item>
+	</string-array>
+	<string-array name="metered_network_options" translatable="false">
+		<item>@string/allow_always</item>
+		<item>@string/ask_every_time</item>
+		<item>@string/dont_allow</item>
+	</string-array>
+	<string-array name="screen_orientations" translatable="false">
+		<item>@string/system_default</item>
+		<item>@string/automatic</item>
+		<item>@string/portrait</item>
+		<item>@string/landscape</item>
+	</string-array>
+	<string-array name="reader_controls" translatable="false">
+		<item>@string/prev_chapter</item>
+		<item>@string/next_chapter</item>
+		<item>@string/pages_slider</item>
+		<item>@string/chapters_and_pages</item>
+		<item>@string/screen_orientation</item>
+		<item>@string/save_page</item>
+		<item>@string/automatic_scroll</item>
+		<item>@string/bookmark_add</item>
+	</string-array>
+	<string-array name="list_badges" translatable="false">
+		<item>@string/favourites</item>
+		<item>@string/saved_manga</item>
+	</string-array>
+	<string-array name="incognito_nsfw_options" translatable="false">
+		<item>@string/enable</item>
+		<item>@string/ask_every_time</item>
+		<item>@string/disable</item>
+	</string-array>
+</resources>

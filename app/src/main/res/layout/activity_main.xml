@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".main.ui.MainActivity">
+
+	<androidx.fragment.app.FragmentContainerView
+		android:id="@id/container"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+		tools:layout="@layout/fragment_list" />
+
+	<com.google.android.material.appbar.AppBarLayout
+		android:id="@+id/appbar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@null"
+		android:clipToPadding="false"
+		android:elevation="0dp"
+		android:fitsSystemWindows="false"
+		android:stateListAnimator="@null"
+		app:elevation="0dp"
+		app:liftOnScroll="false"
+		app:liftOnScrollColor="@null">
+
+		<org.koitharu.kotatsu.core.ui.widgets.WindowInsetHolder
+			android:id="@+id/insetsHolder"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top"
+			android:fitsSystemWindows="true"
+			app:layout_scrollFlags="scroll|enterAlways|snap" />
+
+		<com.google.android.material.search.SearchBar
+			android:id="@+id/search_bar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:hint="@string/search_manga"
+			app:forceDefaultNavigationOnClickListener="true"
+			app:layout_scrollFlags="scroll|enterAlways|snap" />
+
+	</com.google.android.material.appbar.AppBarLayout>
+
+	<com.google.android.material.search.SearchView
+		android:id="@+id/search_view"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:hint="@string/search_hint"
+		app:layout_anchor="@id/search_bar">
+
+		<androidx.recyclerview.widget.RecyclerView
+			android:id="@+id/recyclerView_search"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:clipToPadding="false"
+			android:orientation="vertical"
+			android:scrollbars="vertical"
+			app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+	</com.google.android.material.search.SearchView>
+
+	<com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+		android:id="@+id/fab"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="16dp"
+		android:text="@string/_continue"
+		android:visibility="gone"
+		app:icon="@drawable/ic_read"
+		app:layout_anchor="@id/bottomNav"
+		app:layout_anchorGravity="top|end"
+		app:layout_behavior="org.koitharu.kotatsu.main.ui.MainActionButtonBehavior"
+		app:layout_dodgeInsetEdges="bottom"
+		app:layout_insetEdge="bottom"
+		tools:ignore="InconsistentLayout"
+		tools:visibility="visible" />
+
+	<org.koitharu.kotatsu.core.ui.widgets.SlidingBottomNavigationView
+		android:id="@+id/bottomNav"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom"
+		android:fitsSystemWindows="false" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:paddingBottom="@dimen/screen_padding">
+
+	<org.koitharu.kotatsu.core.ui.sheet.AdaptiveSheetHeaderBar
+		android:id="@+id/headerBar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:title="@string/reading_stats" />
+
+	<ScrollView
+		android:id="@+id/scrollView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:clipToPadding="false"
+		android:scrollIndicators="top">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center_vertical"
+				android:orientation="horizontal"
+				android:paddingHorizontal="@dimen/screen_padding">
+
+				<TextView
+					android:id="@+id/textView_title"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:textAppearance="?textAppearanceTitleMedium"
+					tools:text="@tools:sample/lorem[4]" />
+
+				<ImageButton
+					android:id="@+id/button_open"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:background="?selectableItemBackgroundBorderless"
+					android:contentDescription="@string/details"
+					android:minWidth="?minTouchTargetSize"
+					android:minHeight="?minTouchTargetSize"
+					android:tooltipText="@string/details"
+					app:srcCompat="@drawable/ic_open_external" />
+
+			</LinearLayout>
+
+			<org.koitharu.kotatsu.stats.ui.views.BarChartView
+				android:id="@+id/chartView"
+				android:layout_width="match_parent"
+				android:layout_height="240dp"
+				android:layout_marginTop="12dp"
+				android:paddingHorizontal="@dimen/screen_padding" />
+
+			<TextView
+				android:id="@+id/textView_start"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="2dp"
+				android:paddingHorizontal="@dimen/screen_padding"
+				android:textAppearance="?textAppearanceLabelSmall"
+				tools:text="Week ago" />
+
+
+			<TextView
+				android:id="@+id/textView_pages"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="12dp"
+				android:paddingHorizontal="@dimen/screen_padding"
+				android:textAppearance="?textAppearanceBodyMedium"
+				tools:text="Total pages read: 250" />
+
+		</LinearLayout>
+	</ScrollView>
+</LinearLayout>
