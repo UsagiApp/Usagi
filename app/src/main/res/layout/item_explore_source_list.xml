@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/list_selector"
+	android:baselineAligned="false"
+	android:clipChildren="false"
+	android:gravity="center_vertical"
+	android:orientation="horizontal">
+
+	<org.koitharu.kotatsu.core.ui.image.FaviconView
+		android:id="@+id/imageView_icon"
+		android:layout_width="40dp"
+		android:layout_height="40dp"
+		android:layout_marginStart="8dp"
+		android:layout_marginTop="8dp"
+		android:layout_marginBottom="8dp"
+		android:background="?colorSurfaceContainer"
+		android:scaleType="centerCrop"
+		app:iconStyle="@style/FaviconDrawable.Small"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover.Small"
+		tools:src="@tools:sample/backgrounds/scenic" />
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginEnd="@dimen/margin_small"
+		android:orientation="vertical">
+
+		<TextView
+			android:id="@+id/textView_title"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawablePadding="2dp"
+			android:ellipsize="end"
+			android:singleLine="true"
+			android:textAppearance="?attr/textAppearanceTitleSmall"
+			tools:drawableStart="@drawable/ic_pin_small"
+			tools:text="@tools:sample/lorem[2]" />
+
+		<TextView
+			android:id="@+id/textView_subtitle"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="2dp"
+			android:ellipsize="end"
+			android:singleLine="true"
+			android:textAppearance="?attr/textAppearanceBodySmall"
+			tools:text="@tools:sample/lorem[2]" />
+
+	</LinearLayout>
+
+</LinearLayout>

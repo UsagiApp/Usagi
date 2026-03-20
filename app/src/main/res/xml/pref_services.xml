@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:title="@string/services">
+
+	<Preference
+		android:enabled="@bool/is_sync_enabled"
+		android:key="sync"
+		android:persistent="false"
+		android:summary="@string/sync_title"
+		android:title="@string/sync" />
+
+	<PreferenceScreen
+		android:enabled="false"
+		android:fragment="org.koitharu.kotatsu.settings.SyncSettingsFragment"
+		android:key="sync_settings"
+		android:title="@string/sync_settings" />
+
+	<PreferenceScreen
+		android:fragment="org.koitharu.kotatsu.settings.SuggestionsSettingsFragment"
+		android:key="suggestions"
+		android:title="@string/suggestions"
+		app:allowDividerAbove="true" />
+
+	<SwitchPreferenceCompat
+		android:defaultValue="true"
+		android:key="related_manga"
+		android:summary="@string/related_manga_summary"
+		android:title="@string/related_manga" />
+
+	<org.koitharu.kotatsu.settings.utils.SplitSwitchPreference
+		android:defaultValue="false"
+		android:key="stats_on"
+		android:title="@string/reading_stats"
+		app:allowDividerAbove="true" />
+
+	<SwitchPreferenceCompat
+		android:defaultValue="true"
+		android:key="reading_time"
+		android:summary="@string/reading_time_estimation_summary"
+		android:title="@string/reading_time_estimation" />
+
+	<PreferenceCategory android:title="@string/tracking">
+
+		<Preference
+			android:key="anilist"
+			android:summary="@string/loading_"
+			android:title="@string/anilist"
+			app:icon="@drawable/ic_anilist" />
+
+		<Preference
+			android:key="kitsu"
+			android:summary="@string/loading_"
+			android:title="@string/kitsu"
+			app:icon="@drawable/ic_kitsu" />
+
+		<Preference
+			android:key="mal"
+			android:summary="@string/loading_"
+			android:title="@string/mal"
+			app:icon="@drawable/ic_mal" />
+
+		<Preference
+			android:key="shikimori"
+			android:summary="@string/loading_"
+			android:title="@string/shikimori"
+			app:icon="@drawable/ic_shikimori" />
+
+	</PreferenceCategory>
+
+	<Preference
+		android:fragment="org.koitharu.kotatsu.settings.discord.DiscordSettingsFragment"
+		android:key="discord_rpc"
+		android:summary="@string/discord_rpc_summary"
+		android:title="@string/discord_rpc"
+		app:allowDividerAbove="true"
+		app:icon="@drawable/ic_discord" />
+
+</PreferenceScreen>

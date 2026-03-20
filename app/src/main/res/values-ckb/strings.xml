@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="demographic_kodomo">کۆدۆمۆ</string>
+    <string name="local_storage">بیرگەی ناوەکی</string>
+    <string name="favourites">دڵخوازەکان</string>
+    <string name="history">مێژوو</string>
+    <string name="error_occurred">ھەڵەیەک ڕوویدا</string>
+    <string name="network_error">ھەڵەی تۆڕ</string>
+    <string name="hide_broken_sources">سەرچاوە شکاوەکان بشارنەوە</string>
+    <string name="hide_broken_sources_summary">ئەو سەرچاوانەی کە وەک شکاو لە لیستەکانی سەرچاوەکانەوە نیشانە کراون بشارەوە</string>
+</resources>

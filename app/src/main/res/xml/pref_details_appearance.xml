@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/details_appearance">
+
+	<PreferenceCategory
+		android:title="@string/preview"
+		app:allowDividerAbove="false"
+		app:allowDividerBelow="false">
+
+		<org.koitharu.kotatsu.settings.appearance.PreviewSettingsPreference
+			android:key="details_appearance_preview"
+			android:persistent="false"
+			android:selectable="false" />
+
+	</PreferenceCategory>
+
+    <PreferenceCategory
+		android:title="@string/details_ui"
+		app:allowDividerAbove="false">
+
+        <ListPreference
+            android:defaultValue="MODERN"
+            android:entries="@array/details_ui"
+            android:entryValues="@array/details_ui_values"
+            android:key="details_ui"
+            android:title="@string/details_ui"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/details_backdrop">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="details_backdrop"
+            android:summary="@string/details_backdrop_summary"
+            android:title="@string/details_backdrop" />
+
+        <org.koitharu.kotatsu.settings.utils.SliderPreference
+            android:defaultValue="60"
+            android:dependency="details_backdrop"
+            android:key="details_backdrop_blur_amount"
+            android:stepSize="5"
+            android:title="@string/details_backdrop_blur"
+            android:valueFrom="0"
+            android:valueTo="100" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
