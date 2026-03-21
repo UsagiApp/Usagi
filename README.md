@@ -62,6 +62,8 @@
       <img src="https://github-readme-stats.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&text_color=1976d2&title_color=1976d2&icon_color=0877d2&border_radius=10&description_lines_count=2&show_owner=true" alt="Usagi GitHub Repository">
     </picture>
   </a>
+  
+  <br>
 
   **📌 Pull requests are welcome, if you want:
   See [CONTRIBUTING.md](https://github.com/UsagiApp/Usagi/blob/devel/CONTRIBUTING.md) for the guidelines**
