@@ -16,7 +16,7 @@
 		android:title="@string/allow_unstable_updates" />
 
 	<Preference
-		android:fragment="org.koitharu.kotatsu.settings.about.changelog.ChangelogFragment"
+		android:fragment="org.draken.usagi.settings.about.changelog.ChangelogFragment"
 		android:key="changelog"
 		android:persistent="false"
 		android:summary="@string/changelog_summary"

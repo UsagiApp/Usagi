@@ -78,7 +78,7 @@
     <string name="track_sources">Kiểm tra tập / chương truyện mới</string>
     <string name="dont_check">Không kiểm tra</string>
     <string name="enter_password">Nhập mật khẩu</string>
-    <string name="protect_application_summary">Hỏi mật khẩu khi khởi động Yukimi</string>
+    <string name="protect_application_summary">Hỏi mật khẩu khi khởi động Usagi</string>
     <string name="repeat_password">Nhập lại mật khẩu</string>
     <string name="about">Giới thiệu</string>
     <string name="app_version">Phiên bản %s</string>
@@ -406,7 +406,7 @@
     <string name="reader_info_pattern">Chương %1$d/%2$d - Trang %3$d/%4$d</string>
     <string name="memory_usage_pattern">%s - %s</string>
     <string name="web_view_unavailable">WebView hiện không có sẵn: Kiểm tra xem ứng dụng WebView được cài chưa</string>
-    <string name="manga_error_description_pattern">Chi tiết lỗi: &lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Hãy thử &lt;a href=%2$s&gt;mở manga trong trình duyệt web&lt;/a&gt; để đảm bảo rằng manga này có trong nguồn&lt;br&gt;2. Hãy chắc chắn rằng bạn đang dùng &lt;a href=kotatsu://about&gt;bản mới nhất của Yukimi&lt;/a&gt;&lt;br&gt;3. Nếu đã đáp ứng các yêu cầu trên, gửi báo cáo lỗi lên nhà phát triển.</string>
+    <string name="manga_error_description_pattern">Chi tiết lỗi: &lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Hãy thử &lt;a href=%2$s&gt;mở manga trong trình duyệt web&lt;/a&gt; để đảm bảo rằng manga này có trong nguồn&lt;br&gt;2. Hãy chắc chắn rằng bạn đang dùng &lt;a href=kotatsu://about&gt;bản mới nhất của Usagi&lt;/a&gt;&lt;br&gt;3. Nếu đã đáp ứng các yêu cầu trên, gửi báo cáo lỗi lên nhà phát triển.</string>
     <string name="text_history_holder_secondary">Tìm truyện để đọc trong phần «Khám phá»</string>
     <string name="this_month">Tháng này</string>
     <string name="tracker_wifi_only_summary">Không kiểm tra các chương mới bằng kết nối mạng có đo lường</string>
@@ -599,7 +599,7 @@
     <string name="split_by_translations_summary">Hiển thị chương với các bản dịch tách riêng ra, không gộp lại thành một danh sách</string>
     <string name="order_oldest">Cũ nhất</string>
     <string name="unread">Chưa đọc</string>
-    <string name="unsupported_backup_message">Vui lòng chọn một tệp sao lưu Kotatsu / Yukimi hợp lệ</string>
+    <string name="unsupported_backup_message">Vui lòng chọn một tệp sao lưu Kotatsu / Usagi hợp lệ</string>
     <string name="remaining_time_pattern">Còn %1$s %2$s</string>
     <string name="fix">Sửa lỗi</string>
     <string name="missing_storage_permission">Không có quyền để truy cập manga trên bộ nhớ ngoài</string>
@@ -655,7 +655,7 @@
     <string name="chapters_read">Chương đã đọc</string>
     <string name="chapters_left">Chương còn lại</string>
     <string name="external_source">Nguồn / Plugin bên ngoài</string>
-    <string name="plugin_incompatible">Plugin bị lỗi hoặc không phù hợp. Hãy đảm bảo rằng bạn đang sử dụng phiên bản mới nhất của Yukimi hoặc của Plugin đó</string>
+    <string name="plugin_incompatible">Plugin bị lỗi hoặc không phù hợp. Hãy đảm bảo rằng bạn đang sử dụng phiên bản mới nhất của Usagi hoặc của Plugin đó</string>
     <string name="text_empty_holder_secondary_filtered">Không có bộ truyện nào phù hợp với bộ lọc của bạn ở đây ¯\\_(ツ)_/¯</string>
     <string name="connection_ok">Kết nối rất OK ¯\\_(ツ)_/¯</string>
     <string name="invalid_proxy_configuration">Cài đặt Proxy này của bạn không hợp lệ</string>
@@ -739,7 +739,7 @@
     <string name="portrait">Dọc</string>
     <string name="landscape">Ngang</string>
     <string name="screen_orientation">Xoay hướng màn hình</string>
-    <string name="plugin_incompatible_with_cause">Lỗi Plugin: %s\nHãy đảm bảo rằng bạn đang sử dụng phiên bản mới nhất của Yukimi / Đã cập nhật Plugin đó</string>
+    <string name="plugin_incompatible_with_cause">Lỗi Plugin: %s\nHãy đảm bảo rằng bạn đang sử dụng phiên bản mới nhất của Usagi / Đã cập nhật Plugin đó</string>
     <string name="error_not_image">Định dạng không hợp lệ: Hình ảnh nhận được là %s</string>
     <string name="max_backups_count">Tối đa số lượng các bản sao lưu</string>
     <string name="access_denied_403">Truy cập bị từ chối (Lỗi 403)</string>
@@ -786,14 +786,14 @@
     <string name="disable_captcha_notifications">Tắt thông báo về Captcha</string>
     <string name="disable_captcha_notifications_summary">Bạn sẽ không nhận được thông báo về việc giải CAPTCHA cho nguồn này nhưng điều này cũng có thể dẫn đến việc phá vỡ quá trình hoạt động nền đối với nguồn này (như kiểm tra chương / tập truyện mới, đưa ra gợi ý,...)</string>
     <string name="error_details">Chi tiết lỗi</string>
-    <string name="error_disclaimer_report">Bạn có thể báo cáo lỗi cho các nhà phát triển của Yukimi. Nó sẽ rất hữu ích để các nhà phát triển có thể tìm ra và xử lý lỗi đó ở các phiên bản kế tiếp.</string>
-    <string name="error_disclaimer_app_outdated">Có vẻ như bạn đang sử dụng một phiên bản \"siêu cấp cổ đại\" của Yukimi. Hãy cập nhật / cài đặt phiên bản mới nhất để nhận được các bản vá lỗi cho Yukimi.</string>
+    <string name="error_disclaimer_report">Bạn có thể báo cáo lỗi cho các nhà phát triển của Usagi. Nó sẽ rất hữu ích để các nhà phát triển có thể tìm ra và xử lý lỗi đó ở các phiên bản kế tiếp.</string>
+    <string name="error_disclaimer_app_outdated">Có vẻ như bạn đang sử dụng một phiên bản \"siêu cấp cổ đại\" của Usagi. Hãy cập nhật / cài đặt phiên bản mới nhất để nhận được các bản vá lỗi cho Usagi.</string>
     <string name="error_disclaimer_manga">Hãy đảm bảo rằng truyện này vẫn xuất hiện ở nguồn đọc đó bằng cách tìm và mở nó trên trình duyệt Web của bạn ¯\\_(ツ)_/¯.</string>
     <string name="search_disabled_sources">Tìm kiếm với những nguồn đang bị vô hiệu hóa</string>
     <string name="chapter_volume_number">Vol %1$s Chương %2$s</string>
     <string name="chapter_number">Chương %s</string>
     <string name="unnamed_chapter">Chương không có tên</string>
-    <string name="link_to_manga_in_app">Liên kết manga trên Yukimi</string>
+    <string name="link_to_manga_in_app">Liên kết manga trên Usagi</string>
     <string name="link_to_manga_on_s">Liên kết manga với nguồn %s</string>
     <string name="clear_browser_data">Xóa dữ liệu của trình duyệt</string>
     <string name="clear_browser_data_summary">Điều này sẽ xóa những dữ liệu như cache và cookies. Lưu ý: Xác thực (đăng nhập) đối với nguồn đọc có thể sẽ không còn hợp lệ nữa</string>
@@ -842,11 +842,11 @@
     <string name="discord_rpc">Tích hợp Discord Rich Presence (Discord RPC)</string>
     <string name="discord_token">Token của Discord</string>
     <string name="discord_token_summary">Nhập Token vào để kích hoạt Discord Rich Presence</string>
-    <string name="discord_token_description">Nhập Token do Discord gán hoặc %s tại đây để Yukimi tự động trích xuất Token của bạn từ trình duyệt</string>
+    <string name="discord_token_description">Nhập Token do Discord gán hoặc %s tại đây để Usagi tự động trích xuất Token của bạn từ trình duyệt</string>
     <string name="discord_token_hint">Dán Token của bạn tại đây</string>
     <string name="discord_rpc_summary">Hiển thị tiến trình đọc truyện của bạn trên Discord</string>
     <string name="obtain">Đã nhận được</string>
-    <string name="discord_rpc_description">Đang đọc trên Yukimi - Ứng dụng đọc truyện mã nguồn mở miễn phí</string>
+    <string name="discord_rpc_description">Đang đọc trên Usagi - Ứng dụng đọc truyện mã nguồn mở miễn phí</string>
     <string name="reading_s">Hiện đang đọc: %s</string>
     <string name="read_on_s">Đọc trên %s</string>
     <string name="rpc_skip_nsfw_summary">Không tự động kích hoạt Discord Rich Presence đối với truyện người lớn</string>
@@ -880,7 +880,7 @@
     <string name="source_broken_warning">Nguồn đọc này đã được gắn là \"Không còn sử dụng được\". Một vài tính năng có thể sẽ không hoạt động</string>
     <string name="frequency_every_6_hours">6 tiếng một lần</string>
     <string name="download_default_directory">Đường dẫn mặc định để tải truyện về thiết bị</string>
-    <string name="private_app_directory_warning">Đường dẫn này với tất cả dữ liệu của ứng dụng sẽ bị xóa nếu bạn gỡ ứng dụng Yukimi</string>
+    <string name="private_app_directory_warning">Đường dẫn này với tất cả dữ liệu của ứng dụng sẽ bị xóa nếu bạn gỡ ứng dụng Usagi</string>
     <string name="available_pattern">Hiện có sẵn %1$s</string>
     <string name="pinned_sources_only">Chỉ nguồn đã ghim</string>
     <string name="hide_empty_sources">Ẩn nguồn với kết quả rỗng</string>

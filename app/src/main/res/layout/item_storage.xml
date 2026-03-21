@@ -12,7 +12,7 @@
 	android:paddingStart="?listPreferredItemPaddingStart"
 	android:paddingEnd="?listPreferredItemPaddingEnd">
 
-	<org.koitharu.kotatsu.core.ui.widgets.CheckableImageView
+	<org.draken.usagi.core.ui.widgets.CheckableImageView
 		android:id="@+id/imageView_indicator"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

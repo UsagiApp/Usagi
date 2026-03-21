@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name" translatable="false">Yukimi</string>
+    <string name="app_name" translatable="false">Usagi</string>
     <string name="local_storage">Local storage</string>
     <string name="favourites">Favorites</string>
     <string name="history">History</string>
@@ -129,7 +129,7 @@
     <string name="enter_password">Enter password</string>
     <string name="wrong_password">Wrong password</string>
     <string name="protect_application">Protect the app</string>
-    <string name="protect_application_summary">Ask for password when starting Yukimi</string>
+    <string name="protect_application_summary">Ask for password when starting Usagi</string>
     <string name="repeat_password">Repeat the password</string>
     <string name="passwords_mismatch">Mismatching passwords</string>
     <string name="about">About</string>
@@ -328,7 +328,7 @@
     <string name="import_completed_hint">You can delete the original file from storage to save space</string>
     <string name="import_will_start_soon">Import will start soon</string>
     <string name="feed">Feed</string>
-    <string name="manga_error_description_pattern">Error details:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Try to &lt;a href="%2$s"&gt;open manga in a web browser&lt;/a&gt; to ensure it is available on its source&lt;br&gt;2. Make sure you are using the &lt;a href="kotatsu://about"&gt;latest version of Yukimi&lt;/a&gt;&lt;br&gt;3. If it is available, send an error report to the developers.</string>
+    <string name="manga_error_description_pattern">Error details:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Try to &lt;a href="%2$s"&gt;open manga in a web browser&lt;/a&gt; to ensure it is available on its source&lt;br&gt;2. Make sure you are using the &lt;a href="kotatsu://about"&gt;latest version of Usagi&lt;/a&gt;&lt;br&gt;3. If it is available, send an error report to the developers.</string>
     <string name="history_shortcuts">Show recent manga shortcuts</string>
     <string name="history_shortcuts_summary">Make recent manga available by long pressing on application icon</string>
     <string name="reader_control_ltr_summary">Do not adjust the page switching direction to the reader mode, e. g. pressing the right key always switches to the next page. This option affects only hardware input devices</string>
@@ -637,7 +637,7 @@
     <string name="show_pages_thumbs">Show pages thumbnails</string>
     <string name="show_pages_thumbs_summary">Enable the \"Pages\" tab on the details screen</string>
     <string name="error_no_data_received">No data was received from server</string>
-    <string name="unsupported_backup_message">Please select a proper Yukimi backup file</string>
+    <string name="unsupported_backup_message">Please select a proper Usagi backup file</string>
     <string name="list_ellipsize_pattern" translatable="false">(+%d)</string>
     <!-- Short hours format pattern -->
     <string name="hours_short">%d h</string>
@@ -696,8 +696,8 @@
     <string name="chapters_read">Chapters read</string>
     <string name="chapters_left">Chapters left</string>
     <string name="external_source">External/plugin</string>
-    <string name="plugin_incompatible">Incompatible plugin or internal error. Make sure you are using the latest version of the plugin and Yukimi</string>
-    <string name="plugin_incompatible_with_cause">Plugin error: %s\n Make sure you are using the latest version of the plugin and Yukimi</string>
+    <string name="plugin_incompatible">Incompatible plugin or internal error. Make sure you are using the latest version of the plugin and Usagi</string>
+    <string name="plugin_incompatible_with_cause">Plugin error: %s\n Make sure you are using the latest version of the plugin and Usagi</string>
     <string name="connection_ok">Connection is OK</string>
     <string name="invalid_proxy_configuration">Invalid proxy configuration</string>
     <string name="show_quick_filters">Show quick filters</string>
@@ -831,10 +831,10 @@
     <string name="search_disabled_sources">Search through disabled sources</string>
     <string name="error_details">Error details</string>
     <string name="error_disclaimer_manga">Try to open manga in a web browser to ensure it is available on its source.</string>
-    <string name="error_disclaimer_app_outdated">It looks like your version of Yukimi is out of date. Please install the latest version to get all available fixes.</string>
+    <string name="error_disclaimer_app_outdated">It looks like your version of Usagi is out of date. Please install the latest version to get all available fixes.</string>
     <string name="error_disclaimer_report">You can submit a bug report to the developers. This will help us investigate and fix the issue.</string>
     <string name="link_to_manga_on_s">Link to manga on %s</string>
-    <string name="link_to_manga_in_app">Link to manga in Yukimi</string>
+    <string name="link_to_manga_in_app">Link to manga in Usagi</string>
     <string name="clear_browser_data">Clear browser data</string>
     <string name="clear_browser_data_summary">Clear browser data such as cache and cookies. Warning: Authorization in manga sources may become invalid</string>
     <string name="no_write_permission_to_file">Does not have permission to write a file</string>
@@ -886,7 +886,7 @@
     <string name="discord_token_hint">Paste your Discord Token here</string>
     <string name="discord_rpc_summary">Show your reading status on Discord</string>
     <string name="obtain">Obtain</string>
-    <string name="discord_rpc_description">Reading manga on Yukimi - a manga reader app</string>
+    <string name="discord_rpc_description">Reading manga on Usagi - a manga reader app</string>
     <string name="reading_s">Reading %s</string>
     <string name="read_on_s">Read on %s</string>
     <string name="rpc_skip_nsfw_summary">Do not use RPC for adult content</string>

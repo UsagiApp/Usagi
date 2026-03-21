@@ -21,25 +21,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/preview_backdrop"
-                android:layout_width="0dp"
-                android:layout_height="120dp"
-                android:alpha="0.85"
-                android:scaleType="centerCrop"
-                android:src="@drawable/bg_details_preview"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
+			<ImageView
+				android:id="@+id/preview_backdrop"
+				android:layout_width="0dp"
+				android:layout_height="0dp"
+				android:scaleType="centerCrop"
+				android:backgroundTint="?colorSecondaryContainer"
+				android:background="@drawable/bg_card"
+				app:layout_constraintBottom_toBottomOf="@id/preview_cover"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent" />
 
-            <View
-                android:id="@+id/preview_gradient"
-                android:layout_width="0dp"
-                android:layout_height="120dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+			<View
+				android:id="@+id/preview_gradient"
+				android:layout_width="0dp"
+				android:layout_height="0dp"
+				app:layout_constraintBottom_toBottomOf="@id/preview_backdrop"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent" />
 
             <View
                 android:id="@+id/preview_cover"

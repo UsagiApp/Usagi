@@ -62,7 +62,7 @@
     <string name="show_notification_new_chapters_on">您將會收到您正在閱讀的漫畫的更新通知</string>
     <string name="tracker_warning">一些裝置有不同的系統行為，這可能會破壞背景任務。</string>
     <string name="protect_application_subtitle">輸入密碼以啟動應用程式</string>
-    <string name="protect_application_summary">在啟動 Yukimi 時要求密碼</string>
+    <string name="protect_application_summary">在啟動 Usagi 時要求密碼</string>
     <string name="chapters_empty">此漫畫沒有章節</string>
     <string name="text_feed_holder">您想要閱讀的漫畫的新的章節會顯示在此</string>
     <string name="history_shortcuts_summary">通過長案應用程式圖示來提供最近的漫畫</string>
@@ -422,7 +422,7 @@
     <string name="memory_usage_pattern">%s - %s</string>
     <string name="allow_unstable_updates_summary">接收不穩定建置的更新通知</string>
     <string name="scrobbling_empty_hint">要追蹤閱讀進度，在漫畫詳細畫面選擇選單 → 追蹤。</string>
-    <string name="manga_error_description_pattern">錯誤詳情:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. 嘗試&lt;a href=%2$s&gt;在瀏覽器中開啟漫畫&lt;/a&gt; 以確保它在其來源中是可用的&lt;br&gt;2. 確認您使用的是 &lt;a href=kotatsu://about&gt;最新版的的 Yukimi&lt;/a&gt;&lt;br&gt;3. 如果可用，請向開發人員發送錯誤報告。</string>
+    <string name="manga_error_description_pattern">錯誤詳情:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. 嘗試&lt;a href=%2$s&gt;在瀏覽器中開啟漫畫&lt;/a&gt; 以確保它在其來源中是可用的&lt;br&gt;2. 確認您使用的是 &lt;a href=kotatsu://about&gt;最新版的的 Usagi&lt;/a&gt;&lt;br&gt;3. 如果可用，請向開發人員發送錯誤報告。</string>
     <string name="languages">語言</string>
     <string name="zoom_in">放大</string>
     <string name="captcha_required_summary">%s 需要通過驗證碼才能正常工作</string>
@@ -573,7 +573,7 @@
     <string name="preferred_download_format">偏好的下載格式</string>
     <string name="automatic">自動</string>
     <string name="single_cbz_file">單一 CBZ 檔案</string>
-    <string name="unsupported_backup_message">請選擇一個適當的 Yukimi 備份檔案</string>
+    <string name="unsupported_backup_message">請選擇一個適當的 Usagi 備份檔案</string>
     <string name="last_used">最後使用</string>
     <string name="delete_read_chapters_auto">自動刪除已讀章節</string>
     <string name="runs_on_app_start">當應用程式啟動時運行</string>
@@ -637,7 +637,7 @@
     <string name="disable_connectivity_check_summary">若您遇到連線檢查問題（例如，網路已連接但應用程式進入離線模式），可以略過連線檢查</string>
     <string name="manga_fix_prompt">此功能將為選定的漫畫尋找替代來源。此任務將需要一些時間，並會在背景中進行</string>
     <string name="show_quick_filters_summary">提供依照特定參數過濾漫畫列表的功能</string>
-    <string name="plugin_incompatible">不相容的外掛或內部錯誤。請確保您使用的是最新版本的外掛與 Yukimi</string>
+    <string name="plugin_incompatible">不相容的外掛或內部錯誤。請確保您使用的是最新版本的外掛與 Usagi</string>
     <string name="filter_search_warning">此來源不支援帶有過濾條件的搜尋。您的過濾條件已被清除</string>
     <string name="text_empty_holder_secondary_filtered">沒有符合您所選過濾條件的漫畫</string>
     <string name="too_many_requests_message_retry">請求過多。請在 %s 之後再試</string>

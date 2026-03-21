@@ -3,7 +3,7 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
-	<org.koitharu.kotatsu.settings.utils.SplitSwitchPreference
+	<org.draken.usagi.settings.utils.SplitSwitchPreference
 		android:key="leak_canary"
 		android:persistent="false"
 		android:title="LeakCanary" />

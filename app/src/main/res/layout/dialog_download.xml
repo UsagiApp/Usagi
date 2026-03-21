@@ -29,7 +29,7 @@
 				android:textAppearance="?textAppearanceBody2"
 				tools:text="@tools:sample/lorem[15]" />
 
-			<org.koitharu.kotatsu.core.ui.widgets.TwoLinesItemView
+			<org.draken.usagi.core.ui.widgets.TwoLinesItemView
 				android:id="@+id/option_whole_manga"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
 				app:title="@string/download_option_whole_manga"
 				tools:subtitle="@string/no_chapters" />
 
-			<org.koitharu.kotatsu.core.ui.widgets.TwoLinesItemView
+			<org.draken.usagi.core.ui.widgets.TwoLinesItemView
 				android:id="@+id/option_whole_branch"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -58,7 +58,7 @@
 				tools:title="@string/download_option_all_chapters"
 				tools:visibility="visible" />
 
-			<org.koitharu.kotatsu.core.ui.widgets.TwoLinesItemView
+			<org.draken.usagi.core.ui.widgets.TwoLinesItemView
 				android:id="@+id/option_first_chapters"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
 				tools:title="@string/download_option_first_n_chapters"
 				tools:visibility="visible" />
 
-			<org.koitharu.kotatsu.core.ui.widgets.TwoLinesItemView
+			<org.draken.usagi.core.ui.widgets.TwoLinesItemView
 				android:id="@+id/option_unread_chapters"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"

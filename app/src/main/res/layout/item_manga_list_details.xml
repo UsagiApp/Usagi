@@ -11,7 +11,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<org.koitharu.kotatsu.image.ui.CoverImageView
+		<org.draken.usagi.image.ui.CoverImageView
 			android:id="@+id/imageView_cover"
 			android:layout_width="0dp"
 			android:layout_height="118dp"
@@ -22,11 +22,11 @@
 			app:layout_constraintDimensionRatio="2:3"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover.Medium"
+			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Cover.Medium"
 			app:trimImage="true"
 			tools:src="@tools:sample/backgrounds/scenic" />
 
-		<org.koitharu.kotatsu.history.ui.util.ReadingProgressView
+		<org.draken.usagi.history.ui.util.ReadingProgressView
 			android:id="@+id/progressView"
 			android:layout_width="@dimen/card_indicator_size"
 			android:layout_height="@dimen/card_indicator_size"
@@ -34,7 +34,7 @@
 			app:layout_constraintBottom_toBottomOf="@id/imageView_cover"
 			app:layout_constraintEnd_toEndOf="@id/imageView_cover" />
 
-		<org.koitharu.kotatsu.core.ui.widgets.IconsView
+		<org.draken.usagi.core.ui.widgets.IconsView
 			android:id="@+id/iconsView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -99,7 +99,7 @@
 
 		</LinearLayout>
 
-		<org.koitharu.kotatsu.core.ui.widgets.BadgeView
+		<org.draken.usagi.core.ui.widgets.BadgeView
 			android:id="@+id/badge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

@@ -12,7 +12,7 @@
 	android:padding="@dimen/list_spacing"
 	tools:layout_width="120dp">
 
-	<org.koitharu.kotatsu.core.ui.image.FaviconView
+	<org.draken.usagi.core.ui.image.FaviconView
 		android:id="@+id/imageView_icon"
 		android:layout_width="72dp"
 		android:layout_height="72dp"

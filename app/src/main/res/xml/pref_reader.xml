@@ -35,7 +35,7 @@
 		android:summary="@string/webtoon_zoom_summary"
 		android:title="@string/webtoon_zoom" />
 
-	<org.koitharu.kotatsu.settings.utils.SliderPreference
+	<org.draken.usagi.settings.utils.SliderPreference
 		android:dependency="webtoon_zoom"
 		android:key="webtoon_zoom_out"
 		android:stepSize="10"

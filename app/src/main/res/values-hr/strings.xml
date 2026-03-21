@@ -3,7 +3,7 @@
     <string name="missing_storage_permission">Nema dopuštenja za pristup mangi na vanjskoj pohrani</string>
     <string name="show_pages_thumbs_summary">Omogućite karticu \"Stranice\" na zaslonu s detaljima</string>
     <string name="error_no_data_received">Nikakvi podaci nisu primljeni s poslužitelja</string>
-    <string name="unsupported_backup_message">Odaberite odgovarajuću datoteku sigurnosne kopije Yukimi</string>
+    <string name="unsupported_backup_message">Odaberite odgovarajuću datoteku sigurnosne kopije Usagi</string>
     <string name="hours_short">%d h</string>
     <string name="minutes_short">%d m</string>
     <string name="hours_minutes_short">%1$d h %2$d m</string>
@@ -239,7 +239,7 @@
     <string name="import_completed_hint">Možete izbrisati izvornu datoteku iz pohrane radi uštede prostora</string>
     <string name="import_will_start_soon">Uvoz će uskoro početi</string>
     <string name="feed">Novosti</string>
-    <string name="manga_error_description_pattern">Detalji pogreške:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Pokušajte &lt;a href=%2$s&gt;otvoriti mangu u web-pregledniku&lt;/a&gt; kako biste bili sigurni da je dostupna na izvoru&lt;br&gt;2. Provjerite koristite li &lt;a href=kotatsu://about&gt;najnoviju verziju Yukimi&lt;/a&gt;&lt;br&gt;3. Ako je dostupno, pošaljite izvješće o pogrešci programerima.</string>
+    <string name="manga_error_description_pattern">Detalji pogreške:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Pokušajte &lt;a href=%2$s&gt;otvoriti mangu u web-pregledniku&lt;/a&gt; kako biste bili sigurni da je dostupna na izvoru&lt;br&gt;2. Provjerite koristite li &lt;a href=kotatsu://about&gt;najnoviju verziju Usagi&lt;/a&gt;&lt;br&gt;3. Ako je dostupno, pošaljite izvješće o pogrešci programerima.</string>
     <string name="history_shortcuts">Prikaži nedavne manga prečice</string>
     <string name="history_shortcuts_summary">Učinite nedavnu mangu dostupnom dugim pritiskom na ikonu aplikacije</string>
     <string name="reader_control_ltr_summary">Ne prilagođavaj smjer listanja stranica u modus čitača, npr. pritiskom desne tipke uvijek prelazi na sljedeću stranicu. Ova opcija utječe samo na hardverske uređaje za unos</string>
@@ -652,7 +652,7 @@
     <string name="percent_left">Postotak preostalo</string>
     <string name="chapters_read">Pročitana poglavlja</string>
     <string name="chapters_left">Preostala poglavlja</string>
-    <string name="plugin_incompatible">Nekompatibilni dodatak ili interna pogreška. Provjerite koristite li najnoviju verziju dodatka i Yukimi</string>
+    <string name="plugin_incompatible">Nekompatibilni dodatak ili interna pogreška. Provjerite koristite li najnoviju verziju dodatka i Usagi</string>
     <string name="text_empty_holder_secondary_filtered">Nema manga koji odgovaraju odabranim filtrima</string>
     <string name="connection_ok">Veza je u redu</string>
     <string name="invalid_proxy_configuration">Neispravna konfiguracija proksija</string>
@@ -730,7 +730,7 @@
     <string name="content_type_game_cg">Igra (generirano od računala)</string>
     <string name="user_manual">Upute</string>
     <string name="debug">Otklanjanje grešaka</string>
-    <string name="plugin_incompatible_with_cause">Greška dodatka: %s\nProvjerite koristite li najnoviju verziju dodatka i aplikacije Yukimi</string>
+    <string name="plugin_incompatible_with_cause">Greška dodatka: %s\nProvjerite koristite li najnoviju verziju dodatka i aplikacije Usagi</string>
     <string name="unstable_feature_summary">Ova je funkcija eksperimentalna. Provjerite imate li sigurnosnu kopiju kako biste izbjegli gubljenje podataka</string>
     <string name="popular_in_week">Popularno ovaj tjedan</string>
     <string name="content_type_artist_cg">Umjetnik (generirano od računala)</string>
@@ -790,8 +790,8 @@
     <string name="search_disabled_sources">Pretraži deaktivirane izvore</string>
     <string name="error_details">Detalji greške</string>
     <string name="error_disclaimer_manga">Pokušaj otvoriti manga u web pregledniku kako bi provjerio/la je li dostupan na izvornom mjestu.</string>
-    <string name="error_disclaimer_app_outdated">Izgleda da je tvoja Yukimi verzija zastarjela. Instaliraj najnoviju verziju za dobivanje svih dostupnih ispravki.</string>
-    <string name="link_to_manga_in_app">Poveznica na manga u Yukimi</string>
+    <string name="error_disclaimer_app_outdated">Izgleda da je tvoja Usagi verzija zastarjela. Instaliraj najnoviju verziju za dobivanje svih dostupnih ispravki.</string>
+    <string name="link_to_manga_in_app">Poveznica na manga u Usagi</string>
     <string name="link_to_manga_on_s">Poveznica na manga na %s</string>
     <string name="error_disclaimer_report">Pošalji izvještaj o grešci programerima. To će nam pomoći da istražimo i ispravimo problem.</string>
     <string name="clear_browser_data">Izbriši podatke iz preglednika</string>
@@ -847,7 +847,7 @@
     <string name="discord_token_hint">Ovdje umetni svoj Discord token</string>
     <string name="discord_rpc_summary">Prikaži svoje stanje čitanja na Discordu</string>
     <string name="obtain">Nabavi</string>
-    <string name="discord_rpc_description">Čitanje manga na Yukimi – aplikaciji za čitanje manga</string>
+    <string name="discord_rpc_description">Čitanje manga na Usagi – aplikaciji za čitanje manga</string>
     <string name="reading_s">Čitaš %s</string>
     <string name="read_on_s">Čitaj na %s</string>
     <string name="rpc_skip_nsfw_summary">Ne koristi Rich Presence klijent (RPC) za sadržaj za odrasle</string>

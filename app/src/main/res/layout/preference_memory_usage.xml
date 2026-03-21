@@ -9,7 +9,7 @@
 	android:paddingBottom="4dp"
 	tools:ignore="RtlSymmetry">
 
-	<org.koitharu.kotatsu.core.ui.widgets.SegmentedBarView
+	<org.draken.usagi.core.ui.widgets.SegmentedBarView
 		android:id="@+id/bar"
 		android:layout_width="match_parent"
 		android:layout_height="18dp"
@@ -20,7 +20,7 @@
 
 	<TextView
 		android:id="@+id/label_storage"
-		style="@style/Widget.Kotatsu.TextView.Indicator"
+		style="@style/Widget.Usagi.TextView.Indicator"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginStart="@dimen/screen_padding"
@@ -32,7 +32,7 @@
 
 	<TextView
 		android:id="@+id/label_pages_cache"
-		style="@style/Widget.Kotatsu.TextView.Indicator"
+		style="@style/Widget.Usagi.TextView.Indicator"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginStart="@dimen/screen_padding"
@@ -44,7 +44,7 @@
 
 	<TextView
 		android:id="@+id/label_other_cache"
-		style="@style/Widget.Kotatsu.TextView.Indicator"
+		style="@style/Widget.Usagi.TextView.Indicator"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginStart="@dimen/screen_padding"
@@ -56,7 +56,7 @@
 
 	<TextView
 		android:id="@+id/label_available"
-		style="@style/Widget.Kotatsu.TextView.Indicator"
+		style="@style/Widget.Usagi.TextView.Indicator"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginStart="@dimen/screen_padding"

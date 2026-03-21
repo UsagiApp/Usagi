@@ -11,7 +11,7 @@
 	android:orientation="horizontal"
 	android:paddingVertical="@dimen/margin_small">
 
-	<org.koitharu.kotatsu.core.ui.image.FaviconView
+	<org.draken.usagi.core.ui.image.FaviconView
 		android:id="@+id/imageView_cover"
 		android:layout_width="32dp"
 		android:layout_height="32dp"

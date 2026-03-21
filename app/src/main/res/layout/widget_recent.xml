@@ -7,7 +7,7 @@
 	android:clipToOutline="true"
 	android:outlineProvider="background"
 	android:padding="4dp"
-	android:theme="@style/Theme.Kotatsu.AppWidgetContainer"
+	android:theme="@style/Theme.Usagi.AppWidgetContainer"
 	tools:background="@drawable/bg_appwidget_root">
 
 	<StackView

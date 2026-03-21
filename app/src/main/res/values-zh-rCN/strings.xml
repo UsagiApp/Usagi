@@ -610,7 +610,7 @@
     <string name="show_pages_thumbs">显示漫画缩略图</string>
     <string name="show_pages_thumbs_summary">在漫画详情页启用漫画缩略图（页面）栏</string>
     <string name="error_no_data_received">未从服务器接收到任何数据</string>
-    <string name="unsupported_backup_message">请选择正确的 Yukimi 备份文件</string>
+    <string name="unsupported_backup_message">请选择正确的 Usagi 备份文件</string>
     <string name="minutes_short">%d 分</string>
     <string name="hours_short">%d 时</string>
     <string name="hours_minutes_short">%1$d 时 %2$d 分</string>
@@ -657,7 +657,7 @@
     <string name="chapters_read">已读章节数</string>
     <string name="chapters_left">剩余章节数</string>
     <string name="external_source">外部插件</string>
-    <string name="plugin_incompatible">插件不兼容或出现了外部错误，请确保你已经将 Yukimi 以及插件更新至最新版本</string>
+    <string name="plugin_incompatible">插件不兼容或出现了外部错误，请确保你已经将 Usagi 以及插件更新至最新版本</string>
     <string name="connection_ok">连接正常</string>
     <string name="text_empty_holder_secondary_filtered">无筛选结果</string>
     <string name="invalid_proxy_configuration">无效代理配置</string>
@@ -792,7 +792,7 @@
     <string name="error_details">错误详细信息</string>
     <string name="error_disclaimer_manga">尝试在网络浏览器中打开漫画，以确保此漫画在图源中可用</string>
     <string name="error_disclaimer_report">可向开发者提交错误报告，将会帮助我们定位并修复错误</string>
-    <string name="error_disclaimer_app_outdated">您的 Yukimi 版本过旧，请下载最新版本以修复问题</string>
+    <string name="error_disclaimer_app_outdated">您的 Usagi 版本过旧，请下载最新版本以修复问题</string>
     <string name="clear_browser_data">清除浏览器数据</string>
     <string name="no_write_permission_to_file">写入文件权限被禁止</string>
     <string name="clear_browser_data_summary">点击后清除浏览器（如缓存、Cookies）数据，警告：图源授权可能变为无效</string>
@@ -805,7 +805,7 @@
     <string name="tags_warnings_summary">将可能会对大部分用户不友善的类别高亮</string>
     <string name="error_non_file_uri">选择的路径无法保存因其无法表示一个文件或存储目录</string>
     <string name="link_to_manga_on_s">在 %s 上连接漫画</string>
-    <string name="link_to_manga_in_app">在 Yukimi 上连接漫画</string>
+    <string name="link_to_manga_in_app">在 Usagi 上连接漫画</string>
     <string name="manga_override_hint">这些设置将影响漫画在应用内的显示</string>
     <string name="pick_custom_file">使用自定义封面</string>
     <string name="change_cover">更改封面</string>
@@ -845,7 +845,7 @@
     <string name="discord_token_hint">在这里复制你的 Discord Token</string>
     <string name="discord_rpc_summary">在 Discord 个人信息栏内显示你的阅读状态</string>
     <string name="obtain">获取</string>
-    <string name="discord_rpc_description">正在 Yukimi - 一个漫画阅读软件上阅读漫画</string>
+    <string name="discord_rpc_description">正在 Usagi - 一个漫画阅读软件上阅读漫画</string>
     <string name="reading_s">正在阅读 %s</string>
     <string name="rpc_skip_nsfw_summary">阅读成人内容时不在 Discord 上显示阅读状态</string>
     <string name="invalid_token">非法Token：%s</string>

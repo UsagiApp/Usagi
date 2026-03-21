@@ -8,7 +8,7 @@
 	android:background="@drawable/list_selector"
 	android:clipChildren="false">
 
-	<org.koitharu.kotatsu.image.ui.CoverImageView
+	<org.draken.usagi.image.ui.CoverImageView
 		android:id="@+id/imageView_cover"
 		android:layout_width="40dp"
 		android:layout_height="40dp"
@@ -19,7 +19,7 @@
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover.Medium"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Cover.Medium"
 		tools:src="@tools:sample/backgrounds/scenic" />
 
 	<TextView

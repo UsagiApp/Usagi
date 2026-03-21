@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <org.koitharu.kotatsu.core.ui.sheet.AdaptiveSheetHeaderBar
+    <org.draken.usagi.core.ui.sheet.AdaptiveSheetHeaderBar
         android:id="@+id/headerBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,21 +27,21 @@
             android:orientation="vertical"
             android:paddingBottom="@dimen/margin_normal">
 
-            <org.koitharu.kotatsu.core.ui.widgets.ListItemTextView
+            <org.draken.usagi.core.ui.widgets.ListItemTextView
                 android:id="@+id/button_save_page"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/save_page"
                 app:drawableStartCompat="@drawable/ic_save" />
 
-            <org.koitharu.kotatsu.core.ui.widgets.ListItemTextView
+            <org.draken.usagi.core.ui.widgets.ListItemTextView
                 android:id="@+id/button_bookmark"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/bookmark_add"
                 app:drawableStartCompat="@drawable/ic_bookmark" />
 
-            <org.koitharu.kotatsu.core.ui.widgets.ListItemTextView
+            <org.draken.usagi.core.ui.widgets.ListItemTextView
                 android:id="@+id/button_image_server"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_standard"
-                    style="@style/Widget.Kotatsu.ToggleButton.Vertical"
+                    style="@style/Widget.Usagi.ToggleButton.Vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -81,7 +81,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_reversed"
-                    style="@style/Widget.Kotatsu.ToggleButton.Vertical"
+                    style="@style/Widget.Usagi.ToggleButton.Vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -90,7 +90,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_vertical"
-                    style="@style/Widget.Kotatsu.ToggleButton.Vertical"
+                    style="@style/Widget.Usagi.ToggleButton.Vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -99,7 +99,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_webtoon"
-                    style="@style/Widget.Kotatsu.ToggleButton.Vertical"
+                    style="@style/Widget.Usagi.ToggleButton.Vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -140,7 +140,7 @@
                 android:paddingStart="?android:listPreferredItemPaddingStart"
                 android:paddingEnd="?android:listPreferredItemPaddingEnd"
                 android:text="@string/auto_double_foldable"
-                android:textAppearance="@style/TextAppearance.Kotatsu.GridTitle"
+                android:textAppearance="@style/TextAppearance.Usagi.GridTitle"
                 android:textColor="?colorOnSurfaceVariant"
                 android:visibility="gone"
                 tools:visibility="visible" />
@@ -152,7 +152,7 @@
                 android:layout_marginHorizontal="@dimen/margin_normal"
                 android:layout_marginTop="@dimen/margin_small"
                 android:text="@string/two_page_scroll_sensitivity"
-                android:textAppearance="@style/TextAppearance.Kotatsu.GridTitle" />
+                android:textAppearance="@style/TextAppearance.Usagi.GridTitle" />
 
             <com.google.android.material.slider.Slider
                 android:id="@+id/slider_double_sensitivity"
@@ -165,7 +165,7 @@
                 app:labelBehavior="floating"
                 tools:value="50" />
 
-            <org.koitharu.kotatsu.core.ui.widgets.ListItemTextView
+            <org.draken.usagi.core.ui.widgets.ListItemTextView
                 android:id="@+id/button_screen_rotate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -191,21 +191,21 @@
                 app:drawableStartCompat="@drawable/ic_screen_rotation_lock"
                 tools:visibility="visible" />
 
-            <org.koitharu.kotatsu.core.ui.widgets.ListItemTextView
+            <org.draken.usagi.core.ui.widgets.ListItemTextView
                 android:id="@+id/button_scroll_timer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/automatic_scroll"
                 app:drawableStartCompat="@drawable/ic_timer" />
 
-            <org.koitharu.kotatsu.core.ui.widgets.ListItemTextView
+            <org.draken.usagi.core.ui.widgets.ListItemTextView
                 android:id="@+id/button_color_filter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/color_correction"
                 app:drawableStartCompat="@drawable/ic_appearance" />
 
-            <org.koitharu.kotatsu.core.ui.widgets.ListItemTextView
+            <org.draken.usagi.core.ui.widgets.ListItemTextView
                 android:id="@+id/button_settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

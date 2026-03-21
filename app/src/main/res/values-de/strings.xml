@@ -168,7 +168,7 @@
     <string name="about">Über</string>
     <string name="passwords_mismatch">Passwörter stimmen nicht überein</string>
     <string name="repeat_password">Wiederhole das Passwort</string>
-    <string name="protect_application_summary">Beim Start von Yukimi nach Passwort fragen</string>
+    <string name="protect_application_summary">Beim Start von Usagi nach Passwort fragen</string>
     <string name="protect_application">App schützen</string>
     <string name="wrong_password">Falsches Passwort</string>
     <string name="enter_password">Passwort eingeben</string>
@@ -267,7 +267,7 @@
     <string name="status_reading">Lesen</string>
     <string name="select_range">Bereich auswählen</string>
     <string name="not_found_404">Inhalt nicht gefunden oder entfernt</string>
-    <string name="manga_error_description_pattern">Fehlerdetails:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Versuche, &lt;a href=%2$s&gt;den Manga in einem Webbrowser zu öffnen&lt;/a&gt;, um sicherzustellen, dass er bei seiner Quelle verfügbar ist&lt;br&gt;2. Stelle sicher, dass du die &lt;a href=kotatsu://about&gt;neueste Yukimi-Version&lt;/a&gt;&lt;br&gt;3 benutzt. Wenn er verfügbar ist, sende einen Fehlerbericht an die Entwickler.</string>
+    <string name="manga_error_description_pattern">Fehlerdetails:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Versuche, &lt;a href=%2$s&gt;den Manga in einem Webbrowser zu öffnen&lt;/a&gt;, um sicherzustellen, dass er bei seiner Quelle verfügbar ist&lt;br&gt;2. Stelle sicher, dass du die &lt;a href=kotatsu://about&gt;neueste Usagi-Version&lt;/a&gt;&lt;br&gt;3 benutzt. Wenn er verfügbar ist, sende einen Fehlerbericht an die Entwickler.</string>
     <string name="no_bookmarks_yet">Noch keine Lesezeichen</string>
     <string name="no_manga_sources">Keine Manga-Quellen</string>
     <string name="no_manga_sources_text">Manga-Quellen aktivieren, um Manga online zu lesen</string>
@@ -608,7 +608,7 @@
     <string name="enable_source">Quelle aktivieren</string>
     <string name="unsupported_source">Diese Manga-Quelle wird nicht unterstützt</string>
     <string name="show_pages_thumbs">Seitenvorschau anzeigen</string>
-    <string name="unsupported_backup_message">Bitte wähle eine richtige Yukimi-Backup-Datei aus</string>
+    <string name="unsupported_backup_message">Bitte wähle eine richtige Usagi-Backup-Datei aus</string>
     <string name="show_pages_thumbs_summary">Registerkarte \"Seiten\" auf dem Detailbildschirm aktivieren</string>
     <string name="error_no_data_received">Keine Daten vom Server erhalten</string>
     <string name="last_used">Zuletzt verwendet</string>
@@ -650,7 +650,7 @@
     <string name="percent_left">Prozent übrig</string>
     <string name="chapters_read">Kapitel gelesen</string>
     <string name="chapters_left">Kapitel übrig</string>
-    <string name="plugin_incompatible">Inkompatibles Plugin oder Interner Fehler. Stelle sicher, dass du die neuste Version von Yukimi verwendest</string>
+    <string name="plugin_incompatible">Inkompatibles Plugin oder Interner Fehler. Stelle sicher, dass du die neuste Version von Usagi verwendest</string>
     <string name="reader_navigation_inverted">Steuerung umkehren</string>
     <string name="minutes_seconds_short">%1$d m %2$d s</string>
     <string name="hide_broken_sources">Defekte Quellen ausblenden</string>

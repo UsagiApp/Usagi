@@ -386,7 +386,7 @@
     <string name="related_manga">Ұқсас маңга</string>
     <string name="discard">Сақтамау</string>
     <string name="saved_manga">Сақталған маңга</string>
-    <string name="manga_error_description_pattern">Қате мәліметі:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Дереккөзде бар ма екенін тексеру үшін &lt;a href=%2$s&gt;маңганы уеб браузер арқылы&lt;/a&gt; ашып көріңіз&lt;br&gt;2. &lt;a href=kotatsu://about&gt;Yukimi-ның ең соңғы нұсқасын&lt;/a&gt;&lt;br&gt;3 қолданып отырсыз ба, тексеріп көріңіз. Мүмкін болса: әзірлеушіге қате туралы шағып жіберіңіз.</string>
+    <string name="manga_error_description_pattern">Қате мәліметі:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Дереккөзде бар ма екенін тексеру үшін &lt;a href=%2$s&gt;маңганы уеб браузер арқылы&lt;/a&gt; ашып көріңіз&lt;br&gt;2. &lt;a href=kotatsu://about&gt;Usagi-ның ең соңғы нұсқасын&lt;/a&gt;&lt;br&gt;3 қолданып отырсыз ба, тексеріп көріңіз. Мүмкін болса: әзірлеушіге қате туралы шағып жіберіңіз.</string>
     <string name="state_abandoned">Тасталған</string>
     <string name="history_shortcuts_summary">Қолданба таңбасын ұзақ басып тұрғанда соңғы маңганы қолжетімді ету</string>
     <string name="automatic_scroll">Өздігінен парақтау</string>

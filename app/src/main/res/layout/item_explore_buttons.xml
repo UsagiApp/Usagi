@@ -7,7 +7,7 @@
 
 	<com.google.android.material.button.MaterialButton
 		android:id="@+id/button_local"
-		style="@style/Widget.Kotatsu.ExploreButton"
+		style="@style/Widget.Usagi.ExploreButton"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:text="@string/local_storage"
@@ -15,7 +15,7 @@
 
 	<com.google.android.material.button.MaterialButton
 		android:id="@+id/button_bookmarks"
-		style="@style/Widget.Kotatsu.ExploreButton"
+		style="@style/Widget.Usagi.ExploreButton"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:text="@string/bookmarks"
@@ -23,7 +23,7 @@
 
 	<com.google.android.material.button.MaterialButton
 		android:id="@+id/button_random"
-		style="@style/Widget.Kotatsu.ExploreButton"
+		style="@style/Widget.Usagi.ExploreButton"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:text="@string/random"
@@ -31,7 +31,7 @@
 
 	<com.google.android.material.button.MaterialButton
 		android:id="@+id/button_downloads"
-		style="@style/Widget.Kotatsu.ExploreButton"
+		style="@style/Widget.Usagi.ExploreButton"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:text="@string/downloads"

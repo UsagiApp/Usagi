@@ -209,7 +209,7 @@
     <string name="text_feed_holder">Az általad olvasott mangák új fejezetei itt jelennek meg</string>
     <string name="feed_will_update_soon">A hírfolyam frissítése hamarosan elkezdődik</string>
     <string name="protect_application">Alkalmazás védése</string>
-    <string name="protect_application_summary">Jelszó kérése a Yukimi indításakor</string>
+    <string name="protect_application_summary">Jelszó kérése a Usagi indításakor</string>
     <string name="repeat_password">Ismételd meg a jelszót</string>
     <string name="backup_information">Létrehozhatsz egy biztonsági másolatot az előzményeidről és kedvenceidről, majd visszaállíthatod</string>
     <string name="reader_mode_hint">A választott beállításokat megjegyezzük ehhez a mangához</string>
@@ -375,7 +375,7 @@
     <string name="server_error">Szerver hiba (%1$d). Próbálkozz később</string>
     <string name="clear_new_chapters_counters">Valamint új fejezetekről szóló információk törlése</string>
     <string name="show_in_grid_view">Rács nézetben megjelenít</string>
-    <string name="manga_error_description_pattern">Hiba részletei:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Próbáld meg &lt;a href=%2$s&gt;megnyitni a mangát egy webböngészőben&lt;/a&gt;, hogy megbizonyosodj róla, hogy elérhető-e az eredeti forrásáról.&lt;br&gt;2. Győződj meg arról, hogy a &lt;a href=kotatsu://about&gt;Yukimi legfrissebb verzióját&lt;/a&gt; használod.&lt;br&gt;3. Ha elérhető, küldj egy hibajelentést a fejlesztőknek.</string>
+    <string name="manga_error_description_pattern">Hiba részletei:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Próbáld meg &lt;a href=%2$s&gt;megnyitni a mangát egy webböngészőben&lt;/a&gt;, hogy megbizonyosodj róla, hogy elérhető-e az eredeti forrásáról.&lt;br&gt;2. Győződj meg arról, hogy a &lt;a href=kotatsu://about&gt;Usagi legfrissebb verzióját&lt;/a&gt; használod.&lt;br&gt;3. Ha elérhető, küldj egy hibajelentést a fejlesztőknek.</string>
     <string name="scrobbling_empty_hint">Az olvasási előrehaladás követéséhez válaszd a Menü → Követés lehetőséget a manga részletek képernyőn.</string>
     <string name="enable_logging_summary">Rögzít néhány műveletet hibakeresési célokra. Ne kapcsold be, ha nem vagy biztos benne, hogy mit csinálsz</string>
     <string name="services">Szolgáltatások</string>
@@ -573,7 +573,7 @@
     <string name="reading_time_estimation">Becsült olvasási idő megjelenítése</string>
     <string name="reading_time_estimation_summary">Az időbecslés értéke lehet, hogy pontatlan</string>
     <string name="location">Helyzet</string>
-    <string name="unsupported_backup_message">Kérlek válassz ki egy megfelelő Yukimi visszaállítási fájlt</string>
+    <string name="unsupported_backup_message">Kérlek válassz ki egy megfelelő Usagi visszaállítási fájlt</string>
     <string name="delete_read_chapters_prompt">Ez véglegesen törölni fogja a telefonodról, azokat a fejezeteket amelyeket megjelöltél. Újra letöltheted őket később, de az importált fejezetek örökre elveszhetnek.</string>
     <string name="delete_read_chapters_auto">Törölje automatikusan az elolvasott fejezeteket</string>
     <string name="error_no_data_received">Semmilyen adat nem érkezett a szervertől</string>

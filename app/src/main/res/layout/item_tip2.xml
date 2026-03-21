@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.koitharu.kotatsu.core.ui.widgets.TipView
+<org.draken.usagi.core.ui.widgets.TipView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"

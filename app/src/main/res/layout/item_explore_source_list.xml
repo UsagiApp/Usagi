@@ -11,7 +11,7 @@
 	android:gravity="center_vertical"
 	android:orientation="horizontal">
 
-	<org.koitharu.kotatsu.core.ui.image.FaviconView
+	<org.draken.usagi.core.ui.image.FaviconView
 		android:id="@+id/imageView_icon"
 		android:layout_width="40dp"
 		android:layout_height="40dp"
@@ -24,7 +24,7 @@
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover.Small"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Cover.Small"
 		tools:src="@tools:sample/backgrounds/scenic" />
 
 	<LinearLayout

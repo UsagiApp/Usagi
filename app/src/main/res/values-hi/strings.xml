@@ -460,7 +460,7 @@
     <string name="sources_reorder_tip">किसी वस्तु को पुन: व्यवस्थित करने के लिए उस पर टैप करके रखें</string>
     <string name="wrong_password">गलत पासवर्ड</string>
     <string name="protect_application">ऐप को सुरक्षित रखें</string>
-    <string name="protect_application_summary">Yukimi शुरू करते समय पासवर्ड मांगें</string>
+    <string name="protect_application_summary">Usagi शुरू करते समय पासवर्ड मांगें</string>
     <string name="right_to_left">दाएं-से-बाएं</string>
     <string name="create_category">नई श्रेणी</string>
     <string name="zoom_mode_fit_center">केंद्र के अनुरूप</string>
@@ -543,7 +543,7 @@
     <string name="nothing_here">यहां कुछ नहीं है</string>
     <string name="allow_unstable_updates_summary">अस्थिर बिल्ड के बारे में सूचनाएं प्राप्त करें</string>
     <string name="categories_delete_confirm">क्या आप वाकई चयनित पसंदीदा श्रेणियां मिटाना चाहते हैं? \nइसमें मौजूद सारा मंगा नष्ट हो जाएगा और इसे पूर्ववत नहीं किया जा सकता।</string>
-    <string name="manga_error_description_pattern">त्रुटि विवरण:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1। यह सुनिश्चित करने के लिए कि यह अपने स्रोत पर उपलब्ध है &lt;a href=%2$s&gt;मंगा को वेब ब्राउज़र में खोलने का प्रयास करें&lt;/a&gt;&lt;br&gt;2। सुनिश्चित करें कि आप &lt;a href=kotatsu://about&gt;Yukimi के नवीनतम संस्करण&lt;/a&gt;&lt;br&gt;3 का उपयोग कर रहे हैं। यदि यह उपलब्ध है, तो डेवलपर्स को एक त्रुटि रिपोर्ट भेजें।</string>
+    <string name="manga_error_description_pattern">त्रुटि विवरण:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1। यह सुनिश्चित करने के लिए कि यह अपने स्रोत पर उपलब्ध है &lt;a href=%2$s&gt;मंगा को वेब ब्राउज़र में खोलने का प्रयास करें&lt;/a&gt;&lt;br&gt;2। सुनिश्चित करें कि आप &lt;a href=kotatsu://about&gt;Usagi के नवीनतम संस्करण&lt;/a&gt;&lt;br&gt;3 का उपयोग कर रहे हैं। यदि यह उपलब्ध है, तो डेवलपर्स को एक त्रुटि रिपोर्ट भेजें।</string>
     <string name="folder_with_images_import_description">आप अभिलेखों या छवियों वाली एक निर्देशिका का चयन कर सकते हैं। प्रत्येक संग्रह (या उपनिर्देशिका) को एक अध्याय के रूप में पहचाना जाएगा।</string>
     <string name="images_procy_description">यदि संभव हो तो ट्रैफिक उपयोग को कम करने और छवि लोडिंग को तेज़ करने के लिए wsrv.nl सेवा का उपयोग करें</string>
     <string name="state_abandoned">गिरा दिया गया</string>
@@ -610,7 +610,7 @@
     <string name="show_pages_thumbs_summary">विवरण स्क्रीन पर \"पृष्ठ\" टैब सक्षम करें</string>
     <string name="show_pages_thumbs">पृष्ठ थंबनेल दिखाएं</string>
     <string name="error_no_data_received">सर्वर से कोई डेटा प्राप्त नहीं हुआ</string>
-    <string name="unsupported_backup_message">कृपया उचित Yukimi बैकअप फाइल चुनें</string>
+    <string name="unsupported_backup_message">कृपया उचित Usagi बैकअप फाइल चुनें</string>
     <string name="hours_short">%d घं</string>
     <string name="minutes_short">%d मि</string>
     <string name="hours_minutes_short">%1$d घं %2$d मि</string>

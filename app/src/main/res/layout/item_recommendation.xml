@@ -13,7 +13,7 @@
 		android:layout_height="@dimen/recommendation_item_height"
 		android:nestedScrollingEnabled="false" />
 
-	<org.koitharu.kotatsu.core.ui.widgets.DotsIndicator
+	<org.draken.usagi.core.ui.widgets.DotsIndicator
 		android:id="@+id/dots"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

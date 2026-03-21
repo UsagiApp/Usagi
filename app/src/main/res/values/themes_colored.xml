@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<!-- Totoro -->
-	<style name="ThemeOverlay.Kotatsu.Totoro">
+	<style name="ThemeOverlay.Usagi.Totoro">
 		<item name="colorPrimary">@color/totoro_primary</item>
 		<item name="colorOnPrimary">@color/totoro_onPrimary</item>
 		<item name="colorPrimaryContainer">@color/totoro_primaryContainer</item>
@@ -50,7 +50,7 @@
 		<item name="colorSurfaceContainerHighest">@color/totoro_surfaceContainerHighest</item>
 	</style>
 	<!-- Asuka -->
-	<style name="ThemeOverlay.Kotatsu.Asuka">
+	<style name="ThemeOverlay.Usagi.Asuka">
 		<item name="colorPrimary">@color/asuka_primary</item>
 		<item name="colorOnPrimary">@color/asuka_onPrimary</item>
 		<item name="colorPrimaryContainer">@color/asuka_primaryContainer</item>
@@ -100,7 +100,7 @@
 	</style>
 
 	<!-- Itsuka -->
-	<style name="ThemeOverlay.Kotatsu.Itsuka">
+	<style name="ThemeOverlay.Usagi.Itsuka">
 		<item name="colorPrimary">@color/itsuka_primary</item>
 		<item name="colorOnPrimary">@color/itsuka_onPrimary</item>
 		<item name="colorPrimaryContainer">@color/itsuka_primaryContainer</item>
@@ -149,7 +149,7 @@
 		<item name="colorSurfaceContainerHighest">@color/itsuka_surfaceContainerHighest</item>
 	</style>
 	<!-- Kanade -->
-	<style name="ThemeOverlay.Kotatsu.Kanade">
+	<style name="ThemeOverlay.Usagi.Kanade">
 		<item name="colorPrimary">@color/kanade_primary</item>
 		<item name="colorOnPrimary">@color/kanade_onPrimary</item>
 		<item name="colorPrimaryContainer">@color/kanade_primaryContainer</item>
@@ -198,7 +198,7 @@
 		<item name="colorSurfaceContainerHighest">@color/kanade_surfaceContainerHighest</item>
 	</style>
 	<!-- Mamimi -->
-	<style name="ThemeOverlay.Kotatsu.Mamimi">
+	<style name="ThemeOverlay.Usagi.Mamimi">
 		<item name="colorPrimary">@color/mamimi_primary</item>
 		<item name="colorOnPrimary">@color/mamimi_onPrimary</item>
 		<item name="colorPrimaryContainer">@color/mamimi_primaryContainer</item>
@@ -247,7 +247,7 @@
 		<item name="colorSurfaceContainerHighest">@color/mamimi_surfaceContainerHighest</item>
 	</style>
 	<!-- Miku -->
-	<style name="ThemeOverlay.Kotatsu.Miku">
+	<style name="ThemeOverlay.Usagi.Miku">
 		<item name="colorPrimary">@color/miku_primary</item>
 		<item name="colorOnPrimary">@color/miku_onPrimary</item>
 		<item name="colorPrimaryContainer">@color/miku_primaryContainer</item>
@@ -296,7 +296,7 @@
 		<item name="colorSurfaceContainerHighest">@color/miku_surfaceContainerHighest</item>
 	</style>
 	<!-- Mion -->
-	<style name="ThemeOverlay.Kotatsu.Mion">
+	<style name="ThemeOverlay.Usagi.Mion">
 		<item name="colorPrimary">@color/mion_primary</item>
 		<item name="colorOnPrimary">@color/mion_onPrimary</item>
 		<item name="colorPrimaryContainer">@color/mion_primaryContainer</item>
@@ -345,7 +345,7 @@
 		<item name="colorSurfaceContainerHighest">@color/mion_surfaceContainerHighest</item>
 	</style>
 	<!-- Rikka -->
-	<style name="ThemeOverlay.Kotatsu.Rikka">
+	<style name="ThemeOverlay.Usagi.Rikka">
 		<item name="colorPrimary">@color/rikka_primary</item>
 		<item name="colorOnPrimary">@color/rikka_onPrimary</item>
 		<item name="colorPrimaryContainer">@color/rikka_primaryContainer</item>
@@ -394,7 +394,7 @@
 		<item name="colorSurfaceContainerHighest">@color/rikka_surfaceContainerHighest</item>
 	</style>
 	<!-- Sakura -->
-	<style name="ThemeOverlay.Kotatsu.Sakura">
+	<style name="ThemeOverlay.Usagi.Sakura">
 		<item name="colorPrimary">@color/sakura_primary</item>
 		<item name="colorOnPrimary">@color/sakura_onPrimary</item>
 		<item name="colorPrimaryContainer">@color/sakura_primaryContainer</item>

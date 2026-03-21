@@ -46,9 +46,9 @@
 	</queries>
 
 	<application
-		android:name="org.koitharu.kotatsu.KotatsuApp"
+		android:name="org.draken.usagi.UsagiApp"
 		android:allowBackup="true"
-		android:backupAgent="org.koitharu.kotatsu.backups.domain.AppBackupAgent"
+		android:backupAgent="org.draken.usagi.backups.domain.AppBackupAgent"
 		android:dataExtractionRules="@xml/backup_rules"
 		android:enableOnBackInvokedCallback="@bool/is_predictive_back_enabled"
 		android:extractNativeLibs="true"
@@ -64,11 +64,11 @@
 		android:requestLegacyExternalStorage="true"
 		android:roundIcon="@mipmap/ic_launcher_round"
 		android:supportsRtl="true"
-		android:theme="@style/Theme.Kotatsu"
+		android:theme="@style/Theme.Usagi"
 		tools:ignore="UnusedAttribute">
 
 		<activity
-			android:name="org.koitharu.kotatsu.main.ui.MainActivity"
+			android:name="org.draken.usagi.main.ui.MainActivity"
 			android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -76,10 +76,10 @@
 			</intent-filter>
 			<meta-data
 				android:name="android.app.default_searchable"
-				android:value="org.koitharu.kotatsu.search.ui.multi.MultiSearchActivity" />
+				android:value="org.draken.usagi.search.ui.multi.MultiSearchActivity" />
 		</activity>
 		<activity
-			android:name="org.koitharu.kotatsu.details.ui.DetailsActivity"
+			android:name="org.draken.usagi.details.ui.DetailsActivity"
 			android:exported="true">
 			<intent-filter>
 				<action android:name="${applicationId}.action.VIEW_MANGA" />
@@ -93,6 +93,7 @@
 				<data android:scheme="http" />
 				<data android:scheme="https" />
 				<data android:host="kotatsu.app" />
+				<data android:host="yumemi.moe" />
 				<data android:path="/manga" />
 			</intent-filter>
 			<intent-filter>
@@ -102,15 +103,17 @@
 				<category android:name="android.intent.category.BROWSABLE" />
 
 				<data android:scheme="kotatsu" />
+				<data android:scheme="usagi" />
 				<data android:host="manga" />
 				<data android:host="kotatsu.app" />
+				<data android:host="yumemi.moe" />
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="org.koitharu.kotatsu.details.ui.DetailsClassicActivity"
+			android:name="org.draken.usagi.details.ui.DetailsClassicActivity"
 			android:exported="false" />
 		<activity
-			android:name="org.koitharu.kotatsu.reader.ui.ReaderActivity"
+			android:name="org.draken.usagi.reader.ui.ReaderActivity"
 			android:exported="true">
 			<intent-filter>
 				<action android:name="${applicationId}.action.READ_MANGA" />
@@ -124,7 +127,7 @@
 				android:resource="@xml/remote_action" />
 		</activity>
 		<activity
-			android:name="org.koitharu.kotatsu.search.ui.MangaListActivity"
+			android:name="org.draken.usagi.search.ui.MangaListActivity"
 			android:exported="true"
 			android:label="@string/manga_list">
 			<intent-filter>
@@ -132,25 +135,25 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="org.koitharu.kotatsu.history.ui.HistoryActivity"
+			android:name="org.draken.usagi.history.ui.HistoryActivity"
 			android:label="@string/history" />
 		<activity
-			android:name="org.koitharu.kotatsu.tracker.ui.updates.UpdatesActivity"
+			android:name="org.draken.usagi.tracker.ui.updates.UpdatesActivity"
 			android:label="@string/updates" />
 		<activity
-			android:name="org.koitharu.kotatsu.favourites.ui.FavouritesActivity"
+			android:name="org.draken.usagi.favourites.ui.FavouritesActivity"
 			android:label="@string/favourites" />
 		<activity
-			android:name="org.koitharu.kotatsu.bookmarks.ui.AllBookmarksActivity"
+			android:name="org.draken.usagi.bookmarks.ui.AllBookmarksActivity"
 			android:label="@string/bookmarks" />
 		<activity
-			android:name="org.koitharu.kotatsu.suggestions.ui.SuggestionsActivity"
+			android:name="org.draken.usagi.suggestions.ui.SuggestionsActivity"
 			android:label="@string/suggestions" />
 		<activity
-			android:name="org.koitharu.kotatsu.details.ui.related.RelatedMangaActivity"
+			android:name="org.draken.usagi.details.ui.related.RelatedMangaActivity"
 			android:label="@string/related_manga" />
 		<activity
-			android:name="org.koitharu.kotatsu.settings.SettingsActivity"
+			android:name="org.draken.usagi.settings.SettingsActivity"
 			android:exported="true"
 			android:label="@string/settings">
 			<intent-filter>
@@ -160,34 +163,35 @@
 				<category android:name="android.intent.category.BROWSABLE" />
 
 				<data android:scheme="kotatsu" />
+				<data android:scheme="usagi" />
 				<data android:host="about" />
 				<data android:host="sync-settings" />
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="org.koitharu.kotatsu.settings.reader.ReaderTapGridConfigActivity"
+			android:name="org.draken.usagi.settings.reader.ReaderTapGridConfigActivity"
 			android:label="@string/reader_actions" />
 		<activity
-			android:name="org.koitharu.kotatsu.settings.storage.directories.MangaDirectoriesActivity"
+			android:name="org.draken.usagi.settings.storage.directories.MangaDirectoriesActivity"
 			android:label="@string/local_manga_directories" />
 		<activity
-			android:name="org.koitharu.kotatsu.browser.BrowserActivity"
+			android:name="org.draken.usagi.browser.BrowserActivity"
 			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
 			android:windowSoftInputMode="adjustResize" />
 		<activity
-			android:name="org.koitharu.kotatsu.browser.cloudflare.CloudFlareActivity"
+			android:name="org.draken.usagi.browser.cloudflare.CloudFlareActivity"
 			android:autoRemoveFromRecents="true"
 			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
 			android:windowSoftInputMode="adjustResize" />
 		<activity
-			android:name="org.koitharu.kotatsu.settings.sources.auth.SourceAuthActivity"
+			android:name="org.draken.usagi.settings.sources.auth.SourceAuthActivity"
 			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
 			android:windowSoftInputMode="adjustResize" />
 		<activity
-			android:name="org.koitharu.kotatsu.favourites.ui.categories.FavouriteCategoriesActivity"
+			android:name="org.draken.usagi.favourites.ui.categories.FavouriteCategoriesActivity"
 			android:label="@string/manage_categories" />
 		<activity
-			android:name="org.koitharu.kotatsu.widget.shelf.ShelfWidgetConfigActivity"
+			android:name="org.draken.usagi.widget.shelf.ShelfWidgetConfigActivity"
 			android:exported="true"
 			android:label="@string/manga_shelf">
 			<intent-filter>
@@ -195,7 +199,7 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="org.koitharu.kotatsu.widget.recent.RecentWidgetConfigActivity"
+			android:name="org.draken.usagi.widget.recent.RecentWidgetConfigActivity"
 			android:exported="true"
 			android:label="@string/recent_manga">
 			<intent-filter>
@@ -203,33 +207,33 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="org.koitharu.kotatsu.search.ui.multi.SearchActivity"
+			android:name="org.draken.usagi.search.ui.multi.SearchActivity"
 			android:label="@string/search" />
 		<activity
-			android:name="org.koitharu.kotatsu.main.ui.protect.ProtectActivity"
+			android:name="org.draken.usagi.main.ui.protect.ProtectActivity"
 			android:noHistory="true"
 			android:windowSoftInputMode="adjustResize" />
 		<activity
-			android:name="org.koitharu.kotatsu.settings.protect.ProtectSetupActivity"
+			android:name="org.draken.usagi.settings.protect.ProtectSetupActivity"
 			android:windowSoftInputMode="adjustResize" />
 		<activity
-			android:name="org.koitharu.kotatsu.download.ui.list.DownloadsActivity"
+			android:name="org.draken.usagi.download.ui.list.DownloadsActivity"
 			android:label="@string/downloads"
 			android:launchMode="singleTop" />
-		<activity android:name="org.koitharu.kotatsu.image.ui.ImageActivity" />
-		<activity android:name="org.koitharu.kotatsu.favourites.ui.categories.edit.FavouritesCategoryEditActivity" />
+		<activity android:name="org.draken.usagi.image.ui.ImageActivity" />
+		<activity android:name="org.draken.usagi.favourites.ui.categories.edit.FavouritesCategoryEditActivity" />
 		<activity
-			android:name="org.koitharu.kotatsu.settings.override.OverrideConfigActivity"
+			android:name="org.draken.usagi.settings.override.OverrideConfigActivity"
 			android:label="@string/edit" />
 		<activity
-			android:name="org.koitharu.kotatsu.sync.ui.SyncAuthActivity"
+			android:name="org.draken.usagi.sync.ui.SyncAuthActivity"
 			android:exported="true"
 			android:label="@string/sync" />
 		<activity
-			android:name="org.koitharu.kotatsu.reader.ui.colorfilter.ColorFilterConfigActivity"
+			android:name="org.draken.usagi.reader.ui.colorfilter.ColorFilterConfigActivity"
 			android:label="@string/color_correction" />
 		<activity
-			android:name="org.koitharu.kotatsu.scrobbling.common.ui.config.ScrobblerConfigActivity"
+			android:name="org.draken.usagi.scrobbling.common.ui.config.ScrobblerConfigActivity"
 			android:exported="true"
 			android:label="@string/settings"
 			android:launchMode="singleTop">
@@ -241,6 +245,7 @@
 				<category android:name="android.intent.category.BROWSABLE" />
 
 				<data android:scheme="kotatsu" />
+				<data android:scheme="usagi" />
 				<data android:host="shikimori-auth" />
 				<data android:host="anilist-auth" />
 				<data android:host="mal-auth" />
@@ -249,10 +254,10 @@
 
 		</activity>
 		<activity
-			android:name="org.koitharu.kotatsu.settings.sources.catalog.SourcesCatalogActivity"
+			android:name="org.draken.usagi.settings.sources.catalog.SourcesCatalogActivity"
 			android:label="@string/sources_catalog" />
 		<activity
-			android:name="org.koitharu.kotatsu.scrobbling.kitsu.ui.KitsuAuthActivity"
+			android:name="org.draken.usagi.scrobbling.kitsu.ui.KitsuAuthActivity"
 			android:exported="false"
 			android:label="@string/kitsu"
 			tools:ignore="AppLinkUrlError">
@@ -260,22 +265,23 @@
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<data android:scheme="kotatsu+kitsu" />
+				<data android:scheme="usagi+kitsu" />
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="org.koitharu.kotatsu.stats.ui.StatsActivity"
+			android:name="org.draken.usagi.stats.ui.StatsActivity"
 			android:label="@string/reading_stats" />
 		<activity
-			android:name="org.koitharu.kotatsu.alternatives.ui.AlternativesActivity"
+			android:name="org.draken.usagi.alternatives.ui.AlternativesActivity"
 			android:label="@string/alternatives" />
 		<activity
-			android:name="org.koitharu.kotatsu.settings.about.AppUpdateActivity"
+			android:name="org.draken.usagi.settings.about.AppUpdateActivity"
 			android:label="@string/app_update_available" />
 		<activity
-			android:name="org.koitharu.kotatsu.tracker.ui.debug.TrackerDebugActivity"
+			android:name="org.draken.usagi.tracker.ui.debug.TrackerDebugActivity"
 			android:label="@string/tracker_debug_info" />
 		<activity
-			android:name="org.koitharu.kotatsu.picker.ui.PageImagePickActivity"
+			android:name="org.draken.usagi.picker.ui.PageImagePickActivity"
 			android:exported="true"
 			android:label="@string/pick_manga_page">
 			<intent-filter>
@@ -293,7 +299,7 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="org.koitharu.kotatsu.scrobbling.discord.ui.DiscordAuthActivity"
+			android:name="org.draken.usagi.scrobbling.discord.ui.DiscordAuthActivity"
 			android:label="@string/discord" />
 
 		<service
@@ -301,42 +307,42 @@
 			android:foregroundServiceType="dataSync"
 			tools:node="merge" />
 		<service
-			android:name="org.koitharu.kotatsu.local.ui.LocalChaptersRemoveService"
+			android:name="org.draken.usagi.local.ui.LocalChaptersRemoveService"
 			android:foregroundServiceType="dataSync"
 			android:label="@string/local_manga_processing" />
 		<service
-			android:name="org.koitharu.kotatsu.backups.ui.periodical.PeriodicalBackupService"
+			android:name="org.draken.usagi.backups.ui.periodical.PeriodicalBackupService"
 			android:foregroundServiceType="dataSync"
 			android:label="@string/periodic_backups" />
 		<service
-			android:name="org.koitharu.kotatsu.alternatives.ui.AutoFixService"
+			android:name="org.draken.usagi.alternatives.ui.AutoFixService"
 			android:foregroundServiceType="dataSync"
 			android:label="@string/fixing_manga" />
 		<service
-			android:name="org.koitharu.kotatsu.local.ui.LocalIndexUpdateService"
+			android:name="org.draken.usagi.local.ui.LocalIndexUpdateService"
 			android:label="@string/local_manga_processing" />
 		<service
-			android:name="org.koitharu.kotatsu.backups.ui.backup.BackupService"
+			android:name="org.draken.usagi.backups.ui.backup.BackupService"
 			android:foregroundServiceType="dataSync"
 			android:label="@string/creating_backup" />
 		<service
-			android:name="org.koitharu.kotatsu.backups.ui.restore.RestoreService"
+			android:name="org.draken.usagi.backups.ui.restore.RestoreService"
 			android:foregroundServiceType="dataSync"
 			android:label="@string/restoring_backup" />
 		<service
-			android:name="org.koitharu.kotatsu.local.ui.ImportService"
+			android:name="org.draken.usagi.local.ui.ImportService"
 			android:foregroundServiceType="dataSync"
 			android:label="@string/importing_manga" />
 		<service
-			android:name="org.koitharu.kotatsu.widget.shelf.ShelfWidgetService"
+			android:name="org.draken.usagi.widget.shelf.ShelfWidgetService"
 			android:label="@string/manga_shelf"
 			android:permission="android.permission.BIND_REMOTEVIEWS" />
 		<service
-			android:name="org.koitharu.kotatsu.widget.recent.RecentWidgetService"
+			android:name="org.draken.usagi.widget.recent.RecentWidgetService"
 			android:label="@string/recent_manga"
 			android:permission="android.permission.BIND_REMOTEVIEWS" />
 		<service
-			android:name="org.koitharu.kotatsu.sync.ui.SyncAuthenticatorService"
+			android:name="org.draken.usagi.sync.ui.SyncAuthenticatorService"
 			android:exported="true"
 			tools:ignore="ExportedService">
 			<intent-filter>
@@ -347,7 +353,7 @@
 				android:resource="@xml/authenticator_sync" />
 		</service>
 		<service
-			android:name="org.koitharu.kotatsu.sync.ui.favourites.FavouritesSyncService"
+			android:name="org.draken.usagi.sync.ui.favourites.FavouritesSyncService"
 			android:exported="false"
 			android:label="@string/favourites">
 			<intent-filter>
@@ -358,7 +364,7 @@
 				android:resource="@xml/sync_favourites" />
 		</service>
 		<service
-			android:name="org.koitharu.kotatsu.sync.ui.history.HistorySyncService"
+			android:name="org.draken.usagi.sync.ui.history.HistorySyncService"
 			android:exported="false"
 			android:label="@string/history">
 			<intent-filter>
@@ -369,15 +375,15 @@
 				android:resource="@xml/sync_history" />
 		</service>
 		<service
-			android:name="org.koitharu.kotatsu.details.service.MangaPrefetchService"
+			android:name="org.draken.usagi.details.service.MangaPrefetchService"
 			android:exported="false"
 			android:label="@string/prefetch_content" />
 		<service
-			android:name="org.koitharu.kotatsu.browser.AdListUpdateService"
+			android:name="org.draken.usagi.browser.AdListUpdateService"
 			android:exported="false" />
 
 		<provider
-			android:name="org.koitharu.kotatsu.search.ui.MangaSuggestionsProvider"
+			android:name="org.draken.usagi.search.ui.MangaSuggestionsProvider"
 			android:authorities="${applicationId}.MangaSuggestionsProvider"
 			android:exported="false" />
 		<provider
@@ -390,13 +396,13 @@
 				android:resource="@xml/filepaths" />
 		</provider>
 		<provider
-			android:name="org.koitharu.kotatsu.sync.ui.favourites.FavouritesSyncProvider"
+			android:name="org.draken.usagi.sync.ui.favourites.FavouritesSyncProvider"
 			android:authorities="@string/sync_authority_favourites"
 			android:exported="false"
 			android:label="@string/favourites"
 			android:syncable="true" />
 		<provider
-			android:name="org.koitharu.kotatsu.sync.ui.history.HistorySyncProvider"
+			android:name="org.draken.usagi.sync.ui.history.HistorySyncProvider"
 			android:authorities="@string/sync_authority_history"
 			android:exported="false"
 			android:label="@string/history"
@@ -413,14 +419,14 @@
 		</provider>
 
 		<receiver
-			android:name="org.koitharu.kotatsu.core.exceptions.resolve.CaptchaHandler$DiscardReceiver"
+			android:name="org.draken.usagi.core.exceptions.resolve.CaptchaHandler$DiscardReceiver"
 			android:exported="false">
 			<intent-filter>
-				<action android:name="org.koitharu.kotatsu.CAPTCHA_DISCARD" />
+				<action android:name="org.draken.usagi.CAPTCHA_DISCARD" />
 			</intent-filter>
 		</receiver>
 		<receiver
-			android:name="org.koitharu.kotatsu.widget.shelf.ShelfWidgetProvider"
+			android:name="org.draken.usagi.widget.shelf.ShelfWidgetProvider"
 			android:exported="true"
 			android:label="@string/manga_shelf">
 			<intent-filter>
@@ -431,7 +437,7 @@
 				android:resource="@xml/widget_shelf" />
 		</receiver>
 		<receiver
-			android:name="org.koitharu.kotatsu.widget.recent.RecentWidgetProvider"
+			android:name="org.draken.usagi.widget.recent.RecentWidgetProvider"
 			android:exported="true"
 			android:label="@string/recent_manga">
 			<intent-filter>
@@ -442,7 +448,7 @@
 				android:resource="@xml/widget_recent" />
 		</receiver>
 		<receiver
-			android:name="org.koitharu.kotatsu.core.ErrorReporterReceiver"
+			android:name="org.draken.usagi.core.ErrorReporterReceiver"
 			android:exported="false">
 			<intent-filter>
 				<action android:name="${applicationId}.action.REPORT_ERROR" />
@@ -460,9 +466,9 @@
 			android:value="@bool/com_samsung_android_icon_container_has_icon_container" />
 
 		<activity-alias
-			android:name="org.koitharu.kotatsu.details.ui.DetailsByLinkActivity"
+			android:name="org.draken.usagi.details.ui.DetailsByLinkActivity"
 			android:exported="true"
-			android:targetActivity="org.koitharu.kotatsu.details.ui.DetailsActivity">
+			android:targetActivity="org.draken.usagi.details.ui.DetailsActivity">
 
 			<intent-filter android:autoVerify="false">
 				<action android:name="android.intent.action.VIEW" />

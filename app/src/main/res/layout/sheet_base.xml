@@ -7,7 +7,7 @@
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
 
-	<org.koitharu.kotatsu.core.ui.sheet.AdaptiveSheetHeaderBar
+	<org.draken.usagi.core.ui.sheet.AdaptiveSheetHeaderBar
 		android:id="@+id/headerBar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content" />

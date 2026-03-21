@@ -145,7 +145,7 @@
     <string name="dont_check">ไม่ต้องตรวจสอบ</string>
     <string name="enter_password">ใส่รหัสผ่าน</string>
     <string name="protect_application">ป้องกันแอป</string>
-    <string name="protect_application_summary">เมื่อเข้าแอป Yukimi จะขึ้นให้ใส่รหัส</string>
+    <string name="protect_application_summary">เมื่อเข้าแอป Usagi จะขึ้นให้ใส่รหัส</string>
     <string name="about">เกี่ยวกับ</string>
     <string name="right_to_left">ขวาไปซ้าย</string>
     <string name="create_category">หมวดหมู่ใหม่</string>

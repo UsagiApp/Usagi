@@ -21,7 +21,7 @@
 
 	</com.google.android.material.appbar.AppBarLayout>
 
-	<org.koitharu.kotatsu.core.ui.list.fastscroll.FastScrollRecyclerView
+	<org.draken.usagi.core.ui.list.fastscroll.FastScrollRecyclerView
 		android:id="@id/recyclerView"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"

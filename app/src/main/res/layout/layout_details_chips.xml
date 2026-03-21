@@ -11,7 +11,7 @@
 
 	<com.google.android.material.chip.Chip
 		android:id="@+id/chip_favorite"
-		style="@style/Widget.Kotatsu.Chip.Dropdown"
+		style="@style/Widget.Usagi.Chip.Dropdown"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		app:chipIcon="@drawable/ic_heart_outline"
@@ -20,7 +20,7 @@
 
 	<com.google.android.material.chip.Chip
 		android:id="@+id/chip_source"
-		style="@style/Widget.Kotatsu.Chip.Assist"
+		style="@style/Widget.Usagi.Chip.Assist"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:visibility="gone"
@@ -31,7 +31,7 @@
 
 	<com.google.android.material.chip.Chip
 		android:id="@+id/chip_author"
-		style="@style/Widget.Kotatsu.Chip.Assist"
+		style="@style/Widget.Usagi.Chip.Assist"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:visibility="gone"
@@ -42,7 +42,7 @@
 
 	<com.google.android.material.chip.Chip
 		android:id="@+id/chip_size"
-		style="@style/Widget.Kotatsu.Chip.Assist"
+		style="@style/Widget.Usagi.Chip.Assist"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:visibility="gone"
@@ -53,7 +53,7 @@
 
 	<com.google.android.material.chip.Chip
 		android:id="@+id/chip_branch"
-		style="@style/Widget.Kotatsu.Chip.Dropdown"
+		style="@style/Widget.Usagi.Chip.Dropdown"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:visibility="gone"
@@ -64,7 +64,7 @@
 
 	<com.google.android.material.chip.Chip
 		android:id="@+id/chip_time"
-		style="@style/Widget.Kotatsu.Chip.Assist"
+		style="@style/Widget.Usagi.Chip.Assist"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:visibility="gone"

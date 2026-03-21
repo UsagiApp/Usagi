@@ -10,7 +10,7 @@
 	android:paddingHorizontal="32dp"
 	android:paddingBottom="?actionBarSize">
 
-	<org.koitharu.kotatsu.core.image.CoilImageView
+	<org.draken.usagi.core.image.CoilImageView
 		android:id="@+id/icon"
 		android:layout_width="192dp"
 		android:layout_height="192dp"

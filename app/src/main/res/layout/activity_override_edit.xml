@@ -35,7 +35,7 @@
 			android:orientation="vertical"
 			android:paddingBottom="@dimen/screen_padding">
 
-			<org.koitharu.kotatsu.image.ui.CoverImageView
+			<org.draken.usagi.image.ui.CoverImageView
 				android:id="@+id/imageView_cover"
 				android:layout_width="0dp"
 				android:layout_height="0dp"
@@ -51,7 +51,7 @@
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintWidth_percent="0.3"
-				app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover"
+				app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Cover"
 				tools:background="@tools:sample/backgrounds/scenic[5]"
 				tools:ignore="ContentDescription,UnusedAttribute" />
 
@@ -67,7 +67,7 @@
 				app:layout_constraintStart_toEndOf="@id/imageView_cover"
 				app:layout_constraintTop_toTopOf="@id/imageView_cover" />
 
-			<org.koitharu.kotatsu.core.ui.widgets.ListItemTextView
+			<org.draken.usagi.core.ui.widgets.ListItemTextView
 				android:id="@+id/button_pick_file"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
 				app:layout_constraintStart_toStartOf="@id/textView_cover_title"
 				app:layout_constraintTop_toBottomOf="@id/textView_cover_title" />
 
-			<org.koitharu.kotatsu.core.ui.widgets.ListItemTextView
+			<org.draken.usagi.core.ui.widgets.ListItemTextView
 				android:id="@+id/button_pick_page"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
 				app:layout_constraintStart_toStartOf="@id/textView_cover_title"
 				app:layout_constraintTop_toBottomOf="@id/button_pick_file" />
 
-			<org.koitharu.kotatsu.core.ui.widgets.ListItemTextView
+			<org.draken.usagi.core.ui.widgets.ListItemTextView
 				android:id="@+id/button_reset_cover"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"

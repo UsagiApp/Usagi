@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.koitharu.kotatsu.reader.ui.pager.webtoon.WebtoonScalingFrame
+<org.draken.usagi.reader.ui.pager.webtoon.WebtoonScalingFrame
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -9,13 +9,13 @@
 	android:defaultFocusHighlightEnabled="false"
 	android:focusable="true">
 
-	<org.koitharu.kotatsu.reader.ui.pager.webtoon.WebtoonRecyclerView
+	<org.draken.usagi.reader.ui.pager.webtoon.WebtoonRecyclerView
 		android:id="@+id/recyclerView"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:defaultFocusHighlightEnabled="false"
 		android:orientation="vertical"
-		app:layoutManager="org.koitharu.kotatsu.reader.ui.pager.webtoon.WebtoonLayoutManager" />
+		app:layoutManager="org.draken.usagi.reader.ui.pager.webtoon.WebtoonLayoutManager" />
 
 	<TextView
 		android:id="@+id/feedbackTop"
@@ -49,4 +49,4 @@
 		android:theme="@style/ThemeOverlay.Material3.Dark"
 		tools:alpha="1" />
 
-</org.koitharu.kotatsu.reader.ui.pager.webtoon.WebtoonScalingFrame>
+</org.draken.usagi.reader.ui.pager.webtoon.WebtoonScalingFrame>

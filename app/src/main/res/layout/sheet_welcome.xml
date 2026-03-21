@@ -6,7 +6,7 @@
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
 
-	<org.koitharu.kotatsu.core.ui.sheet.AdaptiveSheetHeaderBar
+	<org.draken.usagi.core.ui.sheet.AdaptiveSheetHeaderBar
 		android:id="@+id/headerBar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
 
 					<com.google.android.material.chip.Chip
 						android:id="@+id/chip_backup"
-						style="@style/Widget.Kotatsu.Chip.Assist"
+						style="@style/Widget.Usagi.Chip.Assist"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:text="@string/restore_backup"
@@ -58,7 +58,7 @@
 
 					<com.google.android.material.chip.Chip
 						android:id="@+id/chip_sync"
-						style="@style/Widget.Kotatsu.Chip.Assist"
+						style="@style/Widget.Usagi.Chip.Assist"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:text="@string/sync_auth"
@@ -66,7 +66,7 @@
 
 					<com.google.android.material.chip.Chip
 						android:id="@+id/chip_directories"
-						style="@style/Widget.Kotatsu.Chip.Assist"
+						style="@style/Widget.Usagi.Chip.Assist"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:text="@string/local_manga_directories"
@@ -95,13 +95,13 @@
 				android:text="@string/languages"
 				android:textAppearance="?textAppearanceTitleSmall" />
 
-			<org.koitharu.kotatsu.core.ui.widgets.ChipsView
+			<org.draken.usagi.core.ui.widgets.ChipsView
 				android:id="@+id/chips_locales"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginHorizontal="@dimen/margin_normal"
 				android:layout_marginTop="@dimen/margin_normal"
-				app:chipStyle="@style/Widget.Kotatsu.Chip.Filter" />
+				app:chipStyle="@style/Widget.Usagi.Chip.Filter" />
 
 			<TextView
 				android:id="@+id/textView_type_title"
@@ -113,13 +113,13 @@
 				android:text="@string/type"
 				android:textAppearance="?textAppearanceTitleSmall" />
 
-			<org.koitharu.kotatsu.core.ui.widgets.ChipsView
+			<org.draken.usagi.core.ui.widgets.ChipsView
 				android:id="@+id/chips_type"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginHorizontal="@dimen/margin_normal"
 				android:layout_marginTop="@dimen/margin_normal"
-				app:chipStyle="@style/Widget.Kotatsu.Chip.Filter" />
+				app:chipStyle="@style/Widget.Usagi.Chip.Filter" />
 
 		</LinearLayout>
 	</androidx.core.widget.NestedScrollView>

@@ -407,7 +407,7 @@
     <string name="importing_manga">மங்காவை இறக்குமதி செய்கிறது</string>
     <string name="import_completed">இறக்குமதி முடிந்தது</string>
     <string name="import_completed_hint">இடத்தை சேமிக்க நீங்கள் அசல் கோப்பை சேமிப்பகத்திலிருந்து நீக்கலாம்</string>
-    <string name="manga_error_description_pattern">பிழை விவரங்கள்:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. &lt;a href=%2$s&gt;மங்காவை இணைய உலாவியில் திறக்க முயற்சிக்கவும்&lt;/a&gt;, அது அதன் மூலத்தில் கிடைப்பதை உறுதிசெய்யவும்&lt;br&gt;2. நீங்கள் &lt;a href=kotatsu://about&gt;Yukimi இன் சமீபத்திய பதிப்பைப் பயன்படுத்துகிறீர்கள் என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்&lt;/a&gt;&lt;br&gt;3. அது கிடைத்தால், டெவலப்பர்களுக்கு பிழை அறிக்கையை அனுப்பவும்.</string>
+    <string name="manga_error_description_pattern">பிழை விவரங்கள்:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. &lt;a href=%2$s&gt;மங்காவை இணைய உலாவியில் திறக்க முயற்சிக்கவும்&lt;/a&gt;, அது அதன் மூலத்தில் கிடைப்பதை உறுதிசெய்யவும்&lt;br&gt;2. நீங்கள் &lt;a href=kotatsu://about&gt;Usagi இன் சமீபத்திய பதிப்பைப் பயன்படுத்துகிறீர்கள் என்பதை உறுதிப்படுத்திக் கொள்ளுங்கள்&lt;/a&gt;&lt;br&gt;3. அது கிடைத்தால், டெவலப்பர்களுக்கு பிழை அறிக்கையை அனுப்பவும்.</string>
     <string name="history_shortcuts">அண்மைக் கால மங்கா குறுக்குவழிகளைக் காட்டு</string>
     <string name="reader_control_ltr_summary">பக்க மாறுதல் திசையை வாசகர் பயன்முறையில் சரிசெய்ய வேண்டாம், இ. g. சரியான விசையை அழுத்துவது எப்போதும் அடுத்த பக்கத்திற்கு மாறுகிறது. இந்த விருப்பம் வன்பொருள் உள்ளீட்டு சாதனங்களை மட்டுமே பாதிக்கிறது</string>
     <string name="reader_control_ltr">பணிச்சூழலியல் வாசகர் கட்டுப்பாடு</string>
@@ -788,7 +788,7 @@
     <string name="link_to_manga_in_app">மை மற்றும் மாங்கா கொட்டாச்சு</string>
     <string name="backup_restored_background">காப்புப்பிரதி பின்னணியில் மீட்டமைக்கப்படும்</string>
     <string name="error_disclaimer_manga">மங்கா அதன் மூலத்தில் கிடைப்பதை உறுதிசெய்ய, இணைய உலாவியில் அதைத் திறக்க முயற்சிக்கவும்.</string>
-    <string name="error_disclaimer_app_outdated">உங்கள் Yukimi பதிப்பு காலாவதியானது போல் தெரிகிறது. கிடைக்கக்கூடிய அனைத்து திருத்தங்களையும் பெற சமீபத்திய பதிப்பை நிறுவவும்.</string>
+    <string name="error_disclaimer_app_outdated">உங்கள் Usagi பதிப்பு காலாவதியானது போல் தெரிகிறது. கிடைக்கக்கூடிய அனைத்து திருத்தங்களையும் பெற சமீபத்திய பதிப்பை நிறுவவும்.</string>
     <string name="link_to_manga_on_s">மங்காவிற்கான இணைப்பு இயக்கப்பட்டது %s</string>
     <string name="search_everywhere">எல்லா இடங்களிலும் தேடுங்கள்</string>
     <string name="error_disclaimer_report">நீங்கள் டெவலப்பர்களிடம் பிழை அறிக்கையைச் சமர்ப்பிக்கலாம். இது சிக்கலை ஆராய்ந்து சரிசெய்ய எங்களுக்கு உதவும்.</string>

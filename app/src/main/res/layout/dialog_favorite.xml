@@ -7,7 +7,7 @@
 	android:layout_height="wrap_content"
 	android:paddingTop="@dimen/margin_normal">
 
-	<org.koitharu.kotatsu.image.ui.CoverStackView
+	<org.draken.usagi.image.ui.CoverStackView
 		android:id="@+id/coversStack"
 		android:layout_width="0dp"
 		android:layout_height="@dimen/category_covers_height"

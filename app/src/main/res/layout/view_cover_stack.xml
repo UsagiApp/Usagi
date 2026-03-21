@@ -3,9 +3,9 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	tools:parentTag="org.koitharu.kotatsu.core.ui.widgets.StackLayout">
+	tools:parentTag="org.draken.usagi.core.ui.widgets.StackLayout">
 
-	<org.koitharu.kotatsu.image.ui.CoverImageView
+	<org.draken.usagi.image.ui.CoverImageView
 		android:id="@+id/imageView_cover3"
 		android:layout_width="wrap_content"
 		android:layout_height="64dp"
@@ -15,13 +15,13 @@
 		android:backgroundTintMode="src_atop"
 		android:scaleType="centerCrop"
 		app:fallbackDrawable="@android:color/transparent"
-		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover.Small"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Cover.Small"
 		app:tintMode="src_atop"
 		tools:backgroundTint="#99FFFFFF"
 		tools:src="@tools:sample/backgrounds/scenic"
 		tools:tint="#99FFFFFF" />
 
-	<org.koitharu.kotatsu.image.ui.CoverImageView
+	<org.draken.usagi.image.ui.CoverImageView
 		android:id="@+id/imageView_cover2"
 		android:layout_width="wrap_content"
 		android:layout_height="64dp"
@@ -30,13 +30,13 @@
 		android:backgroundTintMode="src_atop"
 		android:scaleType="centerCrop"
 		app:fallbackDrawable="@android:color/transparent"
-		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover.Small"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Cover.Small"
 		app:tintMode="src_atop"
 		tools:backgroundTint="#4DFFFFFF"
 		tools:src="@tools:sample/backgrounds/scenic"
 		tools:tint="#4DFFFFFF" />
 
-	<org.koitharu.kotatsu.image.ui.CoverImageView
+	<org.draken.usagi.image.ui.CoverImageView
 		android:id="@+id/imageView_cover1"
 		android:layout_width="wrap_content"
 		android:layout_height="64dp"
@@ -45,7 +45,7 @@
 		android:backgroundTintMode="src_atop"
 		android:scaleType="centerCrop"
 		app:fallbackDrawable="@android:color/transparent"
-		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover.Small"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Cover.Small"
 		tools:src="@tools:sample/backgrounds/scenic" />
 
 </merge>

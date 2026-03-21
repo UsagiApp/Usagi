@@ -211,7 +211,7 @@
     <string name="rotate_screen">Putar layar</string>
     <string name="feed_will_update_soon">Pembaruan umpan akan dimulai</string>
     <string name="enter_password">Masukkan kata sandi</string>
-    <string name="protect_application_summary">Tanya kata sandi ketika memulai Yukimi</string>
+    <string name="protect_application_summary">Tanya kata sandi ketika memulai Usagi</string>
     <string name="about">Tentang</string>
     <string name="check_for_updates">Periksa pembaruan</string>
     <string name="passwords_mismatch">Kata sandi tidak sama</string>
@@ -282,7 +282,7 @@
     <string name="folder_with_images">Folder dengan gambar</string>
     <string name="import_completed_hint">Anda bisa menghapus berkas asli dari penyimpanan untuk menghemat ruang</string>
     <string name="feed">Umpan</string>
-    <string name="manga_error_description_pattern">Rincian galat:&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Coba &lt;a href=%2$s&gt;buka manga di peramban web&lt;/a&gt; untuk memastikan manga tersebut tersedia di sumbernya&lt;/a&gt;2. Pastikan Anda menggunakan Yukimi &lt;a href=kotatsu://about&gt;versi terbaru&lt;/a&gt;&lt;br&gt;3. Jika itu tersedia, kirimkan laporan kesalahan ke pengembang.</string>
+    <string name="manga_error_description_pattern">Rincian galat:&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Coba &lt;a href=%2$s&gt;buka manga di peramban web&lt;/a&gt; untuk memastikan manga tersebut tersedia di sumbernya&lt;/a&gt;2. Pastikan Anda menggunakan Usagi &lt;a href=kotatsu://about&gt;versi terbaru&lt;/a&gt;&lt;br&gt;3. Jika itu tersedia, kirimkan laporan kesalahan ke pengembang.</string>
     <string name="brightness">Kecerahan</string>
     <string name="contrast">Kontras</string>
     <string name="reset">Atur Ulang</string>
@@ -598,7 +598,7 @@
     <string name="migrate_confirmation">Manga \"%1$s\" dari \"%2$s\" akan diganti dengan \"%3$s\" dari \"%4$s\" di riwayat dan favorit Anda (jika ada)</string>
     <string name="unread">Belum dibaca</string>
     <string name="show_pages_thumbs_summary">Aktifkan tab \"Halaman\" pada layar detail</string>
-    <string name="unsupported_backup_message">Pilih file cadangan Yukimi yang tepat</string>
+    <string name="unsupported_backup_message">Pilih file cadangan Usagi yang tepat</string>
     <string name="fix">Memperbaiki</string>
     <string name="missing_storage_permission">Tidak ada izin untuk mengakses manga di penyimpanan eksternal</string>
     <string name="disable_nsfw_notifications_summary">Jangan tampilkan notifikasi tentang pembaruan manga TAUSB</string>
@@ -673,7 +673,7 @@
     <string name="sfw">SFW</string>
     <string name="skip_all">Lewati semua</string>
     <string name="not_in_favorites">Tidak di kesukaan</string>
-    <string name="plugin_incompatible">Plugin yang tidak kompatibel atau kesalahan internal. Pastikan Anda menggunakan versi terbaru dari plugin dan Yukimi</string>
+    <string name="plugin_incompatible">Plugin yang tidak kompatibel atau kesalahan internal. Pastikan Anda menggunakan versi terbaru dari plugin dan Usagi</string>
     <string name="updated_long_ago">Diperbarui sejak lama</string>
     <string name="unpopular">Tidak populer</string>
     <string name="low_rating">Rating rendah</string>
@@ -721,7 +721,7 @@
     <string name="test_connection">Tes koneksi</string>
     <string name="send_backups_telegram">Kirim cadangan di Telegram</string>
     <string name="telegram_chat_id_summary">Masukkan ID chat untuk pengiriman cadangan</string>
-    <string name="open_telegram_bot_summary">Tekan untuk membuka chat dengan Bot Cadangan Yukimi</string>
+    <string name="open_telegram_bot_summary">Tekan untuk membuka chat dengan Bot Cadangan Usagi</string>
     <string name="delete_old_backups">Hapus cadangan lama</string>
     <string name="delete_old_backups_summary">Otomatis menghapus berkas cadangan lama untuk menghemat ruang penyimpanan</string>
     <string name="debug">Awakutu</string>
@@ -771,7 +771,7 @@
     <string name="handle_links_summary">Menangani tautan manga dari aplikasi eksternal (misalnya browser web). Anda mungkin juga perlu mengaktifkannya secara manual di pengaturan sistem aplikasi</string>
     <string name="any">Setiap</string>
     <string name="author">Pengarang</string>
-    <string name="plugin_incompatible_with_cause">Kesalahan plugin: %s\n.Pastikan Anda menggunakan plugin dan Yukimi versi terbaru</string>
+    <string name="plugin_incompatible_with_cause">Kesalahan plugin: %s\n.Pastikan Anda menggunakan plugin dan Usagi versi terbaru</string>
     <string name="restoring_backup">Memulihkan Cadangan</string>
     <string name="backup_restored_background">Pencadangan akan dipulihkan di latar belakang</string>
     <string name="clear_browser_data">Hapus data peramban</string>
@@ -793,7 +793,7 @@
     <string name="pages_slider">Penggeser pengalih halaman</string>
     <string name="screen_rotation_locked">Rotasi layar dikunci</string>
     <string name="screen_rotation_unlocked">Rotasi layar telah dibuka kuncinya</string>
-    <string name="error_disclaimer_app_outdated">Sepertinya versi Yukimi Anda sudah kedaluwarsa. Harap instal versi terbaru untuk mendapatkan semua perbaikan yang tersedia.</string>
+    <string name="error_disclaimer_app_outdated">Sepertinya versi Usagi Anda sudah kedaluwarsa. Harap instal versi terbaru untuk mendapatkan semua perbaikan yang tersedia.</string>
     <string name="nsfw_16">16+</string>
     <string name="link_to_manga_on_s">Tautan ke manga di%s</string>
     <string name="link_to_manga_in_app">Tautan ke manga di kotatsu</string>
@@ -846,7 +846,7 @@
     <string name="discord_token_description">Masukkan Token Discord Anda atau klik %s untuk mendapatkannya melalui browser</string>
     <string name="discord_token_hint">Tempelkan Token Discord Anda di sini</string>
     <string name="discord_rpc_summary">Tampilkan status membaca Anda di Discord</string>
-    <string name="discord_rpc_description">Membaca manga di Yukimi - aplikasi pembaca manga</string>
+    <string name="discord_rpc_description">Membaca manga di Usagi - aplikasi pembaca manga</string>
     <string name="manga_restricted_description">Manga ini tidak tersedia untuk dibaca di sumber ini. Coba cari di sumber lain atau buka di browser untuk informasi lebih lanjut</string>
     <string name="chapters_load_failed">Gagal memuat daftar bab</string>
     <string name="rpc_skip_nsfw_summary">Jangan gunakan RPC untuk konten dewasa</string>

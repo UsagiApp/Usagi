@@ -7,7 +7,7 @@
 	android:layout_height="match_parent"
 	android:clipToOutline="true"
 	android:outlineProvider="background"
-	android:theme="@style/Theme.Kotatsu.AppWidgetContainer"
+	android:theme="@style/Theme.Usagi.AppWidgetContainer"
 	tools:background="?android:attr/colorBackground">
 
 	<GridView

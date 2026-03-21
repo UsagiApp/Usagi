@@ -23,7 +23,7 @@
 		app:icon="@drawable/ic_timelapse"
 		app:layout_insetEdge="bottom" />
 
-	<org.koitharu.kotatsu.core.ui.widgets.ZoomControl
+	<org.draken.usagi.core.ui.widgets.ZoomControl
 		android:id="@+id/zoomControl"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
 		app:layout_dodgeInsetEdges="bottom"
 		tools:visibility="visible" />
 
-	<org.koitharu.kotatsu.reader.ui.ReaderInfoBarView
+	<org.draken.usagi.reader.ui.ReaderInfoBarView
 		android:id="@+id/infoBar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
 		android:visibility="gone"
 		tools:visibility="visible" />
 
-	<org.koitharu.kotatsu.reader.ui.ScrollTimerControlView
+	<org.draken.usagi.reader.ui.ScrollTimerControlView
 		android:id="@+id/timerControl"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -70,7 +70,7 @@
 			android:layout_height="wrap_content"
 			android:elevation="@dimen/m3_card_elevated_elevation"
 			app:elevation="@dimen/m3_card_elevated_elevation"
-			app:popupTheme="@style/ThemeOverlay.Kotatsu"
+			app:popupTheme="@style/ThemeOverlay.Usagi"
 			tools:menu="@menu/opt_reader" />
 
 	</com.google.android.material.appbar.AppBarLayout>
@@ -84,7 +84,7 @@
 		app:cardBackgroundColor="?colorSurfaceContainer"
 		app:layout_insetEdge="bottom">
 
-		<org.koitharu.kotatsu.reader.ui.ReaderActionsView
+		<org.draken.usagi.reader.ui.ReaderActionsView
 			android:id="@+id/actionsView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -92,7 +92,7 @@
 
 	</com.google.android.material.dockedtoolbar.DockedToolbarLayout>
 
-	<org.koitharu.kotatsu.reader.ui.ReaderToastView
+	<org.draken.usagi.reader.ui.ReaderToastView
 		android:id="@+id/toastView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

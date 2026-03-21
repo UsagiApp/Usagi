@@ -10,7 +10,7 @@
 	android:paddingEnd="?listPreferredItemPaddingEnd"
 	android:scrollbars="none">
 
-	<org.koitharu.kotatsu.core.ui.widgets.ChipsView
+	<org.draken.usagi.core.ui.widgets.ChipsView
 		android:id="@+id/chips_genres"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

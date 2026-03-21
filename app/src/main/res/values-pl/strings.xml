@@ -201,7 +201,7 @@
     <string name="enter_password">Wprowadź hasło</string>
     <string name="wrong_password">Złe hasło</string>
     <string name="protect_application">Chroń aplikację</string>
-    <string name="protect_application_summary">Pytaj o hasło przy starcie Yukimi</string>
+    <string name="protect_application_summary">Pytaj o hasło przy starcie Usagi</string>
     <string name="repeat_password">Wprowadź ponownie hasło</string>
     <string name="black_dark_theme_summary">Zużywa mniej prądu na ekranach AMOLED</string>
     <string name="backup_restore">Kopia zapasowa i przywracanie</string>
@@ -331,7 +331,7 @@
     <string name="webtoon_zoom">Powiększanie webtoon</string>
     <string name="clear_new_chapters_counters">Wyczyść też informacje o nowych rozdziałach</string>
     <string name="reset">Resetuj</string>
-    <string name="manga_error_description_pattern">Szczegóły błędu:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Spróbuj &lt;a href=%2$s&gt;otworzyć mangę w przeglądarce internetowej&lt;/a&gt;, aby upewnić się, że jest dostępna w swoim źródle&lt;br&gt;2. Upewnij się, że używasz &lt;a href=kotatsu://about&gt;najnowszej wersji Yukimi&lt;/a&gt;&lt;br&gt;3. Jeśli jest dostępny, wyślij raport o błędzie do programistów.</string>
+    <string name="manga_error_description_pattern">Szczegóły błędu:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Spróbuj &lt;a href=%2$s&gt;otworzyć mangę w przeglądarce internetowej&lt;/a&gt;, aby upewnić się, że jest dostępna w swoim źródle&lt;br&gt;2. Upewnij się, że używasz &lt;a href=kotatsu://about&gt;najnowszej wersji Usagi&lt;/a&gt;&lt;br&gt;3. Jeśli jest dostępny, wyślij raport o błędzie do programistów.</string>
     <string name="theme_name_mamimi">Mamimi</string>
     <string name="theme_name_kanade">Kanade</string>
     <string name="services">Usługi</string>
@@ -610,7 +610,7 @@
     <string name="show_pages_thumbs">Pokaż miniatury stron</string>
     <string name="error_no_data_received">Nie odebrano żadnych danych z serwera</string>
     <string name="show_pages_thumbs_summary">Włącz zakładkę \"Strony\" na ekranie szczegółów</string>
-    <string name="unsupported_backup_message">Proszę wybrać odpowiedni plik kopii zapasowej Yukimi</string>
+    <string name="unsupported_backup_message">Proszę wybrać odpowiedni plik kopii zapasowej Usagi</string>
     <string name="hours_minutes_short">%1$d g %2$d m</string>
     <string name="hours_short">%d g</string>
     <string name="minutes_short">%d m</string>
@@ -662,7 +662,7 @@
     <string name="connection_ok">Połączenie jest OK</string>
     <string name="invalid_proxy_configuration">Błędna konfiguracja serwera proxy</string>
     <string name="external_source">Zewnętrzne/wtyczka</string>
-    <string name="plugin_incompatible">Niekompatybilna wtyczka lub błąd wewnętrzny. Upewnij się, że używasz najnowszej wersji wtyczki i Yukimi</string>
+    <string name="plugin_incompatible">Niekompatybilna wtyczka lub błąd wewnętrzny. Upewnij się, że używasz najnowszej wersji wtyczki i Usagi</string>
     <string name="invalid_server_address_message">Nieprawidłowy adres serwera</string>
     <string name="too_many_requests_message_retry">Zbyt wiele żądań. Spróbuj ponownie za %s</string>
     <string name="seconds_short">%d s</string>
@@ -747,7 +747,7 @@
     <string name="max_backups_count">Maksymalna liczba kopii zapasowych</string>
     <string name="delete_old_backups">Usuń stare kopie zapasowe</string>
     <string name="delete_old_backups_summary">Automatycznie usuwaj stare pliki kopii zapasowych, aby zaoszczędzić miejsce na dysku</string>
-    <string name="plugin_incompatible_with_cause">Błąd wtyczki: %s\nUpewnij się, że używasz najnowszej wersji wtyczki i Yukimi</string>
+    <string name="plugin_incompatible_with_cause">Błąd wtyczki: %s\nUpewnij się, że używasz najnowszej wersji wtyczki i Usagi</string>
     <string name="error_not_image">Błędny format: oczekiwany obraz, ale pobrano %s</string>
     <string name="screen_orientation">Orientacja ekranu</string>
     <string name="landscape">Poziomo</string>
@@ -758,7 +758,7 @@
     <string name="clear_database">Wyczyść bazę danych</string>
     <string name="send_backups_telegram">Wysyłaj kopie zapasowe do Telegram</string>
     <string name="error_details">Szczegóły błędu</string>
-    <string name="error_disclaimer_app_outdated">Wygląda na to, że twoja wersja Yukimi jest nieaktualna. Proszę zainstalować najnowszą wersję, aby mieć dostęp do wszystkich dostępnych poprawek.</string>
+    <string name="error_disclaimer_app_outdated">Wygląda na to, że twoja wersja Usagi jest nieaktualna. Proszę zainstalować najnowszą wersję, aby mieć dostęp do wszystkich dostępnych poprawek.</string>
     <string name="backup_restored_background">Kopia zapasowa zostanie przywrócona w tle</string>
     <string name="restoring_backup">Przywracanie kopii zapasowej</string>
     <string name="exclude_nsfw_from_suggestions_summary">Manga dla dorosłych nie będzie pokazywana w sugestiach. Ta opcja może działać niepoprawnie z niektórymi źródłami</string>
@@ -787,7 +787,7 @@
     <string name="backup_tg_id_not_set">Nie ustawiono ID czatu</string>
     <string name="telegram_chat_id">ID czatu Telegrama</string>
     <string name="error_disclaimer_manga">Spróbuj otworzyć mangę w przeglądarce internetowej, aby upewnić się, że jest dostępna w swoim źródle.</string>
-    <string name="link_to_manga_in_app">Link do mangi w Yukimi</string>
+    <string name="link_to_manga_in_app">Link do mangi w Usagi</string>
     <string name="clear_browser_data">Wyczyść dane przeglądarki</string>
     <string name="include_disabled_sources">Uwzględnij wyłączone źródła</string>
     <string name="suggestions_disabled_sources_summary">Pokaż sugestie ze wszystkich źródeł mangi, uwzględniając też wyłączone</string>

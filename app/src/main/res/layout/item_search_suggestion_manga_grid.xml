@@ -14,13 +14,13 @@
 		android:layout_height="match_parent"
 		android:orientation="vertical">
 
-		<org.koitharu.kotatsu.image.ui.CoverImageView
+		<org.draken.usagi.image.ui.CoverImageView
 			android:id="@+id/imageView_cover"
 			android:layout_width="wrap_content"
 			android:layout_height="0dp"
 			android:layout_weight="1"
 			android:scaleType="centerCrop"
-			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover.Small"
+			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Cover.Small"
 			tools:src="@tools:sample/backgrounds/scenic" />
 
 		<TextView
