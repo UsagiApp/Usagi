@@ -9,7 +9,7 @@
 		app:allowDividerAbove="false"
 		app:allowDividerBelow="false">
 
-		<org.koitharu.kotatsu.settings.appearance.PreviewSettingsPreference
+		<org.draken.usagi.settings.appearance.PreviewSettingsPreference
 			android:key="details_appearance_preview"
 			android:persistent="false"
 			android:selectable="false" />
@@ -38,7 +38,7 @@
             android:summary="@string/details_backdrop_summary"
             android:title="@string/details_backdrop" />
 
-        <org.koitharu.kotatsu.settings.utils.SliderPreference
+        <org.draken.usagi.settings.utils.SliderPreference
             android:defaultValue="60"
             android:dependency="details_backdrop"
             android:key="details_backdrop_blur_amount"

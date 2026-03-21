@@ -9,16 +9,16 @@
 	app:cardBackgroundColor="?attr/colorSurfaceContainerHighest"
 	tools:layout_width="140dp">
 
-	<org.koitharu.kotatsu.image.ui.CoverImageView
+	<org.draken.usagi.image.ui.CoverImageView
 		android:id="@+id/imageView_thumb"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal"
-		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Cover"
 		tools:ignore="ContentDescription"
 		tools:src="@tools:sample/backgrounds/scenic[5]" />
 
-	<org.koitharu.kotatsu.history.ui.util.ReadingProgressView
+	<org.draken.usagi.history.ui.util.ReadingProgressView
 		android:id="@+id/progressView"
 		android:layout_width="@dimen/card_indicator_size"
 		android:layout_height="@dimen/card_indicator_size"

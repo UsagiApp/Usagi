@@ -323,7 +323,7 @@
     <string name="import_completed">Import slutförd</string>
     <string name="import_completed_hint">Du kan radera originalfilen från lagringen för att spara utrymme</string>
     <string name="import_will_start_soon">Importeringen börjar snart</string>
-    <string name="manga_error_description_pattern">Felinformation:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Försök att &lt;a href=%2$s&gt;öppna manga i en webbläsare&lt;/a&gt; för att säkerställa att den finns tillgänglig hos källan&lt;br&gt;2. Kolla att du använder &lt;a href=kotatsu://about&gt;den senaste versionen av Yukimi&lt;br&gt;3. Om den finns tillgänglig, skicka en felrapport till utvecklarna.</string>
+    <string name="manga_error_description_pattern">Felinformation:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Försök att &lt;a href=%2$s&gt;öppna manga i en webbläsare&lt;/a&gt; för att säkerställa att den finns tillgänglig hos källan&lt;br&gt;2. Kolla att du använder &lt;a href=kotatsu://about&gt;den senaste versionen av Usagi&lt;br&gt;3. Om den finns tillgänglig, skicka en felrapport till utvecklarna.</string>
     <string name="invalid_server_address_message">Felaktig serveradress</string>
     <string name="saved_manga">Sparade manga</string>
     <string name="pages_cache">Sidocache</string>
@@ -532,7 +532,7 @@
     <string name="switch_pages_volume_buttons_summary">Använd volymknapparna för att bläddra</string>
     <string name="error_multiple_states_not_supported">Filtrering efter flera publiceringsstatusar stöds inte av denna mangakälla</string>
     <string name="error_filter_states_genre_not_supported">Filtrering efter både genrer och publiceringsstatusar stöds inte av denna källa</string>
-    <string name="unsupported_backup_message">Var god välj en vederbörlig Yukimi-säkerhetskopiering</string>
+    <string name="unsupported_backup_message">Var god välj en vederbörlig Usagi-säkerhetskopiering</string>
     <string name="content_type_manhua">Manhua</string>
     <string name="content_type_novel">Roman</string>
     <string name="content_type_manhwa">Manhwa</string>
@@ -573,7 +573,7 @@
     <string name="all_languages">Alla språk</string>
     <string name="source_pinned">Källa fastnålad</string>
     <string name="percent_read">Procent läst</string>
-    <string name="plugin_incompatible">Inkompatibelt tillägg eller internt fel. Kontrollera att du använder den senaste versionen av tillägget och Yukimi</string>
+    <string name="plugin_incompatible">Inkompatibelt tillägg eller internt fel. Kontrollera att du använder den senaste versionen av tillägget och Usagi</string>
     <string name="connection_ok">Anslutningen är OK</string>
     <string name="invalid_proxy_configuration">Ogiltig proxykonfiguration</string>
     <string name="sort_order_desc">Fallande</string>
@@ -604,7 +604,7 @@
     <string name="handle_links_summary">Hantera mangalänkar från externa applikationer (t.ex. webbläsare). Du kan även behöva tillåta det manuellt i systemets inställningar för applikationen</string>
     <string name="email">E-mail</string>
     <string name="sources_unpinned">Källor lösgjorda</string>
-    <string name="plugin_incompatible_with_cause">Tilläggsfel: %s\nKontrollera att du använder den senaste versionen av tillägget och Yukimi</string>
+    <string name="plugin_incompatible_with_cause">Tilläggsfel: %s\nKontrollera att du använder den senaste versionen av tillägget och Usagi</string>
     <string name="show_quick_filters">Visa snabbfilter</string>
     <string name="skip_all">Hoppa över alla</string>
     <string name="updated_long_ago">Uppdaterad för länge sedan</string>

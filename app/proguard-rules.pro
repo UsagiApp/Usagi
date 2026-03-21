@@ -17,12 +17,12 @@
 -dontwarn com.google.re2j.**
 -dontwarn coil3.PlatformContext
 
--keep class org.koitharu.kotatsu.settings.NotificationSettingsLegacyFragment
--keep class org.koitharu.kotatsu.settings.about.changelog.ChangelogFragment
+-keep class org.draken.usagi.settings.NotificationSettingsLegacyFragment
+-keep class org.draken.usagi.settings.about.changelog.ChangelogFragment
 
--keep class org.koitharu.kotatsu.core.exceptions.* { *; }
--keep class org.koitharu.kotatsu.core.prefs.ScreenshotsPolicy { *; }
--keep class org.koitharu.kotatsu.backups.ui.periodical.PeriodicalBackupSettingsFragment { *; }
+-keep class org.draken.usagi.core.exceptions.* { *; }
+-keep class org.draken.usagi.core.prefs.ScreenshotsPolicy { *; }
+-keep class org.draken.usagi.backups.ui.periodical.PeriodicalBackupSettingsFragment { *; }
 -keep class org.jsoup.parser.Tag
 -keep class org.jsoup.internal.StringUtil
 

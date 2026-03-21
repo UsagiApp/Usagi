@@ -110,7 +110,7 @@
     <string name="dont_check">Não verificar</string>
     <string name="enter_password">Digite a senha</string>
     <string name="wrong_password">Senha incorreta</string>
-    <string name="protect_application_summary">Solicitar senha ao iniciar o Yukimi</string>
+    <string name="protect_application_summary">Solicitar senha ao iniciar o Usagi</string>
     <string name="repeat_password">Repita a senha</string>
     <string name="passwords_mismatch">Senhas incompatíveis</string>
     <string name="about">Sobre</string>
@@ -283,7 +283,7 @@
     <string name="select_range">Selecionar intervalo</string>
     <string name="disable_all">Desativar tudo</string>
     <string name="no_chapters">Sem capítulos</string>
-    <string name="manga_error_description_pattern">Detalhes do erro:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Tente &lt;a href=%2$s&gt;abrir a obra no navegador web&lt;/a&gt; para ver se ela ainda está disponível nesta fonte.&lt;br&gt;2. Verifique se você está usando a &lt;a href=kotatsu://about&gt;versão mais recente do Yukimi&lt;/a&gt;.&lt;br&gt;3. Se a obra estiver lá, envie um relatório de erro para os desenvolvedores.</string>
+    <string name="manga_error_description_pattern">Detalhes do erro:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Tente &lt;a href=%2$s&gt;abrir a obra no navegador web&lt;/a&gt; para ver se ela ainda está disponível nesta fonte.&lt;br&gt;2. Verifique se você está usando a &lt;a href=kotatsu://about&gt;versão mais recente do Usagi&lt;/a&gt;.&lt;br&gt;3. Se a obra estiver lá, envie um relatório de erro para os desenvolvedores.</string>
     <string name="feed">Fluxo</string>
     <string name="history_shortcuts_summary">Torne os mangás recentes disponíveis ao pressionar e segurar o ícone do aplicativo</string>
     <string name="no_manga_sources_text">Habilite fontes para ler mangás online</string>
@@ -584,7 +584,7 @@
     <string name="day">Dia</string>
     <string name="three_months">Três meses</string>
     <string name="location">Localização</string>
-    <string name="unsupported_backup_message">Selecione um arquivo de backup do Yukimi adequado</string>
+    <string name="unsupported_backup_message">Selecione um arquivo de backup do Usagi adequado</string>
     <string name="hours_short">%d h</string>
     <string name="minutes_short">%d min</string>
     <string name="chapters_grid_view">Exibição em grade</string>
@@ -654,7 +654,7 @@
     <string name="sources_unpinned">Fontes desafixadas</string>
     <string name="tracker_debug_info">Checando por novos logs de capítulos</string>
     <string name="tracker_debug_info_summary">Informações de Debug sobre a checagem de fundo para novos capítulos</string>
-    <string name="plugin_incompatible">Plugin incompatível ou erro interno. Certifique-se de que está usando a versão mais recente do plugin e do Yukimi</string>
+    <string name="plugin_incompatible">Plugin incompatível ou erro interno. Certifique-se de que está usando a versão mais recente do plugin e do Usagi</string>
     <string name="show_quick_filters_summary">Habilitar filtros em todas as fontes compatíveis</string>
     <string name="show_quick_filters">Mostrar filtros</string>
     <string name="scrobbler_auth_required">Faça login em %s para continuar</string>
@@ -694,7 +694,7 @@
     <string name="no_alternatives_found">Não foi encontrado alternativas para “%s”</string>
     <string name="pages_saved">Páginas salvas</string>
     <string name="text_empty_holder_secondary_filtered">Não existem mangás que correspondam aos filtros selecionados</string>
-    <string name="plugin_incompatible_with_cause">Erro de plugin: %s\n· Certifique-se de que você está usando a versão mais recente do plugin e Yukimi</string>
+    <string name="plugin_incompatible_with_cause">Erro de plugin: %s\n· Certifique-se de que você está usando a versão mais recente do plugin e Usagi</string>
     <string name="sort_order_desc">Descendente</string>
     <string name="download_new_chapters">Baixar novos capítulos</string>
     <string name="retry">Tentar novamente</string>
@@ -769,7 +769,7 @@
     <string name="source">Fonte</string>
     <string name="restoring_backup">Restaurando backup</string>
     <string name="error_disclaimer_manga">Tente abrir a obra em um navegador web para ter certeza de que está disponível por esta fonte.</string>
-    <string name="error_disclaimer_app_outdated">Parece que a sua versão do Yukimi está desatualizada. Por favor instale a última versão para obter todos as correções disponíveis.</string>
+    <string name="error_disclaimer_app_outdated">Parece que a sua versão do Usagi está desatualizada. Por favor instale a última versão para obter todos as correções disponíveis.</string>
     <string name="search_everywhere">Pesquise em todos os lugares</string>
     <string name="clear_browser_data">Limpar dados do navegador</string>
     <string name="clear_browser_data_summary">Limpa dados do navegador como cache e cookies. Aviso: Autorização em fontes de mangá podem se tornar inválidas</string>
@@ -792,7 +792,7 @@
     <string name="reader_controls_in_bottom_bar">Controles do leitor na barra inferior</string>
     <string name="pages_slider">Barra deslizante de troca de página</string>
     <string name="link_to_manga_on_s">Link para a obra em %s</string>
-    <string name="link_to_manga_in_app">Link para a obra no Yukimi</string>
+    <string name="link_to_manga_in_app">Link para a obra no Usagi</string>
     <string name="disable_captcha_notifications">Desabilitar notificações de captcha</string>
     <string name="disable_captcha_notifications_summary">Você não receberá notificações sobre solucionar CAPTCHA para essa fonte, mas isso pode causar falha em operações de segundo plano (checagem de novos capítulos, obtenção de recomendações, etc)</string>
     <string name="global_search">Pesquisa global</string>
@@ -841,7 +841,7 @@
     <string name="discord_token_hint">Cole seu Token do Discord aqui</string>
     <string name="discord_rpc_summary">Mostra seu status de leitura no Discord</string>
     <string name="obtain">Obtenha</string>
-    <string name="discord_rpc_description">Lendo mangá no Yukimi - um aplicativo de leitura de mangá</string>
+    <string name="discord_rpc_description">Lendo mangá no Usagi - um aplicativo de leitura de mangá</string>
     <string name="reading_s">Lendo %s</string>
     <string name="rpc_skip_nsfw_summary">Não usar RPC para conteúdo adulto</string>
     <string name="invalid_token">Token inválido: %s</string>

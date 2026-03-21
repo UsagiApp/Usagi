@@ -175,7 +175,7 @@
     <string name="new_version_s">Nova versão: %s</string>
     <string name="rotate_screen">Girar o ecrã</string>
     <string name="protect_application">Proteja a app</string>
-    <string name="protect_application_summary">Peça a senha ao iniciar o Yukimi</string>
+    <string name="protect_application_summary">Peça a senha ao iniciar o Usagi</string>
     <string name="zoom_mode_fit_height">Ajustar à altura</string>
     <string name="black_dark_theme">Preto</string>
     <string name="black_dark_theme_summary">Usa menos energia em telas AMOLED</string>
@@ -574,7 +574,7 @@
     <string name="preferred_download_format">Formato de download preferida</string>
     <string name="multiple_cbz_files">Múltiplos ficheiros CBZ</string>
     <string name="chapters_grid_view">visualizar em grade</string>
-    <string name="unsupported_backup_message">Selecione um arquivo de backup do Yukimi</string>
+    <string name="unsupported_backup_message">Selecione um arquivo de backup do Usagi</string>
     <string name="reading_stats">Estatísticas de leitura</string>
     <string name="other_manga">Outros mangás</string>
     <string name="statistics">Estatística</string>
@@ -656,7 +656,7 @@
     <string name="hours_minutes_short">%1$d hrs %2$d min</string>
     <string name="ignore_ssl_errors_summary">Você pode desativar a verificação de certificados SSL caso enfrente problemas relacionados ao SSL ao acessar recursos de rede. Isso pode afetar sua segurança. É necessário reiniciar o aplicativo após alterar essa configuração.</string>
     <string name="disable_connectivity_check_summary">Pule a verificação de conectividade caso tenha problemas com ela (por exemplo, entrar no modo offline mesmo estando conectado à rede)</string>
-    <string name="plugin_incompatible">Plugin incompatível ou erro interno. Certifique-se de que está usando a versão mais recente do plugin e do Yukimi</string>
+    <string name="plugin_incompatible">Plugin incompatível ou erro interno. Certifique-se de que está usando a versão mais recente do plugin e do Usagi</string>
     <string name="text_empty_holder_secondary_filtered">Não há mangás que correspondam aos filtros selecionados</string>
     <string name="connection_ok">A conexão está OK</string>
     <string name="invalid_proxy_configuration">Configuração de proxy inválida</string>
@@ -731,7 +731,7 @@
     <string name="show_slider">Mostrar slider</string>
     <string name="content_type_manhua">Manhua</string>
     <string name="content_type_manhwa">Manhwa</string>
-    <string name="plugin_incompatible_with_cause">Erro de plug-in: %s\nCertifique-se de estar usando a versão mais recente do plugin e do Yukimi</string>
+    <string name="plugin_incompatible_with_cause">Erro de plug-in: %s\nCertifique-se de estar usando a versão mais recente do plugin e do Usagi</string>
     <string name="screen_orientation">Orientação da tela</string>
     <string name="error_connection_reset">Conexão redefinida pelo host remoto</string>
     <string name="incognito">Incógnita</string>
@@ -786,7 +786,7 @@
     <string name="search_disabled_sources">Pesquisar fontes desabilitadas</string>
     <string name="error_details">Erro de detalhes</string>
     <string name="error_disclaimer_manga">Tenta abrir o mangá num web browser para verificar se está disponível na sua fonte.</string>
-    <string name="link_to_manga_in_app">Link para o mangá no Yukimi</string>
+    <string name="link_to_manga_in_app">Link para o mangá no Usagi</string>
     <string name="clear_browser_data">Limpar informações do browser</string>
     <string name="clear_browser_data_summary">Limpar informações do browser como cache e cookies. Aviso: Autorizações em fontes de mangá podem ficar inválidas</string>
     <string name="no_write_permission_to_file">Não há permissão para modificar um ficheiro</string>
@@ -847,7 +847,7 @@
     <string name="discord_token_hint">Cole seu Token do Discord aqui</string>
     <string name="discord_rpc_summary">Mostrar seu estado de leitura no Discord</string>
     <string name="obtain">Obter</string>
-    <string name="discord_rpc_description">Lendo manga no Yukimi - um app leitor de manga</string>
+    <string name="discord_rpc_description">Lendo manga no Usagi - um app leitor de manga</string>
     <string name="reading_s">Lendo %s</string>
     <string name="read_on_s">Lendo em %s</string>
     <string name="rpc_skip_nsfw_summary">Não use RPC para conteúdo adulto</string>

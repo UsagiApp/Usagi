@@ -54,7 +54,7 @@
 			android:layout_gravity="center_horizontal"
 			tools:ignore="ContentDescription"
 			tools:src="@drawable/fastscroll_track"
-			tools:tint="@color/kotatsu_outline" />
+			tools:tint="@color/Usagi_outline" />
 
 		<ImageView
 			android:id="@+id/thumb"
@@ -63,7 +63,7 @@
 			android:layout_gravity="center_horizontal"
 			tools:ignore="ContentDescription"
 			tools:src="@drawable/fastscroll_handle"
-			tools:tint="@color/kotatsu_primary" />
+			tools:tint="@color/Usagi_primary" />
 
 	</FrameLayout>
 

@@ -27,7 +27,7 @@
 
 	<Button
 		android:id="@+id/button_more"
-		style="@style/Widget.Kotatsu.Button.More"
+		style="@style/Widget.Usagi.Button.More"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignBaseline="@id/textView_title"

@@ -7,10 +7,10 @@
 
     <PreferenceCategory android:title="@string/storage_usage">
 
-        <org.koitharu.kotatsu.settings.userdata.storage.StorageUsagePreference android:key="storage_usage" />
+        <org.draken.usagi.settings.userdata.storage.StorageUsagePreference android:key="storage_usage" />
 
         <Preference
-            android:fragment="org.koitharu.kotatsu.settings.userdata.storage.DataCleanupSettingsFragment"
+            android:fragment="org.draken.usagi.settings.userdata.storage.DataCleanupSettingsFragment"
             android:persistent="false"
             android:title="@string/data_removal" />
 
@@ -35,7 +35,7 @@
         app:useSimpleSummaryProvider="true" />
 
     <PreferenceScreen
-        android:fragment="org.koitharu.kotatsu.settings.ProxySettingsFragment"
+        android:fragment="org.draken.usagi.settings.ProxySettingsFragment"
         android:key="proxy"
         android:title="@string/proxy"
         app:allowDividerAbove="true" />

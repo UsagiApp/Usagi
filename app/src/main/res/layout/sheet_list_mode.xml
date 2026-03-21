@@ -8,7 +8,7 @@
 	android:animateLayoutChanges="true"
 	android:orientation="vertical">
 
-	<org.koitharu.kotatsu.core.ui.sheet.AdaptiveSheetHeaderBar
+	<org.draken.usagi.core.ui.sheet.AdaptiveSheetHeaderBar
 		android:id="@+id/headerBar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
 
 				<com.google.android.material.button.MaterialButton
 					android:id="@+id/button_list"
-					style="@style/Widget.Kotatsu.ToggleButton.Vertical"
+					style="@style/Widget.Usagi.ToggleButton.Vertical"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
@@ -57,7 +57,7 @@
 
 				<com.google.android.material.button.MaterialButton
 					android:id="@+id/button_list_detailed"
-					style="@style/Widget.Kotatsu.ToggleButton.Vertical"
+					style="@style/Widget.Usagi.ToggleButton.Vertical"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
@@ -66,7 +66,7 @@
 
 				<com.google.android.material.button.MaterialButton
 					android:id="@+id/button_grid"
-					style="@style/Widget.Kotatsu.ToggleButton.Vertical"
+					style="@style/Widget.Usagi.ToggleButton.Vertical"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"

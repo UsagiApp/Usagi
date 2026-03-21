@@ -96,7 +96,7 @@
     <string name="enter_password">Ievadi paroli</string>
     <string name="wrong_password">Nepareiza parole</string>
     <string name="protect_application">Pasargāt aplikāciju</string>
-    <string name="protect_application_summary">Prasīt paroli, kad atver Yukimi</string>
+    <string name="protect_application_summary">Prasīt paroli, kad atver Usagi</string>
     <string name="repeat_password">Atkārto paroli</string>
     <string name="passwords_mismatch">Nesakrīt paroles</string>
     <string name="about">Par</string>

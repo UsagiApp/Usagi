@@ -20,7 +20,7 @@
 			android:layout_height="56dp"
 			android:background="?colorSurfaceVariant"
 			android:scaleType="center"
-			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Circle"
+			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Circle"
 			tools:src="@drawable/ic_tap_reorder" />
 
 		<LinearLayout

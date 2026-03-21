@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:title="@string/appearance">
 
-    <org.koitharu.kotatsu.settings.utils.ThemeChooserPreference
+    <org.draken.usagi.settings.utils.ThemeChooserPreference
         android:key="color_theme"
         android:title="@string/color_theme" />
 
@@ -22,7 +22,7 @@
         android:summary="@string/black_dark_theme_summary"
         android:title="@string/black_dark_theme" />
 
-    <org.koitharu.kotatsu.settings.utils.ActivityListPreference
+    <org.draken.usagi.settings.utils.ActivityListPreference
         android:key="app_locale"
         android:title="@string/language" />
 
@@ -34,7 +34,7 @@
             android:title="@string/list_mode"
             app:useSimpleSummaryProvider="true" />
 
-        <org.koitharu.kotatsu.settings.utils.SliderPreference
+        <org.draken.usagi.settings.utils.SliderPreference
             android:key="grid_size"
             android:stepSize="5"
             android:title="@string/grid_size"
@@ -86,7 +86,7 @@
             app:useSimpleSummaryProvider="true" />
 
         <PreferenceScreen
-            android:fragment="org.koitharu.kotatsu.settings.appearance.PreviewSettingsFragment"
+            android:fragment="org.draken.usagi.settings.appearance.PreviewSettingsFragment"
             android:key="details_appearance_nav"
             android:summary="@string/details_appearance_summary"
             android:title="@string/details_appearance" />
@@ -100,7 +100,7 @@
             android:title="@string/search_suggestions" />
 
         <PreferenceScreen
-            android:fragment="org.koitharu.kotatsu.settings.nav.NavConfigFragment"
+            android:fragment="org.draken.usagi.settings.nav.NavConfigFragment"
             android:key="nav_main"
             android:title="@string/main_screen_sections" />
 

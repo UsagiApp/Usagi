@@ -6,7 +6,7 @@
 	tools:orientation="horizontal"
 	tools:parentTag="android.widget.LinearLayout">
 
-	<org.koitharu.kotatsu.core.ui.widgets.CheckableImageView
+	<org.draken.usagi.core.ui.widgets.CheckableImageView
 		android:id="@+id/icon"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

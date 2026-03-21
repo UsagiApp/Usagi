@@ -323,7 +323,7 @@
     <string name="saved_manga">Сачувана манга</string>
     <string name="screenshots_block_all">Увек блокирај</string>
     <string name="new_sources_text">Доступни су нови извори манге</string>
-    <string name="manga_error_description_pattern">Детаљи о грешци:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Покушај да &lt;a href=%2$s&gt;отвориш мангу у веб прегледачу&lt;/a&gt; да би био сигуран да је доступна на извору&lt;br&gt;2. Увери се да користите &lt;a href=kotatsu://about&gt;latest version of Yukimi&gt;најновију верзију Котатсу-а&lt;/a&gt;&lt;br&gt;3. Ако је доступно, пошаљи извештај о грешци програмерима.</string>
+    <string name="manga_error_description_pattern">Детаљи о грешци:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Покушај да &lt;a href=%2$s&gt;отвориш мангу у веб прегледачу&lt;/a&gt; да би био сигуран да је доступна на извору&lt;br&gt;2. Увери се да користите &lt;a href=kotatsu://about&gt;latest version of Usagi&gt;најновију верзију Котатсу-а&lt;/a&gt;&lt;br&gt;3. Ако је доступно, пошаљи извештај о грешци програмерима.</string>
     <string name="state_abandoned">Напуштен</string>
     <string name="zoom_mode_fit_height">Уклопи по висини</string>
     <string name="not_available">Није доступно</string>
@@ -610,7 +610,7 @@
     <string name="show_pages_thumbs">Прикажи сличице страница</string>
     <string name="error_no_data_received">Никакви подаци нису примљени са послуживача</string>
     <string name="show_pages_thumbs_summary">Омогући картицу узраста на екрану са детаљима</string>
-    <string name="unsupported_backup_message">Изабери одговарајућу Yukimi датотеку резервне копије</string>
+    <string name="unsupported_backup_message">Изабери одговарајућу Usagi датотеку резервне копије</string>
     <string name="hours_short">%d ч</string>
     <string name="hours_minutes_short">%1$d ч %2$d м</string>
     <string name="minutes_short">%d м</string>

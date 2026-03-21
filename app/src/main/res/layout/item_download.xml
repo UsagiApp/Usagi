@@ -13,7 +13,7 @@
 		android:layout_height="match_parent"
 		android:paddingBottom="12dp">
 
-		<org.koitharu.kotatsu.image.ui.CoverImageView
+		<org.draken.usagi.image.ui.CoverImageView
 			android:id="@+id/imageView_cover"
 			android:layout_width="64dp"
 			android:layout_height="64dp"
@@ -21,7 +21,7 @@
 			android:layout_marginTop="12dp"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover.Medium"
+			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Cover.Medium"
 			tools:src="@tools:sample/backgrounds/scenic" />
 
 		<TextView
@@ -40,7 +40,7 @@
 			app:layout_goneMarginEnd="12dp"
 			tools:text="@tools:sample/lorem" />
 
-		<org.koitharu.kotatsu.core.ui.widgets.CheckableImageButton
+		<org.draken.usagi.core.ui.widgets.CheckableImageButton
 			android:id="@+id/button_expand"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
 			app:trackColor="?android:colorBackground"
 			tools:progress="25" />
 
-		<org.koitharu.kotatsu.core.ui.widgets.NestedRecyclerView
+		<org.draken.usagi.core.ui.widgets.NestedRecyclerView
 			android:id="@+id/recyclerView_chapters"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"

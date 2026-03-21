@@ -121,7 +121,7 @@
     <string name="enter_password">Введите пароль</string>
     <string name="wrong_password">Неверный пароль</string>
     <string name="protect_application">Защитить приложение</string>
-    <string name="protect_application_summary">Запрашивать пароль при запуске Yukimi</string>
+    <string name="protect_application_summary">Запрашивать пароль при запуске Usagi</string>
     <string name="repeat_password">Повторите пароль</string>
     <string name="passwords_mismatch">Пароли не совпадают</string>
     <string name="about">О программе</string>
@@ -312,7 +312,7 @@
     <string name="import_completed">Импорт завершён</string>
     <string name="import_will_start_soon">Импорт скоро начнётся</string>
     <string name="feed">Лента</string>
-    <string name="manga_error_description_pattern">Сведения об ошибке:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Попробуйте &lt;a href=%2$s&gt;открыть мангу в веб-браузере&lt;/a&gt;, чтобы убедиться, что она доступна в источнике&lt;br&gt;2. Убедитесь, что вы используете &lt;a href=kotatsu://about&gt;последнюю версию Yukimi&lt;/a&gt;&lt;br&gt;3. Если возможно, отправьте отчёт об ошибке разработчикам.</string>
+    <string name="manga_error_description_pattern">Сведения об ошибке:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Попробуйте &lt;a href=%2$s&gt;открыть мангу в веб-браузере&lt;/a&gt;, чтобы убедиться, что она доступна в источнике&lt;br&gt;2. Убедитесь, что вы используете &lt;a href=kotatsu://about&gt;последнюю версию Usagi&lt;/a&gt;&lt;br&gt;3. Если возможно, отправьте отчёт об ошибке разработчикам.</string>
     <string name="history_shortcuts">Показывать ярлыки последней прочитанной манги</string>
     <string name="history_shortcuts_summary">Сделать недавно прочитанную мангу доступной по долгому нажатию на иконку приложения</string>
     <string name="reader_control_ltr_summary">Не настраивайте направление переключения страниц в режим чтения, например, нажатие правой клавиши всегда переключает на следующую страницу. Эта опция влияет только на аппаратные устройства ввода</string>
@@ -613,7 +613,7 @@
     <string name="hours_short">%d ч.</string>
     <string name="minutes_short">%d мин.</string>
     <string name="hours_minutes_short">%1$d ч. %2$d мин.</string>
-    <string name="unsupported_backup_message">Выберите правильный файл резервной копии Yukimi</string>
+    <string name="unsupported_backup_message">Выберите правильный файл резервной копии Usagi</string>
     <string name="last_used">Последний использованный</string>
     <string name="fix">Исправить</string>
     <string name="missing_storage_permission">Нет разрешения на доступ к манге на внешнем хранилище</string>
@@ -657,7 +657,7 @@
     <string name="percent_left">Процент оставшегося</string>
     <string name="chapters_left">Глав осталось</string>
     <string name="external_source">Внешний/плагин</string>
-    <string name="plugin_incompatible">Несовместимый плагин или внутренняя ошибка. Убедитесь, что вы используете последнюю версию плагина и Yukimi</string>
+    <string name="plugin_incompatible">Несовместимый плагин или внутренняя ошибка. Убедитесь, что вы используете последнюю версию плагина и Usagi</string>
     <string name="text_empty_holder_secondary_filtered">Нет манги, соответствующей выбранным вами фильтрам</string>
     <string name="connection_ok">Соединение в порядке</string>
     <string name="invalid_proxy_configuration">Неверная конфигурация прокси</string>
@@ -741,7 +741,7 @@
     <string name="allow_always">Разрешить всегда</string>
     <string name="allow_once">Разрешить один раз</string>
     <string name="ask_every_time">Спрашивать каждый раз</string>
-    <string name="plugin_incompatible_with_cause">Ошибка плагина: %s\nУбедитесь, что вы используете последнюю версию плагина и Yukimi</string>
+    <string name="plugin_incompatible_with_cause">Ошибка плагина: %s\nУбедитесь, что вы используете последнюю версию плагина и Usagi</string>
     <string name="error_not_image">Неверный формат: ожидалось изображение, но получено %s</string>
     <string name="max_backups_count">Максимальное количество резервных копий</string>
     <string name="access_denied_403">Доступ отклонён (403)</string>
@@ -786,7 +786,7 @@
     <string name="search_everywhere">Поиск повсюду</string>
     <string name="badges_in_lists">Значки в списках</string>
     <string name="error_details">Подробности ошибки</string>
-    <string name="error_disclaimer_app_outdated">Похоже, что Ваша версия Yukimi устарела. Пожалуйста, установите последнюю версию, чтобы получить все доступные исправления.</string>
+    <string name="error_disclaimer_app_outdated">Похоже, что Ваша версия Usagi устарела. Пожалуйста, установите последнюю версию, чтобы получить все доступные исправления.</string>
     <string name="error_disclaimer_report">Вы можете отправить отчёт об ошибке разработчикам. Это поможет нам исправить проблему.</string>
     <string name="search_disabled_sources">Поиск по отключённым источникам</string>
     <string name="chapter_volume_number">Том %1$s Глава %2$s</string>
@@ -803,7 +803,7 @@
     <string name="exclude_nsfw_from_suggestions_summary">Взрослая манга не будет отображаться в рекомендациях. Эта опция может не работать с некоторыми источниками</string>
     <string name="include_disabled_sources">Включить отключённые источники</string>
     <string name="suggestions_disabled_sources_summary">Отображать рекомендации из всех источников манги, включая отключённые</string>
-    <string name="link_to_manga_in_app">Ссылка на мангу в Yukimi</string>
+    <string name="link_to_manga_in_app">Ссылка на мангу в Usagi</string>
     <string name="nsfw_16">16+</string>
     <string name="clear_browser_data_summary">Удалить данные встроенного браузера, такие как кэш и куки. Внимание: авторизация в источниках манги может быть потеряна</string>
     <string name="error_non_file_uri">Выбранный путь не может быть использован, поскольку он не обозначает файл или каталог</string>
@@ -848,7 +848,7 @@
     <string name="discord_token_hint">Вставьте свой токен Discord сюда</string>
     <string name="discord_rpc_summary">Покажите свой статус чтения в Discord</string>
     <string name="obtain">Получить</string>
-    <string name="discord_rpc_description">Чтение манги в Yukimi — приложение для чтения манги</string>
+    <string name="discord_rpc_description">Чтение манги в Usagi — приложение для чтения манги</string>
     <string name="reading_s">Чтение %s</string>
     <string name="read_on_s">Читать дальше %s</string>
     <string name="rpc_skip_nsfw_summary">Не использовать RPC для контента для взрослых</string>

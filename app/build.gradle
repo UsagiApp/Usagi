@@ -17,12 +17,12 @@ android {
 
 	defaultConfig {
 		applicationId 'org.draken.usagi'
-		minSdk = 21
+		minSdk = 23
 		targetSdk = 36
 		versionCode = 1
-		versionName = '0.0.1'
+		versionName = '0.0.1-a1'
 		generatedDensities = []
-		testInstrumentationRunner 'org.koitharu.kotatsu.HiltTestRunner'
+		testInstrumentationRunner 'org.draken.usagi.HiltTestRunner'
 		ksp {
 			arg('room.generateKotlin', 'true')
 		}
@@ -107,15 +107,9 @@ android {
 	}
 }
 dependencies {
-	def parsersVersion = libs.versions.parsers.get()
-	if (System.properties.containsKey('parsersVersionOverride')) {
-		// usage:
-		// -DparsersVersionOverride=$(curl -s https://api.github.com/repos/yakateam/kotatsu-parsers/commits/master -H "Accept: application/vnd.github.sha" | cut -c -10)
-		parsersVersion = System.getProperty('parsersVersionOverride')
-	}
-	//noinspection UseTomlInstead
-	implementation("com.github.YakaTeam:kotatsu-parsers:$parsersVersion") {
+	implementation(libs.kotatsu.parsers) {
 		exclude group: 'org.json', module: 'json'
+		exclude group: 'com.google', module: 're2j'
 	}
 
 	coreLibraryDesugaring libs.desugar.jdk.libs

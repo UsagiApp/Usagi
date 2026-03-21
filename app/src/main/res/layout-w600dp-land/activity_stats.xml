@@ -46,7 +46,7 @@
 
 			<com.google.android.material.chip.Chip
 				android:id="@+id/chip_period"
-				style="@style/Widget.Kotatsu.Chip.Dropdown"
+				style="@style/Widget.Usagi.Chip.Dropdown"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/week"
@@ -71,7 +71,7 @@
 		app:trackCornerRadius="0dp"
 		tools:visibility="visible" />
 
-	<org.koitharu.kotatsu.stats.ui.views.PieChartView
+	<org.draken.usagi.stats.ui.views.PieChartView
 		android:id="@+id/chart"
 		android:layout_width="0dp"
 		android:layout_height="0dp"

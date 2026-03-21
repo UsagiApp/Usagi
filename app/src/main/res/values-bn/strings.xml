@@ -208,8 +208,8 @@
     <string name="chapters_read">অধ্যায় পড়া</string>
     <string name="chapters_left">অধ্যায় বাকি আছে</string>
     <string name="external_source">বাহ্যিক/প্লাগইন</string>
-    <string name="plugin_incompatible">বেমানান প্লাগইন বা অভ্যন্তরীণ ত্রুটি. আপনি প্লাগইন এবং Yukimi এর সর্বশেষ সংস্করণ ব্যবহার করছেন তা নিশ্চিত করুন৷</string>
-    <string name="plugin_incompatible_with_cause">প্লাগইন ত্রুটি: %s \n· নিশ্চিত করুন যে আপনি প্লাগইন এবং Yukimi এর সর্বশেষ সংস্করণ ব্যবহার করছেন</string>
+    <string name="plugin_incompatible">বেমানান প্লাগইন বা অভ্যন্তরীণ ত্রুটি. আপনি প্লাগইন এবং Usagi এর সর্বশেষ সংস্করণ ব্যবহার করছেন তা নিশ্চিত করুন৷</string>
+    <string name="plugin_incompatible_with_cause">প্লাগইন ত্রুটি: %s \n· নিশ্চিত করুন যে আপনি প্লাগইন এবং Usagi এর সর্বশেষ সংস্করণ ব্যবহার করছেন</string>
     <string name="connection_ok">সংযোগ ঠিক আছে</string>
     <string name="invalid_proxy_configuration">অবৈধ প্রক্সি কনফিগারেশন</string>
     <string name="show_quick_filters">দ্রুত ফিল্টার দেখান</string>

@@ -13,12 +13,12 @@
 
 	<PreferenceScreen
 		android:enabled="false"
-		android:fragment="org.koitharu.kotatsu.settings.SyncSettingsFragment"
+		android:fragment="org.draken.usagi.settings.SyncSettingsFragment"
 		android:key="sync_settings"
 		android:title="@string/sync_settings" />
 
 	<PreferenceScreen
-		android:fragment="org.koitharu.kotatsu.settings.SuggestionsSettingsFragment"
+		android:fragment="org.draken.usagi.settings.SuggestionsSettingsFragment"
 		android:key="suggestions"
 		android:title="@string/suggestions"
 		app:allowDividerAbove="true" />
@@ -29,7 +29,7 @@
 		android:summary="@string/related_manga_summary"
 		android:title="@string/related_manga" />
 
-	<org.koitharu.kotatsu.settings.utils.SplitSwitchPreference
+	<org.draken.usagi.settings.utils.SplitSwitchPreference
 		android:defaultValue="false"
 		android:key="stats_on"
 		android:title="@string/reading_stats"
@@ -70,7 +70,7 @@
 	</PreferenceCategory>
 
 	<Preference
-		android:fragment="org.koitharu.kotatsu.settings.discord.DiscordSettingsFragment"
+		android:fragment="org.draken.usagi.settings.discord.DiscordSettingsFragment"
 		android:key="discord_rpc"
 		android:summary="@string/discord_rpc_summary"
 		android:title="@string/discord_rpc"

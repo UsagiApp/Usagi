@@ -17,7 +17,7 @@
 		android:text="@string/location"
 		android:textAppearance="?textAppearanceLabelMedium" />
 
-	<org.koitharu.kotatsu.core.ui.widgets.SelectableTextView
+	<org.draken.usagi.core.ui.widgets.SelectableTextView
 		android:id="@+id/textView_path"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
 		android:textIsSelectable="true"
 		tools:text="/storage/emulated/0/Manga/lorem.cbz" />
 
-	<org.koitharu.kotatsu.core.ui.widgets.SegmentedBarView
+	<org.draken.usagi.core.ui.widgets.SegmentedBarView
 		android:id="@+id/barView"
 		android:layout_width="match_parent"
 		android:layout_height="18dp"
@@ -35,7 +35,7 @@
 
 	<TextView
 		android:id="@+id/label_used"
-		style="@style/Widget.Kotatsu.TextView.Indicator"
+		style="@style/Widget.Usagi.TextView.Indicator"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="@dimen/margin_normal"
@@ -45,7 +45,7 @@
 
 	<TextView
 		android:id="@+id/label_available"
-		style="@style/Widget.Kotatsu.TextView.Indicator"
+		style="@style/Widget.Usagi.TextView.Indicator"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="@dimen/margin_small"
@@ -55,7 +55,7 @@
 
 	<com.google.android.material.chip.Chip
 		android:id="@+id/chip_cleanup"
-		style="@style/Widget.Kotatsu.Chip.Assist"
+		style="@style/Widget.Usagi.Chip.Assist"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="12dp"

@@ -27,7 +27,7 @@
 		android:key="notifications_light"
 		android:title="@string/light_indicator" />
 
-	<org.koitharu.kotatsu.settings.utils.LinksPreference
+	<org.draken.usagi.settings.utils.LinksPreference
 		android:icon="@drawable/ic_info_outline"
 		android:key="tracker_notifications_info"
 		android:persistent="false"

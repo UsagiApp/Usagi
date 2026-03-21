@@ -11,7 +11,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<org.koitharu.kotatsu.core.ui.widgets.SelectableTextView
+		<org.draken.usagi.core.ui.widgets.SelectableTextView
 			android:id="@+id/textView_content"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

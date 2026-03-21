@@ -3,7 +3,7 @@
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<PreferenceScreen
-		android:fragment="org.koitharu.kotatsu.settings.DebugSettingsFragment"
+		android:fragment="org.draken.usagi.settings.DebugSettingsFragment"
 		android:icon="@drawable/ic_debug"
 		android:key="debug"
 		android:title="@string/debug" />

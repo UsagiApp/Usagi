@@ -16,25 +16,25 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
-		<org.koitharu.kotatsu.image.ui.CoverImageView
+		<org.draken.usagi.image.ui.CoverImageView
 			android:id="@+id/imageView_cover"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:background="?colorSurfaceContainer"
 			android:orientation="horizontal"
 			app:allowRgb565="true"
-			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover"
+			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Cover"
 			tools:ignore="ContentDescription"
 			tools:src="@tools:sample/backgrounds/scenic[5]" />
 
-		<org.koitharu.kotatsu.history.ui.util.ReadingProgressView
+		<org.draken.usagi.history.ui.util.ReadingProgressView
 			android:id="@+id/progressView"
 			android:layout_width="@dimen/card_indicator_size"
 			android:layout_height="@dimen/card_indicator_size"
 			android:layout_gravity="bottom|end"
 			android:layout_margin="@dimen/card_indicator_offset" />
 
-		<org.koitharu.kotatsu.core.ui.widgets.IconsView
+		<org.draken.usagi.core.ui.widgets.IconsView
 			android:id="@+id/iconsView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
 			app:iconSize="14dp"
 			app:iconSpacing="4dp" />
 
-		<org.koitharu.kotatsu.core.ui.widgets.BadgeView
+		<org.draken.usagi.core.ui.widgets.BadgeView
 			android:id="@+id/badge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

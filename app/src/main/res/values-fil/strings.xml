@@ -56,7 +56,7 @@
     <string name="feed_will_update_soon">Ang pag update ng feed ay magsisimula sa lalong madaling panahon</string>
     <string name="track_sources">Maghanap ng mga update</string>
     <string name="enter_password">Ilagay ang password</string>
-    <string name="protect_application_summary">Humingi ng password kapag sinimulan ang Yukimi</string>
+    <string name="protect_application_summary">Humingi ng password kapag sinimulan ang Usagi</string>
     <string name="about">Tungkol rito</string>
     <string name="check_for_updates">Maghanap ng update</string>
     <string name="right_to_left">Kanan sa kaliwa</string>
@@ -335,7 +335,7 @@
     <string name="network_unavailable_hint">I-on ang Wi-Fi o mobile network para magbasa ng manga online</string>
     <string name="reader_control_ltr_summary">Huwag i-adjust ang direksyon ng pagpalit ng pahina sa reader mode, hal. kapag pindutin ang kanan (right) na key ay palaging lumilipat sa susunod na pahina. Ang opsyong ito ay nakakaapekto lamang sa mga hardware input device</string>
     <string name="reader_slider">Ipakita ang slider ng paglipat ng pahina</string>
-    <string name="manga_error_description_pattern">Mga detalye ng error:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Subukang &lt;a href=%2$s&gt;magbukas ng manga sa isang web browser&lt;/a&gt; upang matiyak na available ito sa souce&lt;br&gt;2. Tiyaking ginagamit mo ang &lt;a href=kotatsu://about&gt;pinakabagong bersyon ng Yukimi&lt;/a&gt;&lt;br&gt;3. Kung available ito, magpadala ng ulat ng error sa mga developer.</string>
+    <string name="manga_error_description_pattern">Mga detalye ng error:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Subukang &lt;a href=%2$s&gt;magbukas ng manga sa isang web browser&lt;/a&gt; upang matiyak na available ito sa souce&lt;br&gt;2. Tiyaking ginagamit mo ang &lt;a href=kotatsu://about&gt;pinakabagong bersyon ng Usagi&lt;/a&gt;&lt;br&gt;3. Kung available ito, magpadala ng ulat ng error sa mga developer.</string>
     <string name="enable_logging">Paganahin ang pag-log</string>
     <string name="source_disabled">Di pinagana ang source</string>
     <string name="importing_manga">Pag-import ng manga</string>
@@ -609,7 +609,7 @@
     <string name="show_pages_thumbs">Ipakita ang mga thumbnail ng pahina</string>
     <string name="show_pages_thumbs_summary">Paganahin ang tab na \"Mga Pahina\" sa screen ng mga detalye</string>
     <string name="error_no_data_received">Walang natanggap na data mula sa server</string>
-    <string name="unsupported_backup_message">Pumili ng wastong backup file ng Yukimi</string>
+    <string name="unsupported_backup_message">Pumili ng wastong backup file ng Usagi</string>
     <string name="hours_short">%d o</string>
     <string name="minutes_short">%d m</string>
     <string name="hours_minutes_short">%1$d o %2$d m</string>
@@ -655,7 +655,7 @@
     <string name="chapters_left">Kabanatang natitira</string>
     <string name="percent_read">Porsyentong nabasa</string>
     <string name="chapters_read">Kabanatang nabasa</string>
-    <string name="plugin_incompatible">Hindi tugmang plugin o internal na error. Tiyaking ginagamit mo ang pinakabagong bersyon ng plugin at Yukimi</string>
+    <string name="plugin_incompatible">Hindi tugmang plugin o internal na error. Tiyaking ginagamit mo ang pinakabagong bersyon ng plugin at Usagi</string>
     <string name="text_empty_holder_secondary_filtered">Walang manga na tumutugma sa mga filter na iyong pinili</string>
     <string name="connection_ok">Maayos ang koneksyon</string>
     <string name="invalid_proxy_configuration">Imbalidong configuaration sa proxy</string>
@@ -740,7 +740,7 @@
     <string name="screen_orientation">Oryentasyon ng screen</string>
     <string name="portrait">Patayo (portrait)</string>
     <string name="landscape">Pahalang (landscape)</string>
-    <string name="plugin_incompatible_with_cause">Plugin error: %s\n Tiyaking ginagamit mo ang pinakabagong bersyon ng plugin at Yukimi</string>
+    <string name="plugin_incompatible_with_cause">Plugin error: %s\n Tiyaking ginagamit mo ang pinakabagong bersyon ng plugin at Usagi</string>
     <string name="error_not_image">Imbalidong pormat: inaasahang larawan ngunit nakakuha ng %s</string>
     <string name="access_denied_403">Tinanggihan ang pag-access (403)</string>
     <string name="max_backups_count">Pinakamataas na bilang ng mga backup</string>
@@ -790,7 +790,7 @@
     <string name="chapter_volume_number">Vol %1$s Kabanata %2$s</string>
     <string name="chapter_number">Kabanata %s</string>
     <string name="unnamed_chapter">Walang pangalan na kabanata</string>
-    <string name="error_disclaimer_app_outdated">Mukhang luma na ang bersyon mo ng Yukimi. Mangyaring i-install ang pinakabagong bersyon upang makuha ang lahat ng magagamit na mga pag-aayos.</string>
+    <string name="error_disclaimer_app_outdated">Mukhang luma na ang bersyon mo ng Usagi. Mangyaring i-install ang pinakabagong bersyon upang makuha ang lahat ng magagamit na mga pag-aayos.</string>
     <string name="error_disclaimer_report">Maaari kang magsumite ng ulat ng bug sa mga developer. Makakatulong ito sa amin na magsiyasat at ayusin ang isyu.</string>
     <string name="tags_warnings">I-highlight ang mga mapanganib na genre</string>
     <string name="nsfw_16">16+</string>
@@ -800,7 +800,7 @@
     <string name="include_disabled_sources">Isama ang mga hindi pinagana na source</string>
     <string name="suggestions_disabled_sources_summary">Magpakita ng mga mungkahi mula sa lahat ng manga source, kabilang ang mga hindi napagana</string>
     <string name="tags_warnings_summary">I-highlight ang mga genre na maaaring hindi naaangkop para sa karamihan ng mga user</string>
-    <string name="link_to_manga_in_app">Link sa manga sa Yukimi</string>
+    <string name="link_to_manga_in_app">Link sa manga sa Usagi</string>
     <string name="simple">Pinasimple</string>
     <string name="link_to_manga_on_s">Link sa manga sa %s</string>
     <string name="clear_browser_data_summary">Linisin ang data ng browser tulad ng cache at mga cookie. Babala: Ang awtorisasyon sa mga source ng manga ay maaaring maging di-balido</string>
@@ -836,7 +836,7 @@
     <string name="rpc_skip_nsfw_summary">Huwag gamitin ang RPC para sa pangmatandang content</string>
     <string name="read_on_s">Basahin sa %s</string>
     <string name="reading_s">Binabasa ng %s</string>
-    <string name="discord_rpc_description">Bumamasa ng manga sa Yukimi - isang manga reader app</string>
+    <string name="discord_rpc_description">Bumamasa ng manga sa Usagi - isang manga reader app</string>
     <string name="obtain">Kumuha</string>
     <string name="discord_rpc_summary">Ipakita ng status ng pagbabasa sa Discord</string>
     <string name="discord_token_hint">I-paste ang Discord Token dito</string>

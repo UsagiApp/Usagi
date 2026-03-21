@@ -20,7 +20,7 @@
 
 	<com.google.android.material.button.MaterialButton
 		android:id="@+id/button_more"
-		style="@style/Widget.Kotatsu.Button.More.Small"
+		style="@style/Widget.Usagi.Button.More.Small"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:visibility="invisible"

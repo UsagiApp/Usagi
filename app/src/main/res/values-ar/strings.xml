@@ -341,7 +341,7 @@
     <string name="reader_slider">إظهار شريط التمرير لتبديل الصفحات</string>
     <string name="server_error">خطأ من جانب الخادم (%1$d). الرجاء المحاولة مرة أخرى لاحقًا</string>
     <string name="chapters_grid_view">عرض الشبكة</string>
-    <string name="manga_error_description_pattern">تفاصيل الخطأ:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. حاول &lt;a href=\"%2$s\"&gt;فتح المانجا في متصفح ويب&lt;/a&gt; للتأكد من أنها متوفرة على مصدرها&lt;br&gt;2. تأكد من أنك تستخدم &lt;a href=kotatsu://about&gt;أحدث إصدار من Yukimi&lt;/a&gt;&lt;br&gt;3. إذا كانت متوفرة، أرسل تقرير خطأ إلى المطورين.</string>
+    <string name="manga_error_description_pattern">تفاصيل الخطأ:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. حاول &lt;a href=\"%2$s\"&gt;فتح المانجا في متصفح ويب&lt;/a&gt; للتأكد من أنها متوفرة على مصدرها&lt;br&gt;2. تأكد من أنك تستخدم &lt;a href=kotatsu://about&gt;أحدث إصدار من Usagi&lt;/a&gt;&lt;br&gt;3. إذا كانت متوفرة، أرسل تقرير خطأ إلى المطورين.</string>
     <string name="history_shortcuts_summary">إتاحة المانجا الحديثة بالضغط المطول على أيقونة التطبيق</string>
     <string name="reader_control_ltr_summary">النقر على الحافة اليمنى أو الضغط على المفتاح الأيمن يؤدي دائمًا إلى الانتقال للصفحة التالية</string>
     <string name="reader_control_ltr">تحكم مريح في القراءة</string>
@@ -786,9 +786,9 @@
     <string name="screen_rotation_locked">تم ايقاف دوران الشاشة</string>
     <string name="screen_rotation_unlocked">تم تشغيل دوران الشاشة</string>
     <string name="link_to_manga_on_s">رابط المانغا على %s</string>
-    <string name="link_to_manga_in_app">رابط المانغا في Yukimi</string>
+    <string name="link_to_manga_in_app">رابط المانغا في Usagi</string>
     <string name="backup_restored_background">سوف يتم استعادة النسخة الاحتياطية في الخلفية</string>
-    <string name="error_disclaimer_app_outdated">يبدو أن إصدار Yukimi الخاص بك قديم. يرجى تثبيت أحدث إصدار للحصول على جميع الإصلاحات المتاحة.</string>
+    <string name="error_disclaimer_app_outdated">يبدو أن إصدار Usagi الخاص بك قديم. يرجى تثبيت أحدث إصدار للحصول على جميع الإصلاحات المتاحة.</string>
     <string name="disable_captcha_notifications">تعطيل اشعارات captcha</string>
     <string name="disable_captcha_notifications_summary">لن تتلقى إشعارات حول حل CAPTCHA لهذا المصدر ولكن هذا قد يؤدي إلى تعطيل العمليات الخلفية (التحقق من وجود فصول جديدة، الحصول على توصيات، وما إلى ذلك...)</string>
     <string name="global_search">البحث العالمي</string>

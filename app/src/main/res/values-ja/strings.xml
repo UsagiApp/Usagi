@@ -117,7 +117,7 @@
     <string name="app_version">現在のバージョン%s</string>
     <string name="clear_search_history">検索履歴をクリア</string>
     <string name="external_storage">外部ストレージ</string>
-    <string name="app_update_available">新しいバージョンの Yukimi が利用可能です</string>
+    <string name="app_update_available">新しいバージョンの Usagi が利用可能です</string>
     <string name="text_empty_holder_primary">ここは空っぽです…</string>
     <string name="favourites_category_empty">空のカテゴリー</string>
     <string name="text_local_holder_secondary">オンラインソースから保存するかファイルをインポートします。</string>

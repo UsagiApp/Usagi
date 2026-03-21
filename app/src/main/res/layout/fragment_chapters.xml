@@ -17,7 +17,7 @@
 		android:paddingHorizontal="@dimen/list_spacing"
 		android:scrollbars="none">
 
-		<org.koitharu.kotatsu.core.ui.widgets.ChipsView
+		<org.draken.usagi.core.ui.widgets.ChipsView
 			android:id="@+id/chips_filter"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -26,12 +26,12 @@
 			android:paddingTop="2dp"
 			android:paddingBottom="6dp"
 			app:chipIconVisible="false"
-			app:chipStyle="@style/Widget.Kotatsu.Chip.Filter"
+			app:chipStyle="@style/Widget.Usagi.Chip.Filter"
 			app:singleLine="true" />
 
 	</HorizontalScrollView>
 
-	<org.koitharu.kotatsu.core.ui.list.fastscroll.FastScrollRecyclerView
+	<org.draken.usagi.core.ui.list.fastscroll.FastScrollRecyclerView
 		android:id="@+id/recyclerView_chapters"
 		android:layout_width="0dp"
 		android:layout_height="0dp"

@@ -8,7 +8,7 @@
 	android:background="@drawable/list_selector"
 	android:clipChildren="false">
 
-	<org.koitharu.kotatsu.image.ui.CoverImageView
+	<org.draken.usagi.image.ui.CoverImageView
 		android:id="@+id/imageView_cover"
 		android:layout_width="40dp"
 		android:layout_height="40dp"
@@ -21,7 +21,7 @@
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Cover.Small"
+		app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Cover.Small"
 		app:trimImage="true"
 		tools:src="@tools:sample/backgrounds/scenic" />
 
@@ -55,7 +55,7 @@
 		app:layout_constraintTop_toBottomOf="@+id/textView_title"
 		tools:text="@tools:sample/lorem/random" />
 
-	<org.koitharu.kotatsu.core.ui.widgets.BadgeView
+	<org.draken.usagi.core.ui.widgets.BadgeView
 		android:id="@+id/badge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

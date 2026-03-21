@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <org.koitharu.kotatsu.core.ui.sheet.AdaptiveSheetHeaderBar
+    <org.draken.usagi.core.ui.sheet.AdaptiveSheetHeaderBar
         android:id="@+id/headerBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -74,7 +74,7 @@
 
     </com.google.android.material.appbar.MaterialToolbar>
 
-    <org.koitharu.kotatsu.core.ui.widgets.TouchBlockLayout
+    <org.draken.usagi.core.ui.widgets.TouchBlockLayout
         android:id="@+id/layout_touchBlock"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -83,6 +83,6 @@
             android:id="@+id/pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </org.koitharu.kotatsu.core.ui.widgets.TouchBlockLayout>
+    </org.draken.usagi.core.ui.widgets.TouchBlockLayout>
 
 </LinearLayout>

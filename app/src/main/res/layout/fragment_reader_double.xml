@@ -7,4 +7,4 @@
 	android:layout_height="match_parent"
 	android:defaultFocusHighlightEnabled="false"
 	android:orientation="horizontal"
-	app:layoutManager="org.koitharu.kotatsu.reader.ui.pager.doublepage.DoublePageLayoutManager" />
+	app:layoutManager="org.draken.usagi.reader.ui.pager.doublepage.DoublePageLayoutManager" />

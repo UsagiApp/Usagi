@@ -22,7 +22,7 @@
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Kotatsu.Circle"
+			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Circle"
 			app:tint="?colorOnPrimary"
 			tools:src="@drawable/ic_shikimori" />
 
@@ -67,7 +67,7 @@
 			app:layout_constraintTop_toBottomOf="@id/textView_title"
 			tools:text="Reading" />
 
-		<org.koitharu.kotatsu.image.ui.CoverImageView
+		<org.draken.usagi.image.ui.CoverImageView
 			android:id="@+id/imageView_cover"
 			android:layout_width="0dp"
 			android:layout_height="0dp"

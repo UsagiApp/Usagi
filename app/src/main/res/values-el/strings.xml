@@ -147,7 +147,7 @@
     <string name="pages_animation">Κίνηση σελίδας</string>
     <string name="wrong_password">Λανθασμένος κωδικός</string>
     <string name="protect_application">Προστασία εφαρμογής</string>
-    <string name="protect_application_summary">Να ζητείται κωδικός κατά την εκκίνηση του Yukimi</string>
+    <string name="protect_application_summary">Να ζητείται κωδικός κατά την εκκίνηση του Usagi</string>
     <string name="repeat_password">Επανάληψη κωδικού</string>
     <string name="passwords_mismatch">Ασύμφωνοι κωδικοί</string>
     <string name="about">Σχετικά</string>
@@ -451,7 +451,7 @@
     <string name="downloads_removed">Οι λήψεις αφαιρέθηκαν</string>
     <string name="suggestions_enable_prompt">Θέλεις να λαμβάνεις εξατομικευμένες προτάσεις για manga;</string>
     <string name="web_view_unavailable">WebView μη διαθέσιμο: έλεγξε αν ο WebView πάροχος είναι εγκατεστημένος.</string>
-    <string name="manga_error_description_pattern">Πληροφορίες σφάλματος:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Προσπάθησε να &lt;a href=%2$s&gt;ανοίξεις το manga μέσω ενός περιηγητή&lt;/a&gt; για να βεβαιωθείς για την διαθεσιμότητα του στην πηγή.&lt;br&gt;2. Βεβαιώσου πως χρησιμοποιείς την &lt;a href=kotatsu://about&gt;πιο πρόσφατη έκδοση του Yukimi.&lt;/a&gt;&lt;br&gt;3. Αν είναι διαθέσιμο, στείλε αναφορά του σφάλματος στους δημιουργούς.</string>
+    <string name="manga_error_description_pattern">Πληροφορίες σφάλματος:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Προσπάθησε να &lt;a href=%2$s&gt;ανοίξεις το manga μέσω ενός περιηγητή&lt;/a&gt; για να βεβαιωθείς για την διαθεσιμότητα του στην πηγή.&lt;br&gt;2. Βεβαιώσου πως χρησιμοποιείς την &lt;a href=kotatsu://about&gt;πιο πρόσφατη έκδοση του Usagi.&lt;/a&gt;&lt;br&gt;3. Αν είναι διαθέσιμο, στείλε αναφορά του σφάλματος στους δημιουργούς.</string>
     <string name="clear_network_cache">Καθάρισε προσωρινή μνήμη δικτύου</string>
     <string name="images_procy_description">Χρησιμοποίησε την υπηρεσία wsrv.nl για να μειώσεις την κίνηση δικτύου και να αυξήσεις την ταχύτητα φόρτωσης εικόνων αν είναι δυνατό</string>
     <string name="reader_info_bar_summary">Εμφάνιση ώρας και προόδου στο πάνω μέρος της οθόνης</string>

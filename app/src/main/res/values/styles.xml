@@ -2,91 +2,91 @@
 
 	<!--AlertDialog-->
 
-	<style name="ThemeOverlay.Kotatsu.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-		<item name="alertDialogStyle">@style/AlertDialog.Kotatsu</item>
+	<style name="ThemeOverlay.Usagi.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+		<item name="alertDialogStyle">@style/AlertDialog.Usagi</item>
 		<item name="dialogCornerRadius">@dimen/m3_alert_dialog_corner_size</item>
 	</style>
 
-	<style name="AlertDialog.Kotatsu" parent="MaterialAlertDialog.Material3">
+	<style name="AlertDialog.Usagi" parent="MaterialAlertDialog.Material3">
 		<item name="android:background">@drawable/m3_popup_background</item>
 	</style>
 
 	<!-- Bottom sheet -->
 
-	<style name="ThemeOverlay.Kotatsu.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
-		<item name="android:windowAnimationStyle">@style/Animation.Kotatsu.BottomSheetDialog</item>
-		<item name="bottomSheetStyle">@style/Widget.Kotatsu.BottomSheet.Modal</item>
+	<style name="ThemeOverlay.Usagi.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+		<item name="android:windowAnimationStyle">@style/Animation.Usagi.BottomSheetDialog</item>
+		<item name="bottomSheetStyle">@style/Widget.Usagi.BottomSheet.Modal</item>
 	</style>
 
-	<style name="ThemeOverlay.Kotatsu.SideSheetDialog" parent="ThemeOverlay.Material3.SideSheetDialog" />
+	<style name="ThemeOverlay.Usagi.SideSheetDialog" parent="ThemeOverlay.Material3.SideSheetDialog" />
 
-	<style name="Widget.Kotatsu.BottomSheet.Modal" parent="Widget.Material3.BottomSheet.Modal">
+	<style name="Widget.Usagi.BottomSheet.Modal" parent="Widget.Material3.BottomSheet.Modal">
 		<item name="paddingBottomSystemWindowInsets">false</item>
 	</style>
 
-	<style name="Widget.Kotatsu.BottomSheet.DragHandle" parent="Widget.Material3.BottomSheet.DragHandle">
+	<style name="Widget.Usagi.BottomSheet.DragHandle" parent="Widget.Material3.BottomSheet.DragHandle">
 		<!-- Fix weird bottom padding -->
 		<item name="android:paddingBottom">0dp</item>
 	</style>
 
-	<style name="Widget.Kotatsu.Spinner.DropDown" parent="Widget.AppCompat.Spinner.DropDown">
+	<style name="Widget.Usagi.Spinner.DropDown" parent="Widget.AppCompat.Spinner.DropDown">
 		<item name="android:popupBackground">@drawable/m3_spinner_popup_background</item>
 		<item name="android:elevation">8dp</item>
 		<item name="android:popupElevation">3dp</item>
 	</style>
 
-	<style name="Animation.Kotatsu.BottomSheetDialog" parent="Animation.AppCompat.Dialog">
+	<style name="Animation.Usagi.BottomSheetDialog" parent="Animation.AppCompat.Dialog">
 		<item name="android:windowEnterAnimation">@anim/bottom_sheet_slide_in</item>
 		<item name="android:windowExitAnimation">@anim/bottom_sheet_slide_out</item>
 	</style>
 
 	<!-- Widget styles -->
 
-	<style name="Widget.Kotatsu.SearchView" parent="@style/Widget.AppCompat.SearchView">
+	<style name="Widget.Usagi.SearchView" parent="@style/Widget.AppCompat.SearchView">
 		<item name="iconifiedByDefault">false</item>
 		<item name="searchIcon">@null</item>
 		<item name="queryBackground">@null</item>
-		<item name="android:textAppearance">@style/TextAppearance.Kotatsu.SearchView</item>
+		<item name="android:textAppearance">@style/TextAppearance.Usagi.SearchView</item>
 		<item name="android:textSize">18sp</item>
 	</style>
 
-	<style name="Widget.Kotatsu.CircularProgressIndicator" parent="Widget.Material3.CircularProgressIndicator">
+	<style name="Widget.Usagi.CircularProgressIndicator" parent="Widget.Material3.CircularProgressIndicator">
 		<item name="trackCornerRadius">@dimen/mtrl_progress_indicator_full_rounded_corner_radius</item>
 	</style>
 
-	<style name="Widget.Kotatsu.LinearProgressIndicator" parent="Widget.Material3.LinearProgressIndicator">
+	<style name="Widget.Usagi.LinearProgressIndicator" parent="Widget.Material3.LinearProgressIndicator">
 		<item name="trackCornerRadius">@dimen/mtrl_progress_indicator_full_rounded_corner_radius</item>
 	</style>
 
-	<style name="Widget.Kotatsu.Chip" parent="Widget.Material3.Chip.Suggestion" />
+	<style name="Widget.Usagi.Chip" parent="Widget.Material3.Chip.Suggestion" />
 
-	<style name="Widget.Kotatsu.Chip.Filter" parent="Widget.Material3.Chip.Filter" />
+	<style name="Widget.Usagi.Chip.Filter" parent="Widget.Material3.Chip.Filter" />
 
-	<style name="Widget.Kotatsu.Chip.Assist" parent="Widget.Material3.Chip.Assist" />
+	<style name="Widget.Usagi.Chip.Assist" parent="Widget.Material3.Chip.Assist" />
 
-	<style name="Widget.Kotatsu.Chip.Dropdown" parent="Widget.Material3.Chip.Assist">
+	<style name="Widget.Usagi.Chip.Dropdown" parent="Widget.Material3.Chip.Assist">
 		<item name="closeIconVisible">true</item>
 		<item name="closeIcon">@drawable/ic_expand_more</item>
 		<item name="chipIconVisible">true</item>
 	</style>
 
-	<style name="Widget.Kotatsu.Button.More" parent="Widget.Material3.Button.TextButton">
+	<style name="Widget.Usagi.Button.More" parent="Widget.Material3.Button.TextButton">
 		<item name="android:minWidth">48dp</item>
 	</style>
 
-	<style name="Widget.Kotatsu.Button.More.Small">
+	<style name="Widget.Usagi.Button.More.Small">
 		<item name="android:insetTop">0dp</item>
 		<item name="android:insetBottom">0dp</item>
 		<item name="android:minHeight">42dp</item>
 	</style>
 
-	<style name="Widget.Kotatsu.ToggleButton" parent="Widget.Material3.Button.OutlinedButton">
+	<style name="Widget.Usagi.ToggleButton" parent="Widget.Material3.Button.OutlinedButton">
 		<item name="android:checkable">true</item>
 		<item name="android:textAlignment">textStart</item>
 		<item name="iconPadding">16dp</item>
 	</style>
 
-	<style name="Widget.Kotatsu.ToggleButton.Vertical">
+	<style name="Widget.Usagi.ToggleButton.Vertical">
 		<item name="android:textAlignment">center</item>
 		<item name="iconPadding">2dp</item>
 		<item name="android:singleLine">false</item>
@@ -99,18 +99,18 @@
 		<item name="shapeAppearance">?shapeAppearanceCornerMedium</item>
 	</style>
 
-	<style name="Widget.Kotatsu.Slider.Wide" parent="Widget.Material3.Slider">
+	<style name="Widget.Usagi.Slider.Wide" parent="Widget.Material3.Slider">
 		<item name="thumbHeight">48dp</item>
 		<item name="trackCornerSize">12dp</item>
 		<item name="trackHeight">40dp</item>
 	</style>
 
-	<style name="Widget.Kotatsu.RecyclerView" parent="">
+	<style name="Widget.Usagi.RecyclerView" parent="">
 		<item name="android:scrollbarStyle">outsideOverlay</item>
 		<item name="android:clipToPadding">false</item>
 	</style>
 
-	<style name="Widget.Kotatsu.FastScroller" parent="">
+	<style name="Widget.Usagi.FastScroller" parent="">
 		<item name="thumbColor">?colorTertiary</item>
 		<item name="bubbleColor">?colorTertiary</item>
 		<item name="bubbleTextColor">?colorOnTertiary</item>
@@ -119,9 +119,9 @@
 		<item name="scrollerOffset">@dimen/grid_spacing_outer</item>
 	</style>
 
-	<style name="Widget.Kotatsu.DotIndicator" parent="" />
+	<style name="Widget.Usagi.DotIndicator" parent="" />
 
-	<style name="Widget.Kotatsu.BadgeView" parent="">
+	<style name="Widget.Usagi.BadgeView" parent="">
 		<item name="android:textColor">@macro/m3_comp_badge_large_label_text_color</item>
 		<item name="android:minWidth">@dimen/m3_badge_with_text_size</item>
 		<item name="android:minHeight">@dimen/m3_badge_with_text_size</item>
@@ -134,7 +134,7 @@
 		<item name="android:outlineProvider">background</item>
 	</style>
 
-	<style name="Widget.Kotatsu.ListItemTextView" parent="">
+	<style name="Widget.Usagi.ListItemTextView" parent="">
 		<item name="android:textColor">@color/list_item_text_color</item>
 		<item name="backgroundFillColor">@color/list_item_background_color</item>
 		<item name="checkedDrawableStart">@drawable/ic_check</item>
@@ -151,7 +151,7 @@
 		<item name="android:paddingEnd">?android:listPreferredItemPaddingEnd</item>
 	</style>
 
-	<style name="Widget.Kotatsu.TwoLinesItemView" parent="">
+	<style name="Widget.Usagi.TwoLinesItemView" parent="">
 		<item name="backgroundFillColor">@color/list_item_background_color</item>
 		<item name="shapeAppearance">?attr/shapeAppearanceCornerLarge</item>
 		<item name="android:insetRight">6dp</item>
@@ -164,7 +164,7 @@
 		<item name="subtitleTextAppearance">?attr/textAppearanceBodySmall</item>
 	</style>
 
-	<style name="Widget.Kotatsu.ExploreButton" parent="Widget.Material3.Button.ElevatedButton.Icon">
+	<style name="Widget.Usagi.ExploreButton" parent="Widget.Material3.Button.ElevatedButton.Icon">
 		<item name="android:minHeight">56dp</item>
 		<item name="android:singleLine">true</item>
 		<item name="shapeAppearance">?shapeAppearanceCornerExtraLarge</item>
@@ -184,13 +184,13 @@
 		<item name="elevation">24dp</item>
 	</style>
 
-	<style name="Widget.Kotatsu.TextView.Indicator" parent="Widget.MaterialComponents.TextView">
+	<style name="Widget.Usagi.TextView.Indicator" parent="Widget.MaterialComponents.TextView">
 		<item name="android:drawablePadding">12dp</item>
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:textAppearance">?textAppearanceLabelMedium</item>
 	</style>
 
-	<style name="Widget.Kotatsu.TextView.Badge" parent="Widget.MaterialComponents.TextView">
+	<style name="Widget.Usagi.TextView.Badge" parent="Widget.MaterialComponents.TextView">
 		<item name="android:background">@drawable/bg_chip</item>
 		<item name="android:gravity">center</item>
 		<item name="android:textAlignment">center</item>
@@ -202,7 +202,7 @@
 		<item name="android:textColor">?colorOnBackground</item>
 	</style>
 
-	<style name="Widget.Kotatsu.ImageView.Cover" parent="Widget.MaterialComponents.ShapeableImageView">
+	<style name="Widget.Usagi.ImageView.Cover" parent="Widget.MaterialComponents.ShapeableImageView">
 		<item name="aspectRationHeight">18</item>
 		<item name="aspectRationWidth">13</item>
 		<item name="android:scaleType">centerCrop</item>
@@ -210,18 +210,18 @@
 		<item name="trimImage">true</item>
 	</style>
 
-	<style name="ThemeOverlay.Kotatsu.MainToolbar" parent="">
+	<style name="ThemeOverlay.Usagi.MainToolbar" parent="">
 		<item name="colorControlHighlight">@color/selector_overlay</item>
 	</style>
 
-	<style name="ThemeOverlay.Kotatsu.ActionMode" parent="">
+	<style name="ThemeOverlay.Usagi.ActionMode" parent="">
 		<item name="colorOnSurface">?colorPrimary</item>
 		<item name="colorControlNormal">?colorPrimary</item>
 	</style>
 
 	<!-- TextAppearance -->
 
-	<style name="TextAppearance.Kotatsu.SearchView" parent="TextAppearance.Material3.SearchBar">
+	<style name="TextAppearance.Usagi.SearchView" parent="TextAppearance.Material3.SearchBar">
 		<item name="android:textColor">?attr/colorOnSurfaceVariant</item>
 	</style>
 
@@ -229,11 +229,11 @@
 		<item name="android:textColor">?attr/colorOnBackground</item>
 	</style>
 
-	<style name="TextAppearance.Kotatsu.Preference.Secondary" parent="TextAppearance.Material3.BodySmall" />
+	<style name="TextAppearance.Usagi.Preference.Secondary" parent="TextAppearance.Material3.BodySmall" />
 
-	<style name="TextAppearance.Kotatsu.GridTitle" parent="TextAppearance.Material3.TitleSmall" />
+	<style name="TextAppearance.Usagi.GridTitle" parent="TextAppearance.Material3.TitleSmall" />
 
-	<style name="TextAppearance.Kotatsu.GridTitle.Small" parent="TextAppearance.Material3.TitleSmall">
+	<style name="TextAppearance.Usagi.GridTitle.Small" parent="TextAppearance.Material3.TitleSmall">
 		<item name="android:textSize">12sp</item>
 		<item name="android:letterSpacing">0.00714286</item>
 		<item name="lineHeight">14sp</item>
@@ -242,19 +242,19 @@
 
 	<!-- Shapes -->
 
-	<style name="ShapeAppearanceOverlay.Kotatsu.Cover" parent="">
+	<style name="ShapeAppearanceOverlay.Usagi.Cover" parent="">
 		<item name="cornerSize">12dp</item>
 	</style>
 
-	<style name="ShapeAppearanceOverlay.Kotatsu.Cover.Medium" parent="">
+	<style name="ShapeAppearanceOverlay.Usagi.Cover.Medium" parent="">
 		<item name="cornerSize">8dp</item>
 	</style>
 
-	<style name="ShapeAppearanceOverlay.Kotatsu.Cover.Small" parent="">
+	<style name="ShapeAppearanceOverlay.Usagi.Cover.Small" parent="">
 		<item name="cornerSize">4dp</item>
 	</style>
 
-	<style name="ShapeAppearanceOverlay.Kotatsu.Circle" parent="">
+	<style name="ShapeAppearanceOverlay.Usagi.Circle" parent="">
 		<item name="cornerFamily">rounded</item>
 		<item name="cornerSize">50%</item>
 	</style>
@@ -268,7 +268,7 @@
 
 	<!--Preferences-->
 
-	<style name="PreferenceThemeOverlay.Kotatsu">
+	<style name="PreferenceThemeOverlay.Usagi">
 		<item name="singleLineTitle">false</item>
 	</style>
 

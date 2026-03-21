@@ -59,7 +59,7 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="@id/slider_timer" />
 
-	<org.koitharu.kotatsu.core.ui.widgets.CubicSlider
+	<org.draken.usagi.core.ui.widgets.CubicSlider
 		android:id="@+id/slider_timer"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
