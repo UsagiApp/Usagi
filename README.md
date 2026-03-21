@@ -55,17 +55,16 @@
   <summary>App development</summary>
 
   <br>
+
   <a href="https://github.com/UsagiApp/Usagi">
-  <picture>
-    <source srcset="https://github-readme-stats.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&bg_color=0d1117&text_color=1976d2&title_color=1976d2&icon_color=0877d2&border_radius=10&description_lines_count=2&show_owner=true" media="(prefers-color-scheme: dark)">
-    <img src="https://github-readme-stats.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&text_color=1976d2&title_color=1976d2&icon_color=0877d2&border_radius=10&description_lines_count=2&show_owner=true" alt="Usagi GitHub Repository">
-  </picture>
-</a>
+    <picture>
+      <source srcset="https://github-readme-stats.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&bg_color=0d1117&text_color=1976d2&title_color=1976d2&icon_color=0877d2&border_radius=10&description_lines_count=2&show_owner=true" media="(prefers-color-scheme: dark)">
+      <img src="https://github-readme-stats.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&text_color=1976d2&title_color=1976d2&icon_color=0877d2&border_radius=10&description_lines_count=2&show_owner=true" alt="Usagi GitHub Repository">
+    </picture>
+  </a>
 
-<br>
-
-**📌 Pull requests are welcome, if you want:
-See [CONTRIBUTING.md](https://github.com/UsagiApp/Usagi/blob/devel/CONTRIBUTING.md) for the guidelines**
+  **📌 Pull requests are welcome, if you want:
+  See [CONTRIBUTING.md](https://github.com/UsagiApp/Usagi/blob/devel/CONTRIBUTING.md) for the guidelines**
 
 </details>
 
@@ -81,8 +80,6 @@ See [CONTRIBUTING.md](https://github.com/UsagiApp/Usagi/blob/devel/CONTRIBUTING.
 please head over to the [Weblate project page](https://hosted.weblate.org/engage/usagi/)**
 
 </details>
-
-<br>
 
 ### Certificate fingerprints
 
