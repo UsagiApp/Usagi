@@ -4,7 +4,7 @@
     <img src="./.github/assets/icon.png" alt="Usagi" title="Usagi" width=25%>
 </a>
 
-**[Usagi](https://github.com/UsagiApp/Usagi) is a free and open-source manga reader for Android with built-in online content sources.**
+**[Usagi](https://github.com/UsagiApp/Usagi) is a free and open-source manga reader for Android.**
 
 ![Android 6.0](https://img.shields.io/badge/android-6.0+-brightgreen) [![weblate](https://hosted.weblate.org/widgets/usagi/-/strings/svg-badge.svg)](https://hosted.weblate.org/engage/usagi/) [![Discord](https://img.shields.io/discord/1484655684879519885?color=5865f2&label=discord)](https://discord.gg/TN68cNCjKX) [![Telegram](https://img.shields.io/badge/chat-telegram-60ACFF?)](https://t.me/usagiapp)
 
