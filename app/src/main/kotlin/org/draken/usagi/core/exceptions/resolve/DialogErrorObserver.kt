@@ -43,16 +43,12 @@ class DialogErrorObserver(
 			.setNegativeButton(R.string.close, listener)
 			.setOnCancelListener(listener)
 		when {
-			isRetry ->
-				dialogBuilder.setPositiveButton(android.R.string.ok, listener)
-			canResolve(value) ->
-				dialogBuilder.setPositiveButton(ExceptionResolver.getResolveStringId(value), listener)
+			isRetry -> dialogBuilder.setPositiveButton(android.R.string.ok, listener)
+			canResolve(value) -> dialogBuilder.setPositiveButton(ExceptionResolver.getResolveStringId(value), listener)
 			value is ParseException -> {
 				val router = router()
 				if (router != null && value.isSerializable()) {
-					dialogBuilder.setPositiveButton(R.string.details) { _, _ ->
-						router.showErrorDialog(value)
-					}
+					dialogBuilder.setPositiveButton(R.string.details) { _, _ -> router.showErrorDialog(value) }
 				}
 			}
 		}
