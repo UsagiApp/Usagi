@@ -1,9 +1,13 @@
 package org.draken.usagi.core.exceptions.resolve
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCaller
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.collection.MutableScatterMap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -12,6 +16,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.draken.usagi.R
 import org.draken.usagi.browser.BrowserActivity
 import org.draken.usagi.browser.cloudflare.CloudFlareActivity
@@ -23,7 +28,9 @@ import org.draken.usagi.core.exceptions.UnsupportedSourceException
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.prefs.AppSettings
+import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.core.ui.dialog.buildAlertDialog
+import org.draken.usagi.core.ui.dialog.setEditText
 import org.draken.usagi.core.util.ext.isHttpUrl
 import org.draken.usagi.core.util.ext.restartApplication
 import org.draken.usagi.details.ui.pager.EmptyMangaReason
@@ -34,13 +41,14 @@ import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.draken.usagi.scrobbling.common.domain.ScrobblerAuthRequiredException
 import org.draken.usagi.scrobbling.common.ui.ScrobblerAuthHelper
 import org.draken.usagi.settings.sources.auth.SourceAuthActivity
+import org.koitharu.kotatsu.parsers.config.ConfigKey
+import org.koitharu.kotatsu.parsers.exception.InputRequiredException
 import java.security.cert.CertPathValidatorException
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.net.ssl.SSLException
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class ExceptionResolver private constructor(
     private val host: Host,
@@ -74,6 +82,8 @@ class ExceptionResolver private constructor(
             }
 
             is InteractiveActionRequiredException -> resolveBrowserAction(e)
+
+			is InputRequiredException -> resolveUserInput(e)
 
             is ProxyConfigException -> {
                 host.router.openProxySettings()
@@ -118,20 +128,63 @@ class ExceptionResolver private constructor(
 
     private suspend fun resolveBrowserAction(
         e: InteractiveActionRequiredException
-    ): Boolean = suspendCoroutine { cont ->
-        continuations[BrowserActivity.TAG] = cont
-        browserActionContract.launch(e)
-    }
+    ): Boolean = suspendCancellableCoroutine { cont ->
+		continuations[BrowserActivity.TAG] = cont
+		browserActionContract.launch(e)
+	}
 
-    private suspend fun resolveCF(e: CloudFlareProtectedException): Boolean = suspendCoroutine { cont ->
-        continuations[CloudFlareActivity.TAG] = cont
-        cloudflareContract.launch(e)
-    }
+    private suspend fun resolveCF(e: CloudFlareProtectedException): Boolean = suspendCancellableCoroutine { cont ->
+		continuations[CloudFlareActivity.TAG] = cont
+		cloudflareContract.launch(e)
+	}
 
-    private suspend fun resolveAuthException(source: MangaSource): Boolean = suspendCoroutine { cont ->
-        continuations[SourceAuthActivity.TAG] = cont
-        sourceAuthContract.launch(source)
-    }
+    private suspend fun resolveAuthException(source: MangaSource): Boolean = suspendCancellableCoroutine { cont ->
+		continuations[SourceAuthActivity.TAG] = cont
+		sourceAuthContract.launch(source)
+	}
+
+	private suspend fun resolveUserInput(e: InputRequiredException): Boolean = suspendCancellableCoroutine { cont ->
+		val ctx = host.context
+		if (ctx == null) {
+			cont.resume(false)
+			return@suspendCancellableCoroutine
+		}
+		var editText: android.widget.EditText? = null
+		buildAlertDialog(ctx) {
+			setTitle(R.string.user_input_required)
+			setMessage(e.message)
+			editText = setEditText(EditorInfo.TYPE_CLASS_TEXT, true)
+			setPositiveButton(android.R.string.ok, null)
+			setNegativeButton(android.R.string.cancel) { _, _ -> cont.resume(false) }
+			setOnCancelListener { cont.resume(false) }
+		}.also { builtDialog ->
+			builtDialog.setOnShowListener {
+				val okBtn = builtDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+				okBtn.isEnabled = false
+				editText?.addTextChangedListener(
+					object : TextWatcher {
+						override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+						override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+						override fun afterTextChanged(s: Editable?) {
+							okBtn.isEnabled = !s.isNullOrBlank()
+						}
+					}
+				)
+				okBtn.setOnClickListener {
+					val value = editText?.text?.toString().orEmpty()
+					if (value.isNotBlank()) {
+						if (e.key.isNotEmpty()) {
+							val sourceSettings = SourceSettings(ctx, e.source)
+							sourceSettings[ConfigKey.UserInput(e.key)] = value
+						}
+						builtDialog.dismiss()
+						cont.resume(true)
+					}
+				}
+			}
+			builtDialog.show()
+		}
+	}
 
     private fun openInBrowser(url: String) {
         host.router.openBrowser(url, null, null)
@@ -240,6 +293,7 @@ class ExceptionResolver private constructor(
             is ProxyConfigException -> R.string.settings
 
             is InteractiveActionRequiredException -> R.string._continue
+			is InputRequiredException -> android.R.string.ok
 
             is EmptyMangaException -> when (e.reason) {
                 EmptyMangaReason.RESTRICTED -> if (e.manga.publicUrl.isHttpUrl()) R.string.open_in_browser else 0

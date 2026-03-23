@@ -30,7 +30,7 @@ private fun PreferenceFragmentCompat.addPreferencesFromParserRepository(reposito
 	val configKeys = repository.getConfigKeys()
 	val screen = preferenceScreen
 	for (key in configKeys) {
-		val preference: Preference = when (key) {
+		val preference: Preference? = when (key) {
 			is ConfigKey.Domain -> {
 				val presetValues = key.presetValues
 				if (presetValues.size <= 1) {
@@ -101,11 +101,16 @@ private fun PreferenceFragmentCompat.addPreferencesFromParserRepository(reposito
 					summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
 				}
 			}
+
+			is ConfigKey.UserInput -> null
 		}
-		preference.isIconSpaceReserved = false
-		preference.key = key.key
-		preference.order = 10
-		screen.addPreference(preference)
+
+		if (preference != null) {
+			preference.isIconSpaceReserved = false
+			preference.key = key.key
+			preference.order = 10
+			screen.addPreference(preference)
+		}
 	}
 }
 

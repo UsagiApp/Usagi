@@ -46,6 +46,7 @@ import org.koitharu.kotatsu.parsers.exception.ParseException
 import org.koitharu.kotatsu.parsers.exception.TooManyRequestExceptions
 import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
 import org.draken.usagi.scrobbling.common.domain.ScrobblerAuthRequiredException
+import org.koitharu.kotatsu.parsers.exception.InputRequiredException
 import java.io.File
 import java.net.ConnectException
 import java.net.HttpURLConnection
@@ -75,6 +76,7 @@ private fun Throwable.getDisplayMessageOrNull(resources: Resources): String? = w
     )
 
     is AuthRequiredException -> resources.getString(R.string.auth_required)
+	is InputRequiredException -> message
     is InteractiveActionRequiredException -> resources.getString(R.string.additional_action_required)
     is CloudFlareProtectedException -> resources.getString(R.string.captcha_required_message)
     is CloudFlareBlockedException -> resources.getString(R.string.blocked_by_server_message)
@@ -154,7 +156,7 @@ fun Throwable.getDisplayIcon(): Int = when (this) {
 
     is CloudFlareBlockedException -> R.drawable.ic_denied_large
 
-    is InteractiveActionRequiredException -> R.drawable.ic_interaction_large
+    is InteractiveActionRequiredException, is InputRequiredException -> R.drawable.ic_interaction_large
     else -> R.drawable.ic_error_large
 }
 
