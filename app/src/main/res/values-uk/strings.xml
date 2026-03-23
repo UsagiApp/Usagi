@@ -895,4 +895,5 @@
     <string name="details_backdrop_blur">Увімкнути розмиття для задника</string>
     <string name="details_appearance">Поява подробиць екрану</string>
     <string name="details_appearance_summary">Стиль екрану, зображення тла та ефект розмиття</string>
+    <string name="preview">Попередній перегляд</string>
 </resources>
