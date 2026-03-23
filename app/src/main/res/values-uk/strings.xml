@@ -894,5 +894,5 @@
     <string name="details_backdrop_summary">Відображати велике зображення обкладинки зверху як зображення задника (так як в Tachiyomi)</string>
     <string name="details_backdrop_blur">Увімкнути розмиття для задника</string>
     <string name="details_appearance">Поява подробиць екрану</string>
-    <string name="details_appearance_summary">Стиль екрану, зображення задника та ефект розмиття</string>
+    <string name="details_appearance_summary">Стиль екрану, зображення тла та ефект розмиття</string>
 </resources>
