@@ -12,7 +12,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import org.draken.usagi.R
-import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.ui.AlertDialogFragment
 import org.draken.usagi.core.ui.list.OnListItemClickListener
 import org.draken.usagi.core.util.ext.getDisplayMessage
@@ -63,7 +62,6 @@ class RestoreDialogFragment : AlertDialogFragment<DialogRestoreBinding>(), OnLis
 			R.id.button_restore -> {
 				if (startRestoreService()) {
 					Toast.makeText(v.context, R.string.backup_restored_background, Toast.LENGTH_SHORT).show()
-	
 					dismiss()
 				} else {
 					Toast.makeText(v.context, R.string.operation_not_supported, Toast.LENGTH_SHORT).show()

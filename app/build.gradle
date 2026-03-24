@@ -108,7 +108,7 @@ android {
 }
 dependencies {
 	implementation libs.jsoup
-	implementation libs.kotatsu.parsers
+	implementation libs.core.exts
 	coreLibraryDesugaring libs.desugar.jdk.libs
 	implementation libs.kotlin.stdlib
 	implementation libs.kotlinx.coroutines.android

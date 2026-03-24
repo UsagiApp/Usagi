@@ -22,9 +22,11 @@ import org.koitharu.kotatsu.parsers.util.names
 import androidx.activity.result.contract.ActivityResultContracts
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
 
 @AndroidEntryPoint
 class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
@@ -125,29 +127,31 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 		val plugins = org.draken.usagi.core.parser.DynamicParserManager.getInstalledPlugins(requireContext())
 		if (plugins.isEmpty()) {
 			category.addPreference(Preference(requireContext()).apply {
-				title = "No plugins installed"
-				summary = "Click 'Load from JAR file' above to add sources."
+				title = context.getString(R.string.no_plugins)
+				summary = context.getString(R.string.no_plugins_summary)
 				isSelectable = false
 			})
 		} else {
 			plugins.forEach { pluginName ->
 				category.addPreference(Preference(requireContext()).apply {
 					title = pluginName
-					summary = "Tap to delete this plugin"
+					summary = context.getString(R.string.confirm_delete_plugin)
 					setOnPreferenceClickListener {
 						androidx.appcompat.app.AlertDialog.Builder(requireContext())
-							.setTitle("Delete Plugin")
-							.setMessage("Are you sure you want to delete ${pluginName}?")
-							.setPositiveButton("Delete") { _, _ ->
+							.setTitle(R.string.delete_plugin)
+							.setMessage(context.getString(R.string.confirm_delete_plugin, pluginName))
+							.setPositiveButton(R.string.delete) { _, _ ->
                                 lifecycleScope.launch(Dispatchers.IO) {
                                     org.draken.usagi.core.parser.DynamicParserManager.deletePlugin(requireContext(), pluginName)
                                     withContext(Dispatchers.Main) {
                                         updatePluginsList()
-                                        Toast.makeText(requireContext(), "Deleted $pluginName", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(requireContext(),
+											context.getString(R.string.confirm_delete_plugin, pluginName),
+											Toast.LENGTH_SHORT).show()
                                     }
                                 }
 							}
-							.setNegativeButton("Cancel", null)
+							.setNegativeButton(android.R.string.cancel, null)
 							.show()
 						true
 					}
@@ -167,19 +171,19 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 
 				val editText = android.widget.EditText(context).apply {
 					setText(originalName.removeSuffix(".jar"))
-					hint = "Plugin name"
+					hint = context.getString(R.string.plugin_name)
 				}
-				val dialogResult = kotlinx.coroutines.suspendCancellableCoroutine<String?> { cont ->
-					androidx.appcompat.app.AlertDialog.Builder(context)
-						.setTitle("Name this plugin")
+				val dialogResult = kotlinx.coroutines.suspendCancellableCoroutine { cont ->
+					MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_Usagi_AlertDialog)
+						.setTitle(R.string.set_plugin_name)
 						.setView(editText)
 						.setPositiveButton(android.R.string.ok) { _, _ ->
-							cont.resume(editText.text.toString().trim(), null)
+							cont.resume(editText.text.toString().trim())
 						}
 						.setNegativeButton(android.R.string.cancel) { _, _ ->
-							cont.resume(null, null)
+							cont.resume(null) { cause, _, _ -> null?.let { it(cause) } }
 						}
-						.setOnCancelListener { cont.resume(null, null) }
+						.setOnCancelListener { cont.resume(null) }
 						.show()
 				}
 				if (dialogResult.isNullOrBlank()) return@launch
