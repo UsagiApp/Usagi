@@ -146,7 +146,7 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
                                     withContext(Dispatchers.Main) {
                                         updatePluginsList()
                                         Toast.makeText(requireContext(),
-											context.getString(R.string.confirm_delete_plugin, pluginName),
+											context.getString(R.string.deleted_plugin, pluginName),
 											Toast.LENGTH_SHORT).show()
                                     }
                                 }
