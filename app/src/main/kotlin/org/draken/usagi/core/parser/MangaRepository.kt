@@ -21,6 +21,9 @@ import org.koitharu.kotatsu.parsers.model.MangaListFilterOptions
 import org.koitharu.kotatsu.parsers.model.MangaPage
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.model.SortOrder
+import kotlinx.coroutines.launch
+import org.draken.usagi.core.model.MangaSourceRegistry
+import org.draken.usagi.core.util.ext.processLifecycleScope
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -62,6 +65,16 @@ interface MangaRepository {
 	) {
 
 		private val cache = ArrayMap<MangaSource, WeakReference<MangaRepository>>()
+
+		init {
+			processLifecycleScope.launch {
+				MangaSourceRegistry.updates.collect {
+					synchronized(cache) {
+						cache.clear()
+					}
+				}
+			}
+		}
 
 		@AnyThread
 		fun create(source: MangaSource): MangaRepository {
