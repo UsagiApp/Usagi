@@ -19,7 +19,6 @@ import org.koitharu.kotatsu.parsers.model.MangaListFilter
 import org.koitharu.kotatsu.parsers.model.MangaListFilterCapabilities
 import org.koitharu.kotatsu.parsers.model.MangaListFilterOptions
 import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.model.SortOrder
 import java.lang.ref.WeakReference
@@ -85,7 +84,7 @@ interface MangaRepository {
 		}
 
 		private fun createRepository(source: MangaSource): MangaRepository? = when (source) {
-			is MangaParserSource -> ParserMangaRepository(
+			is MangaSource -> ParserMangaRepository(
 				parser = loaderContext.newParserInstance(source),
 				cache = contentCache,
 				mirrorSwitcher = mirrorSwitcher,

@@ -919,4 +919,6 @@
 	<string name="details_appearance">Details screen appearance</string>
 	<string name="details_appearance_summary">Screen style, backdrop image and blur effect</string>
 	<string name="preview">Preview</string>
+	<string name="load_from_jar">Import sources</string>
+	<string name="load_from_jar_summary">Load all sources / plugins by importing a single JAR file</string>
 </resources>

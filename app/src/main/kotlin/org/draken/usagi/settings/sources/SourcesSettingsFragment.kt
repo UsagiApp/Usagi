@@ -19,11 +19,24 @@ import org.draken.usagi.core.util.ext.setDefaultValueCompat
 import org.draken.usagi.explore.data.SourcesSortOrder
 import org.koitharu.kotatsu.parsers.util.names
 
+import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 @AndroidEntryPoint
 class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 	SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private val viewModel by viewModels<SourcesSettingsViewModel>()
+
+	private val importJarLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+		if (uri != null) {
+			importJar(uri)
+		}
+	}
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 		addPreferencesFromResource(R.xml.pref_sources)
@@ -78,6 +91,11 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 			true
 		}
 
+		"import_parser_jar" -> {
+			importJarLauncher.launch(arrayOf("application/java-archive", "application/vnd.android.package-archive", "application/octet-stream"))
+			true
+		}
+
 		AppSettings.KEY_HANDLE_LINKS -> {
 			viewModel.setLinksEnabled((preference as TwoStatePreference).isChecked)
 			true
@@ -94,5 +112,28 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 
 	private fun updateEnableAllDependencies() {
 		findPreference<Preference>(AppSettings.KEY_SOURCES_CATALOG)?.isEnabled = !settings.isAllSourcesEnabled
+	}
+
+	private fun importJar(uri: android.net.Uri) {
+		val context = requireContext()
+		lifecycleScope.launch {
+			try {
+				withContext(Dispatchers.IO) {
+					context.contentResolver.openInputStream(uri)?.use { input ->
+						val outFile = java.io.File(context.filesDir, "parsers-plugin.jar")
+						java.io.FileOutputStream(outFile).use { output ->
+							input.copyTo(output)
+						}
+					}
+				}
+				org.draken.usagi.core.parser.DynamicParserManager.loadParsersFromJar(
+					context, java.io.File(context.filesDir, "parsers-plugin.jar")
+				)
+				Toast.makeText(context, "Parser plugin imported and loaded successfully", Toast.LENGTH_LONG).show()
+			} catch (e: Exception) {
+				e.printStackTrace()
+				Toast.makeText(context, "Failed to load plugin: ${e.message}", Toast.LENGTH_LONG).show()
+			}
+		}
 	}
 }

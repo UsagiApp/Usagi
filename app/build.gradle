@@ -107,11 +107,7 @@ android {
 	}
 }
 dependencies {
-	implementation(libs.kotatsu.parsers) {
-		exclude group: 'org.json', module: 'json'
-		exclude group: 'com.google', module: 're2j'
-	}
-
+	implementation libs.jsoup
 	coreLibraryDesugaring libs.desugar.jdk.libs
 	implementation libs.kotlin.stdlib
 	implementation libs.kotlinx.coroutines.android

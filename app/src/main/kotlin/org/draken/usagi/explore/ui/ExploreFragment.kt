@@ -43,7 +43,7 @@ import org.draken.usagi.explore.ui.model.MangaSourceItem
 import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListHeader
 import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
+import org.koitharu.kotatsu.parsers.model.MangaSource
 
 @AndroidEntryPoint
 class ExploreFragment :
@@ -170,7 +170,7 @@ class ExploreFragment :
 		menu.findItem(R.id.action_pin).isVisible = selectedSources.all { !it.isPinned }
 		menu.findItem(R.id.action_unpin).isVisible = selectedSources.all { it.isPinned }
 		menu.findItem(R.id.action_disable)?.isVisible = !viewModel.isAllSourcesEnabled.value &&
-			selectedSources.all { it.mangaSource is MangaParserSource }
+			selectedSources.all { it.mangaSource is MangaSource }
 		menu.findItem(R.id.action_delete)?.isVisible = selectedSources.all { it.mangaSource is ExternalMangaSource }
 		return super.onPrepareActionMode(controller, mode, menu)
 	}

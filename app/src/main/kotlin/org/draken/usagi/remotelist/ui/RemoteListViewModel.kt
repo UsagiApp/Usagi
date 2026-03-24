@@ -44,7 +44,7 @@ import org.draken.usagi.list.ui.model.toErrorState
 import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.domain.model.LocalManga
 import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
+import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.sizeOrZero
 import javax.inject.Inject
 
@@ -120,7 +120,7 @@ open class RemoteListViewModel @Inject constructor(
 			sourcesRepository.trackUsage(source)
 		}
 
-        if (source is MangaParserSource && source.isBroken) {
+        if (source is MangaSource && source.isBroken) {
             // Just notify one. Will show reason in future
             onSourceBroken.call(Unit)
         }

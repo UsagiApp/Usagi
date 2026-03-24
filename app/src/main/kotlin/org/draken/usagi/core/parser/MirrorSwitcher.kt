@@ -8,7 +8,7 @@ import okhttp3.Request
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.network.MangaHttpClient
 import org.draken.usagi.core.prefs.AppSettings
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
+import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.await
 import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import java.util.EnumSet
@@ -19,7 +19,7 @@ class MirrorSwitcher @Inject constructor(
 	@MangaHttpClient private val okHttpClient: OkHttpClient,
 ) {
 
-	private val blacklist = EnumSet.noneOf(MangaParserSource::class.java)
+	private val blacklist = mutableSetOf<MangaSource>()
 	private val mutex: Mutex = Mutex()
 
 	val isEnabled: Boolean

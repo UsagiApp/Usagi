@@ -20,6 +20,12 @@
         android:persistent="false"
         android:title="@string/manage_sources" />
 
+    <Preference
+        android:key="import_parser_jar"
+        android:persistent="false"
+        android:title="@string/load_from_jar"
+        android:summary="@string/load_from_jar_summary" />
+
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="sources_enabled_all"

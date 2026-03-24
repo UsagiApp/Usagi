@@ -91,6 +91,16 @@ open class BaseApp : Application(), Configuration.Provider {
 			setupDatabaseObservers()
 			localStorageChanges.collect(localMangaIndexProvider.get())
 		}
+		
+		val parsersJar = java.io.File(filesDir, "parsers-plugin.jar")
+		if (parsersJar.exists()) {
+			try {
+				org.draken.usagi.core.parser.DynamicParserManager.loadParsersFromJar(this, parsersJar)
+			} catch (e: Exception) {
+				e.printStackTrace()
+			}
+		}
+		
 		workScheduleManager.init()
 	}
 

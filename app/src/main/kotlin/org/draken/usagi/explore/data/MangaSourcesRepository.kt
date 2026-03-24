@@ -30,7 +30,6 @@ import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.ui.util.ReversibleHandle
 import org.draken.usagi.core.util.ext.flattenLatest
 import org.koitharu.kotatsu.parsers.model.ContentType
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
 import org.koitharu.kotatsu.parsers.util.mapNotNullToSet
@@ -52,9 +51,8 @@ class MangaSourcesRepository @Inject constructor(
 	private val dao: MangaSourcesDao
 		get() = db.getSourcesDao()
 
-	val allMangaSources: Set<MangaParserSource> = Collections.unmodifiableSet(
-		EnumSet.allOf(MangaParserSource::class.java)
-	)
+	val allMangaSources: Set<MangaSource>
+		get() = org.draken.usagi.core.model.MangaSourceRegistry.sources.toSet()
 
 	suspend fun getEnabledSources(): List<MangaSource> {
 		assimilateNewSources()
@@ -97,7 +95,7 @@ class MangaSourcesRepository @Inject constructor(
 		if (settings.isAllSourcesEnabled) {
 			return emptySet()
 		}
-		val result = EnumSet.copyOf(allMangaSources)
+		val result = allMangaSources.toMutableSet()
 		if (settings.isNsfwContentDisabled) {
 			result.removeAll { it.isNsfw() }
 		}
@@ -120,7 +118,7 @@ class MangaSourcesRepository @Inject constructor(
 		query: String?,
 		locale: String?,
 		sortOrder: SourcesSortOrder?,
-	): List<MangaParserSource> {
+	): List<MangaSource> {
 		assimilateNewSources()
 		val entities = dao.findAll().toMutableList()
 		val hideBrokenSources = settings.isBrokenSourcesHidden
@@ -135,7 +133,7 @@ class MangaSourcesRepository @Inject constructor(
 			sortOrder = sortOrder,
 			hideBrokenSources = hideBrokenSources,
 		).run {
-			mapNotNullTo(ArrayList(size)) { it.mangaSource as? MangaParserSource }
+			mapNotNullTo(ArrayList(size)) { it.mangaSource as? MangaSource }
 		}
 		if (locale != null) {
 			sources.retainAll { it.locale == locale }
@@ -335,7 +333,7 @@ class MangaSourcesRepository @Inject constructor(
 
 	private suspend fun getNewSources(): MutableSet<out MangaSource> {
 		val entities = dao.findAll()
-		val result = EnumSet.copyOf(allMangaSources)
+		val result = allMangaSources.toMutableSet()
 		for (e in entities) {
 			result.remove(e.source.toMangaSourceOrNull() ?: continue)
 		}
@@ -439,5 +437,5 @@ class MangaSourcesRepository @Inject constructor(
 		isAllSourcesEnabled
 	}
 
-	private fun String.toMangaSourceOrNull(): MangaParserSource? = MangaParserSource.entries.find { it.name == this }
+	private fun String.toMangaSourceOrNull(): MangaSource? = org.draken.usagi.core.model.MangaSourceRegistry.sources.find { it.name == this }
 }

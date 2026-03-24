@@ -23,7 +23,7 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.lifecycleScope
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.explore.data.SourcesSortOrder
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
+import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.mapToSet
 import org.draken.usagi.settings.sources.model.SourceConfigItem
 import javax.inject.Inject
@@ -70,7 +70,7 @@ class SourcesListProducer @Inject constructor(
 	}
 
 	private suspend fun buildList(): List<SourceConfigItem> {
-		val enabledSources = repository.getEnabledSources().filter { it.unwrap() is MangaParserSource }
+		val enabledSources = repository.getEnabledSources().filter { it.unwrap() is MangaSource }
 		val pinned = repository.getPinnedSources().mapToSet { it.name }
 		val isNsfwDisabled = settings.isNsfwContentDisabled
 		val isReorderAvailable = settings.sourcesSortOrder == SourcesSortOrder.MANUAL

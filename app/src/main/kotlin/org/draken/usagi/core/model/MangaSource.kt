@@ -15,7 +15,6 @@ import org.draken.usagi.core.util.ext.getDisplayName
 import org.draken.usagi.core.util.ext.toLocale
 import org.draken.usagi.core.util.ext.toLocaleOrNull
 import org.koitharu.kotatsu.parsers.model.ContentType
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.splitTwoParts
 import java.util.Locale
@@ -42,7 +41,7 @@ fun MangaSource(name: String?): MangaSource {
 		val parts = name.substringAfter(':').splitTwoParts('/') ?: return UnknownMangaSource
 		return ExternalMangaSource(packageName = parts.first, authority = parts.second)
 	}
-	MangaParserSource.entries.forEach {
+	org.draken.usagi.core.model.MangaSourceRegistry.sources.forEach {
 		if (it.name == name) return it
 	}
 	return UnknownMangaSource
@@ -52,7 +51,7 @@ fun Collection<String>.toMangaSources() = map(::MangaSource)
 
 fun MangaSource.isNsfw(): Boolean = when (this) {
 	is MangaSourceInfo -> mangaSource.isNsfw()
-	is MangaParserSource -> contentType == ContentType.HENTAI
+	is MangaSource -> contentType == ContentType.HENTAI
 	else -> false
 }
 
@@ -79,10 +78,10 @@ tailrec fun MangaSource.unwrap(): MangaSource = if (this is MangaSourceInfo) {
 	this
 }
 
-fun MangaSource.getLocale(): Locale? = (unwrap() as? MangaParserSource)?.locale?.toLocaleOrNull()
+fun MangaSource.getLocale(): Locale? = (unwrap() as? MangaSource)?.locale?.toLocaleOrNull()
 
 fun MangaSource.getSummary(context: Context): String? = when (val source = unwrap()) {
-	is MangaParserSource -> {
+	is MangaSource -> {
 		val type = context.getString(source.contentType.titleResId)
 		val locale = source.locale.toLocale().getDisplayName(context)
 		context.getString(R.string.source_summary_pattern, type, locale)
@@ -94,7 +93,7 @@ fun MangaSource.getSummary(context: Context): String? = when (val source = unwra
 }
 
 fun MangaSource.getTitle(context: Context): String = when (val source = unwrap()) {
-	is MangaParserSource -> source.title
+	is MangaSource -> source.title
 	LocalMangaSource -> context.getString(R.string.local_storage)
 	TestMangaSource -> context.getString(R.string.test_parser)
 	is ExternalMangaSource -> source.resolveName(context)
