@@ -129,10 +129,9 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 				org.draken.usagi.core.parser.DynamicParserManager.loadParsersFromJar(
 					context, java.io.File(context.filesDir, "parsers-plugin.jar")
 				)
-				Toast.makeText(context, "Parser plugin imported and loaded successfully", Toast.LENGTH_LONG).show()
-			} catch (e: Exception) {
-				e.printStackTrace()
-				Toast.makeText(context, "Failed to load plugin: ${e.message}", Toast.LENGTH_LONG).show()
+				Toast.makeText(context, R.string.load_success, Toast.LENGTH_LONG).show()
+			} catch (_: Exception) {
+				Toast.makeText(context, R.string.load_failed, Toast.LENGTH_LONG).show()
 			}
 		}
 	}
