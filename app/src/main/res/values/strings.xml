@@ -921,6 +921,4 @@
 	<string name="preview">Preview</string>
 	<string name="load_from_jar">Import sources</string>
 	<string name="load_from_jar_summary">Load all sources / plugins by importing a single JAR file</string>
-	<string name="load_success">Plugin imported and loaded successfully</string>
-	<string name="load_failed">Failed to load plugin from this JAR file</string>
 </resources>

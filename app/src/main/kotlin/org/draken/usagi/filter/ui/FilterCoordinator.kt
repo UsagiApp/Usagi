@@ -59,7 +59,7 @@ class FilterCoordinator @Inject constructor(
 
     private val coroutineScope = lifecycle.lifecycleScope + Dispatchers.Default
     private val repository = mangaRepositoryFactory.create(MangaSource(savedStateHandle[RemoteListFragment.ARG_SOURCE]))
-    private val sourceLocale = repository.source.locale
+    private val sourceLocale = (repository.source as? MangaSource)?.locale
 
     private val currentListFilter = MutableStateFlow(MangaListFilter.EMPTY)
     private val currentSortOrder = MutableStateFlow(repository.defaultSortOrder)

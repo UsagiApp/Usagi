@@ -1,0 +1,17 @@
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/alternatives/domain/AlternativesUseCase.kt:66:7 Check for instance is always 'true'.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/alternatives/domain/AlternativesUseCase.kt:66:30 Check for instance is always 'true'.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/core/model/MangaSource.kt:54:2 Check for instance is always 'true'.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/core/model/MangaSource.kt:55:2 'when' is exhaustive so 'else' is redundant here.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/core/model/MangaSource.kt:84:2 Check for instance is always 'true'.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/core/model/MangaSource.kt:92:2 'when' is exhaustive so 'else' is redundant here.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/core/model/MangaSource.kt:96:2 Check for instance is always 'true'.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/core/model/MangaSource.kt:100:2 'when' is exhaustive so 'else' is redundant here.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/core/parser/MangaRepository.kt:87:4 Check for instance is always 'true'.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/core/parser/MangaRepository.kt:108:4 'when' is exhaustive so 'else' is redundant here.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/explore/ui/ExploreFragment.kt:173:26 Check for instance is always 'true'.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/list/domain/ListFilterOption.kt:128:5 Check for instance is always 'true'.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/list/domain/ListFilterOption.kt:129:5 'when' is exhaustive so 'else' is redundant here.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/remotelist/ui/RemoteListViewModel.kt:123:13 Check for instance is always 'true'.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/search/ui/multi/SearchViewModel.kt:209:8 Check for instance is always 'true'.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/search/ui/multi/SearchViewModel.kt:320:7 Check for instance is always 'true'.
+w: file:///home/dra/StudioProjects/Usagi/app/src/main/kotlin/org/draken/usagi/settings/sources/manage/SourcesListProducer.kt:73:64 Check for instance is always 'true'.

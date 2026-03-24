@@ -25,7 +25,6 @@ import org.draken.usagi.R
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.os.AppValidator
 import org.draken.usagi.core.os.RomCompat
-import org.draken.usagi.core.parser.DynamicParserManager
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.processLifecycleScope
 import org.draken.usagi.local.data.LocalStorageChanges
@@ -33,7 +32,6 @@ import org.draken.usagi.local.data.index.LocalMangaIndex
 import org.draken.usagi.local.domain.model.LocalManga
 import org.koitharu.kotatsu.parsers.util.suspendlazy.getOrNull
 import org.draken.usagi.settings.work.WorkScheduleManager
-import java.io.File
 import java.security.Security
 import javax.inject.Inject
 import javax.inject.Provider
@@ -93,11 +91,16 @@ open class BaseApp : Application(), Configuration.Provider {
 			setupDatabaseObservers()
 			localStorageChanges.collect(localMangaIndexProvider.get())
 		}
-
-		val parsersJar = File(filesDir, "plugin.jar")
+		
+		val parsersJar = java.io.File(filesDir, "parsers-plugin.jar")
 		if (parsersJar.exists()) {
-			DynamicParserManager.loadParsersFromJar(this, parsersJar)
+			try {
+				org.draken.usagi.core.parser.DynamicParserManager.loadParsersFromJar(this, parsersJar)
+			} catch (e: Exception) {
+				e.printStackTrace()
+			}
 		}
+		
 		workScheduleManager.init()
 	}
 

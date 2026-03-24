@@ -22,7 +22,6 @@ import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.db.dao.MangaSourcesDao
 import org.draken.usagi.core.db.entity.MangaSourceEntity
 import org.draken.usagi.core.model.MangaSourceInfo
-import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.parser.external.ExternalMangaSource
@@ -35,6 +34,8 @@ import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
 import org.koitharu.kotatsu.parsers.util.mapNotNullToSet
 import org.koitharu.kotatsu.parsers.util.mapToSet
+import java.util.Collections
+import java.util.EnumSet
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -51,7 +52,7 @@ class MangaSourcesRepository @Inject constructor(
 		get() = db.getSourcesDao()
 
 	val allMangaSources: Set<MangaSource>
-		get() = MangaSourceRegistry.sources.toSet()
+		get() = org.draken.usagi.core.model.MangaSourceRegistry.sources.toSet()
 
 	suspend fun getEnabledSources(): List<MangaSource> {
 		assimilateNewSources()
@@ -132,7 +133,7 @@ class MangaSourcesRepository @Inject constructor(
 			sortOrder = sortOrder,
 			hideBrokenSources = hideBrokenSources,
 		).run {
-			mapNotNullTo(ArrayList(size)) { it.mangaSource }
+			mapNotNullTo(ArrayList(size)) { it.mangaSource as? MangaSource }
 		}
 		if (locale != null) {
 			sources.retainAll { it.locale == locale }
@@ -152,12 +153,12 @@ class MangaSourcesRepository @Inject constructor(
 	}
 
 	private val registryUpdates: Flow<Unit>
-		get() = MangaSourceRegistry.updates.onStart { emit(Unit) }
+		get() = org.draken.usagi.core.model.MangaSourceRegistry.updates.onStart { emit(Unit) }
 
 	fun observeIsEnabled(source: MangaSource): Flow<Boolean> {
-		return registryUpdates.flatMapLatest {
+		return registryUpdates.flatMapLatest { 
             assimilateNewSources()
-            dao.observeIsEnabled(source.name)
+            dao.observeIsEnabled(source.name) 
         }
 	}
 
@@ -458,5 +459,5 @@ class MangaSourcesRepository @Inject constructor(
 		isAllSourcesEnabled
 	}
 
-	private fun String.toMangaSourceOrNull(): MangaSource? = MangaSourceRegistry.sources.find { it.name == this }
+	private fun String.toMangaSourceOrNull(): MangaSource? = org.draken.usagi.core.model.MangaSourceRegistry.sources.find { it.name == this }
 }

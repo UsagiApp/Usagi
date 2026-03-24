@@ -91,11 +91,8 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 			true
 		}
 
-		"import_jar" -> {
-			importJarLauncher.launch(arrayOf(
-				"application/java-archive",
-				"application/vnd.android.package-archive",
-				"application/octet-stream"))
+		"import_parser_jar" -> {
+			importJarLauncher.launch(arrayOf("application/java-archive", "application/vnd.android.package-archive", "application/octet-stream"))
 			true
 		}
 
@@ -123,18 +120,19 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 			try {
 				withContext(Dispatchers.IO) {
 					context.contentResolver.openInputStream(uri)?.use { input ->
-						val outFile = java.io.File(context.filesDir, "plugin.jar")
+						val outFile = java.io.File(context.filesDir, "parsers-plugin.jar")
 						java.io.FileOutputStream(outFile).use { output ->
 							input.copyTo(output)
 						}
 					}
 				}
 				org.draken.usagi.core.parser.DynamicParserManager.loadParsersFromJar(
-					context, java.io.File(context.filesDir, "plugin.jar")
+					context, java.io.File(context.filesDir, "parsers-plugin.jar")
 				)
-				Toast.makeText(context, R.string.load_success, Toast.LENGTH_LONG).show()
-			} catch (_: Exception) {
-				Toast.makeText(context, R.string.load_failed, Toast.LENGTH_LONG).show()
+				Toast.makeText(context, "Parser plugin imported and loaded successfully", Toast.LENGTH_LONG).show()
+			} catch (e: Exception) {
+				e.printStackTrace()
+				Toast.makeText(context, "Failed to load plugin: ${e.message}", Toast.LENGTH_LONG).show()
 			}
 		}
 	}
