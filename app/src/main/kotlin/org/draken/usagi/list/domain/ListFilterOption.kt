@@ -125,7 +125,9 @@ sealed interface ListFilterOption {
 
 		override val titleText: CharSequence?
 			get() = when (val source = mangaSource.unwrap()) {
-				is ExternalMangaSource, LocalMangaSource, org.draken.usagi.core.model.TestMangaSource, org.draken.usagi.core.model.UnknownMangaSource -> null
+				is ExternalMangaSource, LocalMangaSource,
+					org.draken.usagi.core.model.TestMangaSource,
+					org.draken.usagi.core.model.UnknownMangaSource -> null
 				else -> source.title
 			}
 

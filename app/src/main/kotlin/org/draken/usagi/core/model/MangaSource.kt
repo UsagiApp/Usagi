@@ -41,7 +41,7 @@ fun MangaSource(name: String?): MangaSource {
 		val parts = name.substringAfter(':').splitTwoParts('/') ?: return UnknownMangaSource
 		return ExternalMangaSource(packageName = parts.first, authority = parts.second)
 	}
-	org.draken.usagi.core.model.MangaSourceRegistry.sources.forEach {
+	MangaSourceRegistry.sources.forEach {
 		if (it.name == name) return it
 	}
 	return UnknownMangaSource
@@ -77,7 +77,7 @@ tailrec fun MangaSource.unwrap(): MangaSource = if (this is MangaSourceInfo) {
 	this
 }
 
-fun MangaSource.getLocale(): Locale? = (unwrap() as? MangaSource)?.locale?.toLocaleOrNull()
+fun MangaSource.getLocale(): Locale? = unwrap().locale.toLocaleOrNull()
 
 fun MangaSource.getSummary(context: Context): String? = when (val source = unwrap()) {
 	is ExternalMangaSource -> context.getString(R.string.external_source)

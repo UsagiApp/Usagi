@@ -16,9 +16,7 @@ import org.draken.usagi.core.util.ext.toLocale
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.filter.ui.model.FilterProperty
 import org.koitharu.kotatsu.parsers.model.ContentType
-import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.mapToSet
-import java.util.EnumSet
 import java.util.Locale
 import javax.inject.Inject
 

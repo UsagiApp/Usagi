@@ -11,7 +11,6 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.await
 import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
-import java.util.EnumSet
 import javax.inject.Inject
 
 class MirrorSwitcher @Inject constructor(
