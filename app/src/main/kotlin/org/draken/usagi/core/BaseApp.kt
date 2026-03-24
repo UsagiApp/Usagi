@@ -94,10 +94,9 @@ open class BaseApp : Application(), Configuration.Provider {
 			localStorageChanges.collect(localMangaIndexProvider.get())
 		}
 
-		val parsersJar = File(filesDir, "plugin.jar")
-		if (parsersJar.exists()) {
-			DynamicParserManager.loadParsersFromJar(this, parsersJar)
-		}
+		val pluginsDir = File(filesDir, "plugins")
+		if (!pluginsDir.exists()) pluginsDir.mkdirs()
+		DynamicParserManager.loadParsersFromDirectory(this, pluginsDir)
 		workScheduleManager.init()
 	}
 

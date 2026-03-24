@@ -35,7 +35,7 @@ import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
 import org.koitharu.kotatsu.parsers.util.mapNotNullToSet
 import org.koitharu.kotatsu.parsers.util.mapToSet
-import java.util.concurrent.atomic.AtomicBoolean
+
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,12 +46,12 @@ class MangaSourcesRepository @Inject constructor(
 	private val settings: AppSettings,
 ) {
 
-	private val isNewSourcesAssimilated = AtomicBoolean(false)
+	private var assimilatedVersion = -1
 	private val dao: MangaSourcesDao
 		get() = db.getSourcesDao()
 
-	val allMangaSources: Set<MangaSource>
-		get() = MangaSourceRegistry.sources.toSet()
+	val allMangaSources: List<MangaSource>
+		get() = MangaSourceRegistry.sources
 
 	suspend fun getEnabledSources(): List<MangaSource> {
 		assimilateNewSources()
@@ -299,9 +299,11 @@ class MangaSourcesRepository @Inject constructor(
 	}
 
 	private suspend fun assimilateNewSources(): Boolean {
-		if (isNewSourcesAssimilated.getAndSet(true)) {
+		val currentVersion = MangaSourceRegistry.version
+		if (assimilatedVersion == currentVersion) {
 			return false
 		}
+		assimilatedVersion = currentVersion
 		val new = getNewSources()
 		if (new.isEmpty()) {
 			return false
@@ -426,15 +428,13 @@ class MangaSourcesRepository @Inject constructor(
 			if (hideBrokenSources && source.isBroken) {
 				continue
 			}
-			if (source in allMangaSources) {
-				result.add(
-					MangaSourceInfo(
-						mangaSource = source,
-						isEnabled = entity.isEnabled || isAllEnabled,
-						isPinned = entity.isPinned,
-					),
-				)
-			}
+			result.add(
+				MangaSourceInfo(
+					mangaSource = source,
+					isEnabled = entity.isEnabled || isAllEnabled,
+					isPinned = entity.isPinned,
+				),
+			)
 		}
 		if (sortOrder == SourcesSortOrder.ALPHABETIC) {
 			result.sortWith(compareBy<MangaSourceInfo> { !it.isPinned }.thenBy { it.getTitle(context) })
@@ -458,5 +458,17 @@ class MangaSourcesRepository @Inject constructor(
 		isAllSourcesEnabled
 	}
 
-	private fun String.toMangaSourceOrNull(): MangaSource? = MangaSourceRegistry.sources.find { it.name == this }
+	private var cachedSourcesVersion = -1
+	private var sourcesMap = emptyMap<String, MangaSource>()
+
+	private fun getSourcesMap(): Map<String, MangaSource> {
+		val currentVersion = MangaSourceRegistry.version
+		if (cachedSourcesVersion != currentVersion) {
+			sourcesMap = MangaSourceRegistry.sources.associateBy { it.name }
+			cachedSourcesVersion = currentVersion
+		}
+		return sourcesMap
+	}
+
+	private fun String.toMangaSourceOrNull(): MangaSource? = getSourcesMap()[this]
 }

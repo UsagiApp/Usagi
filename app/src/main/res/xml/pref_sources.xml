@@ -26,6 +26,10 @@
         android:title="@string/load_from_jar"
         android:summary="@string/load_from_jar_summary" />
 
+    <PreferenceCategory
+        android:key="plugins_category"
+        android:title="@string/installed_plugin" />
+
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="sources_enabled_all"

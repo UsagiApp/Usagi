@@ -77,6 +77,7 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 			}
 		}
 		updateEnableAllDependencies()
+		updatePluginsList()
 		settings.subscribe(this)
 	}
 
@@ -117,21 +118,84 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 		findPreference<Preference>(AppSettings.KEY_SOURCES_CATALOG)?.isEnabled = !settings.isAllSourcesEnabled
 	}
 
+	private fun updatePluginsList() {
+		val category = findPreference<androidx.preference.PreferenceCategory>("plugins_category") ?: return
+		category.removeAll()
+
+		val plugins = org.draken.usagi.core.parser.DynamicParserManager.getInstalledPlugins(requireContext())
+		if (plugins.isEmpty()) {
+			category.addPreference(Preference(requireContext()).apply {
+				title = "No plugins installed"
+				summary = "Click 'Load from JAR file' above to add sources."
+				isSelectable = false
+			})
+		} else {
+			plugins.forEach { pluginName ->
+				category.addPreference(Preference(requireContext()).apply {
+					title = pluginName
+					summary = "Tap to delete this plugin"
+					setOnPreferenceClickListener {
+						androidx.appcompat.app.AlertDialog.Builder(requireContext())
+							.setTitle("Delete Plugin")
+							.setMessage("Are you sure you want to delete ${pluginName}?")
+							.setPositiveButton("Delete") { _, _ ->
+                                lifecycleScope.launch(Dispatchers.IO) {
+                                    org.draken.usagi.core.parser.DynamicParserManager.deletePlugin(requireContext(), pluginName)
+                                    withContext(Dispatchers.Main) {
+                                        updatePluginsList()
+                                        Toast.makeText(requireContext(), "Deleted $pluginName", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+							}
+							.setNegativeButton("Cancel", null)
+							.show()
+						true
+					}
+				})
+			}
+		}
+	}
+
 	private fun importJar(uri: android.net.Uri) {
 		val context = requireContext()
 		lifecycleScope.launch {
 			try {
+				val originalName = androidx.documentfile.provider.DocumentFile.fromSingleUri(context, uri)?.name
+					?: "plugin_${System.currentTimeMillis()}.jar"
+				val pluginsDir = java.io.File(context.filesDir, "plugins")
+				if (!pluginsDir.exists()) pluginsDir.mkdirs()
+
+				val editText = android.widget.EditText(context).apply {
+					setText(originalName.removeSuffix(".jar"))
+					hint = "Plugin name"
+				}
+				val dialogResult = kotlinx.coroutines.suspendCancellableCoroutine<String?> { cont ->
+					androidx.appcompat.app.AlertDialog.Builder(context)
+						.setTitle("Name this plugin")
+						.setView(editText)
+						.setPositiveButton(android.R.string.ok) { _, _ ->
+							cont.resume(editText.text.toString().trim(), null)
+						}
+						.setNegativeButton(android.R.string.cancel) { _, _ ->
+							cont.resume(null, null)
+						}
+						.setOnCancelListener { cont.resume(null, null) }
+						.show()
+				}
+				if (dialogResult.isNullOrBlank()) return@launch
+
+				val fileName = "$dialogResult.jar"
+				val outFile = java.io.File(pluginsDir, fileName)
+
 				withContext(Dispatchers.IO) {
 					context.contentResolver.openInputStream(uri)?.use { input ->
-						val outFile = java.io.File(context.filesDir, "plugin.jar")
 						java.io.FileOutputStream(outFile).use { output ->
 							input.copyTo(output)
 						}
 					}
 				}
-				org.draken.usagi.core.parser.DynamicParserManager.loadParsersFromJar(
-					context, java.io.File(context.filesDir, "plugin.jar")
-				)
+				org.draken.usagi.core.parser.DynamicParserManager.loadParsersFromDirectory(context, pluginsDir)
+				updatePluginsList()
 				Toast.makeText(context, R.string.load_success, Toast.LENGTH_LONG).show()
 			} catch (_: Exception) {
 				Toast.makeText(context, R.string.load_failed, Toast.LENGTH_LONG).show()

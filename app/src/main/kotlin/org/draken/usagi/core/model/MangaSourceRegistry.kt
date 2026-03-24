@@ -8,6 +8,10 @@ import java.util.concurrent.CopyOnWriteArrayList
 object MangaSourceRegistry {
     val sources: MutableList<MangaSource> = CopyOnWriteArrayList()
 
+    @Volatile
+    var version: Int = 0
+        private set
+
     val entries: List<MangaSource>
     	get() = sources
 
@@ -15,4 +19,8 @@ object MangaSourceRegistry {
         replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
+
+    fun incrementVersion() {
+        version++
+    }
 }

@@ -9,6 +9,7 @@ import org.koitharu.kotatsu.parsers.model.MangaSource
 import java.io.File
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
+import java.util.concurrent.ConcurrentHashMap
 
 class PluginClassLoader(
     dexPath: String,
@@ -17,11 +18,6 @@ class PluginClassLoader(
     parent: ClassLoader
 ) : DexClassLoader(dexPath, optimizedDirectory, librarySearchPath, parent) {
     override fun loadClass(name: String, resolve: Boolean): Class<*> {
-        /*
-			Force the JAR to delegate these shared API classes to Usagi (parent classloader)
-			This ensures instances like Manga, MangaSource, and LinkResolver are the exact same Class type
-			in both the JAR and Usagi, preventing ClassCastException or IllegalArgumentException
-        */
         if (name == "org.koitharu.kotatsu.parsers.util.LinkResolver" ||
             name.startsWith("org.koitharu.kotatsu.parsers.util.LinkResolver$") ||
             name == "org.koitharu.kotatsu.parsers.MangaLoaderContext" ||
@@ -32,11 +28,6 @@ class PluginClassLoader(
             return super.loadClass(name, resolve)
         }
 
-        /*
-			Force the JAR to load these specific interfaces and internal implementations from itself
-			This prevents JVM ABI crashes (like missing internal methods due to Kotlin module mangling
-			or interface signature mismatches)
-        */
         if (name == "org.koitharu.kotatsu.parsers.MangaParser" ||
             name == "org.koitharu.kotatsu.parsers.model.MangaParserSource" ||
             name.startsWith("org.koitharu.kotatsu.parsers.site.") ||
@@ -55,60 +46,107 @@ class PluginClassLoader(
 }
 
 object DynamicParserManager {
-    private var classLoader: ClassLoader? = null
+    private val classLoaders = mutableMapOf<String, ClassLoader>()
     private val newParserMethods = mutableMapOf<String, Method>()
+    private val methodCache = ConcurrentHashMap<Method, Method>()
 
     @Throws(Exception::class)
-    fun loadParsersFromJar(context: Context, jarFile: File) {
+    fun loadParsersFromDirectory(context: Context, pluginDir: File) {
         val cacheDir = context.codeCacheDir.absolutePath
         val parentClassLoader = context.classLoader
-        val dexClassLoader = PluginClassLoader(
-            jarFile.absolutePath,
-            cacheDir,
-            null,
-            parentClassLoader
-        )
 
-        val factoryClass = dexClassLoader.loadClass("org.koitharu.kotatsu.parsers.MangaParserFactoryKt")
-        val enumClass = dexClassLoader.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
+        val newSources = mutableListOf<MangaSource>()
+        val newMethods = mutableMapOf<String, Method>()
+        val newClassLoaders = mutableMapOf<String, ClassLoader>()
 
-        MangaSourceRegistry.sources.clear()
-        newParserMethods.clear()
-        val enumConstants = enumClass.enumConstants
-        if (enumConstants != null) {
-            val mangaLoaderContextClass = dexClassLoader.loadClass("org.koitharu.kotatsu.parsers.MangaLoaderContext")
-            val newParserMethod = factoryClass.getMethod("newParser", enumClass, mangaLoaderContextClass)
-            for (constant in enumConstants) {
-                if (constant is MangaSource) {
-                    MangaSourceRegistry.sources.add(constant)
-                    newParserMethods[constant.name] = newParserMethod
+        if (!pluginDir.exists()) pluginDir.mkdirs()
+
+        val jarFiles = pluginDir.listFiles { file -> file.extension == "jar" } ?: emptyArray()
+
+        for (jarFile in jarFiles) {
+            val dexClassLoader = PluginClassLoader(
+                jarFile.absolutePath,
+                cacheDir,
+                null,
+                parentClassLoader
+            )
+
+            try {
+                val factoryClass = dexClassLoader.loadClass("org.koitharu.kotatsu.parsers.MangaParserFactoryKt")
+                val enumClass = dexClassLoader.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
+
+                val enumConstants = enumClass.enumConstants
+                if (enumConstants != null) {
+                    val mangaLoaderContextClass = dexClassLoader.loadClass("org.koitharu.kotatsu.parsers.MangaLoaderContext")
+                    val newParserMethod = factoryClass.getMethod("newParser", enumClass, mangaLoaderContextClass)
+
+                    for (constant in enumConstants) {
+                        if (constant is MangaSource) {
+                            val wrappedSource = org.draken.usagi.core.model.PluginMangaSource(constant, jarFile.name)
+                            newSources.add(wrappedSource)
+                            newMethods[constant.name + ":" + jarFile.name] = newParserMethod
+                        }
+                    }
                 }
+                newClassLoaders[jarFile.name] = dexClassLoader
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
-        classLoader = dexClassLoader
+        
+        MangaSourceRegistry.sources.clear()
+        newParserMethods.clear()
+        methodCache.clear()
+        classLoaders.clear()
+        
+        MangaSourceRegistry.sources.addAll(newSources)
+        newParserMethods.putAll(newMethods)
+        classLoaders.putAll(newClassLoaders)
+
+        MangaSourceRegistry.incrementVersion()
         MangaSourceRegistry.updates.tryEmit(Unit)
     }
 
-    fun createParser(source: MangaSource, context: MangaLoaderContext): MangaParser {
-        val cl = classLoader ?: throw IllegalStateException("No parser JAR loaded. Please upload a kotatsu-parsers DEX plugin.")
-        val method = newParserMethods[source.name] ?: throw IllegalArgumentException("Unknown parser source: ${source.name}")
+    fun deletePlugin(context: Context, jarName: String) {
+        val pluginDir = File(context.filesDir, "plugins")
+        val jarFile = File(pluginDir, jarName)
+        if (jarFile.exists()) {
+            jarFile.delete()
+        }
+        loadParsersFromDirectory(context, pluginDir)
+    }
 
-        // Find the actual enum constant belonging to the JAR's classloader to invoke newParser
+    fun getInstalledPlugins(context: Context): List<String> {
+        val pluginDir = File(context.filesDir, "plugins")
+        return pluginDir.listFiles { file -> file.extension == "jar" }?.map { it.name } ?: emptyList()
+    }
+
+    fun createParser(source: MangaSource, context: MangaLoaderContext): MangaParser {
+        val pluginSource = (source as? org.draken.usagi.core.model.PluginMangaSource)
+            ?: MangaSourceRegistry.sources.firstOrNull { 
+                it is org.draken.usagi.core.model.PluginMangaSource && it.delegate.name == source.name 
+            } as? org.draken.usagi.core.model.PluginMangaSource
+            ?: throw IllegalArgumentException("No plugin found for source: ${source.name}")
+
+        val cl = classLoaders[pluginSource.jarName] ?: throw IllegalStateException("Parser JAR not loaded for ${pluginSource.jarName}.")
+        val method = newParserMethods[pluginSource.delegate.name + ":" + pluginSource.jarName] 
+            ?: throw IllegalArgumentException("Unknown parser source: ${source.name}")
+
         val enumClass = cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
-        val fallbackConstant = enumClass.enumConstants?.firstOrNull { (it as MangaSource).name == source.name }
-            ?: throw IllegalArgumentException("Parser source missing in plugin JAR: ${source.name}")
+        val fallbackConstant = enumClass.enumConstants?.firstOrNull { (it as MangaSource).name == pluginSource.delegate.name }
+            ?: throw IllegalArgumentException("Parser source missing in plugin JAR: ${pluginSource.delegate.name}")
         val pluginParser = method.invoke(null, fallbackConstant, context)
             ?: throw IllegalStateException("Parser loaded as null")
 
-        // Wrap the JAR parser in a dynamic proxy that implements Usagi's MangaParser interface.
-        // This bridges calls from Usagi directly into the JAR parser without triggering ClassCastExceptions.
         return Proxy.newProxyInstance(
             MangaParser::class.java.classLoader,
             arrayOf(MangaParser::class.java)
 		) { _, invokedMethod, args ->
 			val methodArgs = args ?: emptyArray()
 			try {
-				val delegateMethod = pluginParser.javaClass.getMethod(invokedMethod.name, *invokedMethod.parameterTypes)
+                val delegateMethod = methodCache.getOrPut(invokedMethod) {
+                    pluginParser.javaClass.getMethod(invokedMethod.name, *invokedMethod.parameterTypes)
+                }
 				delegateMethod.invoke(pluginParser, *methodArgs)
 			} catch (e: java.lang.reflect.InvocationTargetException) {
 				throw e.targetException

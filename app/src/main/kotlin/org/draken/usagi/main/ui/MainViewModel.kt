@@ -33,7 +33,6 @@ class MainViewModel @Inject constructor(
 ) : BaseViewModel() {
 
 	val onOpenReader = MutableEventFlow<Manga>()
-	val onFirstStart = MutableEventFlow<Unit>()
 
 	val isResumeEnabled = readingResumeEnabledUseCase()
 		.withErrorHandling()
@@ -65,11 +64,7 @@ class MainViewModel @Inject constructor(
 		launchJob {
 			appUpdateRepository.fetchUpdate()
 		}
-		launchJob(Dispatchers.Default) {
-			if (sourcesRepository.isSetupRequired()) {
-				onFirstStart.call(Unit)
-			}
-		}
+
 	}
 
 	fun openLastReader() {

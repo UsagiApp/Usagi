@@ -63,7 +63,7 @@ class RestoreDialogFragment : AlertDialogFragment<DialogRestoreBinding>(), OnLis
 			R.id.button_restore -> {
 				if (startRestoreService()) {
 					Toast.makeText(v.context, R.string.backup_restored_background, Toast.LENGTH_SHORT).show()
-					router.closeWelcomeSheet()
+	
 					dismiss()
 				} else {
 					Toast.makeText(v.context, R.string.operation_not_supported, Toast.LENGTH_SHORT).show()
