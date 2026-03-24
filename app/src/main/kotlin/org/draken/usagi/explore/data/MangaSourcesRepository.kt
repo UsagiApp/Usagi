@@ -299,6 +299,9 @@ class MangaSourcesRepository @Inject constructor(
 	}
 
 	private suspend fun assimilateNewSources(): Boolean {
+		if (MangaSourceRegistry.sources.isEmpty()) {
+			return false // No plugins loaded yet, preserve existing DB records
+		}
 		val currentVersion = MangaSourceRegistry.version
 		if (assimilatedVersion == currentVersion) {
 			return false
@@ -325,9 +328,6 @@ class MangaSourcesRepository @Inject constructor(
 		return true
 	}
 
-	suspend fun isSetupRequired(): Boolean {
-		return settings.sourcesVersion == 0 && dao.findAllEnabledNames().isEmpty()
-	}
 
 	suspend fun setIsPinned(sources: Collection<MangaSource>, isPinned: Boolean): ReversibleHandle {
 		setSourcesPinnedImpl(sources, isPinned)

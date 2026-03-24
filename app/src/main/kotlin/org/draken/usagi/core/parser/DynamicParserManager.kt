@@ -142,15 +142,56 @@ object DynamicParserManager {
             MangaParser::class.java.classLoader,
             arrayOf(MangaParser::class.java)
 		) { _, invokedMethod, args ->
-			val methodArgs = args ?: emptyArray()
+			// Handle Object methods directly
+			when (invokedMethod.name) {
+				"toString" -> return@newProxyInstance "PluginParser[${pluginSource.name}]"
+				"hashCode" -> return@newProxyInstance pluginParser.hashCode()
+				"equals" -> return@newProxyInstance (pluginParser == args?.firstOrNull())
+			}
+			val methodArgs = args ?: arrayOfNulls(0)
 			try {
                 val delegateMethod = methodCache.getOrPut(invokedMethod) {
-                    pluginParser.javaClass.getMethod(invokedMethod.name, *invokedMethod.parameterTypes)
+                    findCompatibleMethod(pluginParser.javaClass, invokedMethod.name, invokedMethod.parameterTypes)
                 }
 				delegateMethod.invoke(pluginParser, *methodArgs)
 			} catch (e: java.lang.reflect.InvocationTargetException) {
 				throw e.targetException
 			}
 		} as MangaParser
+    }
+
+    /**
+     * Find a method on the target class by name and parameter count,
+     * handling cross-classloader type mismatches.
+     */
+    private fun findCompatibleMethod(targetClass: Class<*>, name: String, paramTypes: Array<Class<*>>): Method {
+        // Try exact match first (works for methods with primitive/standard types)
+        try {
+            return targetClass.getMethod(name, *paramTypes)
+        } catch (_: NoSuchMethodException) {
+            // Fall through to fuzzy matching
+        }
+        // Fuzzy match: find by name + parameter count
+        val candidates = targetClass.methods.filter { 
+            it.name == name && it.parameterCount == paramTypes.size
+        }
+        if (candidates.size == 1) {
+            return candidates[0]
+        }
+        // Multiple overloads: try matching by parameter type names
+        for (candidate in candidates) {
+            val candidateTypes = candidate.parameterTypes
+            var match = true
+            for (i in paramTypes.indices) {
+                if (candidateTypes[i].name != paramTypes[i].name) {
+                    match = false
+                    break
+                }
+            }
+            if (match) return candidate
+        }
+        // Last resort: return first candidate
+        return candidates.firstOrNull()
+            ?: throw NoSuchMethodException("No compatible method found: $name(${paramTypes.joinToString { it.name }})")
     }
 }
