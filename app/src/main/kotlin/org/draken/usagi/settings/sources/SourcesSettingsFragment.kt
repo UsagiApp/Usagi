@@ -135,7 +135,7 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 			plugins.forEach { pluginName ->
 				category.addPreference(Preference(requireContext()).apply {
 					title = pluginName
-					summary = context.getString(R.string.confirm_delete_plugin)
+					summary = context.getString(R.string.tap_to_delete_plugin)
 					setOnPreferenceClickListener {
 						androidx.appcompat.app.AlertDialog.Builder(requireContext())
 							.setTitle(R.string.delete_plugin)
