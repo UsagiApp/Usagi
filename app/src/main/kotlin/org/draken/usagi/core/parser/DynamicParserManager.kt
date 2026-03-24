@@ -48,7 +48,7 @@ class PluginClassLoader(
 object DynamicParserManager {
     private val classLoaders = mutableMapOf<String, ClassLoader>()
     private val newParserMethods = mutableMapOf<String, Method>()
-    private val methodCache = ConcurrentHashMap<Method, Method>()
+    private val methodCache = ConcurrentHashMap<Pair<Method, Class<*>>, Method>()
 
     @Throws(Exception::class)
     fun loadParsersFromDirectory(context: Context, pluginDir: File) {
@@ -150,7 +150,7 @@ object DynamicParserManager {
 			}
 			val methodArgs = args ?: arrayOfNulls(0)
 			try {
-                val delegateMethod = methodCache.getOrPut(invokedMethod) {
+                val delegateMethod = methodCache.getOrPut(Pair(invokedMethod, pluginParser.javaClass)) {
                     findCompatibleMethod(pluginParser.javaClass, invokedMethod.name, invokedMethod.parameterTypes)
                 }
 				delegateMethod.invoke(pluginParser, *methodArgs)
