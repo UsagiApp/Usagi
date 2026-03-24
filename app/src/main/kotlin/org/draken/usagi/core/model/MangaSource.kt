@@ -51,8 +51,7 @@ fun Collection<String>.toMangaSources() = map(::MangaSource)
 
 fun MangaSource.isNsfw(): Boolean = when (this) {
 	is MangaSourceInfo -> mangaSource.isNsfw()
-	is MangaSource -> contentType == ContentType.HENTAI
-	else -> false
+	else -> contentType == ContentType.HENTAI
 }
 
 @get:StringRes
@@ -81,23 +80,21 @@ tailrec fun MangaSource.unwrap(): MangaSource = if (this is MangaSourceInfo) {
 fun MangaSource.getLocale(): Locale? = (unwrap() as? MangaSource)?.locale?.toLocaleOrNull()
 
 fun MangaSource.getSummary(context: Context): String? = when (val source = unwrap()) {
-	is MangaSource -> {
+	is ExternalMangaSource -> context.getString(R.string.external_source)
+    LocalMangaSource, TestMangaSource, UnknownMangaSource -> null
+	else -> {
 		val type = context.getString(source.contentType.titleResId)
 		val locale = source.locale.toLocale().getDisplayName(context)
 		context.getString(R.string.source_summary_pattern, type, locale)
 	}
-
-	is ExternalMangaSource -> context.getString(R.string.external_source)
-
-	else -> null
 }
 
 fun MangaSource.getTitle(context: Context): String = when (val source = unwrap()) {
-	is MangaSource -> source.title
 	LocalMangaSource -> context.getString(R.string.local_storage)
 	TestMangaSource -> context.getString(R.string.test_parser)
 	is ExternalMangaSource -> source.resolveName(context)
-	else -> context.getString(R.string.unknown)
+    UnknownMangaSource -> context.getString(R.string.unknown)
+	else -> source.title
 }
 
 fun SpannableStringBuilder.appendIcon(textView: TextView, @DrawableRes resId: Int): SpannableStringBuilder {

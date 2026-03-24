@@ -70,7 +70,13 @@ class SourcesListProducer @Inject constructor(
 	}
 
 	private suspend fun buildList(): List<SourceConfigItem> {
-		val enabledSources = repository.getEnabledSources().filter { it.unwrap() is MangaSource }
+		val enabledSources = repository.getEnabledSources().filter { 
+            val unwrapped = it.unwrap()
+            unwrapped !is org.draken.usagi.core.parser.external.ExternalMangaSource && 
+            unwrapped !is org.draken.usagi.core.model.LocalMangaSource && 
+            unwrapped !is org.draken.usagi.core.model.TestMangaSource && 
+            unwrapped !is org.draken.usagi.core.model.UnknownMangaSource 
+        }
 		val pinned = repository.getPinnedSources().mapToSet { it.name }
 		val isNsfwDisabled = settings.isNsfwContentDisabled
 		val isReorderAvailable = settings.sourcesSortOrder == SourcesSortOrder.MANUAL

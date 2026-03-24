@@ -206,7 +206,7 @@ class SearchViewModel @Inject constructor(
 		},
 		onFailure = { error ->
 			error.printStackTraceDebug()
-			if (source is MangaSource && source.isBroken) {
+			if (source.isBroken) {
 				null
 			} else {
 				SearchResultsListModel(0, source, null, null, emptyList(), error)
@@ -317,9 +317,7 @@ class SearchViewModel @Inject constructor(
 
 	private fun MangaSource.priority(): Int {
 		var res = 0
-		if (this is MangaSource) {
-			if (locale.toLocale() == Locale.getDefault()) res += 2
-		}
+		if (locale.toLocale() == Locale.getDefault()) res += 2
 		return res
 	}
 }

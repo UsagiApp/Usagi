@@ -170,7 +170,7 @@ class ExploreFragment :
 		menu.findItem(R.id.action_pin).isVisible = selectedSources.all { !it.isPinned }
 		menu.findItem(R.id.action_unpin).isVisible = selectedSources.all { it.isPinned }
 		menu.findItem(R.id.action_disable)?.isVisible = !viewModel.isAllSourcesEnabled.value &&
-			selectedSources.all { it.mangaSource is MangaSource }
+			selectedSources.all { it.mangaSource !is ExternalMangaSource && it.mangaSource !is LocalMangaSource && it.mangaSource !is org.draken.usagi.core.model.TestMangaSource && it.mangaSource !is org.draken.usagi.core.model.UnknownMangaSource }
 		menu.findItem(R.id.action_delete)?.isVisible = selectedSources.all { it.mangaSource is ExternalMangaSource }
 		return super.onPrepareActionMode(controller, mode, menu)
 	}

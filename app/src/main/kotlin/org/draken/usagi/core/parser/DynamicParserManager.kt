@@ -87,6 +87,7 @@ object DynamicParserManager {
         }
         
         classLoader = dexClassLoader
+        org.draken.usagi.core.model.MangaSourceRegistry.updates.tryEmit(Unit)
     }
 
     fun createParser(source: MangaSource, context: MangaLoaderContext): MangaParser {

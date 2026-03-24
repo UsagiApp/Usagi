@@ -120,7 +120,7 @@ open class RemoteListViewModel @Inject constructor(
 			sourcesRepository.trackUsage(source)
 		}
 
-        if (source is MangaSource && source.isBroken) {
+        if (source.isBroken) {
             // Just notify one. Will show reason in future
             onSourceBroken.call(Unit)
         }

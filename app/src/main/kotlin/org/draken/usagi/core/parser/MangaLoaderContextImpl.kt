@@ -52,6 +52,10 @@ class MangaLoaderContextImpl @Inject constructor(
 
 	override fun getDefaultUserAgent(): String = webViewExecutor.defaultUserAgent ?: UserAgents.FIREFOX_MOBILE
 
+	override fun getParserSources(): List<MangaSource> = org.draken.usagi.core.model.MangaSourceRegistry.sources
+
+	override fun newParserInstance(source: MangaSource): MangaParser = org.draken.usagi.core.parser.DynamicParserManager.createParser(source, this)
+
 	override fun getConfig(source: MangaSource): MangaSourceConfig {
 		return SourceSettings(androidContext, source)
 	}
