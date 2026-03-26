@@ -23,6 +23,7 @@ import org.draken.usagi.core.db.dao.MangaSourcesDao
 import org.draken.usagi.core.db.entity.MangaSourceEntity
 import org.draken.usagi.core.model.MangaSourceInfo
 import org.draken.usagi.core.model.MangaSourceRegistry
+import org.draken.usagi.core.model.PluginMangaSource
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.parser.external.ExternalMangaSource
@@ -235,15 +236,6 @@ class MangaSourcesRepository @Inject constructor(
 		setSourcesEnabledImpl(sources, isEnabled)
 		return ReversibleHandle {
 			setSourcesEnabledImpl(sources, !isEnabled)
-		}
-	}
-
-	suspend fun setSourcesEnabledExclusive(sources: Set<MangaSource>) {
-		db.withTransaction {
-			assimilateNewSources()
-			for (s in allMangaSources) {
-				dao.setEnabled(s.name, s in sources)
-			}
 		}
 	}
 
@@ -464,7 +456,16 @@ class MangaSourcesRepository @Inject constructor(
 	private fun getSourcesMap(): Map<String, MangaSource> {
 		val currentVersion = MangaSourceRegistry.version
 		if (cachedSourcesVersion != currentVersion) {
-			sourcesMap = MangaSourceRegistry.sources.associateBy { it.name }
+			val map = mutableMapOf<String, MangaSource>()
+			for (source in MangaSourceRegistry.sources) {
+				// Primary: compound name (e.g., "1.jar:MANGADEX")
+				map[source.name] = source
+				// Fallback: legacy pure name (e.g., "MANGADEX"), first-come wins
+				if (source is PluginMangaSource) {
+					map.putIfAbsent(source.sourceName, source)
+				}
+			}
+			sourcesMap = map
 			cachedSourcesVersion = currentVersion
 		}
 		return sourcesMap

@@ -20,7 +20,12 @@ import org.koitharu.kotatsu.parsers.util.splitTwoParts
 import java.util.Locale
 
 data class PluginMangaSource(val delegate: MangaSource, val jarName: String) : MangaSource {
+    /** Unique name combining jar and source for DB/registry identification */
     override val name: String
+        get() = "$jarName:${delegate.name}"
+
+    /** Original source name from the plugin enum */
+    val sourceName: String
         get() = delegate.name
 
     val displayName: String
@@ -61,8 +66,13 @@ fun MangaSource(name: String?): MangaSource {
 		val parts = name.substringAfter(':').splitTwoParts('/') ?: return UnknownMangaSource
 		return ExternalMangaSource(packageName = parts.first, authority = parts.second)
 	}
+	// Exact match on compound name (e.g., "1.jar:MANGADEX")
 	MangaSourceRegistry.sources.forEach {
 		if (it.name == name) return it
+	}
+	// Fallback: match old-format pure source name (e.g., "MANGADEX") against sourceName
+	MangaSourceRegistry.sources.forEach {
+		if (it is PluginMangaSource && it.sourceName == name) return it
 	}
 	return UnknownMangaSource
 }

@@ -3,6 +3,7 @@ package org.draken.usagi.core.parser
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Base64
+import androidx.annotation.Keep
 import androidx.core.os.LocaleListCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.withTimeout
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Keep
 @Singleton
 class MangaLoaderContextImpl @Inject constructor(
 	@MangaHttpClient override val httpClient: OkHttpClient,
@@ -75,7 +77,15 @@ class MangaLoaderContextImpl @Inject constructor(
 	override fun requestBrowserAction(
 		parser: MangaParser,
 		url: String,
-	): Nothing = throw InteractiveActionRequiredException(parser.source, url)
+	): Nothing {
+		val sourceName = try {
+            val source = parser.javaClass.getMethod("getSource").invoke(parser)
+            source.javaClass.getMethod("getName").invoke(source) as? String ?: "Unknown"
+        } catch (_: Exception) {
+            "Unknown"
+        }
+		throw InteractiveActionRequiredException(sourceName, url)
+	}
 
 	override fun redrawImageResponse(response: Response, redraw: (image: Bitmap) -> Bitmap): Response {
 		return response.map { body ->

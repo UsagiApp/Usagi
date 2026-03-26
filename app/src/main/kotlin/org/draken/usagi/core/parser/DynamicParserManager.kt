@@ -64,6 +64,9 @@ object DynamicParserManager {
         val jarFiles = pluginDir.listFiles { file -> file.extension == "jar" } ?: emptyArray()
 
         for (jarFile in jarFiles) {
+			// Fix A14+ storage compatibility
+            jarFile.setReadOnly()
+
             val dexClassLoader = PluginClassLoader(
                 jarFile.absolutePath,
                 cacheDir,
@@ -84,7 +87,7 @@ object DynamicParserManager {
                         if (constant is MangaSource) {
                             val wrappedSource = org.draken.usagi.core.model.PluginMangaSource(constant, jarFile.name)
                             newSources.add(wrappedSource)
-                            newMethods[constant.name + ":" + jarFile.name] = newParserMethod
+                            newMethods[wrappedSource.name] = newParserMethod
                         }
                     }
                 }
@@ -93,12 +96,12 @@ object DynamicParserManager {
                 e.printStackTrace()
             }
         }
-        
+
         MangaSourceRegistry.sources.clear()
         newParserMethods.clear()
         methodCache.clear()
         classLoaders.clear()
-        
+
         MangaSourceRegistry.sources.addAll(newSources)
         newParserMethods.putAll(newMethods)
         classLoaders.putAll(newClassLoaders)
@@ -123,18 +126,18 @@ object DynamicParserManager {
 
     fun createParser(source: MangaSource, context: MangaLoaderContext): MangaParser {
         val pluginSource = (source as? org.draken.usagi.core.model.PluginMangaSource)
-            ?: MangaSourceRegistry.sources.firstOrNull { 
-                it is org.draken.usagi.core.model.PluginMangaSource && it.delegate.name == source.name 
+            ?: MangaSourceRegistry.sources.firstOrNull {
+                it is org.draken.usagi.core.model.PluginMangaSource && (it.name == source.name || it.sourceName == source.name)
             } as? org.draken.usagi.core.model.PluginMangaSource
             ?: throw IllegalArgumentException("No plugin found for source: ${source.name}")
 
         val cl = classLoaders[pluginSource.jarName] ?: throw IllegalStateException("Parser JAR not loaded for ${pluginSource.jarName}.")
-        val method = newParserMethods[pluginSource.delegate.name + ":" + pluginSource.jarName] 
+        val method = newParserMethods[pluginSource.name]
             ?: throw IllegalArgumentException("Unknown parser source: ${source.name}")
 
         val enumClass = cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
-        val fallbackConstant = enumClass.enumConstants?.firstOrNull { (it as MangaSource).name == pluginSource.delegate.name }
-            ?: throw IllegalArgumentException("Parser source missing in plugin JAR: ${pluginSource.delegate.name}")
+        val fallbackConstant = enumClass.enumConstants?.firstOrNull { (it as MangaSource).name == pluginSource.sourceName }
+            ?: throw IllegalArgumentException("Parser source missing in plugin JAR: ${pluginSource.sourceName}")
         val pluginParser = method.invoke(null, fallbackConstant, context)
             ?: throw IllegalStateException("Parser loaded as null")
 
@@ -150,7 +153,7 @@ object DynamicParserManager {
 			}
 			val methodArgs = args ?: arrayOfNulls(0)
 			try {
-                val delegateMethod = methodCache.getOrPut(Pair(invokedMethod, pluginParser.javaClass)) {
+				val delegateMethod = methodCache.getOrPut(Pair(invokedMethod, pluginParser.javaClass)) {
                     findCompatibleMethod(pluginParser.javaClass, invokedMethod.name, invokedMethod.parameterTypes)
                 }
 				delegateMethod.invoke(pluginParser, *methodArgs)
@@ -172,7 +175,7 @@ object DynamicParserManager {
             // Fall through to fuzzy matching
         }
         // Fuzzy match: find by name + parameter count
-        val candidates = targetClass.methods.filter { 
+        val candidates = targetClass.methods.filter {
             it.name == name && it.parameterCount == paramTypes.size
         }
         if (candidates.size == 1) {
