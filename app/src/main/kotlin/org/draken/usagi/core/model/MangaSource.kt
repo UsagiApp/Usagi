@@ -28,9 +28,6 @@ data class PluginMangaSource(val delegate: MangaSource, val jarName: String) : M
     val sourceName: String
         get() = delegate.name
 
-    val displayName: String
-        get() = "${delegate.name} [$jarName]"
-
     override val locale: String
         get() = try { delegate.javaClass.getMethod("getLocale").invoke(delegate) as? String ?: "" } catch (_: Exception) { "" }
 
@@ -124,18 +121,14 @@ fun MangaSource.getSummary(context: Context): String? {
 	}
 	return if (pluginSource != null && baseSummary != null) {
 		"$baseSummary • ${pluginSource.jarName}"
-	} else if (pluginSource != null) {
-		pluginSource.jarName
-	} else {
-		baseSummary
-	}
+	} else pluginSource?.jarName ?: baseSummary
 }
 
 fun MangaSource.getTitle(context: Context): String = when {
 	this === LocalMangaSource -> context.getString(R.string.local_storage)
 	this === TestMangaSource -> context.getString(R.string.test_parser)
 	this is ExternalMangaSource -> this.resolveName(context)
-	this is MangaSourceInfo && mangaSource is ExternalMangaSource -> (mangaSource as ExternalMangaSource).resolveName(context)
+	this is MangaSourceInfo && mangaSource is ExternalMangaSource -> mangaSource.resolveName(context)
 	this === UnknownMangaSource -> context.getString(R.string.unknown)
 	else -> title
 }
