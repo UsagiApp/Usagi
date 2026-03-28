@@ -2,6 +2,7 @@ package org.draken.usagi.core.parser
 
 import android.content.Context
 import dalvik.system.DexClassLoader
+import org.draken.usagi.R
 import org.draken.usagi.core.model.MangaSourceRegistry
 import org.koitharu.kotatsu.parsers.MangaLoaderContext
 import org.koitharu.kotatsu.parsers.MangaParser
@@ -64,6 +65,7 @@ object DynamicParserManager {
         val jarFiles = pluginDir.listFiles { file -> file.extension == "jar" } ?: emptyArray()
 
         for (jarFile in jarFiles) {
+			// Fix A14+ storage compatibility
             jarFile.setReadOnly()
 
             val dexClassLoader = PluginClassLoader(
@@ -121,24 +123,29 @@ object DynamicParserManager {
         return pluginDir.listFiles { file -> file.extension == "jar" }?.map { it.name } ?: emptyList()
     }
 
-    fun createParser(source: MangaSource, context: MangaLoaderContext): MangaParser {
+    fun createParser(source: MangaSource, loaderContext: MangaLoaderContext, appContext: Context): MangaParser {
         val pluginSource = resolvePluginSource(source)
-            ?: throw IllegalArgumentException("No plugin found for source: ${source.name}")
+            ?: throw IllegalArgumentException(appContext.getString(R.string.plugin_not_found, source.name))
 
         val cl = classLoaders[pluginSource.jarName]
         val method = newParserMethods[pluginSource.name]
         if (cl == null || method == null) {
             throw IllegalStateException(
-                if (cl == null) "Parser JAR not loaded: ${pluginSource.jarName}"
-                else "Unknown parser source: ${source.name}",
+                if (cl == null) {
+                    appContext.getString(R.string.jar_not_loaded, pluginSource.jarName)
+                } else {
+                    appContext.getString(R.string.unknown_source, source.name)
+                },
             )
         }
 
         val enumClass = cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
         val fallbackConstant = enumClass.enumConstants?.firstOrNull { (it as MangaSource).name == pluginSource.sourceName }
-            ?: throw IllegalArgumentException("Parser source missing in plugin JAR: ${pluginSource.sourceName}")
-        val pluginParser = method.invoke(null, fallbackConstant, context)
-            ?: throw IllegalStateException("Parser loaded as null")
+            ?: throw IllegalArgumentException(
+                appContext.getString(R.string.missing_in_plugin, pluginSource.sourceName),
+            )
+        val pluginParser = method.invoke(null, fallbackConstant, loaderContext)
+            ?: throw IllegalStateException(appContext.getString(R.string.loaded_null))
 
         return Proxy.newProxyInstance(
             MangaParser::class.java.classLoader,
@@ -152,7 +159,7 @@ object DynamicParserManager {
 			val methodArgs = args ?: arrayOfNulls(0)
 			try {
 				val delegateMethod = methodCache.getOrPut(Pair(invokedMethod, pluginParser.javaClass)) {
-                    findCompatibleMethod(pluginParser.javaClass, invokedMethod.name, invokedMethod.parameterTypes)
+                    findCompatibleMethod(appContext, pluginParser.javaClass, invokedMethod.name, invokedMethod.parameterTypes)
                 }
 				delegateMethod.invoke(pluginParser, *methodArgs)
 			} catch (e: java.lang.reflect.InvocationTargetException) {
@@ -169,12 +176,21 @@ object DynamicParserManager {
         } as? org.draken.usagi.core.model.PluginMangaSource
     }
 
-    private fun findCompatibleMethod(targetClass: Class<*>, name: String, paramTypes: Array<Class<*>>): Method {
+    private fun findCompatibleMethod(
+        appContext: Context,
+        targetClass: Class<*>,
+        name: String,
+        paramTypes: Array<Class<*>>,
+    ): Method {
         runCatching { return targetClass.getMethod(name, *paramTypes) }
         val candidates = targetClass.methods.filter { it.name == name && it.parameterCount == paramTypes.size }
         when (candidates.size) {
             0 -> throw NoSuchMethodException(
-                "No compatible method found: $name(${paramTypes.joinToString { it.name }})",
+                appContext.getString(
+                    R.string.no_compatible_method,
+                    name,
+                    paramTypes.joinToString { it.name },
+                ),
             )
             1 -> return candidates[0]
             else -> {

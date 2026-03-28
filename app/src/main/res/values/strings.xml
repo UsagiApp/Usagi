@@ -930,6 +930,12 @@
 	<string name="deleted_plugin">Deleted %1$s plugin!</string>
 	<string name="installed_plugin">Installed a plugin</string>
 	<string name="tap_to_delete_plugin">Tap to delete this plugin</string>
-	<string name="no_plugins">No plugins installed</string>
-	<string name="no_plugins_summary">Click \'Import plugin\' above to add sources from plugins</string>
+    <string name="no_plugins">No plugins installed</string>
+    <string name="no_plugins_summary">Click \'Import plugin\' above to add sources from plugins</string>
+    <string name="plugin_not_found">No plugin found for source: %1$s</string>
+    <string name="jar_not_loaded">JAR not loaded: %1$s</string>
+    <string name="unknown_source">Unknown source: %1$s</string>
+    <string name="missing_in_plugin">Source missing in plugin: %1$s</string>
+    <string name="loaded_null">Plugin loaded as null</string>
+    <string name="no_compatible_method">No compatible method found: %1$s(%2$s)</string>
 </resources>
