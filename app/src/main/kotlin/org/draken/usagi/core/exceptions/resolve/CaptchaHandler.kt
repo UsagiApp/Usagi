@@ -15,7 +15,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.PendingIntentCompat
 import androidx.core.net.toUri
-import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.ProcessLifecycleOwner
 import coil3.EventListener
 import coil3.Extras
 import coil3.ImageLoader
@@ -84,16 +84,15 @@ class CaptchaHandler @Inject constructor(
 		super.onError(request, result)
 		val e = result.throwable
 		if (e is CloudFlareException) {
-			val scope = request.lifecycle?.coroutineScope ?: processLifecycleScope
-			scope.launch {
-				if (
-					handleException(
-						source = e.source,
-						exception = e,
-						notify = request.extras[suppressCaptchaKey] != true,
-					)
-				) {
-					coilProvider.get().enqueue(request) // TODO check if ok
+			val notify = request.extras[suppressCaptchaKey] != true
+			val retryRequest = ImageRequest.Builder(request, context)
+				.lifecycle(ProcessLifecycleOwner.get().lifecycle)
+				.target(null)
+				.listener(null)
+				.build()
+			processLifecycleScope.launch {
+				if (handleException(source = e.source, exception = e, notify = notify)) {
+					coilProvider.get().enqueue(retryRequest)
 				}
 			}
 		}

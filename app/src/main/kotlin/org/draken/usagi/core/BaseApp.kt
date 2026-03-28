@@ -25,7 +25,9 @@ import org.draken.usagi.R
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.os.AppValidator
 import org.draken.usagi.core.os.RomCompat
+import org.draken.usagi.core.model.PluginSourceKeyNormalizer
 import org.draken.usagi.core.parser.DynamicParserManager
+import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.processLifecycleScope
 import org.draken.usagi.local.data.LocalStorageChanges
@@ -60,6 +62,9 @@ open class BaseApp : Application(), Configuration.Provider {
 
 	@Inject
 	lateinit var workScheduleManager: WorkScheduleManager
+
+	@Inject
+	lateinit var savedFiltersRepository: SavedFiltersRepository
 
 	@Inject
 	lateinit var localMangaIndexProvider: Provider<LocalMangaIndex>
@@ -97,6 +102,9 @@ open class BaseApp : Application(), Configuration.Provider {
 		val pluginsDir = File(filesDir, "plugins")
 		if (!pluginsDir.exists()) pluginsDir.mkdirs()
 		DynamicParserManager.loadParsersFromDirectory(this, pluginsDir)
+		processLifecycleScope.launch(Dispatchers.Default) {
+			PluginSourceKeyNormalizer.normalize(database.get(), savedFiltersRepository)
+		}
 		workScheduleManager.init()
 	}
 

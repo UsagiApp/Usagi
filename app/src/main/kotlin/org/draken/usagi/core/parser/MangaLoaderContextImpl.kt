@@ -78,13 +78,23 @@ class MangaLoaderContextImpl @Inject constructor(
 		parser: MangaParser,
 		url: String,
 	): Nothing {
-		val sourceName = try {
-            val source = parser.javaClass.getMethod("getSource").invoke(parser)
-            source.javaClass.getMethod("getName").invoke(source) as? String ?: "Unknown"
-        } catch (_: Exception) {
-            "Unknown"
-        }
-		throw InteractiveActionRequiredException(sourceName, url)
+		throw InteractiveActionRequiredException(resolveParserSourceName(parser), url)
+	}
+
+	private fun resolveParserSourceName(parser: MangaParser): String {
+		val src = try {
+			parser.javaClass.getMethod("getSource").invoke(parser)
+		} catch (_: ReflectiveOperationException) {
+			return "Unknown"
+		} ?: return "Unknown"
+		if (src is String) return src
+		if (src is MangaSource) return src.name
+		return try {
+			val n = src.javaClass.getMethod("getName").invoke(src) as? String
+			if (!n.isNullOrBlank()) n else src.toString()
+		} catch (_: ReflectiveOperationException) {
+			src.toString()
+		}
 	}
 
 	override fun redrawImageResponse(response: Response, redraw: (image: Bitmap) -> Bitmap): Response {

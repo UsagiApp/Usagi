@@ -64,7 +64,6 @@ object DynamicParserManager {
         val jarFiles = pluginDir.listFiles { file -> file.extension == "jar" } ?: emptyArray()
 
         for (jarFile in jarFiles) {
-			// Fix A14+ storage compatibility
             jarFile.setReadOnly()
 
             val dexClassLoader = PluginClassLoader(
@@ -92,9 +91,7 @@ object DynamicParserManager {
                     }
                 }
                 newClassLoaders[jarFile.name] = dexClassLoader
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            } catch (_: Exception) {}
         }
 
         MangaSourceRegistry.sources.clear()
@@ -125,15 +122,17 @@ object DynamicParserManager {
     }
 
     fun createParser(source: MangaSource, context: MangaLoaderContext): MangaParser {
-        val pluginSource = (source as? org.draken.usagi.core.model.PluginMangaSource)
-            ?: MangaSourceRegistry.sources.firstOrNull {
-                it is org.draken.usagi.core.model.PluginMangaSource && (it.name == source.name || it.sourceName == source.name)
-            } as? org.draken.usagi.core.model.PluginMangaSource
+        val pluginSource = resolvePluginSource(source)
             ?: throw IllegalArgumentException("No plugin found for source: ${source.name}")
 
-        val cl = classLoaders[pluginSource.jarName] ?: throw IllegalStateException("Parser JAR not loaded for ${pluginSource.jarName}.")
+        val cl = classLoaders[pluginSource.jarName]
         val method = newParserMethods[pluginSource.name]
-            ?: throw IllegalArgumentException("Unknown parser source: ${source.name}")
+        if (cl == null || method == null) {
+            throw IllegalStateException(
+                if (cl == null) "Parser JAR not loaded: ${pluginSource.jarName}"
+                else "Unknown parser source: ${source.name}",
+            )
+        }
 
         val enumClass = cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
         val fallbackConstant = enumClass.enumConstants?.firstOrNull { (it as MangaSource).name == pluginSource.sourceName }
@@ -145,7 +144,6 @@ object DynamicParserManager {
             MangaParser::class.java.classLoader,
             arrayOf(MangaParser::class.java)
 		) { _, invokedMethod, args ->
-			// Handle Object methods directly
 			when (invokedMethod.name) {
 				"toString" -> return@newProxyInstance "PluginParser[${pluginSource.name}]"
 				"hashCode" -> return@newProxyInstance pluginParser.hashCode()
@@ -160,41 +158,37 @@ object DynamicParserManager {
 			} catch (e: java.lang.reflect.InvocationTargetException) {
 				throw e.targetException
 			}
-		} as MangaParser
+        } as MangaParser
     }
 
-    /**
-     * Find a method on the target class by name and parameter count,
-     * handling cross-classloader type mismatches.
-     */
+    private fun resolvePluginSource(source: MangaSource): org.draken.usagi.core.model.PluginMangaSource? {
+        (source as? org.draken.usagi.core.model.PluginMangaSource)?.let { return it }
+        return MangaSourceRegistry.sources.firstOrNull {
+            it is org.draken.usagi.core.model.PluginMangaSource &&
+                (it.name == source.name || it.sourceName == source.name)
+        } as? org.draken.usagi.core.model.PluginMangaSource
+    }
+
     private fun findCompatibleMethod(targetClass: Class<*>, name: String, paramTypes: Array<Class<*>>): Method {
-        // Try exact match first (works for methods with primitive/standard types)
-        try {
-            return targetClass.getMethod(name, *paramTypes)
-        } catch (_: NoSuchMethodException) {
-            // Fall through to fuzzy matching
-        }
-        // Fuzzy match: find by name + parameter count
-        val candidates = targetClass.methods.filter {
-            it.name == name && it.parameterCount == paramTypes.size
-        }
-        if (candidates.size == 1) {
-            return candidates[0]
-        }
-        // Multiple overloads: try matching by parameter type names
-        for (candidate in candidates) {
-            val candidateTypes = candidate.parameterTypes
-            var match = true
-            for (i in paramTypes.indices) {
-                if (candidateTypes[i].name != paramTypes[i].name) {
-                    match = false
-                    break
-                }
+        runCatching { return targetClass.getMethod(name, *paramTypes) }
+        val candidates = targetClass.methods.filter { it.name == name && it.parameterCount == paramTypes.size }
+        when (candidates.size) {
+            0 -> throw NoSuchMethodException(
+                "No compatible method found: $name(${paramTypes.joinToString { it.name }})",
+            )
+            1 -> return candidates[0]
+            else -> {
+                candidates.firstOrNull { matchesParameterTypeNames(it.parameterTypes, paramTypes) }?.let { return it }
+                return candidates[0]
             }
-            if (match) return candidate
         }
-        // Last resort: return first candidate
-        return candidates.firstOrNull()
-            ?: throw NoSuchMethodException("No compatible method found: $name(${paramTypes.joinToString { it.name }})")
+    }
+
+    private fun matchesParameterTypeNames(candidate: Array<Class<*>>, expected: Array<Class<*>>): Boolean {
+        if (candidate.size != expected.size) return false
+        for (i in candidate.indices) {
+            if (candidate[i].name != expected[i].name) return false
+        }
+        return true
     }
 }

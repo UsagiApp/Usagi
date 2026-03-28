@@ -1,8 +1,6 @@
 package org.draken.usagi.main.ui
 
 import android.Manifest
-import android.app.BackgroundServiceStartNotAllowedException
-import android.app.ServiceStartNotAllowedException
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
@@ -60,7 +58,6 @@ import org.draken.usagi.core.util.ext.consume
 import org.draken.usagi.core.util.ext.end
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
-import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.start
 import org.draken.usagi.databinding.ActivityMainBinding
 import org.draken.usagi.details.service.MangaPrefetchService
@@ -175,7 +172,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 	}
 
 	override fun addMenuProvider(provider: MenuProvider, owner: LifecycleOwner, state: Lifecycle.State) {
-		if (provider !is MangaSearchMenuProvider) { // do not duplicate search menu item
+		if (provider !is MangaSearchMenuProvider) {
 			super.addMenuProvider(provider, owner, state)
 		}
 	}
@@ -292,7 +289,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 	}
 
 	private fun onFirstStart() = try {
-		lifecycleScope.launch(Dispatchers.Main) { // not a default `Main.immediate` dispatcher
+		lifecycleScope.launch(Dispatchers.Main) {
 			withContext(Dispatchers.Default) {
 				LocalStorageCleanupWorker.enqueue(applicationContext)
 			}
@@ -307,7 +304,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 			}
 		}
 	} catch (e: IllegalStateException) {
-		e.printStackTraceDebug()
+		throw e
 	}
 
 	private fun adjustAppbar(topFragment: Fragment) {

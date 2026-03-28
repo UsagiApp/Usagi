@@ -20,25 +20,23 @@ import org.koitharu.kotatsu.parsers.util.splitTwoParts
 import java.util.Locale
 
 data class PluginMangaSource(val delegate: MangaSource, val jarName: String) : MangaSource {
-    /** Unique name combining jar and source for DB/registry identification */
     override val name: String
         get() = "$jarName:${delegate.name}"
 
-    /** Original source name from the plugin enum */
     val sourceName: String
         get() = delegate.name
 
     override val locale: String
-        get() = try { delegate.javaClass.getMethod("getLocale").invoke(delegate) as? String ?: "" } catch (_: Exception) { "" }
+        get() = delegate.locale
 
     override val contentType: ContentType
-        get() = try { delegate.javaClass.getMethod("getContentType").invoke(delegate) as? ContentType ?: ContentType.MANGA } catch (_: Exception) { ContentType.MANGA }
+        get() = delegate.contentType
 
     override val title: String
-        get() = try { delegate.javaClass.getMethod("getTitle").invoke(delegate) as? String ?: name } catch (_: Exception) { name }
+        get() = delegate.title
 
     override val isBroken: Boolean
-        get() = try { delegate.javaClass.getMethod("isBroken").invoke(delegate) as? Boolean ?: false } catch (_: Exception) { false }
+        get() = delegate.isBroken
 }
 
 data object LocalMangaSource : MangaSource {
@@ -63,11 +61,9 @@ fun MangaSource(name: String?): MangaSource {
 		val parts = name.substringAfter(':').splitTwoParts('/') ?: return UnknownMangaSource
 		return ExternalMangaSource(packageName = parts.first, authority = parts.second)
 	}
-	// Exact match on compound name (e.g., "1.jar:MANGADEX")
 	MangaSourceRegistry.sources.forEach {
 		if (it.name == name) return it
 	}
-	// Fallback: match old-format pure source name (e.g., "MANGADEX") against sourceName
 	MangaSourceRegistry.sources.forEach {
 		if (it is PluginMangaSource && it.sourceName == name) return it
 	}
