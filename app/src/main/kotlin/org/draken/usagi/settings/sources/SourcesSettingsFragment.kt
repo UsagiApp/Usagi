@@ -4,7 +4,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
@@ -13,14 +12,17 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.TwoStatePreference
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.draken.usagi.R
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.DynamicParserManager
+import org.draken.usagi.core.parser.PluginFileLoader
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.TriStateOption
 import org.draken.usagi.core.ui.BasePreferenceFragment
@@ -148,15 +150,13 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 							setMessage(context.getString(R.string.confirm_delete_plugin, pluginName))
 							setNegativeButton(android.R.string.cancel, null)
 							setPositiveButton(R.string.delete) { _, _ ->
-								lifecycleScope.launch(Dispatchers.IO) {
-									DynamicParserManager.deletePlugin(requireContext(), pluginName)
-									withContext(Dispatchers.Main) {
+								val appCtx = requireContext().applicationContext
+								viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+									DynamicParserManager.deletePlugin(appCtx, pluginName)
+									withContext(Dispatchers.Main.immediate) {
+										if (!isAdded) return@withContext
 										updatePluginsList()
-										Toast.makeText(
-											requireContext(),
-											context.getString(R.string.deleted_plugin, pluginName),
-											Toast.LENGTH_SHORT,
-										).show()
+										Snackbar.make(listView, getString(R.string.deleted_plugin, pluginName), Snackbar.LENGTH_SHORT).show()
 									}
 								}
 							}
@@ -169,20 +169,20 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 	}
 
 	private fun importJar(uri: android.net.Uri) {
-		val context = requireContext()
-		lifecycleScope.launch {
+		val appCtx = requireContext().applicationContext
+		viewLifecycleOwner.lifecycleScope.launch {
 			try {
-				val originalName = DocumentFile.fromSingleUri(context, uri)?.name
+				val originalName = DocumentFile.fromSingleUri(appCtx, uri)?.name
 					?: "plugin_${System.currentTimeMillis()}.jar"
-				val pluginsDir = java.io.File(context.filesDir, "plugins")
-				if (!pluginsDir.exists()) pluginsDir.mkdirs()
+				val pluginsDir = PluginFileLoader.pluginsDir(appCtx)
 
 				val dialogResult = suspendCancellableCoroutine { cont ->
 					lateinit var editText: android.widget.EditText
-					val dialog = buildAlertDialog(context) {
+					val themedCtx = requireContext()
+					val dialog = buildAlertDialog(themedCtx) {
 						editText = setEditText(InputType.TYPE_CLASS_TEXT, singleLine = true)
 						editText.setText(originalName.removeSuffix(".jar"))
-						editText.hint = context.getString(R.string.plugin_name)
+						editText.hint = themedCtx.getString(R.string.plugin_name)
 						setTitle(R.string.set_plugin_name)
 						setNegativeButton(android.R.string.cancel) { _, _ ->
 							if (cont.isActive) cont.resume(null)
@@ -201,18 +201,38 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 				val fileName = "$dialogResult.jar"
 				val outFile = java.io.File(pluginsDir, fileName)
 
-				withContext(Dispatchers.IO) {
-					context.contentResolver.openInputStream(uri)?.use { input ->
-						java.io.FileOutputStream(outFile).use { output ->
-							input.copyTo(output)
+				if (outFile.exists()) {
+					val proceed = suspendCancellableCoroutine { cont ->
+						val dlg = buildAlertDialog(requireContext()) {
+							setTitle(R.string.overwrite_plugin)
+							setMessage(requireContext().getString(R.string.overwrite_plugin_summary, fileName))
+							setNegativeButton(android.R.string.cancel) { _, _ ->
+								if (cont.isActive) cont.resume(false)
+							}
+							setPositiveButton(R.string.overwrite) { _, _ ->
+								if (cont.isActive) cont.resume(true)
+							}
 						}
+						dlg.setOnCancelListener {
+							if (cont.isActive) cont.resume(false)
+						}
+						dlg.show()
 					}
+					if (!proceed) return@launch
 				}
-				DynamicParserManager.loadParsersFromDirectory(context, pluginsDir)
-				updatePluginsList()
-				Toast.makeText(context, R.string.load_success, Toast.LENGTH_LONG).show()
-			} catch (_: Exception) {
-				Toast.makeText(context, R.string.load_failed, Toast.LENGTH_LONG).show()
+
+				withContext(Dispatchers.IO) {
+					PluginFileLoader.copyFromUri(appCtx, uri, outFile)
+					DynamicParserManager.loadParsersFromDirectory(appCtx, pluginsDir)
+				}
+				withContext(Dispatchers.Main.immediate) {
+					if (!isAdded) return@withContext
+					updatePluginsList()
+					Snackbar.make(listView, R.string.load_success, Snackbar.LENGTH_LONG).show()
+				}
+			} catch (e: Exception) {
+				if (e is CancellationException) throw e
+				if (isAdded) Snackbar.make(listView, R.string.load_failed, Snackbar.LENGTH_LONG).show()
 			}
 		}
 	}

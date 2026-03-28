@@ -4,6 +4,7 @@ import android.content.Context
 import dalvik.system.DexClassLoader
 import org.draken.usagi.R
 import org.draken.usagi.core.model.MangaSourceRegistry
+import org.draken.usagi.core.model.PluginMangaSource
 import org.koitharu.kotatsu.parsers.MangaLoaderContext
 import org.koitharu.kotatsu.parsers.MangaParser
 import org.koitharu.kotatsu.parsers.model.MangaSource
@@ -16,19 +17,18 @@ class PluginClassLoader(
     dexPath: String,
     optimizedDirectory: String?,
     librarySearchPath: String?,
-    parent: ClassLoader
+    parent: ClassLoader,
 ) : DexClassLoader(dexPath, optimizedDirectory, librarySearchPath, parent) {
     override fun loadClass(name: String, resolve: Boolean): Class<*> {
         if (name == "org.koitharu.kotatsu.parsers.util.LinkResolver" ||
             name.startsWith("org.koitharu.kotatsu.parsers.util.LinkResolver$") ||
             name == "org.koitharu.kotatsu.parsers.MangaLoaderContext" ||
-            (name.startsWith("org.koitharu.kotatsu.parsers.model.")
-				&& name != "org.koitharu.kotatsu.parsers.model.MangaParserSource") ||
+            (name.startsWith("org.koitharu.kotatsu.parsers.model.") &&
+                name != "org.koitharu.kotatsu.parsers.model.MangaParserSource") ||
             name.startsWith("org.koitharu.kotatsu.parsers.config.")
         ) {
             return super.loadClass(name, resolve)
         }
-
         if (name == "org.koitharu.kotatsu.parsers.MangaParser" ||
             name == "org.koitharu.kotatsu.parsers.model.MangaParserSource" ||
             name.startsWith("org.koitharu.kotatsu.parsers.site.") ||
@@ -39,7 +39,6 @@ class PluginClassLoader(
             try {
                 return findClass(name)
             } catch (_: ClassNotFoundException) {
-                // Ignore and fall through to super
             }
         }
         return super.loadClass(name, resolve)
@@ -54,157 +53,117 @@ object DynamicParserManager {
     @Throws(Exception::class)
     fun loadParsersFromDirectory(context: Context, pluginDir: File) {
         val cacheDir = context.codeCacheDir.absolutePath
-        val parentClassLoader = context.classLoader
-
-        val newSources = mutableListOf<MangaSource>()
-        val newMethods = mutableMapOf<String, Method>()
-        val newClassLoaders = mutableMapOf<String, ClassLoader>()
-
+        val parent = context.classLoader
+        val sources = mutableListOf<MangaSource>()
+        val methods = mutableMapOf<String, Method>()
+        val loaders = mutableMapOf<String, ClassLoader>()
         if (!pluginDir.exists()) pluginDir.mkdirs()
-
-        val jarFiles = pluginDir.listFiles { file -> file.extension == "jar" } ?: emptyArray()
-
-        for (jarFile in jarFiles) {
-			// Fix A14+ storage compatibility
-            jarFile.setReadOnly()
-
-            val dexClassLoader = PluginClassLoader(
-                jarFile.absolutePath,
-                cacheDir,
-                null,
-                parentClassLoader
-            )
-
+        for (jar in pluginDir.listFiles { it.extension == "jar" } ?: emptyArray()) {
+            jar.setReadOnly()
+            val cl = PluginClassLoader(jar.absolutePath, cacheDir, null, parent)
             try {
-                val factoryClass = dexClassLoader.loadClass("org.koitharu.kotatsu.parsers.MangaParserFactoryKt")
-                val enumClass = dexClassLoader.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
-
-                val enumConstants = enumClass.enumConstants
-                if (enumConstants != null) {
-                    val mangaLoaderContextClass = dexClassLoader.loadClass("org.koitharu.kotatsu.parsers.MangaLoaderContext")
-                    val newParserMethod = factoryClass.getMethod("newParser", enumClass, mangaLoaderContextClass)
-
-                    for (constant in enumConstants) {
-                        if (constant is MangaSource) {
-                            val wrappedSource = org.draken.usagi.core.model.PluginMangaSource(constant, jarFile.name)
-                            newSources.add(wrappedSource)
-                            newMethods[wrappedSource.name] = newParserMethod
-                        }
+                val factory = cl.loadClass("org.koitharu.kotatsu.parsers.MangaParserFactoryKt")
+                val enumC = cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
+                val ctxC = cl.loadClass("org.koitharu.kotatsu.parsers.MangaLoaderContext")
+                val newParser = factory.getMethod("newParser", enumC, ctxC)
+                enumC.enumConstants?.forEach { c ->
+                    if (c is MangaSource) {
+                        val w = PluginMangaSource(c, jar.name)
+                        sources.add(w)
+                        methods[w.name] = newParser
                     }
                 }
-                newClassLoaders[jarFile.name] = dexClassLoader
-            } catch (_: Exception) {}
+                loaders[jar.name] = cl
+            } catch (_: Exception) {
+            }
         }
-
         MangaSourceRegistry.sources.clear()
         newParserMethods.clear()
         methodCache.clear()
         classLoaders.clear()
-
-        MangaSourceRegistry.sources.addAll(newSources)
-        newParserMethods.putAll(newMethods)
-        classLoaders.putAll(newClassLoaders)
-
+        MangaSourceRegistry.sources.addAll(sources)
+        newParserMethods.putAll(methods)
+        classLoaders.putAll(loaders)
         MangaSourceRegistry.incrementVersion()
         MangaSourceRegistry.updates.tryEmit(Unit)
     }
 
     fun deletePlugin(context: Context, jarName: String) {
-        val pluginDir = File(context.filesDir, "plugins")
-        val jarFile = File(pluginDir, jarName)
-        if (jarFile.exists()) {
-            jarFile.delete()
-        }
-        loadParsersFromDirectory(context, pluginDir)
+        val dir = PluginFileLoader.pluginsDir(context)
+        File(dir, jarName).takeIf { it.exists() }?.delete()
+        loadParsersFromDirectory(context, dir)
     }
 
-    fun getInstalledPlugins(context: Context): List<String> {
-        val pluginDir = File(context.filesDir, "plugins")
-        return pluginDir.listFiles { file -> file.extension == "jar" }?.map { it.name } ?: emptyList()
-    }
+    fun getInstalledPlugins(context: Context): List<String> =
+        PluginFileLoader.pluginsDir(context).listFiles { it.extension == "jar" }?.map { it.name } ?: emptyList()
 
     fun createParser(source: MangaSource, loaderContext: MangaLoaderContext, appContext: Context): MangaParser {
-        val pluginSource = resolvePluginSource(source)
-            ?: throw IllegalArgumentException(appContext.getString(R.string.plugin_not_found, source.name))
-
-        val cl = classLoaders[pluginSource.jarName]
-        val method = newParserMethods[pluginSource.name]
-        if (cl == null || method == null) {
+        val ctx = appContext.applicationContext
+        val ps = resolvePluginSource(source)
+            ?: throw IllegalArgumentException(ctx.getString(R.string.plugin_not_found, source.name))
+        val cl = classLoaders[ps.jarName]
+        val factoryMethod = newParserMethods[ps.name]
+        if (cl == null || factoryMethod == null) {
             throw IllegalStateException(
-                if (cl == null) {
-                    appContext.getString(R.string.jar_not_loaded, pluginSource.jarName)
-                } else {
-                    appContext.getString(R.string.unknown_source, source.name)
-                },
+                if (cl == null) ctx.getString(R.string.jar_not_loaded, ps.jarName)
+                else ctx.getString(R.string.unknown_source, source.name),
             )
         }
-
-        val enumClass = cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
-        val fallbackConstant = enumClass.enumConstants?.firstOrNull { (it as MangaSource).name == pluginSource.sourceName }
-            ?: throw IllegalArgumentException(
-                appContext.getString(R.string.missing_in_plugin, pluginSource.sourceName),
-            )
-        val pluginParser = method.invoke(null, fallbackConstant, loaderContext)
-            ?: throw IllegalStateException(appContext.getString(R.string.loaded_null))
-
+        val enumC = cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
+        val constant = enumC.enumConstants?.firstOrNull { (it as MangaSource).name == ps.sourceName }
+            ?: throw IllegalArgumentException(ctx.getString(R.string.missing_in_plugin, ps.sourceName))
+        val delegate = factoryMethod.invoke(null, constant, loaderContext)
+            ?: throw IllegalStateException(ctx.getString(R.string.loaded_null))
         return Proxy.newProxyInstance(
             MangaParser::class.java.classLoader,
-            arrayOf(MangaParser::class.java)
-		) { _, invokedMethod, args ->
-			when (invokedMethod.name) {
-				"toString" -> return@newProxyInstance "PluginParser[${pluginSource.name}]"
-				"hashCode" -> return@newProxyInstance pluginParser.hashCode()
-				"equals" -> return@newProxyInstance (pluginParser == args?.firstOrNull())
-			}
-			val methodArgs = args ?: arrayOfNulls(0)
-			try {
-				val delegateMethod = methodCache.getOrPut(Pair(invokedMethod, pluginParser.javaClass)) {
-                    findCompatibleMethod(appContext, pluginParser.javaClass, invokedMethod.name, invokedMethod.parameterTypes)
+            arrayOf(MangaParser::class.java),
+        ) { _, m, a ->
+            when (m.name) {
+                "toString" -> "PluginParser[${ps.name}]"
+                "hashCode" -> delegate.hashCode()
+                "equals" -> delegate == a?.firstOrNull()
+                else -> {
+                    val args = a ?: emptyArray()
+                    try {
+                        val dm = methodCache.getOrPut(Pair(m, delegate.javaClass)) {
+                            findCompatibleMethod(ctx, delegate.javaClass, m.name, m.parameterTypes)
+                        }
+                        dm.invoke(delegate, *args)
+                    } catch (e: java.lang.reflect.InvocationTargetException) {
+                        throw e.targetException
+                    }
                 }
-				delegateMethod.invoke(pluginParser, *methodArgs)
-			} catch (e: java.lang.reflect.InvocationTargetException) {
-				throw e.targetException
-			}
+            }
         } as MangaParser
     }
 
-    private fun resolvePluginSource(source: MangaSource): org.draken.usagi.core.model.PluginMangaSource? {
-        (source as? org.draken.usagi.core.model.PluginMangaSource)?.let { return it }
+    private fun resolvePluginSource(source: MangaSource): PluginMangaSource? {
+        (source as? PluginMangaSource)?.let { return it }
         return MangaSourceRegistry.sources.firstOrNull {
-            it is org.draken.usagi.core.model.PluginMangaSource &&
-                (it.name == source.name || it.sourceName == source.name)
-        } as? org.draken.usagi.core.model.PluginMangaSource
+            it is PluginMangaSource && (it.name == source.name || it.sourceName == source.name)
+        } as? PluginMangaSource
     }
 
     private fun findCompatibleMethod(
         appContext: Context,
-        targetClass: Class<*>,
+        target: Class<*>,
         name: String,
         paramTypes: Array<Class<*>>,
     ): Method {
-        runCatching { return targetClass.getMethod(name, *paramTypes) }
-        val candidates = targetClass.methods.filter { it.name == name && it.parameterCount == paramTypes.size }
-        when (candidates.size) {
+        runCatching { return target.getMethod(name, *paramTypes) }
+        val c = target.methods.filter { it.name == name && it.parameterCount == paramTypes.size }
+        return when (c.size) {
             0 -> throw NoSuchMethodException(
-                appContext.getString(
-                    R.string.no_compatible_method,
-                    name,
-                    paramTypes.joinToString { it.name },
-                ),
+                appContext.getString(R.string.no_compatible_method, name, paramTypes.joinToString { it.name }),
             )
-            1 -> return candidates[0]
-            else -> {
-                candidates.firstOrNull { matchesParameterTypeNames(it.parameterTypes, paramTypes) }?.let { return it }
-                return candidates[0]
-            }
+            1 -> c[0]
+            else -> c.firstOrNull { matchesParams(it.parameterTypes, paramTypes) } ?: c[0]
         }
     }
 
-    private fun matchesParameterTypeNames(candidate: Array<Class<*>>, expected: Array<Class<*>>): Boolean {
-        if (candidate.size != expected.size) return false
-        for (i in candidate.indices) {
-            if (candidate[i].name != expected[i].name) return false
-        }
+    private fun matchesParams(a: Array<Class<*>>, b: Array<Class<*>>): Boolean {
+        if (a.size != b.size) return false
+        for (i in a.indices) if (a[i].name != b[i].name) return false
         return true
     }
 }

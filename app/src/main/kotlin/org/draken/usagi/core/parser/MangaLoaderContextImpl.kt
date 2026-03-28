@@ -78,7 +78,7 @@ class MangaLoaderContextImpl @Inject constructor(
 	override fun requestBrowserAction(
 		parser: MangaParser,
 		url: String,
-	): Nothing = throw InteractiveActionRequiredException(parser.source.name, url)
+	): Nothing = throw InteractiveActionRequiredException(parserSourceName(parser), url)
 
 	override fun redrawImageResponse(response: Response, redraw: (image: Bitmap) -> Bitmap): Response {
 		return response.map { body ->
@@ -94,4 +94,13 @@ class MangaLoaderContextImpl @Inject constructor(
 	}
 
 	override fun createBitmap(width: Int, height: Int): Bitmap = BitmapWrapper.create(width, height)
+
+	private fun parserSourceName(parser: MangaParser): String {
+		val s = runCatching { parser.javaClass.getMethod("getSource").invoke(parser) }.getOrNull() ?: return "Unknown"
+		if (s is String) return s
+		if (s is MangaSource) return s.name
+		return listOf("getName", "name").firstNotNullOfOrNull { m ->
+			runCatching { s.javaClass.getMethod(m).invoke(s) as? String }.getOrNull()?.takeIf { it.isNotBlank() }
+		} ?: s.toString()
+	}
 }

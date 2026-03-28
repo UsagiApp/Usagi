@@ -922,9 +922,11 @@
 	<string name="load_from_jar">Import plugin</string>
 	<string name="load_from_jar_summary">Load all sources / plugins by importing a single JAR file</string>
 	<string name="load_success">Plugin imported and loaded successfully</string>
-	<string name="load_failed">Failed to load plugin from this JAR file</string>
+	<string name="load_failed">Failed to load plugin</string>
 	<string name="set_plugin_name">Set name for this plugin</string>
 	<string name="plugin_name">Plugin name</string>
+	<string name="overwrite_plugin">Overwrite plugin?</string>
+	<string name="overwrite_plugin_summary">A plugin file named %1$s is already installed. Replace it with this one?</string>
 	<string name="confirm_delete_plugin">Are you sure you want to delete %1$s?</string>
 	<string name="delete_plugin">Delete plugin</string>
 	<string name="deleted_plugin">Deleted %1$s plugin!</string>

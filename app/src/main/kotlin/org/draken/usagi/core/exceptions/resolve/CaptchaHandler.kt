@@ -70,7 +70,7 @@ class CaptchaHandler @Inject constructor(
 	private val webViewExecutor: WebViewExecutor,
 ) : EventListener() {
 
-	private val exceptionMap = MutableScatterMap<MangaSource, CloudFlareProtectedException>()
+	private val exceptionMap = MutableScatterMap<String, CloudFlareProtectedException>()
 	private val mutex = Mutex()
 
 	@CheckResult
@@ -112,9 +112,9 @@ class CaptchaHandler @Inject constructor(
 		mutex.withLock {
 			var removedException: CloudFlareProtectedException? = null
 			if (exception is CloudFlareProtectedException) {
-				exceptionMap[source] = exception
+				exceptionMap[source.name] = exception
 			} else {
-				removedException = exceptionMap.remove(source)
+				removedException = exceptionMap.remove(source.name)
 			}
 			val dao = databaseProvider.get().getSourcesDao()
 			dao.setCfState(source.name, exception?.state ?: CloudFlareHelper.PROTECTION_NOT_DETECTED)
@@ -125,7 +125,7 @@ class CaptchaHandler @Inject constructor(
 				}.filterNot {
 					SourceSettings(context, it).isCaptchaNotificationsDisabled
 				}.mapNotNull {
-					exceptionMap[it]
+					exceptionMap[it.name]
 				}
 				if (removedException != null) {
 					NotificationManagerCompat.from(context).cancel(TAG, removedException.source.hashCode())
