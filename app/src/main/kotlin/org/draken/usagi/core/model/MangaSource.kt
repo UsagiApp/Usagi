@@ -47,6 +47,13 @@ data object UnknownMangaSource : MangaSource {
 	override val name = "UNKNOWN"
 }
 
+data class UnresolvedMangaSource(override val name: String) : MangaSource {
+    override val locale: String get() = ""
+    override val contentType: ContentType get() = ContentType.OTHER
+    override val title: String get() = name
+    override val isBroken: Boolean get() = true
+}
+
 data object TestMangaSource : MangaSource {
 	override val name = "TEST"
 }
@@ -67,7 +74,23 @@ fun MangaSource(name: String?): MangaSource {
 	MangaSourceRegistry.sources.forEach {
 		if (it is PluginMangaSource && it.sourceName == name) return it
 	}
-	return UnknownMangaSource
+    // Backward compatibility for loaded database items saved as '1.jar:MANGADEX'
+	if (name.contains(':')) {
+        val cleanName = name.substringAfter(":")
+        MangaSourceRegistry.sources.forEach {
+            if (it.name == cleanName) return it
+            if (it is PluginMangaSource && it.sourceName == cleanName) return it
+        }
+    }
+	return UnresolvedMangaSource(name)
+}
+
+fun String.toBackupSourceName(): String {
+	return when (val src = MangaSource(this)) {
+		is PluginMangaSource -> src.sourceName
+		is UnresolvedMangaSource -> if (this.contains(':') && !this.startsWith("content:")) this.substringAfter(':') else this
+		else -> this
+	}
 }
 
 fun Collection<String>.toMangaSources() = map(::MangaSource)
