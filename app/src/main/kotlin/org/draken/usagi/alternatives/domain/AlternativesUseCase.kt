@@ -10,7 +10,6 @@ import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.util.ext.toLocale
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import org.draken.usagi.search.domain.SearchKind
@@ -64,16 +63,14 @@ class AlternativesUseCase @Inject constructor(
 
 	private fun MangaSource.priority(ref: MangaSource): Int {
 		var res = 0
-		if (this is MangaParserSource && ref is MangaParserSource) {
-			if (locale == ref.locale) {
-				res += 4
-			} else if (locale.toLocale() == Locale.getDefault()) {
-				res += 2
-			}
-			if (contentType == ref.contentType) {
-				res++
-			}
-		}
+        if (locale == ref.locale) {
+            res += 4
+        } else if (locale.toLocale() == Locale.getDefault()) {
+            res += 2
+        }
+        if (contentType == ref.contentType) {
+            res++
+        }
 		return res
 	}
 }

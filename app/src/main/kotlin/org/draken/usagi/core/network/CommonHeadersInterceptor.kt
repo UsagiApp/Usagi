@@ -13,7 +13,6 @@ import org.draken.usagi.core.parser.MangaLoaderContextImpl
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.ParserMangaRepository
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.mergeWith
 import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
@@ -31,10 +30,10 @@ class CommonHeadersInterceptor @Inject constructor(
 		val request = chain.request()
 		val source = request.tag(MangaSource::class.java)
 			?: request.headers[CommonHeaders.MANGA_SOURCE]?.let { MangaSource(it) }
-		val repository = if (source is MangaParserSource) {
+		val repository = if (source is MangaSource) {
 			mangaRepositoryFactoryLazy.get().create(source) as? ParserMangaRepository
 		} else {
-			if (BuildConfig.DEBUG && source == null) {
+			if (BuildConfig.DEBUG) {
 				IllegalArgumentException("Request without source tag: ${request.url}")
 					.printStackTrace()
 			}

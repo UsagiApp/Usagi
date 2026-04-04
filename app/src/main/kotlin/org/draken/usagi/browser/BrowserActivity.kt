@@ -77,7 +77,7 @@ class BrowserActivity : BaseBrowserActivity() {
 		): Intent = AppRouter.browserIntent(
 			context = context,
 			url = input.url,
-			source = input.source,
+			source = org.draken.usagi.core.model.MangaSource(input.sourceName),
 			title = null,
 		)
 

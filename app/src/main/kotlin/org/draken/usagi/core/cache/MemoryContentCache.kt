@@ -7,6 +7,7 @@ import org.draken.usagi.core.util.ext.isLowRamDevice
 import org.koitharu.kotatsu.parsers.model.Manga
 import org.koitharu.kotatsu.parsers.model.MangaPage
 import org.koitharu.kotatsu.parsers.model.MangaSource
+import org.draken.usagi.core.model.MangaSourceRegistry
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,6 +16,7 @@ import javax.inject.Singleton
 class MemoryContentCache @Inject constructor(application: Application) : ComponentCallbacks2 {
 
 	private val isLowRam = application.isLowRamDevice()
+	private var cacheVersion = -1
 
 	private val detailsCache = ExpiringLruCache<SafeDeferred<Manga>>(if (isLowRam) 1 else 4, 5, TimeUnit.MINUTES)
 	private val pagesCache =
@@ -26,7 +28,18 @@ class MemoryContentCache @Inject constructor(application: Application) : Compone
 		application.registerComponentCallbacks(this)
 	}
 
+	private fun checkCacheVersion() {
+		val currentVersion = MangaSourceRegistry.version
+		if (cacheVersion != currentVersion) {
+			detailsCache.clear()
+			pagesCache.clear()
+			relatedMangaCache.clear()
+			cacheVersion = currentVersion
+		}
+	}
+
 	suspend fun getDetails(source: MangaSource, url: String): Manga? {
+		checkCacheVersion()
 		return detailsCache[Key(source, url)]?.awaitOrNull()
 	}
 
@@ -35,6 +48,7 @@ class MemoryContentCache @Inject constructor(application: Application) : Compone
 	}
 
 	suspend fun getPages(source: MangaSource, url: String): List<MangaPage>? {
+		checkCacheVersion()
 		return pagesCache[Key(source, url)]?.awaitOrNull()
 	}
 
@@ -43,6 +57,7 @@ class MemoryContentCache @Inject constructor(application: Application) : Compone
 	}
 
 	suspend fun getRelatedManga(source: MangaSource, url: String): List<Manga>? {
+		checkCacheVersion()
 		return relatedMangaCache[Key(source, url)]?.awaitOrNull()
 	}
 
