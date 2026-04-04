@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.draken.usagi.core.db.entity.MangaEntity
 import org.draken.usagi.core.db.entity.MangaWithTags
+import org.draken.usagi.core.model.toBackupSourceName
 import org.koitharu.kotatsu.parsers.model.RATING_UNKNOWN
 import org.koitharu.kotatsu.parsers.util.mapToSet
 
@@ -38,7 +39,7 @@ class MangaBackup(
 		largeCoverUrl = entity.manga.largeCoverUrl,
 		state = entity.manga.state,
 		authors = entity.manga.authors,
-		source = entity.manga.source,
+		source = entity.manga.source.toBackupSourceName(),
 		tags = entity.tags.mapToSet { TagBackup(it) },
 	)
 

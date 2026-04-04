@@ -38,8 +38,8 @@ class RootSettingsFragment : BasePreferenceFragment(0) {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 		findPreference<Preference>(AppSettings.KEY_REMOTE_SOURCES)?.let { pref ->
-			val total = viewModel.totalSourcesCount
 			viewModel.enabledSourcesCount.observe(viewLifecycleOwner) {
+				val total = viewModel.totalSourcesCount
 				pref.summary = if (it >= 0) {
 					getString(R.string.enabled_d_of_d, it, total)
 				} else {

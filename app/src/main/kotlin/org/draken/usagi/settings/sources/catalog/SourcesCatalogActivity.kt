@@ -68,6 +68,11 @@ class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),
 		addMenuProvider(SourcesCatalogMenuProvider(this, viewModel, this))
 	}
 
+	override fun onDestroy() {
+		viewBinding.recyclerView.adapter = null
+		super.onDestroy()
+	}
+
 	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
 		val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 		viewBinding.recyclerView.updatePadding(

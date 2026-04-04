@@ -10,6 +10,9 @@ import org.draken.usagi.core.db.entity.ChapterEntity
 @Dao
 abstract class ChaptersDao {
 
+	@Query("UPDATE chapters SET source = :newKey WHERE source = :oldKey")
+	abstract suspend fun rewriteStoredSourceKey(oldKey: String, newKey: String)
+
 	@Query("SELECT * FROM chapters WHERE manga_id = :mangaId ORDER BY `index` ASC")
 	abstract suspend fun findAll(mangaId: Long): List<ChapterEntity>
 

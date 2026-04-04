@@ -6,6 +6,7 @@ import androidx.core.content.edit
 import org.draken.usagi.core.util.ext.getEnumValue
 import org.draken.usagi.core.util.ext.putEnumValue
 import org.draken.usagi.core.util.ext.sanitizeHeaderValue
+import org.draken.usagi.core.model.PluginMangaSource
 import org.koitharu.kotatsu.parsers.config.ConfigKey
 import org.koitharu.kotatsu.parsers.config.MangaSourceConfig
 import org.koitharu.kotatsu.parsers.model.MangaSource
@@ -18,7 +19,7 @@ import java.io.File
 class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig {
 
     private val prefs = context.getSharedPreferences(
-        source.name.replace(File.separatorChar, '$'),
+        prefsName(source),
         Context.MODE_PRIVATE,
     )
 
@@ -74,5 +75,10 @@ class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig 
 		const val KEY_NO_CAPTCHA = "no_captcha"
 		const val KEY_SLOWDOWN = "slowdown"
 		const val KEY_SORT_ORDER = "sort_order"
+
+		fun prefsName(source: MangaSource): String {
+			val name = if (source is PluginMangaSource) source.sourceName else source.name
+			return name.replace(File.separatorChar, '$')
+		}
 	}
 }

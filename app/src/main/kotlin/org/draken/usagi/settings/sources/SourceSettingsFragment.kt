@@ -25,7 +25,6 @@ import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.withArgs
 import org.koitharu.kotatsu.parsers.model.MangaSource
-import java.io.File
 
 @AndroidEntryPoint
 class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenceChangeListener {
@@ -41,7 +40,7 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 	}
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-		preferenceManager.sharedPreferencesName = viewModel.source.name.replace(File.separatorChar, '$')
+		preferenceManager.sharedPreferencesName = SourceSettings.prefsName(viewModel.source)
 		addPreferencesFromResource(R.xml.pref_source)
 		addPreferencesFromRepository(viewModel.repository)
 		val isValidSource = viewModel.repository !is EmptyMangaRepository

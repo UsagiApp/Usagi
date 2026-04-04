@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import org.draken.usagi.core.model.mangaSourceFromStoredKey
 import org.draken.usagi.core.util.ext.observeChanges
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.koitharu.kotatsu.parsers.model.MangaListFilter
@@ -83,6 +84,43 @@ class SavedFiltersRepository @Inject constructor(
         prefs.edit(commit = true) {
             remove(key(id))
         }
+    }
+
+    suspend fun remapFiltersStorageKey(oldSourceKey: String, newSourceKey: String) = withContext(Dispatchers.Default) {
+        if (oldSourceKey == newSourceKey) return@withContext
+        val oldSan = oldSourceKey.replace(File.separatorChar, '$')
+        val newSan = newSourceKey.replace(File.separatorChar, '$')
+        if (oldSan == newSan) return@withContext
+        val oldPrefs = context.getSharedPreferences(oldSan, Context.MODE_PRIVATE)
+        if (oldPrefs.all.isEmpty()) return@withContext
+        val json = Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
+		context.getSharedPreferences(newSan, Context.MODE_PRIVATE).edit {
+			for ((k, v) in oldPrefs.all) {
+				if (k.startsWith(FILTER_PREFIX) && v is String) {
+					val rewritten = runCatching {
+						val filter = json.decodeFromString<PersistableFilter>(v)
+						json.encodeToString(
+							filter.copy(source = mangaSourceFromStoredKey(newSourceKey)),
+						)
+					}.getOrElse { v }
+					putString(k, rewritten)
+				} else if (v is String) {
+					putString(k, v)
+				} else if (v is Boolean) {
+					putBoolean(k, v)
+				} else if (v is Int) {
+					putInt(k, v)
+				} else if (v is Long) {
+					putLong(k, v)
+				} else if (v is Float) {
+					putFloat(k, v)
+				}
+			}
+		}
+        oldPrefs.edit(commit = true) { clear() }
     }
 
     private fun persist(persistableFilter: PersistableFilter) {

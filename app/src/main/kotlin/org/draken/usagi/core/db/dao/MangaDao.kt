@@ -23,6 +23,9 @@ abstract class MangaDao {
 	@Query("SELECT EXISTS(SELECT * FROM manga WHERE manga_id = :id)")
 	abstract suspend operator fun contains(id: Long): Boolean
 
+	@Query("UPDATE manga SET source = :newKey WHERE source = :oldKey")
+	abstract suspend fun rewriteStoredSourceKey(oldKey: String, newKey: String)
+
 	@Transaction
 	@Query("SELECT * FROM manga WHERE public_url = :publicUrl")
 	abstract suspend fun findByPublicUrl(publicUrl: String): MangaWithTags?

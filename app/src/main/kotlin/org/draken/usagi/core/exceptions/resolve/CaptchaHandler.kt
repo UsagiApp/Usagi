@@ -15,7 +15,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.PendingIntentCompat
 import androidx.core.net.toUri
-import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.ProcessLifecycleOwner
 import coil3.EventListener
 import coil3.Extras
 import coil3.ImageLoader
@@ -70,7 +70,7 @@ class CaptchaHandler @Inject constructor(
 	private val webViewExecutor: WebViewExecutor,
 ) : EventListener() {
 
-	private val exceptionMap = MutableScatterMap<MangaSource, CloudFlareProtectedException>()
+	private val exceptionMap = MutableScatterMap<String, CloudFlareProtectedException>()
 	private val mutex = Mutex()
 
 	@CheckResult
@@ -84,16 +84,15 @@ class CaptchaHandler @Inject constructor(
 		super.onError(request, result)
 		val e = result.throwable
 		if (e is CloudFlareException) {
-			val scope = request.lifecycle?.coroutineScope ?: processLifecycleScope
-			scope.launch {
-				if (
-					handleException(
-						source = e.source,
-						exception = e,
-						notify = request.extras[suppressCaptchaKey] != true,
-					)
-				) {
-					coilProvider.get().enqueue(request) // TODO check if ok
+			val notify = request.extras[suppressCaptchaKey] != true
+			val retryRequest = ImageRequest.Builder(request, context)
+				.lifecycle(ProcessLifecycleOwner.get().lifecycle)
+				.target(null)
+				.listener(null)
+				.build()
+			processLifecycleScope.launch {
+				if (handleException(source = e.source, exception = e, notify = notify)) {
+					coilProvider.get().enqueue(retryRequest)
 				}
 			}
 		}
@@ -113,9 +112,9 @@ class CaptchaHandler @Inject constructor(
 		mutex.withLock {
 			var removedException: CloudFlareProtectedException? = null
 			if (exception is CloudFlareProtectedException) {
-				exceptionMap[source] = exception
+				exceptionMap[source.name] = exception
 			} else {
-				removedException = exceptionMap.remove(source)
+				removedException = exceptionMap.remove(source.name)
 			}
 			val dao = databaseProvider.get().getSourcesDao()
 			dao.setCfState(source.name, exception?.state ?: CloudFlareHelper.PROTECTION_NOT_DETECTED)
@@ -126,7 +125,7 @@ class CaptchaHandler @Inject constructor(
 				}.filterNot {
 					SourceSettings(context, it).isCaptchaNotificationsDisabled
 				}.mapNotNull {
-					exceptionMap[it]
+					exceptionMap[it.name]
 				}
 				if (removedException != null) {
 					NotificationManagerCompat.from(context).cancel(TAG, removedException.source.hashCode())
