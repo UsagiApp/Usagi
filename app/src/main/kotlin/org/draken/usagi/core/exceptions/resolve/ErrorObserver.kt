@@ -55,4 +55,9 @@ abstract class ErrorObserver(
 			}
 		}
 	}
+
+	protected suspend fun resolveAndWait(error: Throwable): Boolean {
+		if (!isAlive()) return false
+		return resolver?.resolve(error) == true
+	}
 }

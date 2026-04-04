@@ -22,6 +22,8 @@ class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig 
         Context.MODE_PRIVATE,
     )
 
+	private val userInputs = HashMap<String, String>()
+
 	var defaultSortOrder: SortOrder?
 		get() = prefs.getEnumValue(KEY_SORT_ORDER, SortOrder::class.java)
 		set(value) = prefs.edit { putEnumValue(KEY_SORT_ORDER, value) }
@@ -47,16 +49,23 @@ class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig 
 			is ConfigKey.ShowSuspiciousContent -> prefs.getBoolean(key.key, key.defaultValue)
 			is ConfigKey.SplitByTranslations -> prefs.getBoolean(key.key, key.defaultValue)
 			is ConfigKey.PreferredImageServer -> prefs.getString(key.key, key.defaultValue)?.nullIfEmpty()
+			is ConfigKey.UserInput -> userInputs.remove(key.key)
 		} as T
 	}
 
-	operator fun <T> set(key: ConfigKey<T>, value: T) = prefs.edit {
+	operator fun <T> set(key: ConfigKey<T>, value: T) {
 		when (key) {
-			is ConfigKey.Domain -> putString(key.key, value as String?)
-			is ConfigKey.ShowSuspiciousContent -> putBoolean(key.key, value as Boolean)
-			is ConfigKey.UserAgent -> putString(key.key, (value as String?)?.sanitizeHeaderValue())
-			is ConfigKey.SplitByTranslations -> putBoolean(key.key, value as Boolean)
-			is ConfigKey.PreferredImageServer -> putString(key.key, value as String? ?: "")
+			is ConfigKey.UserInput -> if (value != null) userInputs[key.key] = value as String else userInputs.remove(key.key)
+			else -> prefs.edit {
+				when (key) {
+					is ConfigKey.Domain -> putString(key.key, value as String?)
+					is ConfigKey.ShowSuspiciousContent -> putBoolean(key.key, value as Boolean)
+					is ConfigKey.UserAgent -> putString(key.key, (value as String?)?.sanitizeHeaderValue())
+					is ConfigKey.SplitByTranslations -> putBoolean(key.key, value as Boolean)
+					is ConfigKey.PreferredImageServer -> putString(key.key, value as String? ?: "")
+					else -> Unit
+				}
+			}
 		}
 	}
 
