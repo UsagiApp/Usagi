@@ -11,6 +11,7 @@ import androidx.work.Configuration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.internal.platform.PlatformRegistry
 import org.acra.ACRA
 import org.acra.ReportField
@@ -25,6 +26,10 @@ import org.draken.usagi.R
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.os.AppValidator
 import org.draken.usagi.core.os.RomCompat
+import org.draken.usagi.core.model.PluginSourceKeyNormalizer
+import org.draken.usagi.core.parser.DynamicParserManager
+import org.draken.usagi.core.parser.PluginFileLoader
+import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.processLifecycleScope
 import org.draken.usagi.local.data.LocalStorageChanges
@@ -60,6 +65,9 @@ open class BaseApp : Application(), Configuration.Provider {
 	lateinit var workScheduleManager: WorkScheduleManager
 
 	@Inject
+	lateinit var savedFiltersRepository: SavedFiltersRepository
+
+	@Inject
 	lateinit var localMangaIndexProvider: Provider<LocalMangaIndex>
 
 	@Inject
@@ -90,6 +98,14 @@ open class BaseApp : Application(), Configuration.Provider {
 		processLifecycleScope.launch(Dispatchers.Default) {
 			setupDatabaseObservers()
 			localStorageChanges.collect(localMangaIndexProvider.get())
+		}
+
+		val pluginsDir = PluginFileLoader.pluginsDir(this)
+		processLifecycleScope.launch(Dispatchers.IO) {
+			DynamicParserManager.loadParsersFromDirectory(this@BaseApp, pluginsDir)
+			withContext(Dispatchers.Default) {
+				PluginSourceKeyNormalizer.normalize(database.get(), savedFiltersRepository)
+			}
 		}
 		workScheduleManager.init()
 	}

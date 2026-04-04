@@ -18,6 +18,8 @@ import org.draken.usagi.core.db.entity.MangaSourceEntity
 import org.draken.usagi.explore.data.SourcesSortOrder
 import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
 import org.koitharu.kotatsu.parsers.network.CloudFlareHelper.PROTECTION_CAPTCHA
+import kotlin.math.max
+import kotlin.math.min
 
 @Dao
 abstract class MangaSourcesDao {
@@ -70,6 +72,35 @@ abstract class MangaSourcesDao {
 
 	@Query("SELECT * FROM sources WHERE cf_state = $PROTECTION_CAPTCHA")
 	abstract suspend fun findAllCaptchaRequired(): List<MangaSourceEntity>
+
+	@Query("SELECT * FROM sources WHERE source = :key LIMIT 1")
+	abstract suspend fun findByKey(key: String): MangaSourceEntity?
+
+	@Query("DELETE FROM sources WHERE source = :key")
+	abstract suspend fun deleteByKey(key: String): Int
+
+	@Query("UPDATE sources SET source = :newKey WHERE source = :oldKey")
+	abstract suspend fun renameSourcePrimaryKey(oldKey: String, newKey: String): Int
+
+	@Transaction
+	open suspend fun mergeLegacyPluginSourceKeys(short: String, compound: String) {
+		val shortRow = findByKey(short) ?: return
+		val compoundRow = findByKey(compound)
+		if (compoundRow == null) {
+			renameSourcePrimaryKey(short, compound)
+			return
+		}
+		val merged = compoundRow.copy(
+			isEnabled = shortRow.isEnabled || compoundRow.isEnabled,
+			isPinned = shortRow.isPinned || compoundRow.isPinned,
+			sortKey = min(shortRow.sortKey, compoundRow.sortKey),
+			lastUsedAt = max(shortRow.lastUsedAt, compoundRow.lastUsedAt),
+			addedIn = min(shortRow.addedIn, compoundRow.addedIn),
+			cfState = if (shortRow.cfState != 0) shortRow.cfState else compoundRow.cfState,
+		)
+		upsert(merged)
+		deleteByKey(short)
+	}
 
 	fun observeAll(enabledOnly: Boolean, order: SourcesSortOrder): Flow<List<MangaSourceEntity>> =
 		observeImpl(getQuery(enabledOnly, order))

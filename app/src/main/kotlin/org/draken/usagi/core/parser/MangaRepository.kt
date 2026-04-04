@@ -19,9 +19,9 @@ import org.koitharu.kotatsu.parsers.model.MangaListFilter
 import org.koitharu.kotatsu.parsers.model.MangaListFilterCapabilities
 import org.koitharu.kotatsu.parsers.model.MangaListFilterOptions
 import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.model.SortOrder
+import org.draken.usagi.core.model.MangaSourceRegistry
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -63,9 +63,20 @@ interface MangaRepository {
 	) {
 
 		private val cache = ArrayMap<MangaSource, WeakReference<MangaRepository>>()
+		private var cacheVersion = -1
 
 		@AnyThread
 		fun create(source: MangaSource): MangaRepository {
+			val currentVersion = MangaSourceRegistry.version
+			if (cacheVersion != currentVersion) {
+				synchronized(cache) {
+					if (cacheVersion != currentVersion) {
+						cache.clear()
+						cacheVersion = currentVersion
+					}
+				}
+			}
+
 			when (source) {
 				is MangaSourceInfo -> return create(source.mangaSource)
 				LocalMangaSource -> return localMangaRepository
@@ -85,12 +96,6 @@ interface MangaRepository {
 		}
 
 		private fun createRepository(source: MangaSource): MangaRepository? = when (source) {
-			is MangaParserSource -> ParserMangaRepository(
-				parser = loaderContext.newParserInstance(source),
-				cache = contentCache,
-				mirrorSwitcher = mirrorSwitcher,
-			)
-
 			TestMangaSource -> TestMangaRepository(
 				loaderContext = loaderContext,
 				cache = contentCache,
@@ -106,7 +111,11 @@ interface MangaRepository {
 				EmptyMangaRepository(source)
 			}
 
-			else -> null
+			else -> ParserMangaRepository(
+				parser = loaderContext.newParserInstance(source),
+				cache = contentCache,
+				mirrorSwitcher = mirrorSwitcher,
+			)
 		}
 	}
 }

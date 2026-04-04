@@ -1,6 +1,6 @@
 -optimizationpasses 8
 -dontobfuscate
--assumenosideeffects class kotlin.jvm.internal.Intrinsics {
+-keepclassmembers class kotlin.jvm.internal.Intrinsics {
 	public static void checkExpressionValueIsNotNull(...);
 	public static void checkNotNullExpressionValue(...);
 	public static void checkReturnedValueIsNotNull(...);
@@ -30,3 +30,7 @@
 -keep class org.acra.config.DefaultRetryPolicy { *; }
 -keep class org.acra.attachment.DefaultAttachmentProvider { *; }
 -keep class org.acra.sender.JobSenderService
+
+# For core-exts dependency, optimization is needed if possible
+-keep class org.koitharu.kotatsu.parsers.** { *; }
+-keep class * extends org.koitharu.kotatsu.parsers.MangaLoaderContext { *; }

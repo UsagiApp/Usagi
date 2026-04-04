@@ -919,4 +919,25 @@
 	<string name="details_appearance">Details screen appearance</string>
 	<string name="details_appearance_summary">Screen style, backdrop image and blur effect</string>
 	<string name="preview">Preview</string>
+	<string name="load_from_jar">Import plugin</string>
+	<string name="load_from_jar_summary">Load all sources / plugins by importing a single JAR file</string>
+	<string name="load_success">Plugin imported and loaded successfully</string>
+	<string name="load_failed">Failed to load plugin</string>
+	<string name="set_plugin_name">Set name for this plugin</string>
+	<string name="plugin_name">Plugin name</string>
+	<string name="overwrite_plugin">Overwrite plugin?</string>
+	<string name="overwrite_plugin_summary">A plugin file named %1$s is already installed. Replace it with this one?</string>
+	<string name="confirm_delete_plugin">Are you sure you want to delete %1$s?</string>
+	<string name="delete_plugin">Delete plugin</string>
+	<string name="deleted_plugin">Deleted %1$s plugin!</string>
+	<string name="installed_plugin">Installed a plugin</string>
+	<string name="tap_to_delete_plugin">Tap to delete this plugin</string>
+    <string name="no_plugins">No plugins installed</string>
+    <string name="no_plugins_summary">Click \'Import plugin\' above to add sources from plugins</string>
+    <string name="plugin_not_found">No plugin found for source: %1$s</string>
+    <string name="jar_not_loaded">JAR not loaded: %1$s</string>
+    <string name="unknown_source">Unknown source: %1$s</string>
+    <string name="missing_in_plugin">Source missing in plugin: %1$s</string>
+    <string name="loaded_null">Plugin loaded as null</string>
+    <string name="no_compatible_method">No compatible method found: %1$s(%2$s)</string>
 </resources>
