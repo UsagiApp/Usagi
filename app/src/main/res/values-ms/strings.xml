@@ -886,4 +886,6 @@
     <string name="download_default_directory">Direktori lalai untuk memuat turun manga</string>
     <string name="private_app_directory_warning">Direktori ini dengan semua data akan dipadam jika anda menyahpasang aplikasi</string>
     <string name="available_pattern">%1$s tersedia</string>
+    <string name="experiment">Eksperimen</string>
+    <string name="details_backdrop">Tetapkan penutup besar sebagai tirai latar</string>
 </resources>
