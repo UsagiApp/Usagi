@@ -13,6 +13,7 @@ import kotlinx.coroutines.plus
 import org.draken.usagi.R
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.db.TABLE_SOURCES
+import org.draken.usagi.core.model.MangaSourceInfo
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.util.ReversibleAction
@@ -47,11 +48,17 @@ class SourcesCatalogViewModel @Inject constructor(
 			types = emptySet(),
 			locale = Locale.getDefault().language.takeIf { it in locales },
 			isNewOnly = false,
+			plugin = null,
 		),
 	)
 
 	val hasNewSources = repository.observeHasNewSources()
 		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, false)
+
+	val plugins = repository.allMangaSources
+		.mapNotNullTo(HashSet()) { (it as? org.draken.usagi.core.model.PluginMangaSource
+			?: (it as? MangaSourceInfo)?.mangaSource as? org.draken.usagi.core.model.PluginMangaSource)?.jarName }
+		.sorted()
 
 	val contentTypes = MutableStateFlow<List<ContentType>>(emptyList())
 
@@ -101,6 +108,10 @@ class SourcesCatalogViewModel @Inject constructor(
 		appliedFilter.value = appliedFilter.value.copy(isNewOnly = value)
 	}
 
+	fun setPlugin(value: String?) {
+		appliedFilter.value = appliedFilter.value.copy(plugin = value)
+	}
+
 	private suspend fun buildSourcesList(filter: SourcesCatalogFilter, query: String?): List<SourceCatalogItem> {
 		val sources = repository.queryParserSources(
 			isDisabledOnly = true,
@@ -109,6 +120,7 @@ class SourcesCatalogViewModel @Inject constructor(
 			types = filter.types,
 			query = query,
 			locale = filter.locale,
+			plugin = filter.plugin,
 			sortOrder = SourcesSortOrder.ALPHABETIC,
 		)
 		return if (sources.isEmpty()) {

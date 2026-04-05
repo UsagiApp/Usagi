@@ -117,6 +117,7 @@ class MangaSourcesRepository @Inject constructor(
 		types: Set<ContentType>,
 		query: String?,
 		locale: String?,
+		plugin: String?,
 		sortOrder: SourcesSortOrder?,
 	): List<MangaSource> {
 		assimilateNewSources()
@@ -140,6 +141,12 @@ class MangaSourcesRepository @Inject constructor(
 		}
 		if (excludeBroken && !hideBrokenSources) {
 			sources.removeAll { it.isBroken }
+		}
+		if (plugin != null) {
+			sources.retainAll {
+				val ps = it as? PluginMangaSource ?: (it as? MangaSourceInfo)?.mangaSource as? PluginMangaSource
+				ps?.jarName == plugin
+			}
 		}
 		if (types.isNotEmpty()) {
 			sources.retainAll { it.contentType in types }
