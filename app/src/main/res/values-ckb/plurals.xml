@@ -24,4 +24,16 @@
         <item quantity="one">%1$d ڕۆژ لەمەوبەر</item>
         <item quantity="other">%1$d ڕۆژ لەمەوبەر</item>
     </plurals>
+    <plurals name="hours">
+        <item quantity="one"></item>
+        <item quantity="other"></item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one"></item>
+        <item quantity="other"></item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one"></item>
+        <item quantity="other"></item>
+    </plurals>
 </resources>
