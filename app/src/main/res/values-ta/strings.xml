@@ -860,4 +860,52 @@
     <string name="enable_pull_gesture_summary">வெப்டூனில் அத்தியாயங்களை மாற்ற புல் சைகையைப் பயன்படுத்தவும்</string>
     <string name="hide_broken_sources">உடைந்த ஆதாரங்களை மறை</string>
     <string name="hide_broken_sources_summary">மூலப் பட்டியல்களிலிருந்து உடைந்ததாகக் குறிக்கப்பட்ட ஆதாரங்களை மறை</string>
+    <string name="preview"></string>
+    <string name="details_ui_classic"></string>
+    <string name="saved_filters"></string>
+    <string name="reader_chapter_toast_summary"></string>
+    <string name="source_summary_pattern" translatable="false"></string>
+    <string name="source_broken_warning"></string>
+    <string name="details_backdrop"></string>
+    <string name="download_default_directory"></string>
+    <string name="enter_name"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="create_or_restore_backup"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="available_pattern"></string>
+    <string name="reader_chapter_toast"></string>
+    <string name="rename"></string>
+    <string name="remaining_time_pattern" translatable="false"></string>
+    <string name="details_appearance"></string>
+    <string name="new_chapters_pattern" translatable="false"></string>
+    <string name="pinned_sources_only"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="details_ui"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="experiment"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="two_page_scroll_sensitivity"></string>
+    <string name="storage_and_network"></string>
+    <string name="details_backdrop_blur"></string>
+    <string name="save_filter"></string>
+    <string name="details_appearance_summary"></string>
+    <string name="percent_string_pattern" translatable="false"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="hide_empty_sources"></string>
+    <string name="overwrite"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="details_ui_modern"></string>
+    <string name="private_app_directory_warning"></string>
+    <string name="data_removal"></string>
+    <string name="auto_double_foldable"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="memory_usage_pattern" translatable="false"></string>
+    <string name="filter_overwrite_confirm"></string>
+    <string name="privacy"></string>
+    <string name="details_backdrop_summary"></string>
+    <string name="shikimori" translatable="false"></string>
+    <string name="frequency_every_6_hours"></string>
 </resources>
