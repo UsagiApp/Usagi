@@ -28,12 +28,4 @@
         <item quantity="one">%1$d μήνας πριν</item>
         <item quantity="other">%1$d μήνες πριν</item>
     </plurals>
-    <plurals name="hours">
-        <item quantity="one"></item>
-        <item quantity="other"></item>
-    </plurals>
-    <plurals name="minutes">
-        <item quantity="one"></item>
-        <item quantity="other"></item>
-    </plurals>
 </resources>
