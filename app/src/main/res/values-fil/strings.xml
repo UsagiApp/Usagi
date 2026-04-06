@@ -906,4 +906,6 @@
     <string name="privacy"></string>
     <string name="theme_name_totoro"></string>
     <string name="shikimori" translatable="false"></string>
+    <string name="theme_name_itsuka"></string>
+    <string name="discord_rpc"></string>
 </resources>
