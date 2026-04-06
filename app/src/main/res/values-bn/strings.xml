@@ -903,4 +903,9 @@
     <string name="theme_name_kanade"></string>
     <string name="theme_name_mion"></string>
     <string name="backup_tg_echo"></string>
+    <string name="backup_frequency"></string>
+    <string name="periodic_backups_enable"></string>
+    <string name="data_not_restored_text"></string>
+    <string name="periodic_backups"></string>
+    <string name="restore_summary"></string>
 </resources>
