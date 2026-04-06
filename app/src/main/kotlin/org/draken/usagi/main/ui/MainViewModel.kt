@@ -65,8 +65,9 @@ class MainViewModel @Inject constructor(
 		launchJob {
 			appUpdateRepository.fetchUpdate()
 		}
-		launchJob(Dispatchers.Default) {
-			if (sourcesRepository.isSetupRequired()) {
+		launchJob {
+			if (settings.isFirstLaunch) {
+				settings.isFirstLaunch = false
 				onFirstStart.call(Unit)
 			}
 		}
