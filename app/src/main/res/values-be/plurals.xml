@@ -21,16 +21,19 @@
         <item quantity="one">%1$d хвіліну таму</item>
         <item quantity="few">%1$d хвіліны таму</item>
         <item quantity="many">%1$d хвілін таму</item>
+        <item quantity="other">%1$d хвілін таму</item>
     </plurals>
     <plurals name="hours_ago">
         <item quantity="one">%1$d гадзіну таму</item>
         <item quantity="few">%1$d гадзіны таму</item>
         <item quantity="many">%1$d гадзін таму</item>
+        <item quantity="other">%1$d гадзін таму</item>
     </plurals>
     <plurals name="days_ago">
         <item quantity="one">%1$d дзень таму</item>
         <item quantity="few">%1$d дні таму</item>
         <item quantity="many">%1$d дзён таму</item>
+        <item quantity="other">%1$d дзён таму</item>
     </plurals>
     <plurals name="months_ago">
         <item quantity="one">%1$d месяц таму</item>
