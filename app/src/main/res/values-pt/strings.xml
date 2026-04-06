@@ -132,7 +132,7 @@
     <string name="captcha_solve">Resolver</string>
     <string name="cookies_cleared">Todos os cookies foram removidos</string>
     <string name="clear_feed">Limpar o fluxo</string>
-    <string name="text_clear_updates_feed_prompt">Limpar todo o histórico de atualizações permanentemente\?</string>
+    <string name="text_clear_updates_feed_prompt">Limpar todo o histórico de atualizações permanentemente?</string>
     <string name="check_for_new_chapters">Em busca de novos capítulos</string>
     <string name="reverse">Reverter</string>
     <string name="sign_in">Entrar</string>
@@ -182,7 +182,7 @@
     <string name="reader_mode_hint">A configuração escolhida será lembrada para este mangá</string>
     <string name="backup_information">Pode criar um backup do seu histórico e favoritos e restaurá-lo</string>
     <string name="clear_cookies">Limpar cookies</string>
-    <string name="text_clear_search_history_prompt">Remover todas as consultas de pesquisa recentes permanentemente\?</string>
+    <string name="text_clear_search_history_prompt">Remover todas as consultas de pesquisa recentes permanentemente?</string>
     <string name="auth_required">Faça login para ver este conteúdo</string>
     <string name="manga_save_location">Pasta de downloads</string>
     <string name="exclude_nsfw_from_history">Excluir mangá NSFW do histórico</string>
@@ -213,12 +213,12 @@
     <string name="appearance">Aparência</string>
     <string name="search_chapters">Encontrar capítulo</string>
     <string name="chapters_empty">Não há capítulos nesta manga</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="color_correction">Correção de cor</string>
     <string name="server_error">Erro do servidor (%1$d). Por favor, tente novamente mais tarde</string>
     <string name="clear_new_chapters_counters">Apagar informações sobre novos capítulos</string>
     <string name="hide">Ocultar</string>
-    <string name="text_delete_local_manga_batch">Excluir os itens selecionados do dispositivo permanentemente\?</string>
+    <string name="text_delete_local_manga_batch">Excluir os itens selecionados do dispositivo permanentemente?</string>
     <string name="compact">Compactar</string>
     <string name="bookmark_added">Marcador adicionado</string>
     <string name="prefetch_content">Pré-carregamento de conteúdo</string>
@@ -277,7 +277,7 @@
     <string name="brightness">Brilho</string>
     <string name="contrast">Contraste</string>
     <string name="reset">Redefinir</string>
-    <string name="text_unsaved_changes_prompt">Salvar ou descartar alterações não salvas\?</string>
+    <string name="text_unsaved_changes_prompt">Salvar ou descartar alterações não salvas?</string>
     <string name="select_range">Selecionar intervalo</string>
     <string name="reader_slider">Mostrar controle de leitura deslizante</string>
     <string name="source_disabled">Fonte desativada</string>
@@ -316,7 +316,7 @@
     <string name="other_cache">Outros cache</string>
     <string name="storage_usage">Armazenamento usado</string>
     <string name="available">Disponível</string>
-    <string name="memory_usage_pattern">%s - %s</string>
+    <string name="memory_usage_pattern" translatable="false">%s - %s</string>
     <string name="removed_from_favourites">Removido dos favoritos</string>
     <string name="options">Opções</string>
     <string name="not_found_404">Conteúdo não encontrado ou removido</string>
@@ -386,7 +386,7 @@
     <string name="downloads_paused">Os downloads foram pausados</string>
     <string name="downloads_removed">Os downloads foram removidos</string>
     <string name="downloads_cancelled">Os downloads foram cancelados</string>
-    <string name="suggestions_enable_prompt">Quer receber sugestões personalizadas de mangás\?</string>
+    <string name="suggestions_enable_prompt">Quer receber sugestões personalizadas de mangás?</string>
     <string name="web_view_unavailable">WebView não disponível: verifique se o provedor WebView está instalado</string>
     <string name="clear_network_cache">Limpar cache de rede</string>
     <string name="invalid_value_message">Valor inválido</string>
@@ -476,7 +476,7 @@
     <string name="frequency_every_day">Diariamente</string>
     <string name="content_type_manga">Mangá</string>
     <string name="error_multiple_states_not_supported">A filtragem por múltiplos estados não é suportada por esta fonte</string>
-    <string name="source_summary_pattern">%1$s, %2$s</string>
+    <string name="source_summary_pattern" translatable="false">%1$s, %2$s</string>
     <string name="backup_frequency">Frequência de criação de backup</string>
     <string name="content_type_hentai">Hentai</string>
     <string name="error_filter_states_genre_not_supported">A filtragem por gênero e estado não é suportado por esta fonte</string>
@@ -511,8 +511,7 @@
     <string name="disable_nsfw_summary">Desative as fontes NSFW e oculte os mangás adultos da lista, se possível</string>
     <string name="speed_value">x%.1f</string>
     <string name="backup_date_">Data de backup: %s</string>
-    <string name="no_manga_sources_catalog_text">Não há fontes disponíveis nesta secção, ou todas elas podem já ter sido adicionadas.
-\nFique atento</string>
+    <string name="no_manga_sources_catalog_text">Não há fontes disponíveis nesta secção, ou todas elas podem já ter sido adicionadas. \nFique atento</string>
     <string name="available_d">Disponível: %1$d</string>
     <string name="state">Estado</string>
     <string name="grayscale">Tons de Cinzento</string>
@@ -534,10 +533,8 @@
     <string name="incognito_mode_hint">Seu progresso de leitura não será salvo</string>
     <string name="vertical">Vertical</string>
     <string name="email_password_enter_hint">Coloque seu email e senha para continuar</string>
-    <string name="mark_as_completed_prompt">Marcar o mangá selecionado como lido completamente?
-\n
-\nAviso: o progresso da leitura atual será perdido.</string>
-    <string name="remaining_time_pattern">%1$s %2$s</string>
+    <string name="mark_as_completed_prompt">Marcar o mangá selecionado como lido completamente? \n \nAviso: o progresso da leitura atual será perdido.</string>
+    <string name="remaining_time_pattern" translatable="false">%1$s %2$s</string>
     <string name="show_menu">Mostrar menu</string>
     <string name="toggle_ui">Mostrar/ocultar UI</string>
     <string name="prev_chapter">Capítulo anterior</string>
@@ -881,4 +878,34 @@
     <string name="source_broken_warning">Esta fonte de mangá foi marcada como quebrada. Alguns recursos podem não funcionar</string>
     <string name="hide_broken_sources">Ocultar fontes quebradas</string>
     <string name="hide_broken_sources_summary">Ocultar fontes marcadas como quebradas nas listas de fontes</string>
+    <string name="preview"></string>
+    <string name="details_ui_classic"></string>
+    <string name="details_backdrop"></string>
+    <string name="download_default_directory"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="available_pattern"></string>
+    <string name="details_appearance"></string>
+    <string name="new_chapters_pattern" translatable="false"></string>
+    <string name="pinned_sources_only"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="details_ui"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="experiment"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="details_backdrop_blur"></string>
+    <string name="details_appearance_summary"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="hide_empty_sources"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="details_ui_modern"></string>
+    <string name="private_app_directory_warning"></string>
+    <string name="auto_double_foldable"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="details_backdrop_summary"></string>
+    <string name="shikimori" translatable="false"></string>
+    <string name="frequency_every_6_hours"></string>
 </resources>
