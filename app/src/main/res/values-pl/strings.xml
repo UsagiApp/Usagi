@@ -907,4 +907,5 @@
     <string name="details_backdrop_summary"></string>
     <string name="shikimori" translatable="false"></string>
     <string name="frequency_every_6_hours"></string>
+    <string name="discord_rpc"></string>
 </resources>
