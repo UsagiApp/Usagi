@@ -9,11 +9,13 @@
     <plurals name="new_chapters">
         <item quantity="one">%1$d nová kapitola</item>
         <item quantity="few">%1$d nové kapitoly</item>
+        <item quantity="many">%1$d nových kapitol</item>
         <item quantity="other">%1$d nových kapitol</item>
     </plurals>
     <plurals name="chapters">
         <item quantity="one">%1$d kapitola</item>
         <item quantity="few">%1$d kapitoly</item>
+        <item quantity="many">%1$d kapitol</item>
         <item quantity="other">%1$d kapitol</item>
     </plurals>
     <plurals name="minutes_ago">
