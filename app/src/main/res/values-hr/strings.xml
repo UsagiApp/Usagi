@@ -880,32 +880,4 @@
     <string name="hide_empty_sources">Sakrij prazne izvore</string>
     <string name="hide_broken_sources">Sakrij pokvarene izvore</string>
     <string name="hide_broken_sources_summary">Sakrij izvore označene kao neispravne s popisa izvora</string>
-    <string name="preview"></string>
-    <string name="details_ui_classic"></string>
-    <string name="source_summary_pattern" translatable="false"></string>
-    <string name="details_backdrop"></string>
-    <string name="discord" translatable="false"></string>
-    <string name="kitsu" translatable="false"></string>
-    <string name="remaining_time_pattern" translatable="false"></string>
-    <string name="details_appearance"></string>
-    <string name="new_chapters_pattern" translatable="false"></string>
-    <string name="fraction_pattern" translatable="false"></string>
-    <string name="details_ui"></string>
-    <string name="inline_preference_pattern" translatable="false"></string>
-    <string name="download_summary_pattern" translatable="false"></string>
-    <string name="experiment"></string>
-    <string name="mal" translatable="false"></string>
-    <string name="anilist" translatable="false"></string>
-    <string name="breadcrumbs_separator" translatable="false"></string>
-    <string name="details_backdrop_blur"></string>
-    <string name="details_appearance_summary"></string>
-    <string name="percent_string_pattern" translatable="false"></string>
-    <string name="chapters_time_pattern" translatable="false"></string>
-    <string name="list_ellipsize_pattern" translatable="false"></string>
-    <string name="details_ui_modern"></string>
-    <string name="auto_double_foldable"></string>
-    <string name="app_name" translatable="false"></string>
-    <string name="memory_usage_pattern" translatable="false"></string>
-    <string name="details_backdrop_summary"></string>
-    <string name="shikimori" translatable="false"></string>
 </resources>

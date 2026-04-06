@@ -896,16 +896,4 @@
     <string name="details_appearance">Поява подробиць екрану</string>
     <string name="details_appearance_summary">Стиль екрану, зображення тла та ефект розмиття</string>
     <string name="preview">Попередній перегляд</string>
-    <string name="discord" translatable="false"></string>
-    <string name="kitsu" translatable="false"></string>
-    <string name="fraction_pattern" translatable="false"></string>
-    <string name="inline_preference_pattern" translatable="false"></string>
-    <string name="download_summary_pattern" translatable="false"></string>
-    <string name="mal" translatable="false"></string>
-    <string name="anilist" translatable="false"></string>
-    <string name="breadcrumbs_separator" translatable="false"></string>
-    <string name="chapters_time_pattern" translatable="false"></string>
-    <string name="list_ellipsize_pattern" translatable="false"></string>
-    <string name="app_name" translatable="false"></string>
-    <string name="shikimori" translatable="false"></string>
 </resources>

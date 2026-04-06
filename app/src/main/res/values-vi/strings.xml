@@ -896,16 +896,4 @@
     <string name="details_appearance">Giao diện màn hình chi tiết</string>
     <string name="details_appearance_summary">Phong cách, ảnh nền và hiệu ứng mờ</string>
     <string name="preview">Xem trước</string>
-    <string name="discord" translatable="false"></string>
-    <string name="kitsu" translatable="false"></string>
-    <string name="fraction_pattern" translatable="false"></string>
-    <string name="inline_preference_pattern" translatable="false"></string>
-    <string name="download_summary_pattern" translatable="false"></string>
-    <string name="mal" translatable="false"></string>
-    <string name="anilist" translatable="false"></string>
-    <string name="breadcrumbs_separator" translatable="false"></string>
-    <string name="chapters_time_pattern" translatable="false"></string>
-    <string name="list_ellipsize_pattern" translatable="false"></string>
-    <string name="app_name" translatable="false"></string>
-    <string name="shikimori" translatable="false"></string>
 </resources>

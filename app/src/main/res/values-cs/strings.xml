@@ -890,22 +890,4 @@
     <string name="details_backdrop">Použít přebal jako pozadí</string>
     <string name="details_backdrop_summary">Zobrazit přebal na vrchu jako pozadí (jako Tachiyomi)</string>
     <string name="details_backdrop_blur">Povolit rozmazání pozadí</string>
-    <string name="preview"></string>
-    <string name="discord" translatable="false"></string>
-    <string name="kitsu" translatable="false"></string>
-    <string name="details_appearance"></string>
-    <string name="fraction_pattern" translatable="false"></string>
-    <string name="details_ui"></string>
-    <string name="inline_preference_pattern" translatable="false"></string>
-    <string name="download_summary_pattern" translatable="false"></string>
-    <string name="experiment"></string>
-    <string name="mal" translatable="false"></string>
-    <string name="simple"></string>
-    <string name="anilist" translatable="false"></string>
-    <string name="breadcrumbs_separator" translatable="false"></string>
-    <string name="details_appearance_summary"></string>
-    <string name="chapters_time_pattern" translatable="false"></string>
-    <string name="list_ellipsize_pattern" translatable="false"></string>
-    <string name="app_name" translatable="false"></string>
-    <string name="shikimori" translatable="false"></string>
 </resources>
