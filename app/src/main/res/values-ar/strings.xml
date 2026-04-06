@@ -905,4 +905,7 @@
     <string name="theme_name_totoro"></string>
     <string name="shikimori" translatable="false"></string>
     <string name="frequency_every_6_hours"></string>
+    <string name="reader_multitask_summary"></string>
+    <string name="theme_name_itsuka"></string>
+    <string name="discord_rpc"></string>
 </resources>
