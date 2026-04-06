@@ -78,6 +78,7 @@ import org.draken.usagi.list.ui.config.ListConfigSection
 import org.draken.usagi.local.ui.ImportDialogFragment
 import org.draken.usagi.local.ui.info.LocalInfoDialog
 import org.draken.usagi.main.ui.MainActivity
+import org.draken.usagi.main.ui.welcome.WelcomeSheet
 import org.koitharu.kotatsu.parsers.model.Manga
 import org.koitharu.kotatsu.parsers.model.MangaListFilter
 import org.koitharu.kotatsu.parsers.model.MangaPage
@@ -518,6 +519,23 @@ class AppRouter private constructor(
             putInt(KEY_TAB, defaultTab)
         }.showDistinct()
     }
+
+	fun showWelcomeSheet() {
+		WelcomeSheet().showDistinct()
+	}
+
+	fun closeWelcomeSheet(): Boolean {
+		val tag = fragmentTag<WelcomeSheet>()
+		val sheet = fragment?.findFragmentByTagRecursive(tag)
+			?: activity?.supportFragmentManager?.findFragmentByTag(tag)
+			?: return false
+		return if (sheet is WelcomeSheet) {
+			sheet.dismissAllowingStateLoss()
+			true
+		} else {
+			false
+		}
+	}
 
     fun showScrobblingSelectorSheet(manga: Manga, scrobblerService: ScrobblerService?) {
         ScrobblingSelectorSheet().withArgs(2) {

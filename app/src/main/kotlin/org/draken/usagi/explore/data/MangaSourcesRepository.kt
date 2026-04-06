@@ -327,6 +327,9 @@ class MangaSourcesRepository @Inject constructor(
 		return true
 	}
 
+	suspend fun isSetupRequired(): Boolean {
+		return settings.sourcesVersion == 0 && dao.findAllEnabledNames().isEmpty()
+	}
 
 	suspend fun setIsPinned(sources: Collection<MangaSource>, isPinned: Boolean): ReversibleHandle {
 		setSourcesPinnedImpl(sources, isPinned)

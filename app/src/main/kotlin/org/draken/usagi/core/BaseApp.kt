@@ -100,8 +100,8 @@ open class BaseApp : Application(), Configuration.Provider {
 			localStorageChanges.collect(localMangaIndexProvider.get())
 		}
 
-		val pluginsDir = PluginFileLoader.pluginsDir(this)
 		processLifecycleScope.launch(Dispatchers.IO) {
+			val pluginsDir = PluginFileLoader.pluginsDir(this@BaseApp)
 			DynamicParserManager.loadParsersFromDirectory(this@BaseApp, pluginsDir)
 			withContext(Dispatchers.Default) {
 				PluginSourceKeyNormalizer.normalize(database.get(), savedFiltersRepository)
