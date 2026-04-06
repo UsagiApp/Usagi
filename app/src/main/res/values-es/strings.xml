@@ -905,4 +905,7 @@
     <string name="list_ellipsize_pattern" translatable="false"></string>
     <string name="app_name" translatable="false"></string>
     <string name="shikimori" translatable="false"></string>
+    <string name="preview"></string>
+    <string name="details_appearance"></string>
+    <string name="details_appearance_summary"></string>
 </resources>
