@@ -4,6 +4,7 @@
         <item quantity="one">%1$d nowy rozdział</item>
         <item quantity="few">%1$d nowe rozdziały</item>
         <item quantity="many">%1$d nowych rozdziałów</item>
+        <item quantity="other">%1$d nowych rozdziałów</item>
     </plurals>
     <plurals name="minutes_ago">
         <item quantity="one">%1$d minutę temu</item>
@@ -33,6 +34,7 @@
         <item quantity="one">%1$d rozdział</item>
         <item quantity="few">%1$d rozdziały</item>
         <item quantity="many">%1$d rozdziałów</item>
+        <item quantity="other">%1$d rozdziałów</item>
     </plurals>
     <plurals name="months_ago">
         <item quantity="one">%1$d miesiąc temu</item>
