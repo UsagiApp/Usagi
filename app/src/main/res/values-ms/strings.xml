@@ -155,7 +155,7 @@
     <string name="various_languages">Pelbagai bahasa</string>
     <string name="search_chapters">Cari bab</string>
     <string name="chapters_empty">Tiada bab dalam manga ini</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="appearance">Penampilan</string>
     <string name="suggestions_updating">Pengemaskinian pengesyoran</string>
     <string name="suggestions_excluded_genres_summary">Tentukan genre yang anda tidak mahu lihat dalam pengesyoran</string>
@@ -226,7 +226,7 @@
     <string name="other_cache">Cache lain-lain</string>
     <string name="storage_usage">Penggunaan storan</string>
     <string name="available">Tersedia</string>
-    <string name="memory_usage_pattern">%s - %s</string>
+    <string name="memory_usage_pattern" translatable="false">%s - %s</string>
     <string name="removed_from_favourites">Dibuang daripada kegemaran</string>
     <string name="options">Pilihan</string>
     <string name="local_storage">Storan tempatan</string>
@@ -888,4 +888,19 @@
     <string name="available_pattern">%1$s tersedia</string>
     <string name="experiment">Eksperimen</string>
     <string name="details_backdrop">Tetapkan penutup besar sebagai tirai latar</string>
+    <string name="source_summary_pattern" translatable="false"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="remaining_time_pattern" translatable="false"></string>
+    <string name="new_chapters_pattern" translatable="false"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="shikimori" translatable="false"></string>
 </resources>
