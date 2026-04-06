@@ -886,4 +886,26 @@
     <string name="long_tap_action"></string>
     <string name="clear_stats_confirm"></string>
     <string name="error_no_space_left"></string>
+    <string name="demographic_shounen"></string>
+    <string name="reader_multitask_summary"></string>
+    <string name="demographic_seinen"></string>
+    <string name="content_type_hentai"></string>
+    <string name="demographic_josei"></string>
+    <string name="content_type_comics"></string>
+    <string name="content_type_manhua"></string>
+    <string name="theme_name_sakura"></string>
+    <string name="theme_name_miku"></string>
+    <string name="theme_name_itsuka"></string>
+    <string name="content_type_doujinshi"></string>
+    <string name="content_type_manhwa"></string>
+    <string name="discord_rpc"></string>
+    <string name="content_type_game_cg"></string>
+    <string name="theme_name_asuka"></string>
+    <string name="captcha_required_message"></string>
+    <string name="theme_name_rikka"></string>
+    <string name="theme_name_mamimi"></string>
+    <string name="demographic_shoujo"></string>
+    <string name="theme_name_kanade"></string>
+    <string name="theme_name_mion"></string>
+    <string name="backup_tg_echo"></string>
 </resources>
