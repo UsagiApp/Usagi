@@ -53,6 +53,11 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	private val connectivityManager = context.connectivityManager
 	private val mangaListBadgesDefault = ArraySet(context.resources.getStringArray(R.array.values_list_badges))
 
+	/* For first launch */
+	var isFirstLaunch: Boolean
+		get() = prefs.getBoolean(KEY_FIRST_LAUNCH, true)
+		set(value) = prefs.edit { putBoolean(KEY_FIRST_LAUNCH, value) }
+
 	var listMode: ListMode
 		get() = prefs.getEnumValue(KEY_LIST_MODE, ListMode.GRID)
 		set(value) = prefs.edit { putEnumValue(KEY_LIST_MODE, value) }
@@ -693,6 +698,7 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val TRACK_HISTORY = "history"
 		const val TRACK_FAVOURITES = "favourites"
 
+		const val KEY_FIRST_LAUNCH = "first_launch"
 		const val KEY_ADBLOCK = "adblock"
 		const val KEY_LIST_MODE = "list_mode_2"
 		const val KEY_LIST_MODE_HISTORY = "list_mode_history"
