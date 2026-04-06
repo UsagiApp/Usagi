@@ -3,6 +3,7 @@
     <plurals name="new_chapters">
         <item quantity="one">%1$d naujas skyrius</item>
         <item quantity="few">%1$d nauji skyriai</item>
+        <item quantity="many">%1$d naujų skyrių</item>
         <item quantity="other">%1$d naujų skyrių</item>
     </plurals>
     <plurals name="items">
@@ -20,6 +21,7 @@
     <plurals name="chapters">
         <item quantity="one">%1$d skyrius</item>
         <item quantity="few">%1$d skyriai</item>
+        <item quantity="many">%1$d skyrių</item>
         <item quantity="other">%1$d skyrių</item>
     </plurals>
     <plurals name="hours">
