@@ -15,6 +15,7 @@ import org.draken.usagi.core.prefs.observeAsStateFlow
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.core.util.ext.call
+import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.history.data.HistoryRepository
 import org.draken.usagi.main.domain.ReadingResumeEnabledUseCase
 import org.koitharu.kotatsu.parsers.model.Manga
@@ -27,10 +28,12 @@ class MainViewModel @Inject constructor(
 	private val appUpdateRepository: AppUpdateRepository,
 	trackingRepository: TrackingRepository,
 	private val settings: AppSettings,
+	private val sourcesRepository: MangaSourcesRepository,
 	readingResumeEnabledUseCase: ReadingResumeEnabledUseCase,
 ) : BaseViewModel() {
 
 	val onOpenReader = MutableEventFlow<Manga>()
+	val onFirstStart = MutableEventFlow<Unit>()
 
 	val isResumeEnabled = readingResumeEnabledUseCase()
 		.withErrorHandling()
@@ -62,7 +65,11 @@ class MainViewModel @Inject constructor(
 		launchJob {
 			appUpdateRepository.fetchUpdate()
 		}
-
+		launchJob(Dispatchers.Default) {
+			if (sourcesRepository.isSetupRequired()) {
+				onFirstStart.call(Unit)
+			}
+		}
 	}
 
 	fun openLastReader() {
