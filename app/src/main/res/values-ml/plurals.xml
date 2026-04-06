@@ -8,4 +8,28 @@
         <item quantity="one">%1$d മിനിറ്റ്</item>
         <item quantity="other">%1$d മിനിറ്റ്</item>
     </plurals>
+    <plurals name="minutes_ago">
+        <item quantity="one"></item>
+        <item quantity="other"></item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one"></item>
+        <item quantity="other"></item>
+    </plurals>
+    <plurals name="items">
+        <item quantity="one"></item>
+        <item quantity="other"></item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one"></item>
+        <item quantity="other"></item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one"></item>
+        <item quantity="other"></item>
+    </plurals>
+    <plurals name="hours_ago">
+        <item quantity="one"></item>
+        <item quantity="other"></item>
+    </plurals>
 </resources>
