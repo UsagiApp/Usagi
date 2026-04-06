@@ -906,4 +906,6 @@
     <string name="details_backdrop_summary"></string>
     <string name="shikimori" translatable="false"></string>
     <string name="dont_allow"></string>
+    <string name="content_type_game_cg"></string>
+    <string name="backup_tg_echo"></string>
 </resources>
