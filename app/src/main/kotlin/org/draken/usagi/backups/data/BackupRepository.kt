@@ -31,6 +31,7 @@ import org.draken.usagi.backups.data.model.SourceBackup
 import org.draken.usagi.backups.data.model.StatisticBackup
 import org.draken.usagi.backups.domain.BackupSection
 import org.draken.usagi.core.db.MangaDatabase
+import org.draken.usagi.core.model.PluginSourceKeyNormalizer
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.CompositeResult
 import org.draken.usagi.core.util.progress.Progress
@@ -215,6 +216,7 @@ class BackupRepository @Inject constructor(
             input.closeEntry()
             entry = input.nextEntry
         }
+        PluginSourceKeyNormalizer.normalize(database, savedFiltersRepository)
         progress?.emit(commonProgress)
         return result
     }

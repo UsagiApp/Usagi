@@ -38,7 +38,6 @@ import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingFooter
 import org.draken.usagi.list.ui.model.LoadingState
 import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import org.draken.usagi.search.domain.SearchKind
@@ -207,7 +206,7 @@ class SearchViewModel @Inject constructor(
 		},
 		onFailure = { error ->
 			error.printStackTraceDebug()
-			if (source is MangaParserSource && source.isBroken) {
+			if (source.isBroken) {
 				null
 			} else {
 				SearchResultsListModel(0, source, null, null, emptyList(), error)
@@ -318,9 +317,7 @@ class SearchViewModel @Inject constructor(
 
 	private fun MangaSource.priority(): Int {
 		var res = 0
-		if (this is MangaParserSource) {
-			if (locale.toLocale() == Locale.getDefault()) res += 2
-		}
+		if (locale.toLocale() == Locale.getDefault()) res += 2
 		return res
 	}
 }

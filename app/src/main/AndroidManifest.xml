@@ -169,6 +169,33 @@
 			</intent-filter>
 		</activity>
 		<activity
+			android:name="org.draken.usagi.settings.sources.PluginActivity"
+			android:excludeFromRecents="true"
+			android:exported="true"
+			android:noHistory="true">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:scheme="content" android:mimeType="application/java-archive" />
+				<data android:scheme="file" android:mimeType="application/java-archive" />
+				<data android:scheme="content" android:mimeType="application/x-java-archive" />
+				<data android:scheme="file" android:mimeType="application/x-java-archive" />
+				<data android:scheme="content" android:mimeType="application/vnd.android.package-archive" />
+				<data android:scheme="file" android:mimeType="application/vnd.android.package-archive" />
+				<data android:scheme="content" android:mimeType="application/octet-stream" android:pathPattern=".*\\.jar" />
+				<data android:scheme="file" android:mimeType="application/octet-stream" android:pathPattern=".*\\.jar" />
+				<data android:scheme="content" android:mimeType="application/octet-stream" android:pathPattern=".*\\.JAR" />
+				<data android:scheme="file" android:mimeType="application/octet-stream" android:pathPattern=".*\\.JAR" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.SEND" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="application/java-archive" />
+				<data android:mimeType="application/x-java-archive" />
+				<data android:mimeType="application/vnd.android.package-archive" />
+			</intent-filter>
+		</activity>
+		<activity
 			android:name="org.draken.usagi.settings.reader.ReaderTapGridConfigActivity"
 			android:label="@string/reader_actions" />
 		<activity

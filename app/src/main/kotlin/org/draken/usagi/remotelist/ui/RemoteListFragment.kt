@@ -18,7 +18,6 @@ import org.draken.usagi.core.ui.list.ListSelectionController
 import org.draken.usagi.core.ui.util.MenuInvalidator
 import org.draken.usagi.core.util.ext.addMenuProvider
 import org.draken.usagi.core.util.ext.getCauseUrl
-import org.draken.usagi.core.util.ext.isHttpUrl
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.withArgs
@@ -91,9 +90,10 @@ class RemoteListFragment : MangaListFragment(), FilterCoordinator.Owner, View.On
     override fun onClick(v: View?) = Unit // from Snackbar, do nothing
 
     private fun openInBrowser(url: String?) {
-        if (url?.isHttpUrl() == true) {
+        if (!url.isNullOrEmpty()) {
+            val fixedUrl = if (url.startsWith("//")) "https:$url" else url
             router.openBrowser(
-                url = url,
+                url = fixedUrl,
                 source = viewModel.source,
                 title = viewModel.source.getTitle(requireContext()),
             )

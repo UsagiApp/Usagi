@@ -3,6 +3,7 @@ package org.draken.usagi.backups.data.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.draken.usagi.core.db.entity.MangaSourceEntity
+import org.draken.usagi.core.model.toBackupSourceName
 
 @Serializable
 class SourceBackup(
@@ -15,7 +16,7 @@ class SourceBackup(
 ) {
 
 	constructor(entity: MangaSourceEntity) : this(
-		source = entity.source,
+		source = entity.source.toBackupSourceName(),
 		sortKey = entity.sortKey,
 		lastUsedAt = entity.lastUsedAt,
 		addedIn = entity.addedIn,

@@ -68,6 +68,11 @@ class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),
 		addMenuProvider(SourcesCatalogMenuProvider(this, viewModel, this))
 	}
 
+	override fun onDestroy() {
+		viewBinding.recyclerView.adapter = null
+		super.onDestroy()
+	}
+
 	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
 		val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 		viewBinding.recyclerView.updatePadding(
@@ -89,6 +94,7 @@ class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),
 		when (data) {
 			is ContentType -> viewModel.setContentType(data, !chip.isChecked)
 			is Boolean -> viewModel.setNewOnly(!chip.isChecked)
+			"plugins" -> showPluginsMenu(chip)
 			else -> showLocalesMenu(chip)
 		}
 	}
@@ -118,7 +124,13 @@ class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),
 		hasNewSources: Boolean,
 		contentTypes: List<ContentType>,
 	) {
-		val chips = ArrayList<ChipModel>(contentTypes.size + 2)
+		val chips = ArrayList<ChipModel>(contentTypes.size + 3)
+		chips += ChipModel(
+			title = appliedFilter.plugin ?: "Plugin",
+			icon = R.drawable.ic_services,
+			isDropdown = true,
+			data = "plugins"
+		)
 		chips += ChipModel(
 			title = appliedFilter.locale?.toLocale().getDisplayName(this),
 			icon = R.drawable.ic_language,
@@ -153,6 +165,20 @@ class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),
 		}
 		menu.setOnMenuItemClickListener {
 			viewModel.setLocale(locales.getOrNull(it.order)?.first)
+			true
+		}
+		menu.show()
+	}
+
+	private fun showPluginsMenu(anchor: View) {
+		val menu = PopupMenu(this, anchor)
+		menu.menu.add(Menu.NONE, Menu.NONE, 0, getString(R.string.any))
+		for ((i, plugin) in viewModel.plugins.withIndex()) {
+			menu.menu.add(Menu.NONE, Menu.NONE, i + 1, plugin)
+		}
+		menu.setOnMenuItemClickListener {
+			val p = if (it.order == 0) null else viewModel.plugins[it.order - 1]
+			viewModel.setPlugin(p)
 			true
 		}
 		menu.show()

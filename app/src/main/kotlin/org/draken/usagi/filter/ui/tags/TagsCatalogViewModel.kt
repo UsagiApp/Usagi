@@ -23,7 +23,6 @@ import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingState
 import org.draken.usagi.list.ui.model.toErrorFooter
 import org.draken.usagi.list.ui.model.toErrorState
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
 import org.koitharu.kotatsu.parsers.model.MangaTag
 
 @HiltViewModel(assistedFactory = TagsCatalogViewModel.Factory::class)
@@ -90,7 +89,7 @@ class TagsCatalogViewModel @AssistedInject constructor(
 			}
 		}
 		if (result.isNotEmpty()) {
-			val locale = (filter.mangaSource as? MangaParserSource)?.locale
+			val locale = filter.mangaSource.locale
 			result.sortWith(compareBy(TagTitleComparator(locale)) { (it as TagCatalogItem).tag })
 		}
 		available.exceptionOrNull()?.let { error ->
