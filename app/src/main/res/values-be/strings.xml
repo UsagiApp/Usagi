@@ -210,7 +210,7 @@
     <string name="preload_pages">Папярэдняя загрузка старонак</string>
     <string name="various_languages">Розныя мовы</string>
     <string name="search_chapters">Знайсці главу</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="chapters_empty">У гэтай манге няма раздзелаў</string>
     <string name="hide">Схаваць</string>
     <string name="appearance">Знешні выгляд</string>
@@ -236,7 +236,7 @@
     <string name="download_slowdown">Запавольванне спампоўкі</string>
     <string name="suggestions_excluded_genres">Выключыць жанры</string>
     <string name="suggestions_excluded_genres_summary">Укажыце жанры, якія вы не хочаце бачыць у рэкамендацыях</string>
-    <string name="text_delete_local_manga_batch">Выдаліць выбраныя элементы з прылады назаўжды\?</string>
+    <string name="text_delete_local_manga_batch">Выдаліць выбраныя элементы з прылады назаўжды?</string>
     <string name="removal_completed">Выдаленне завершана</string>
     <string name="download_slowdown_summary">Дапамагае пазбегнуць блакіроўкі па IP-адрасе</string>
     <string name="bookmark_remove">Выдаліць закладку</string>
@@ -308,7 +308,7 @@
     <string name="brightness">Яркасць</string>
     <string name="contrast">Кантраст</string>
     <string name="reset">Скінуць</string>
-    <string name="text_unsaved_changes_prompt">Захаваць ці адхіліць незахаваныя змены\?</string>
+    <string name="text_unsaved_changes_prompt">Захаваць ці адхіліць незахаваныя змены?</string>
     <string name="discard">Адмяніць</string>
     <string name="enable_logging">Уключыць запіс</string>
     <string name="share_logs">Падзяліцца логамі</string>
@@ -349,7 +349,7 @@
     <string name="pages_cache">Кэш старонак</string>
     <string name="other_cache">Іншы кэш</string>
     <string name="storage_usage">Выкарыстанне памяці</string>
-    <string name="memory_usage_pattern">%s - %s</string>
+    <string name="memory_usage_pattern" translatable="false">%s - %s</string>
     <string name="removed_from_favourites">Выдалена з абранага</string>
     <string name="options">Параметры</string>
     <string name="user_agent">Загаловак UserAgent</string>
@@ -382,7 +382,7 @@
     <string name="more">Больш</string>
     <string name="enable">Уключыць</string>
     <string name="cancel_all_downloads_confirm">Усе актыўныя спампоўкі будуць адменены, часткова спампаваныя даныя будуць страчаны</string>
-    <string name="suggestions_enable_prompt">Хочаце атрымліваць персаналізаваныя прапановы мангі\?</string>
+    <string name="suggestions_enable_prompt">Хочаце атрымліваць персаналізаваныя прапановы мангі?</string>
     <string name="suggestion_manga">Прапанова: %s</string>
     <string name="no_thanks">Не, дзякуй</string>
     <string name="remove_completed_downloads_confirm">Ваша гісторыя загрузак будзе выдалена назаўжды. Загружаныя файлы не будуць закрануты</string>
@@ -486,7 +486,7 @@
     <string name="lock_screen_rotation">Блакаванне павароту экрана</string>
     <string name="sources_catalog">Каталог крыніц</string>
     <string name="content_type_manga">Манга</string>
-    <string name="source_summary_pattern">%1$s, %2$s</string>
+    <string name="source_summary_pattern" translatable="false">%1$s, %2$s</string>
     <string name="content_type_hentai">Хентай</string>
     <string name="content_type_comics">Коміксы</string>
     <string name="catalog">Каталог</string>
@@ -495,8 +495,7 @@
     <string name="manual">Уручную</string>
     <string name="source_enabled">Крыніца ўключана</string>
     <string name="disable_nsfw_summary">Адключыць крыніцы NSFW і схавайць мангу для дарослых са спісу, калі гэта магчыма</string>
-    <string name="no_manga_sources_catalog_text">У гэтым раздзеле няма даступных крыніц, ці ўсе яны маглі быць ужо дададзены.
-\nСачыце за абнаўленнямі</string>
+    <string name="no_manga_sources_catalog_text">У гэтым раздзеле няма даступных крыніц, ці ўсе яны маглі быць ужо дададзены. \nСачыце за абнаўленнямі</string>
     <string name="available_d">Даступна: %1$d</string>
     <string name="content_type_other">Іншае</string>
     <string name="state_paused">Прыпынена</string>
@@ -548,11 +547,9 @@
     <string name="long_tap_action">Дзеянне пры доўгім націску</string>
     <string name="none">Нічога</string>
     <string name="mark_as_completed">Адзначыць як выкананае</string>
-    <string name="mark_as_completed_prompt">Пазначыць выбраную мангу як цалкам прачытаную?
-\n
-\nУвага: бягучы ход чытання будзе страчаны.</string>
+    <string name="mark_as_completed_prompt">Пазначыць выбраную мангу як цалкам прачытаную? \n \nУвага: бягучы ход чытання будзе страчаны.</string>
     <string name="reader_actions_summary">Налада дзеянняў для сэнсарных абласцей экрана</string>
-    <string name="remaining_time_pattern">%1$s %2$s</string>
+    <string name="remaining_time_pattern" translatable="false">%1$s %2$s</string>
     <string name="email_password_enter_hint">Каб працягнуць, увядзіце адрас электроннай пошты і пароль</string>
     <string name="config_reset_confirm">Скінуць налады да значэнняў па змаўчанні? Гэта дзеянне нельга адмяніць.</string>
     <string name="use_two_pages_landscape">Выкарыстоўвайце двухстаронкавы макет у альбомнай арыентацыі (бэта)</string>
@@ -628,7 +625,7 @@
     <string name="less_frequently">Радзей</string>
     <string name="more_frequently">Часцей</string>
     <string name="frequency_of_check">Частата праверкі</string>
-    <string name="new_chapters_pattern">%1$s: %2$d</string>
+    <string name="new_chapters_pattern" translatable="false">%1$s: %2$d</string>
     <string name="pin_navigation_ui">Замацаваць інтэрфейс навігацыі</string>
     <string name="blocked_by_server_message">Вы заблакаваныя серверам. Паспрабуйце выкарыстоўваць іншае сеткавае падлучэнне (VPN, проксі і т. д.)</string>
     <string name="ignore_ssl_errors_summary">Вы можаце адключыць праверку SSL-сертыфіката, калі пры доступе да сеткавых рэсурсаў узнікаюць праблемы, звязаныя з SSL. Гэта можа паўплываць на вашую бяспеку. Пасля змены гэтага параметра запатрабуецца перазагрузка праграмы.</string>
@@ -866,4 +863,49 @@
     <string name="test_parser">Праверыць крыніцу мангі</string>
     <string name="hide_broken_sources">Схаваць непрацуючыя крыніцы</string>
     <string name="hide_broken_sources_summary">Схаваць крыніцы, пазначаныя як непрацуючыя, са спісаў крыніц</string>
+    <string name="pull_to_next_chapter"></string>
+    <string name="preview"></string>
+    <string name="details_ui_classic"></string>
+    <string name="saved_filters"></string>
+    <string name="reader_chapter_toast_summary"></string>
+    <string name="source_broken_warning"></string>
+    <string name="details_backdrop"></string>
+    <string name="download_default_directory"></string>
+    <string name="enter_name"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="create_or_restore_backup"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="available_pattern"></string>
+    <string name="pull_to_prev_chapter"></string>
+    <string name="reader_chapter_toast"></string>
+    <string name="rename"></string>
+    <string name="details_appearance"></string>
+    <string name="pinned_sources_only"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="details_ui"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="experiment"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="two_page_scroll_sensitivity"></string>
+    <string name="storage_and_network"></string>
+    <string name="details_backdrop_blur"></string>
+    <string name="save_filter"></string>
+    <string name="details_appearance_summary"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="hide_empty_sources"></string>
+    <string name="overwrite"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="details_ui_modern"></string>
+    <string name="private_app_directory_warning"></string>
+    <string name="data_removal"></string>
+    <string name="auto_double_foldable"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="filter_overwrite_confirm"></string>
+    <string name="privacy"></string>
+    <string name="details_backdrop_summary"></string>
+    <string name="shikimori" translatable="false"></string>
+    <string name="frequency_every_6_hours"></string>
 </resources>
