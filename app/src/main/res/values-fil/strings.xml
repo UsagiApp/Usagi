@@ -177,7 +177,7 @@
     <string name="queued">Nakapila na</string>
     <string name="text_clear_cookies_prompt">Mala-log out ka mula sa lahat ng source</string>
     <string name="state_finished">Tapos na</string>
-    <string name="text_clear_search_history_prompt">Alisin ang lahat ng kamakailang query sa paghahanap nang permanente\?</string>
+    <string name="text_clear_search_history_prompt">Alisin ang lahat ng kamakailang query sa paghahanap nang permanente?</string>
     <string name="about_app_translation">Pagsasalin</string>
     <string name="screenshots_block_nsfw">I-block sa NSFW</string>
     <string name="suggestions_summary">Magmungkahi ng manga batay sa iyong mga kagustuhan</string>
@@ -199,7 +199,7 @@
     <string name="logged_in_as">Naka-log in bilang %s</string>
     <string name="various_languages">Iba\'t ibang wika</string>
     <string name="search_chapters">Maghanap ng kabanata</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="appearance">Hitsura</string>
     <string name="suggestions_excluded_genres">Hindi isali ang mga genre</string>
     <string name="suggestions_excluded_genres_summary">Tukuyin ang mga genre na hindi mo nais na makita sa mga mungkahi</string>
@@ -250,7 +250,7 @@
     <string name="other_cache">Iba pang cache</string>
     <string name="storage_usage">Paggamit ng storage</string>
     <string name="available">Magagamit na</string>
-    <string name="memory_usage_pattern">%1$s - %2$s</string>
+    <string name="memory_usage_pattern" translatable="false">%1$s - %2$s</string>
     <string name="removed_from_favourites">Inalis sa mga paborito</string>
     <string name="options">Mga pagpipilian</string>
     <string name="incognito_mode">Incognito na mode</string>
@@ -269,7 +269,7 @@
     <string name="color_correction">Pagwawasto ng kulay</string>
     <string name="brightness">Liwanag</string>
     <string name="contrast">Kaibahan</string>
-    <string name="text_unsaved_changes_prompt">I-save o kalimutan ang mga hindi na-save na pagbabago\?</string>
+    <string name="text_unsaved_changes_prompt">I-save o kalimutan ang mga hindi na-save na pagbabago?</string>
     <string name="discard">Kalimutan</string>
     <string name="error_no_space_left">Walang natitirang espasyo sa device</string>
     <string name="webtoon_zoom">Pag-zoom sa webtoon</string>
@@ -302,7 +302,7 @@
     <string name="nsfw">18+</string>
     <string name="not_found_404">Hindi natagpuan o inalis ang nilalaman</string>
     <string name="enable_logging_summary">Magtala ng ilang pagkilos para sa mga layunin ng pag-debug. Huwag buksan kung hindi mo alam kung ano ang ginagawa mo</string>
-    <string name="text_delete_local_manga_batch">Permanenteng tanggalin ang mga napiling item sa device\?</string>
+    <string name="text_delete_local_manga_batch">Permanenteng tanggalin ang mga napiling item sa device?</string>
     <string name="chapters_empty">Walang mga kabanata sa manga na ito</string>
     <string name="suggestions_updating">Nag-a-update ang mga mungkahi</string>
     <string name="download_slowdown">Pagbagal ng pag-download</string>
@@ -389,7 +389,7 @@
     <string name="remove_completed_downloads_confirm">Permanenteng ide-delete ang iyong history ng mga pag-download. Walang mga na-download na file ay maapektuhan</string>
     <string name="text_downloads_list_holder">Wala kang anumang mga pag-download</string>
     <string name="downloads_resumed">Ipinagpatuloy ang mga pag-download</string>
-    <string name="suggestions_enable_prompt">Gusto mo bang makatanggap ng personalized na mga mungkahi sa manga\?</string>
+    <string name="suggestions_enable_prompt">Gusto mo bang makatanggap ng personalized na mga mungkahi sa manga?</string>
     <string name="downloads_removed">Inalis na ang mga download</string>
     <string name="downloads_cancelled">Nakansela ang mga pag-download</string>
     <string name="clear_network_cache">Linisin ang network cache</string>
@@ -485,7 +485,7 @@
     <string name="speed_value">x%.1f</string>
     <string name="sources_catalog">Katalugo ng mga source</string>
     <string name="content_type_manga">Manga</string>
-    <string name="source_summary_pattern">%1$s, %2$s</string>
+    <string name="source_summary_pattern" translatable="false">%1$s, %2$s</string>
     <string name="content_type_hentai">Hentai</string>
     <string name="content_type_comics">Mga Comic</string>
     <string name="catalog">Katalogo</string>
@@ -529,9 +529,7 @@
     <string name="content_rating">Content rating</string>
     <string name="default_tab">Default na tab</string>
     <string name="mark_as_completed">Markahan bilang kumpleto na</string>
-    <string name="mark_as_completed_prompt">Markahan ang napiling manga bilang tapos na nabasa?
-\n
-\nBabala: mawawala ang kasalukuyang progress sa pagbabasa.</string>
+    <string name="mark_as_completed_prompt">Markahan ang napiling manga bilang tapos na nabasa? \n \nBabala: mawawala ang kasalukuyang progress sa pagbabasa.</string>
     <string name="category_hidden_done">Nakatago ang kategoryang ito mula sa pangunahing screen at naa-access sa pamamagitan ng Menu → Ayusin ang mga kategorya</string>
     <string name="remove_from_history">Alisin sa kasaysayan</string>
     <string name="incognito_mode_hint">Hindi mase-save ang iyong progress sa pagbabasa</string>
@@ -542,7 +540,7 @@
     <string name="ask_for_dest_dir_every_time">Laging magtanong sa direktoryo ng patutunguhan</string>
     <string name="default_page_save_dir">Default na directory ng pag-save ng pahina</string>
     <string name="email_password_enter_hint">Ilagay ang iyong email at password upang magpatuloy</string>
-    <string name="remaining_time_pattern">%1$s %2$s</string>
+    <string name="remaining_time_pattern" translatable="false">%1$s %2$s</string>
     <string name="volume_">Volume %d</string>
     <string name="volume_unknown">Hindi kilalang volume</string>
     <string name="vertical">Patayo</string>
@@ -626,7 +624,7 @@
     <string name="less_frequently">Minsanan</string>
     <string name="more_frequently">Madalas</string>
     <string name="frequency_of_check">Dalas ng pag-tingin</string>
-    <string name="new_chapters_pattern">%1$s: %2$d</string>
+    <string name="new_chapters_pattern" translatable="false">%1$s: %2$d</string>
     <string name="pin_navigation_ui">I-pin ang UI ng nabigasyon</string>
     <string name="pin_navigation_ui_summary">Huwag itago ang navigation bar at ang view ng paghahanap sa pag-scroll</string>
     <string name="blocked_by_server_message">Hinarangan ka ng server. Subukang gumamit ng ibang koneksyon sa network (VPN, Proxy, atbp.)</string>
@@ -886,4 +884,26 @@
     <string name="details_backdrop">I-set ang malaking cover bilang backdrop</string>
     <string name="details_backdrop_summary">Ipakita ang malaking cover image sa itaas bilang backdrop (katulad sa Tachiyomi)</string>
     <string name="details_backdrop_blur">Paganahin ang pag-blur sa backdrop</string>
+    <string name="preview"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="details_appearance"></string>
+    <string name="discord_token"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="experiment"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="telegram_integration"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="save_filter"></string>
+    <string name="details_appearance_summary"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="theme_name_expressive"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="privacy"></string>
+    <string name="theme_name_totoro"></string>
+    <string name="shikimori" translatable="false"></string>
 </resources>
