@@ -28,4 +28,12 @@
         <item quantity="one"></item>
         <item quantity="other"></item>
     </plurals>
+    <plurals name="chapters">
+        <item quantity="one"></item>
+        <item quantity="other"></item>
+    </plurals>
+    <plurals name="new_chapters">
+        <item quantity="one"></item>
+        <item quantity="other"></item>
+    </plurals>
 </resources>
