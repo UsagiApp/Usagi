@@ -355,8 +355,7 @@
     <string name="content_type_other">Ostalo</string>
     <string name="sources_catalog">Katalog izvora</string>
     <string name="source_enabled">Izvor omogućen</string>
-    <string name="no_manga_sources_catalog_text">U ovom odjeljku nema dostupnih izvora ili su svi možda već dodani.
-\nBudite u toku</string>
+    <string name="no_manga_sources_catalog_text">U ovom odjeljku nema dostupnih izvora ili su svi možda već dodani. \nBudite u toku</string>
     <string name="no_manga_sources_found">Vašim upitom nisu pronađeni dostupni izvori mangi</string>
     <string name="catalog">Katalog</string>
     <string name="disable_nsfw_summary">Onemogućite NSFW izvore i sakrijte mangu za odrasle s popisa ako je moguće</string>
@@ -378,9 +377,7 @@
     <string name="rating_adult">Za odrasle</string>
     <string name="default_tab">Zadana kartica</string>
     <string name="mark_as_completed">Označi kao dovršeno</string>
-    <string name="mark_as_completed_prompt">Označiti odabranu mangu kao potpuno pročitanu?
-\n
-\nUpozorenje: trenutni napredak čitanja bit će izgubljen.</string>
+    <string name="mark_as_completed_prompt">Označiti odabranu mangu kao potpuno pročitanu? \n \nUpozorenje: trenutni napredak čitanja bit će izgubljen.</string>
     <string name="category_hidden_done">Ova je kategorija bila skrivena s glavnog zaslona i dostupna je kroz Meni → Upravljanje kategorijama</string>
     <string name="volume_">Svezak %d</string>
     <string name="volume_unknown">Nepoznati svezak</string>
@@ -883,4 +880,32 @@
     <string name="hide_empty_sources">Sakrij prazne izvore</string>
     <string name="hide_broken_sources">Sakrij pokvarene izvore</string>
     <string name="hide_broken_sources_summary">Sakrij izvore označene kao neispravne s popisa izvora</string>
+    <string name="preview"></string>
+    <string name="details_ui_classic"></string>
+    <string name="source_summary_pattern" translatable="false"></string>
+    <string name="details_backdrop"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="remaining_time_pattern" translatable="false"></string>
+    <string name="details_appearance"></string>
+    <string name="new_chapters_pattern" translatable="false"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="details_ui"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="experiment"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="details_backdrop_blur"></string>
+    <string name="details_appearance_summary"></string>
+    <string name="percent_string_pattern" translatable="false"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="details_ui_modern"></string>
+    <string name="auto_double_foldable"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="memory_usage_pattern" translatable="false"></string>
+    <string name="details_backdrop_summary"></string>
+    <string name="shikimori" translatable="false"></string>
 </resources>
