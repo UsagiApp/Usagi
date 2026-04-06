@@ -114,7 +114,7 @@
     <string name="silent">Tiché</string>
     <string name="captcha_required">Vyžadována CAPTCHA</string>
     <string name="captcha_solve">Vyřešit</string>
-    <string name="text_clear_updates_feed_prompt">Vyčistit permanentně všechnu historii aktualizací\?</string>
+    <string name="text_clear_updates_feed_prompt">Vyčistit permanentně všechnu historii aktualizací?</string>
     <string name="check_for_new_chapters">Zkontrolovat nové kapitoly</string>
     <string name="reverse">Obráceně</string>
     <string name="sign_in">Přihlásit se</string>
@@ -123,7 +123,7 @@
     <string name="next">Další</string>
     <string name="protect_application_subtitle">Zadejte heslo pro spuštění aplikace s</string>
     <string name="password_length_hint">Heslo musí obsahovat nejméně 4 nebo více znaků</string>
-    <string name="text_clear_search_history_prompt">Odstranit permanentně všechny nedávné vyhledávání\?</string>
+    <string name="text_clear_search_history_prompt">Odstranit permanentně všechny nedávné vyhledávání?</string>
     <string name="welcome">Vítejte</string>
     <string name="backup_saved">Záloha uložena</string>
     <string name="queued">Ve frontě</string>
@@ -160,10 +160,10 @@
     <string name="various_languages">Různé jazyky</string>
     <string name="search_chapters">Najít kapitolu</string>
     <string name="chapters_empty">Žádné kapitoly v této manze</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="appearance">Vzhled</string>
     <string name="suggestions_excluded_genres_summary">Specifikujte žánry které nechcete vidět v návrzích</string>
-    <string name="text_delete_local_manga_batch">Permanentně odstranit vybrané předměty ze zařízení\?</string>
+    <string name="text_delete_local_manga_batch">Permanentně odstranit vybrané předměty ze zařízení?</string>
     <string name="removal_completed">Odstraňování dokončeno</string>
     <string name="download_slowdown">Zpomalení stahování</string>
     <string name="local_manga_processing">Zpracovávání uložených mang</string>
@@ -233,7 +233,7 @@
     <string name="other_cache">Další mezipamět</string>
     <string name="storage_usage">Využívání uložiště</string>
     <string name="available">Dostupné</string>
-    <string name="memory_usage_pattern">%s -%s</string>
+    <string name="memory_usage_pattern" translatable="false">%s -%s</string>
     <string name="removed_from_favourites">Odstraněno z oblíbených</string>
     <string name="options">Možnosti</string>
     <string name="not_found_404">Kontent nebyl nalezen nebo byl odstraněn</string>
@@ -256,7 +256,7 @@
     <string name="brightness">Jas</string>
     <string name="contrast">Kontrast</string>
     <string name="reset">Resetovat</string>
-    <string name="text_unsaved_changes_prompt">Uložit nebo zahodit neuložené změny\?</string>
+    <string name="text_unsaved_changes_prompt">Uložit nebo zahodit neuložené změny?</string>
     <string name="discard">Zahodit</string>
     <string name="error_no_space_left">Na zařízení není volné žádné místo</string>
     <string name="reader_slider">Zobrazovat posuvník změny stran</string>
@@ -320,7 +320,7 @@
     <string name="downloads_paused">Stahování bylo pozastaveno</string>
     <string name="downloads_removed">Stažené soubory byly odstraněny</string>
     <string name="downloads_cancelled">Stahování bylo zrušeno</string>
-    <string name="suggestions_enable_prompt">Chcete získávat personalizované návrhy mang\?</string>
+    <string name="suggestions_enable_prompt">Chcete získávat personalizované návrhy mang?</string>
     <string name="web_view_unavailable">WebView není dostupné: zkontrolovay jestli je provozovatel WebView nainstalovaný</string>
     <string name="clear_network_cache">Vyčistit mezipaměť sítě</string>
     <string name="type">Typ</string>
@@ -479,7 +479,7 @@
     <string name="lock_screen_rotation">Uzamknout otáčení obrazovky</string>
     <string name="content_type_other">Jiné</string>
     <string name="sources_catalog">Katalog zdrojů</string>
-    <string name="source_summary_pattern">%1$s, %2$s</string>
+    <string name="source_summary_pattern" translatable="false">%1$s, %2$s</string>
     <string name="source_enabled">Zdroj povolen</string>
     <string name="catalog">Katalog</string>
     <string name="manage_sources">Spravovat zdroje</string>
@@ -523,8 +523,7 @@
     <string name="tracker_wifi_only_summary">Nevyhledávejte nové kapitoly pomocí síťových připojení s účtovaným objemem dat</string>
     <string name="color_correction_apply_text">Tato nastavení lze použít globálně nebo pouze pro aktuální manga. Pokud bude použito globálně, individuální nastavení nebudou přepsána.</string>
     <string name="content_type_comics">Komiks</string>
-    <string name="no_manga_sources_catalog_text">V této sekci nejsou k dispozici žádné zdroje, případně již byly všechny přidány.
-\nZůstaňte v kontaktu</string>
+    <string name="no_manga_sources_catalog_text">V této sekci nejsou k dispozici žádné zdroje, případně již byly všechny přidány. \nZůstaňte v kontaktu</string>
     <string name="content_type_manga">Manga</string>
     <string name="disable_battery_optimization_summary_downloads">Mohlo by to pomoci se zahájením stahování, pokud s tím máte nějaké problémy</string>
     <string name="genres_exclude">Vyloučit žánry</string>
@@ -539,10 +538,8 @@
     <string name="vertical">Svisle</string>
     <string name="ask_for_dest_dir_every_time">Pokaždé se ptát na cílovou složku</string>
     <string name="show_menu">Zobrazit menu</string>
-    <string name="mark_as_completed_prompt">Označit vybranou mangu jako kompletně přečtenou?
-\n
-\nPozor: Stávající pokrok ve čtení se ztratí.</string>
-    <string name="remaining_time_pattern">%1$s %2$s</string>
+    <string name="mark_as_completed_prompt">Označit vybranou mangu jako kompletně přečtenou? \n \nPozor: Stávající pokrok ve čtení se ztratí.</string>
+    <string name="remaining_time_pattern" translatable="false">%1$s %2$s</string>
     <string name="volume_unknown">Neznámý díl</string>
     <string name="prev_chapter">Předchozí kapitola</string>
     <string name="next_chapter">Následující kapitola</string>
@@ -627,7 +624,7 @@
     <string name="less_frequently">Méně často</string>
     <string name="more_frequently">Častěji</string>
     <string name="frequency_of_check">Četnost kontrol</string>
-    <string name="new_chapters_pattern">%1$s: %2$d</string>
+    <string name="new_chapters_pattern" translatable="false">%1$s: %2$d</string>
     <string name="pin_navigation_ui">Upevnit uživatelské rozhraní pro navigaci</string>
     <string name="fix">Opravit</string>
     <string name="pin_navigation_ui_summary">Neskrývat navigační panel a zobrazení vyhledávání při posouvání</string>
@@ -893,4 +890,22 @@
     <string name="details_backdrop">Použít přebal jako pozadí</string>
     <string name="details_backdrop_summary">Zobrazit přebal na vrchu jako pozadí (jako Tachiyomi)</string>
     <string name="details_backdrop_blur">Povolit rozmazání pozadí</string>
+    <string name="preview"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="details_appearance"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="details_ui"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="experiment"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="simple"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="details_appearance_summary"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="shikimori" translatable="false"></string>
 </resources>
