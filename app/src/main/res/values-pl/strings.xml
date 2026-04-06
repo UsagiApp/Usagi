@@ -75,7 +75,7 @@
     <string name="never">Nigdy</string>
     <string name="always">Zawsze</string>
     <string name="search_chapters">Znajdź rozdział</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="appearance">Wygląd</string>
     <string name="hide">Schowaj</string>
     <string name="sync">Synchronizacja</string>
@@ -236,7 +236,7 @@
     <string name="invalid_domain_message">Nieważna domena</string>
     <string name="reorder">Zmień kolejność</string>
     <string name="exit_confirmation">Potwierdzenie wyjścia</string>
-    <string name="memory_usage_pattern">%1$s - %2$s</string>
+    <string name="memory_usage_pattern" translatable="false">%1$s - %2$s</string>
     <string name="reader_info_pattern">Rozdz. %1$d/%2$d Str. %3$d/%4$d</string>
     <string name="network_unavailable_hint">Włącz Wi-Fi lub sieć komórkową, aby czytać mangę online</string>
     <string name="_import">Importuj</string>
@@ -389,7 +389,7 @@
     <string name="downloads_resumed">Pobieranie zostało wznowione</string>
     <string name="downloads_cancelled">Pobieranie zostało anulowane</string>
     <string name="downloads_removed">Pliki do pobrania zostały usunięte</string>
-    <string name="suggestions_enable_prompt">Czy chcesz otrzymywać spersonalizowane sugestie dotyczące mangi\?</string>
+    <string name="suggestions_enable_prompt">Czy chcesz otrzymywać spersonalizowane sugestie dotyczące mangi?</string>
     <string name="web_view_unavailable">WebView niedostępny: sprawdź, czy dostawca WebView jest zainstalowany</string>
     <string name="clear_network_cache">Wyczyść pamięć podręczną sieci</string>
     <string name="type">Typ</string>
@@ -486,9 +486,7 @@
     <string name="skip">Pomiń</string>
     <string name="grayscale">Odcienie szarości</string>
     <string name="mark_as_completed">Oznacz jako kompletne</string>
-    <string name="mark_as_completed_prompt">Zaznaczyć wybraną mangę jako przeczytaną?
-\n
-\nUwaga: bieżący postęp czytania zostanie utracony.</string>
+    <string name="mark_as_completed_prompt">Zaznaczyć wybraną mangę jako przeczytaną? \n \nUwaga: bieżący postęp czytania zostanie utracony.</string>
     <string name="prev_chapter">Poprzedni rozdział</string>
     <string name="next_chapter">Następny rozdział</string>
     <string name="prev_page">Poprzednia strona</string>
@@ -529,10 +527,9 @@
     <string name="last_read">Ostatnio czytane</string>
     <string name="online_variant">Wariant online</string>
     <string name="speed_value">x%.1f</string>
-    <string name="no_manga_sources_catalog_text">Nie ma źródeł dostępnych w tej sekcji, lub wszystkie mogły już zostać dodane.
-\nSprawdź wkrótce</string>
+    <string name="no_manga_sources_catalog_text">Nie ma źródeł dostępnych w tej sekcji, lub wszystkie mogły już zostać dodane. \nSprawdź wkrótce</string>
     <string name="state_paused">Wstrzymano</string>
-    <string name="source_summary_pattern">%1$s, %2$s</string>
+    <string name="source_summary_pattern" translatable="false">%1$s, %2$s</string>
     <string name="reader_optimize_summary">Zredukuj jakość stron poza ekranem, aby używać mniej pamięci</string>
     <string name="error_multiple_states_not_supported">Filtrowanie przy pomocy wielu stanów nie jest obsługiwane przez to źródło mangi</string>
     <string name="globally">Globalnie</string>
@@ -543,7 +540,7 @@
     <string name="restore">Przywróć</string>
     <string name="backup_date_">Data kopii zapasowej: %s</string>
     <string name="vertical">Pionowy</string>
-    <string name="remaining_time_pattern">%1$s %2$s</string>
+    <string name="remaining_time_pattern" translatable="false">%1$s %2$s</string>
     <string name="reader_actions_summary">Konfigurowanie działań dla obszarów ekranu, które można dotknąć</string>
     <string name="reader_actions">Akcje podczas czytania</string>
     <string name="tap_action">Dotknięcie</string>
@@ -626,7 +623,7 @@
     <string name="less_frequently">Rzadziej</string>
     <string name="more_frequently">Częściej</string>
     <string name="frequency_of_check">Częstotliwość kontroli</string>
-    <string name="new_chapters_pattern">%1$s: %2$d</string>
+    <string name="new_chapters_pattern" translatable="false">%1$s: %2$d</string>
     <string name="pin_navigation_ui">Przypnij interfejs nawigacji</string>
     <string name="pin_navigation_ui_summary">Nie ukrywaj paska nawigacji i paska wyszukiwania podczas przewijania</string>
     <string name="search_suggestions">Sugestie wyszukiwania</string>
@@ -842,4 +839,72 @@
     <string name="telegram_integration">Integracja z Telegramem</string>
     <string name="hide_broken_sources">Ukryj uszkodzone źródła</string>
     <string name="hide_broken_sources_summary">Ukryj źródła oznaczone jako uszkodzone na listach źródeł</string>
+    <string name="pull_to_next_chapter"></string>
+    <string name="preview"></string>
+    <string name="details_ui_classic"></string>
+    <string name="saved_filters"></string>
+    <string name="invalid_token"></string>
+    <string name="reader_chapter_toast_summary"></string>
+    <string name="enable_pull_gesture_summary"></string>
+    <string name="source_broken_warning"></string>
+    <string name="error_corrupted_zip"></string>
+    <string name="show_floating_control_button"></string>
+    <string name="details_backdrop"></string>
+    <string name="pull_bottom_no_next"></string>
+    <string name="download_default_directory"></string>
+    <string name="enter_name"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="create_or_restore_backup"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="available_pattern"></string>
+    <string name="pull_to_prev_chapter"></string>
+    <string name="discord_rpc_description"></string>
+    <string name="reader_chapter_toast"></string>
+    <string name="rename"></string>
+    <string name="obtain"></string>
+    <string name="details_appearance"></string>
+    <string name="discord_token_summary"></string>
+    <string name="discord_token"></string>
+    <string name="pinned_sources_only"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="details_ui"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="discord_rpc_summary"></string>
+    <string name="experiment"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="discord_token_description"></string>
+    <string name="manga_restricted_description"></string>
+    <string name="reading_s"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="two_page_scroll_sensitivity"></string>
+    <string name="storage_and_network"></string>
+    <string name="details_backdrop_blur"></string>
+    <string name="save_filter"></string>
+    <string name="details_appearance_summary"></string>
+    <string name="reader_navigation_inverted"></string>
+    <string name="main_screen_fab"></string>
+    <string name="reader_navigation_inverted_summary"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="rpc_skip_nsfw_summary"></string>
+    <string name="hide_empty_sources"></string>
+    <string name="read_on_s"></string>
+    <string name="overwrite"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="pull_top_no_prev"></string>
+    <string name="details_ui_modern"></string>
+    <string name="private_app_directory_warning"></string>
+    <string name="data_removal"></string>
+    <string name="auto_double_foldable"></string>
+    <string name="test_parser"></string>
+    <string name="local_storage_cleanup"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="discord_token_hint"></string>
+    <string name="filter_overwrite_confirm"></string>
+    <string name="privacy"></string>
+    <string name="enable_pull_gesture_title"></string>
+    <string name="details_backdrop_summary"></string>
+    <string name="shikimori" translatable="false"></string>
+    <string name="frequency_every_6_hours"></string>
 </resources>
