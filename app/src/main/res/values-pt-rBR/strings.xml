@@ -128,7 +128,7 @@
     <string name="clear_cookies">Limpar cookies</string>
     <string name="cookies_cleared">Todos os cookies foram removidos</string>
     <string name="clear_feed">Limpar fluxo</string>
-    <string name="text_clear_updates_feed_prompt">Limpar todo o histórico de atualizações permanentemente\?</string>
+    <string name="text_clear_updates_feed_prompt">Limpar todo o histórico de atualizações permanentemente?</string>
     <string name="check_for_new_chapters">Verificar se há novos capítulos</string>
     <string name="reverse">Reverter</string>
     <string name="sign_in">Entrar</string>
@@ -211,13 +211,13 @@
     <string name="file_not_found">Arquivo não encontrado</string>
     <string name="search_chapters">Encontrar capítulo</string>
     <string name="chapters_empty">Esta obra não possui capítulos</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="suggestions_updating">Sugestões sendo atualizadas</string>
     <string name="appearance">Aparência</string>
     <string name="suggestions_excluded_genres">Excluir gêneros</string>
     <string name="suggestions_excluded_genres_summary">Especifique os gêneros que você não quer ver nas sugestões</string>
     <string name="removal_completed">Remoção concluída</string>
-    <string name="text_delete_local_manga_batch">Excluir itens selecionados do dispositivo permanentemente\?</string>
+    <string name="text_delete_local_manga_batch">Excluir itens selecionados do dispositivo permanentemente?</string>
     <string name="hide">Ocultar</string>
     <string name="download_slowdown">Desaceleração</string>
     <string name="download_slowdown_summary">Diminui a velocidade do Wi-Fi enquanto você está baixando algo e ajuda a evitar o bloqueio do seu IP</string>
@@ -307,7 +307,7 @@
     <string name="reader_info_pattern">Cap. %1$d/%2$d Pág. %3$d/%4$d</string>
     <string name="reader_info_bar">Mostrar barra de informações no leitor</string>
     <string name="folder_with_images">Pasta com imagens</string>
-    <string name="memory_usage_pattern">%1$s - %2$s</string>
+    <string name="memory_usage_pattern" translatable="false">%1$s - %2$s</string>
     <string name="comics_archive">Arquivo de quadrinhos</string>
     <string name="importing_manga">Importando obra(s)</string>
     <string name="import_completed">Importação completa</string>
@@ -485,7 +485,7 @@
     <string name="sources_catalog">Catálogo de fontes</string>
     <string name="content_type_manga">Obra</string>
     <string name="error_multiple_states_not_supported">A filtragem por múltiplas situações não é suportada por esta fonte</string>
-    <string name="source_summary_pattern">%1$s, %2$s</string>
+    <string name="source_summary_pattern" translatable="false">%1$s, %2$s</string>
     <string name="content_type_hentai">Hentai</string>
     <string name="content_type_comics">Quadrinhos</string>
     <string name="catalog">Catálogo</string>
@@ -535,7 +535,7 @@
     <string name="volume_unknown">Volume desconhecido</string>
     <string name="incognito_mode_hint">Seu progresso de leitura não será salvo</string>
     <string name="vertical">Vertical</string>
-    <string name="remaining_time_pattern">%1$s %2$s</string>
+    <string name="remaining_time_pattern" translatable="false">%1$s %2$s</string>
     <string name="email_password_enter_hint">Digite seu e-mail e senha para continuar</string>
     <string name="show_menu">Mostrar menu</string>
     <string name="toggle_ui">Mostrar/ocultar UI</string>
@@ -630,7 +630,7 @@
     <string name="less_frequently">Com menos frequência</string>
     <string name="more_frequently">Com mais frequência</string>
     <string name="frequency_of_check">Frequência de verificação</string>
-    <string name="new_chapters_pattern">%1$s: %2$d</string>
+    <string name="new_chapters_pattern" translatable="false">%1$s: %2$d</string>
     <string name="pin_navigation_ui">Fixar interface de navegação</string>
     <string name="pin_navigation_ui_summary">Não esconder barra de navegação e visualização de pesquisa ao rolar</string>
     <string name="_new">Novos</string>
@@ -886,4 +886,26 @@
     <string name="auto_double_foldable">Duas Páginas Automático em Tela Dobrável</string>
     <string name="hide_broken_sources">Ocultar fontes quebradas</string>
     <string name="hide_broken_sources_summary">Ocultar fontes marcadas como quebradas nas listas de fontes</string>
+    <string name="preview"></string>
+    <string name="details_ui_classic"></string>
+    <string name="details_backdrop"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="details_appearance"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="details_ui"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="experiment"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="details_backdrop_blur"></string>
+    <string name="details_appearance_summary"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="details_ui_modern"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="details_backdrop_summary"></string>
+    <string name="shikimori" translatable="false"></string>
 </resources>
