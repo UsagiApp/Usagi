@@ -888,4 +888,6 @@
     <string name="available_pattern">%1$s tersedia</string>
     <string name="experiment">Eksperimen</string>
     <string name="details_backdrop">Tetapkan penutup besar sebagai tirai latar</string>
+    <string name="details_backdrop_summary">Tunjukkan imej muka depan yang besar di bahagian atas sebagai imej latar belakang (seperti Tachiyomi)</string>
+    <string name="details_backdrop_blur">Keamatan kabur latar belakang</string>
 </resources>
