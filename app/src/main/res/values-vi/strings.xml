@@ -890,11 +890,11 @@
     <string name="details_ui_classic">Cổ điển (Cũ)</string>
     <string name="hide_broken_sources">Ẩn các nguồn bị hỏng</string>
     <string name="hide_broken_sources_summary">Ẩn các nguồn được đánh dấu là bị hỏng khỏi danh sách nguồn</string>
-	<string name="experiment">Thử nghiệm</string>
-	<string name="details_backdrop">Đặt ảnh bìa lớn làm nền</string>
-	<string name="details_backdrop_summary">Hiển thị ảnh bìa lớn ở trên cùng như là ảnh nền (giống Tachiyomi)</string>
-	<string name="details_backdrop_blur">Độ mờ (Blur) ảnh nền</string>
-	<string name="details_appearance">Giao diện màn hình chi tiết</string>
-	<string name="details_appearance_summary">Phong cách, ảnh nền và hiệu ứng mờ</string>
-	<string name="preview">Xem trước</string>
+    <string name="experiment">Thử nghiệm</string>
+    <string name="details_backdrop">Đặt ảnh bìa lớn làm nền</string>
+    <string name="details_backdrop_summary">Hiển thị ảnh bìa lớn ở trên cùng như là ảnh nền (giống Tachiyomi)</string>
+    <string name="details_backdrop_blur">Độ mờ (Blur) ảnh nền</string>
+    <string name="details_appearance">Giao diện màn hình chi tiết</string>
+    <string name="details_appearance_summary">Phong cách, ảnh nền và hiệu ứng mờ</string>
+    <string name="preview">Xem trước</string>
 </resources>
