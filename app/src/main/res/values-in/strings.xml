@@ -491,7 +491,7 @@
     <string name="error_filter_locale_genre_not_supported">Filter bedasarkan genre dan lokal tidak didukung oleh sumber ini</string>
     <string name="content_type_comics">Komik</string>
     <string name="catalog">Katalog</string>
-    <string name="welcome_text">Silakan pilih sumber konten yang akan diaktifkan. Bisa dilakukan nanti di pengaturan</string>
+    <string name="welcome_text">Ini adalah awal dari Usagi, mari kita kenalan. Kamu bisa memulihkan data lamamu menggunakan opsi cepat di bawah ini. Saat ini belum ada konten yang tersedia di Usagi, tetapi kamu bisa menyesuaikan konten yang ingin kamu baca di pengaturan aplikasi nanti.</string>
     <string name="genres_exclude">Kecualikan genre</string>
     <string name="reader_optimize">Kurangi konsumsi memori (beta)</string>
     <string name="apply">Terapkan</string>
@@ -895,4 +895,18 @@
     <string name="details_backdrop">Atur sampul besar sebagai latar belakang</string>
     <string name="details_backdrop_summary">Tampilkan gambar sampul besar di bagian atas sebagai gambar latar (seperti Tachiyomi)</string>
     <string name="details_backdrop_blur">Aktifkan blur untuk latar belakang</string>
+    <string name="details_appearance">Tampilan layar detail</string>
+    <string name="details_appearance_summary">Gaya layar, gambar latar belakang dan efek buram</string>
+    <string name="preview">Pratinjau</string>
+    <string name="load_from_jar">Impor plugin</string>
+    <string name="load_from_jar_summary">Muat semua sumber / plugin dengan mengimpor satu berkas JAR</string>
+    <string name="load_success">Plugin berhasil diimpor dan dimuat</string>
+    <string name="load_failed">Gagal memuat plugin</string>
+    <string name="set_plugin_name">Tentukan nama untuk plugin ini</string>
+    <string name="plugin_name">Nama plugin</string>
+    <string name="overwrite_plugin">Mengganti plugin?</string>
+    <string name="overwrite_plugin_summary">Berkas plugin bernama %1$s sudah terpasang. Apakah Anda ingin menggantinya dengan yang ini?</string>
+    <string name="confirm_delete_plugin">Apakah Anda yakin ingin menghapus %1$s?</string>
+    <string name="delete_plugin">Hapus plugin</string>
+    <string name="deleted_plugin">Plugin %1$s telah dihapus!</string>
 </resources>
