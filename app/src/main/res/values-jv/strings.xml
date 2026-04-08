@@ -68,4 +68,15 @@
     <string name="hide_broken_sources">Singidaken sumber rusak</string>
     <string name="hide_broken_sources_summary">Singidaken sumber sing ditandhani rusak saka dhaptar sumber</string>
     <string name="download">Unggah</string>
+    <string name="remove_category">Busek</string>
+    <string name="updates">Dianyari</string>
+    <string name="update">Dianyari</string>
+    <string name="create_category">Kategori anyar</string>
+    <string name="saved_filters">Filter sing disimpen</string>
+    <string name="no_description">Ora ana katrangan</string>
+    <string name="text_file_sizes">B|kB|MB|GB|TB</string>
+    <string name="webtoon">Webtoon</string>
+    <string name="grid_size">Ukuran kisi-kisi</string>
+    <string name="search_on_s">Telusuri ing %s</string>
+    <string name="delete_manga">Busak manga</string>
 </resources>
