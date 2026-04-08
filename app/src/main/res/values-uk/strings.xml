@@ -897,4 +897,24 @@
     <string name="details_appearance_summary">Стиль екрану, зображення тла та ефект розмиття</string>
     <string name="preview">Попередній перегляд</string>
     <string name="no_plugins_summary">Натисніть \'Імпортувати плагін\' зверху, щоб додати джерела з плагінів</string>
+    <string name="load_from_jar">Імпортувати плагін</string>
+    <string name="load_from_jar_summary">Завантажити всі джерела / плагіни за допомогою імпорту одного JAR файлу</string>
+    <string name="load_success">Плагін імпортований та завантажений успішно</string>
+    <string name="load_failed">Помилка при завантажені плагіну</string>
+    <string name="set_plugin_name">Встановіть назву для цього плагіну</string>
+    <string name="plugin_name">Назва плагіну</string>
+    <string name="overwrite_plugin">Перезаписати плагін?</string>
+    <string name="overwrite_plugin_summary">Файл плагіну з назвою %1$s вже встановлено. Замінити його цим?</string>
+    <string name="confirm_delete_plugin">Чи ви впевнені, що бажаєте видалити %1$s?</string>
+    <string name="delete_plugin">Видалити плагін</string>
+    <string name="deleted_plugin">Видалено %1$s плагін!</string>
+    <string name="installed_plugin">Встановлено плагін</string>
+    <string name="tap_to_delete_plugin">Натисніть, щоб видалити цей плагін</string>
+    <string name="no_plugins">Ніяких плагінів не встановлено</string>
+    <string name="plugin_not_found">Не знайдено плагіну для джерела: %1$s</string>
+    <string name="jar_not_loaded">JAR не завантажено: %1$s</string>
+    <string name="unknown_source">Невідоме джерело: %1$s</string>
+    <string name="missing_in_plugin">Джерело відсутнє в плагіні: %1$s</string>
+    <string name="loaded_null">Плагін завантажений як нуль</string>
+    <string name="no_compatible_method">Не знайдено сумісного методу: %1$s(%2$s)</string>
 </resources>
