@@ -909,4 +909,14 @@
     <string name="confirm_delete_plugin">Apakah Anda yakin ingin menghapus %1$s?</string>
     <string name="delete_plugin">Hapus plugin</string>
     <string name="deleted_plugin">Plugin %1$s telah dihapus!</string>
+    <string name="installed_plugin">Plugin telah terpasang</string>
+    <string name="tap_to_delete_plugin">Ketuk untuk menghapus plugin ini</string>
+    <string name="no_plugins">Tidak ada plugin yang terpasang</string>
+    <string name="no_plugins_summary">Klik \'Impor plugin\' di atas untuk menambahkan sumber dari plugin</string>
+    <string name="plugin_not_found">Tidak ditemukan plugin untuk sumber tersebut: %1$s</string>
+    <string name="jar_not_loaded">JAR tidak dimuat: %1$s</string>
+    <string name="unknown_source">Sumber tidak diketahui: %1$s</string>
+    <string name="missing_in_plugin">Sumber hilang di plugin: %1$s</string>
+    <string name="loaded_null">Plugin dimuat sebagai null</string>
+    <string name="no_compatible_method">Tidak ditemukan metode yang kompatibel: %1$s(%2$s)</string>
 </resources>
