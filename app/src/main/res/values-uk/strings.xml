@@ -516,7 +516,7 @@
     <string name="color_correction_apply_text">Ці налаштування можна застосувати глобально або лише до поточної манґи. Якщо застосовувати їх глобально, індивідуальні налаштування не будуть перезаписані.</string>
     <string name="grayscale">Відтінки сірого</string>
     <string name="disable_battery_optimization_summary_downloads">Може допомогти з тим, щоби завантаження розпочалося, якщо у вас виникають проблеми з цим</string>
-    <string name="welcome_text">Будь-ласка оберіть які джерела вмісту ви хочете увімкнути. Це також можна налаштувати пізніше в налаштуваннях</string>
+    <string name="welcome_text">Це початок Usagi, давайте знайомитися. Ви можете відновити старі дані, використовуючи швидкі параметри нижче. На зараз в Usagi немає контенту, але ви можете кастомізувати контент який ви хочете читати в налаштуваннях застосунку пізніше.</string>
     <string name="restore">Відновити</string>
     <string name="backup_date_">Дата створення резервної копії: %s</string>
     <string name="sync_auth">Увійти для синхронізації облікового запису</string>
@@ -896,4 +896,5 @@
     <string name="details_appearance">Поява подробиць екрану</string>
     <string name="details_appearance_summary">Стиль екрану, зображення тла та ефект розмиття</string>
     <string name="preview">Попередній перегляд</string>
+    <string name="no_plugins_summary">Натисніть \'Імпортувати плагін\' зверху, щоб додати джерела з плагінів</string>
 </resources>
