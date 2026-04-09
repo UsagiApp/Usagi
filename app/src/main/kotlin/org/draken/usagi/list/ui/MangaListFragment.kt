@@ -261,7 +261,7 @@ abstract class MangaListFragment :
 					layoutManager = FitHeightLinearLayoutManager(context)
 				}
 
-				ListMode.GRID -> {
+				ListMode.COVER_ONLY, ListMode.GRID -> {
 					layoutManager = FitHeightGridLayoutManager(context, checkNotNull(spanResolver).spanCount).also {
 						it.spanSizeLookup = spanSizeLookup
 					}

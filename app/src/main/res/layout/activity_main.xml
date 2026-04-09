@@ -70,7 +70,7 @@
 		android:layout_marginHorizontal="16dp"
 		android:text="@string/_continue"
 		android:visibility="gone"
-		app:icon="@drawable/ic_read"
+		app:icon="@drawable/ic_play"
 		app:layout_anchor="@id/bottomNav"
 		app:layout_anchorGravity="top|end"
 		app:layout_behavior="org.draken.usagi.main.ui.MainActionButtonBehavior"

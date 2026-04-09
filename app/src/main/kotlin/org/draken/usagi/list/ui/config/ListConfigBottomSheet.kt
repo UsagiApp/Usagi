@@ -42,8 +42,10 @@ class ListConfigBottomSheet :
 		binding.buttonList.isChecked = mode == ListMode.LIST
 		binding.buttonListDetailed.isChecked = mode == ListMode.DETAILED_LIST
 		binding.buttonGrid.isChecked = mode == ListMode.GRID
-		binding.textViewGridTitle.isVisible = mode == ListMode.GRID
-		binding.sliderGrid.isVisible = mode == ListMode.GRID
+		binding.buttonCoverOnly.isChecked = mode == ListMode.COVER_ONLY
+		val isGridMode = mode == ListMode.GRID || mode == ListMode.COVER_ONLY
+		binding.textViewGridTitle.isVisible = isGridMode
+		binding.sliderGrid.isVisible = isGridMode
 
 		binding.sliderGrid.setLabelFormatter(IntPercentLabelFormatter(binding.root.context))
 		binding.sliderGrid.setValueRounded(viewModel.gridSize.toFloat())
@@ -92,10 +94,12 @@ class ListConfigBottomSheet :
 			R.id.button_list -> ListMode.LIST
 			R.id.button_list_detailed -> ListMode.DETAILED_LIST
 			R.id.button_grid -> ListMode.GRID
+			R.id.button_cover_only -> ListMode.COVER_ONLY
 			else -> return
 		}
-		requireViewBinding().textViewGridTitle.isVisible = mode == ListMode.GRID
-		requireViewBinding().sliderGrid.isVisible = mode == ListMode.GRID
+		val isGridMode = mode == ListMode.GRID || mode == ListMode.COVER_ONLY
+		requireViewBinding().textViewGridTitle.isVisible = isGridMode
+		requireViewBinding().sliderGrid.isVisible = isGridMode
 		viewModel.listMode = mode
 	}
 
