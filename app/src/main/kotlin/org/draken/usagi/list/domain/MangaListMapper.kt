@@ -123,7 +123,8 @@ class MangaListMapper @Inject constructor(
 	private suspend fun toGridModel(
 		manga: Manga,
 		@Options options: Int,
-		override: MangaOverride?
+		override: MangaOverride?,
+		isTitleHidden: Boolean
 	) = MangaGridModel(
 		manga = manga,
 		override = override,
@@ -131,6 +132,7 @@ class MangaListMapper @Inject constructor(
 		progress = getProgress(manga.id, options),
 		isFavorite = isFavorite(manga.id, options),
 		isSaved = isSaved(manga.id, options),
+		isTitleHidden = isTitleHidden,
 	)
 
 	private suspend fun toListModelImpl(
@@ -141,7 +143,8 @@ class MangaListMapper @Inject constructor(
 	): MangaListModel = when (mode) {
 		ListMode.LIST -> toCompactListModel(manga, options, override)
 		ListMode.DETAILED_LIST -> toDetailedListModel(manga, options, override)
-		ListMode.GRID -> toGridModel(manga, options, override)
+		ListMode.GRID -> toGridModel(manga, options, override, false)
+		ListMode.COVER_ONLY -> toGridModel(manga, options, override, true)
 	}
 
 	private suspend fun getCounter(mangaId: Long, @Options options: Int): Int {
