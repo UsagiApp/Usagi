@@ -88,6 +88,9 @@ class CaptchaHandler @Inject constructor(
 			val retryRequest = ImageRequest.Builder(request, context)
 				.lifecycle(ProcessLifecycleOwner.get().lifecycle)
 				.target(null)
+				.error(null)
+				.placeholder(null)
+				.fallback(null)
 				.listener(null)
 				.build()
 			processLifecycleScope.launch {
