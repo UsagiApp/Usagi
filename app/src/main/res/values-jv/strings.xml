@@ -79,4 +79,5 @@
     <string name="grid_size">Ukuran kisi-kisi</string>
     <string name="search_on_s">Telusuri ing %s</string>
     <string name="delete_manga">Busak manga</string>
+    <string name="chapter_d_of_d">Bab</string>
 </resources>
