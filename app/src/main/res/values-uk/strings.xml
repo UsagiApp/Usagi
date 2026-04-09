@@ -896,7 +896,7 @@
     <string name="details_appearance">Поява подробиць екрану</string>
     <string name="details_appearance_summary">Стиль екрану, зображення тла та ефект розмиття</string>
     <string name="preview">Попередній перегляд</string>
-    <string name="no_plugins_summary">Натисніть \'Імпортувати плагін\' зверху, щоб додати джерела з плагінів</string>
+    <string name="no_plugins_summary">Клацніть \'Імпортувати плагін\' зверху, щоб додати джерела з плагінів</string>
     <string name="load_from_jar">Імпортувати плагін</string>
     <string name="load_from_jar_summary">Завантажити всі джерела / плагіни за допомогою імпорту одного JAR файлу</string>
     <string name="load_success">Плагін імпортований та завантажений успішно</string>
