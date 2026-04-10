@@ -25,6 +25,7 @@ import coil3.request.allowConversionToBitmap
 import coil3.request.allowHardware
 import coil3.request.lifecycle
 import coil3.size.Scale
+import coil3.size.SizeResolver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -90,6 +91,7 @@ class CaptchaHandler @Inject constructor(
 				.target(null)
 				.error(null)
 				.placeholder(null)
+				.size(SizeResolver.ORIGINAL)
 				.fallback(null)
 				.listener(null)
 				.build()
