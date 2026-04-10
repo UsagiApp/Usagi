@@ -912,4 +912,5 @@
     <string name="missing_in_plugin">Nawawala ang source sa plugin na: %1$s</string>
     <string name="loaded_null">Nai-load ang plugin bilang null</string>
     <string name="no_compatible_method">Walang nahanap na compatible na method: %1$s(%2$s)</string>
+    <string name="cover_only">Cover lamang</string>
 </resources>
