@@ -917,4 +917,5 @@
     <string name="missing_in_plugin">Джерело відсутнє в плагіні: %1$s</string>
     <string name="loaded_null">Плагін завантажений як нуль</string>
     <string name="no_compatible_method">Не знайдено сумісного методу: %1$s(%2$s)</string>
+    <string name="cover_only">Тільки обкладинка</string>
 </resources>
