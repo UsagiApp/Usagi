@@ -312,7 +312,7 @@ class DetailsClassicActivity :
 				router.openImage(
 					url = url,
 					source = manga.source,
-					anchor = viewBinding.backdrop,
+					anchor = v,
 					preview = CoilMemoryCacheKey.from(viewBinding.backdrop),
 				)
 			}
