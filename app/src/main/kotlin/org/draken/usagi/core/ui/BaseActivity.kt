@@ -169,7 +169,7 @@ abstract class BaseActivity<B : ViewBinding> :
 			true
 		} catch (e: Exception) {
 			if (e.isWebViewUnavailable()) {
-				Toast.makeText(this, R.string.web_view_unavailable, Toast.LENGTH_LONG).show()
+				Toast.makeText(applicationContext, R.string.web_view_unavailable, Toast.LENGTH_LONG).show()
 				finishAfterTransition()
 				false
 			} else {
