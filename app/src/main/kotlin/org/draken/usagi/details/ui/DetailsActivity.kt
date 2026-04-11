@@ -291,7 +291,7 @@ class DetailsActivity :
 					url = viewModel.backdropUrl.value ?: return,
 					source = manga.source,
 					preview = CoilMemoryCacheKey.from(viewBinding.backdrop),
-					anchor = viewBinding.backdrop,
+					anchor = v,
 				)
 			}
 			R.id.button_description_more -> {
