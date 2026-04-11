@@ -126,7 +126,7 @@ class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),
 	) {
 		val chips = ArrayList<ChipModel>(contentTypes.size + 3)
 		chips += ChipModel(
-			title = appliedFilter.plugin ?: "Plugin",
+			title = appliedFilter.plugin ?: getString(R.string.any),
 			icon = R.drawable.ic_services,
 			isDropdown = true,
 			data = "plugins"
