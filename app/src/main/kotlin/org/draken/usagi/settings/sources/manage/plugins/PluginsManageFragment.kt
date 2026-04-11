@@ -11,14 +11,14 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import com.hannesdorfmann.adapterdelegates4.AsyncListDifferDelegationAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import org.draken.usagi.R
 import org.draken.usagi.core.ui.BaseFragment
 import org.draken.usagi.core.ui.dialog.buildAlertDialog
@@ -37,20 +37,8 @@ import kotlin.coroutines.resume
 class PluginsManageFragment :
 	BaseFragment<FragmentSettingsSourcesBinding>(),
 	RecyclerViewOwner {
-
-	private val diffCallback = object : DiffUtil.ItemCallback<PluginManageItem>() {
-		override fun areItemsTheSame(old: PluginManageItem, new: PluginManageItem): Boolean {
-			return when (old) {
-				is PluginManageItem.Plugin -> new is PluginManageItem.Plugin && old.jarName == new.jarName
-				is PluginManageItem.Placeholder -> new is PluginManageItem.Placeholder && old.titleResId == new.titleResId && old.summaryResId == new.summaryResId
-			}
-		}
-
-		override fun areContentsTheSame(old: PluginManageItem, new: PluginManageItem) = old == new
-	}
-
 	private val viewModel by viewModels<PluginsManageViewModel>()
-	private var pluginsAdapter: AsyncListDifferDelegationAdapter<PluginManageItem>? = null
+	private var pluginsAdapter: PluginManageAdapter? = null
 
 	private val importJarLauncher = registerForActivityResult(
 		ActivityResultContracts.OpenDocument()
@@ -78,11 +66,7 @@ class PluginsManageFragment :
 
 	override fun onViewBindingCreated(binding: FragmentSettingsSourcesBinding, savedInstanceState: Bundle?) {
 		super.onViewBindingCreated(binding, savedInstanceState)
-		pluginsAdapter = AsyncListDifferDelegationAdapter(
-			diffCallback,
-			pluginItemDelegate(::onDeleteClick, ::onUpdateClick),
-			pluginPlaceholderDelegate()
-		)
+		pluginsAdapter = PluginManageAdapter(::onDeleteClick, ::onUpdateClick)
 		with(binding.recyclerView) {
 			setHasFixedSize(true)
 			layoutManager = LinearLayoutManager(context)
@@ -90,7 +74,7 @@ class PluginsManageFragment :
 		}
 
 		viewLifecycleOwner.lifecycleScope.launch {
-			viewModel.content.collect { pluginsAdapter?.items = it }
+			viewModel.content.collect { pluginsAdapter?.emit(it) }
 		}
 
 		addMenuProvider(
@@ -188,47 +172,51 @@ class PluginsManageFragment :
 		}
 	}
 
-	private suspend fun askOverwrite(fileName: String): Boolean = suspendCancellableCoroutine { cont ->
-		val dialog = buildAlertDialog(requireContext()) {
-			setTitle(R.string.overwrite_plugin)
-			setMessage(getString(R.string.overwrite_plugin_summary, fileName))
-			setNegativeButton(android.R.string.cancel) { _, _ ->
+	private suspend fun askOverwrite(fileName: String): Boolean = withContext(Dispatchers.Main) {
+		suspendCancellableCoroutine { cont ->
+			val dialog = buildAlertDialog(requireContext()) {
+				setTitle(R.string.overwrite_plugin)
+				setMessage(getString(R.string.overwrite_plugin_summary, fileName))
+				setNegativeButton(android.R.string.cancel) { _, _ ->
+					if (cont.isActive) cont.resume(false)
+				}
+				setPositiveButton(R.string.overwrite) { _, _ ->
+					if (cont.isActive) cont.resume(true)
+				}
+			}
+			dialog.setOnCancelListener {
 				if (cont.isActive) cont.resume(false)
 			}
-			setPositiveButton(R.string.overwrite) { _, _ ->
-				if (cont.isActive) cont.resume(true)
-			}
+			dialog.show()
 		}
-		dialog.setOnCancelListener {
-			if (cont.isActive) cont.resume(false)
-		}
-		dialog.show()
 	}
 
 	private suspend fun askText(
 		titleRes: Int,
 		defaultValue: String,
 		hintRes: Int?,
-	): String? = suspendCancellableCoroutine { cont ->
-		lateinit var input: android.widget.EditText
-		val dialog = buildAlertDialog(requireContext()) {
-			input = setEditText(InputType.TYPE_CLASS_TEXT, singleLine = true)
-			input.setText(defaultValue)
-			if (hintRes != null) {
-				input.hint = getString(hintRes)
+	): String? = withContext(Dispatchers.Main) {
+		suspendCancellableCoroutine { cont ->
+			lateinit var input: android.widget.EditText
+			val dialog = buildAlertDialog(requireContext()) {
+				input = setEditText(InputType.TYPE_CLASS_TEXT, singleLine = true)
+				input.setText(defaultValue)
+				if (hintRes != null) {
+					input.hint = getString(hintRes)
+				}
+				setTitle(titleRes)
+				setNegativeButton(android.R.string.cancel) { _, _ ->
+					if (cont.isActive) cont.resume(null)
+				}
+				setPositiveButton(android.R.string.ok) { _, _ ->
+					if (cont.isActive) cont.resume(input.text?.toString())
+				}
 			}
-			setTitle(titleRes)
-			setNegativeButton(android.R.string.cancel) { _, _ ->
+			dialog.setOnCancelListener {
 				if (cont.isActive) cont.resume(null)
 			}
-			setPositiveButton(android.R.string.ok) { _, _ ->
-				if (cont.isActive) cont.resume(input.text?.toString())
-			}
+			dialog.show()
 		}
-		dialog.setOnCancelListener {
-			if (cont.isActive) cont.resume(null)
-		}
-		dialog.show()
 	}
 
 	private fun showImportResult(isSuccess: Boolean) {

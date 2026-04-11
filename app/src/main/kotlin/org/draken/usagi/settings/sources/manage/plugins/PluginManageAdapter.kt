@@ -5,14 +5,28 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateViewBinding
 import org.draken.usagi.R
+import org.draken.usagi.core.ui.BaseListAdapter
 import org.draken.usagi.core.util.ext.setTextAndVisible
 import org.draken.usagi.databinding.ItemEmptyHintBinding
 import org.draken.usagi.databinding.ItemSourceConfigBinding
+import org.draken.usagi.list.ui.adapter.ListItemType
+import org.draken.usagi.list.ui.model.ListModel
+
+class PluginManageAdapter(
+	onDeleteClick: (PluginManageItem.Plugin) -> Unit,
+	onUpdateClick: (PluginManageItem.Plugin) -> Unit,
+) : BaseListAdapter<ListModel>() {
+
+	init {
+		addDelegate(ListItemType.CHAPTER_LIST, pluginItemDelegate(onDeleteClick, onUpdateClick))
+		addDelegate(ListItemType.HINT_EMPTY, pluginPlaceholderDelegate())
+	}
+}
 
 fun pluginItemDelegate(
 	onDeleteClick: (PluginManageItem.Plugin) -> Unit,
 	onUpdateClick: (PluginManageItem.Plugin) -> Unit,
-) = adapterDelegateViewBinding<PluginManageItem.Plugin, PluginManageItem, ItemSourceConfigBinding>(
+) = adapterDelegateViewBinding<PluginManageItem.Plugin, ListModel, ItemSourceConfigBinding>(
 	{ layoutInflater, parent -> ItemSourceConfigBinding.inflate(layoutInflater, parent, false) },
 ) {
 
@@ -27,7 +41,7 @@ fun pluginItemDelegate(
 
 	bind {
 		binding.textViewTitle.text = item.displayName
-		
+
 		val parts = ArrayList<String>(3)
 		item.repository?.takeIf { it.isNotBlank() }?.let(parts::add)
 		item.installedTag?.takeIf { it.isNotBlank() }?.let(parts::add)
@@ -44,7 +58,7 @@ fun pluginItemDelegate(
 	}
 }
 
-fun pluginPlaceholderDelegate() = adapterDelegateViewBinding<PluginManageItem.Placeholder, PluginManageItem, ItemEmptyHintBinding>(
+fun pluginPlaceholderDelegate() = adapterDelegateViewBinding<PluginManageItem.Placeholder, ListModel, ItemEmptyHintBinding>(
 	{ layoutInflater, parent -> ItemEmptyHintBinding.inflate(layoutInflater, parent, false) },
 ) {
 	binding.icon.setImageResource(R.drawable.ic_empty_feed)
