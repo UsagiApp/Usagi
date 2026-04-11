@@ -182,6 +182,7 @@ class DetailsActivity :
 		infoBinding.textViewLocal.setOnClickListener(this)
 		infoBinding.textViewSource.setOnClickListener(this)
 		viewBinding.imageViewCover.setOnClickListener(this)
+		viewBinding.backdropClickArea.setOnClickListener(this)
 		viewBinding.textViewTitle.setOnClickListener(this)
 		viewBinding.buttonDescriptionMore.setOnClickListener(this)
 		viewBinding.buttonScrobblingMore.setOnClickListener(this)
@@ -282,6 +283,15 @@ class DetailsActivity :
 					source = manga.source,
 					preview = CoilMemoryCacheKey.from(viewBinding.imageViewCover),
 					anchor = v,
+				)
+			}
+			R.id.backdrop_click_area -> {
+				val manga = viewModel.getMangaOrNull() ?: return
+				router.openImage(
+					url = viewModel.backdropUrl.value ?: return,
+					source = manga.source,
+					preview = CoilMemoryCacheKey.from(viewBinding.backdrop),
+					anchor = viewBinding.backdrop,
 				)
 			}
 			R.id.button_description_more -> {

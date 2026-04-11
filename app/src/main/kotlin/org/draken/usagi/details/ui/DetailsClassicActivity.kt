@@ -160,6 +160,7 @@ class DetailsClassicActivity :
 			infoLayout.chipAuthor.setOnClickListener(this@DetailsClassicActivity)
 			infoLayout.chipTime.setOnClickListener(this@DetailsClassicActivity)
 			imageViewCover.setOnClickListener(this@DetailsClassicActivity)
+			backdropClickArea.setOnClickListener(this@DetailsClassicActivity)
 			buttonDescriptionMore.setOnClickListener(this@DetailsClassicActivity)
 			buttonScrobblingMore.setOnClickListener(this@DetailsClassicActivity)
 			buttonRelatedMore.setOnClickListener(this@DetailsClassicActivity)
@@ -302,6 +303,17 @@ class DetailsClassicActivity :
 					source = manga.source,
 					anchor = v,
 					preview = CoilMemoryCacheKey.from(viewBinding.imageViewCover),
+				)
+			}
+
+			R.id.backdrop_click_area -> {
+				val manga = viewModel.getMangaOrNull() ?: return
+				val url = viewModel.backdropUrl.value ?: return
+				router.openImage(
+					url = url,
+					source = manga.source,
+					anchor = viewBinding.backdrop,
+					preview = CoilMemoryCacheKey.from(viewBinding.backdrop),
 				)
 			}
 
