@@ -39,11 +39,11 @@ object PluginFileLoader {
 			}
 			if (destJar.exists()) {
 				destJar.setWritable(true, true)
-				if (!destJar.delete()) throw IOException()
+				if (!destJar.delete()) throw IOException("replace plugin")
 			}
 			if (!partial.renameTo(destJar)) {
-				partial.copyTo(destJar, overwrite = true)
-				if (!partial.delete()) throw IOException()
+				partial.copyTo(destJar, true)
+				if (!partial.delete()) throw IOException("cleanup partial")
 			}
 		} catch (t: Throwable) {
 			partial.delete()
