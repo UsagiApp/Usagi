@@ -25,6 +25,7 @@ import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.json.JSONArray
 import org.json.JSONObject
 import org.koitharu.kotatsu.parsers.util.await
+import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import java.io.File
 import java.io.IOException
 import java.util.Locale
@@ -54,7 +55,7 @@ class PluginsManageViewModel @Inject constructor(
 	}
 
 	fun refresh() {
-		launchLoadingJob(Dispatchers.IO) {
+		launchLoadingJob(Dispatchers.Default) {
 			pluginsSnapshot = loadPlugins()
 			publishFiltered()
 		}
@@ -65,14 +66,14 @@ class PluginsManageViewModel @Inject constructor(
 		publishFiltered()
 	}
 
-	suspend fun resolveGithubRelease(input: String): ExternalPluginDto? = withContext(Dispatchers.IO) {
+	suspend fun resolveGithubRelease(input: String): ExternalPluginDto? = withContext(Dispatchers.Default) {
 		val repository = normalizeRepository(input) ?: return@withContext null
 		requestLatestRelease(repository)
 	}
 
-	suspend fun importFromUri(uri: Uri, fileName: String): Boolean = withContext(Dispatchers.IO) {
+	suspend fun importFromUri(uri: Uri, fileName: String): Boolean = withContext(Dispatchers.Default) {
 		val safeName = sanitizeJarFileName(fileName)
-		runCatching {
+		runCatchingCancellable {
 			val pluginsDir = PluginFileLoader.pluginsDir(context)
 			PluginFileLoader.copyFromUri(context, uri, File(pluginsDir, safeName))
 			clearGithubMeta(safeName)
@@ -81,9 +82,9 @@ class PluginsManageViewModel @Inject constructor(
 	}.also { if (it) refresh() }
 
 	suspend fun importFromGithub(release: ExternalPluginDto, fileName: String = release.fileName): Boolean =
-		withContext(Dispatchers.IO) {
+		withContext(Dispatchers.Default) {
 			val safeName = sanitizeJarFileName(fileName)
-			runCatching {
+			runCatchingCancellable {
 				val pluginsDir = PluginFileLoader.pluginsDir(context)
 				val outFile = File(pluginsDir, safeName)
 				val request = Request.Builder()
@@ -100,6 +101,47 @@ class PluginsManageViewModel @Inject constructor(
 			if (it) refresh()
 		}
 
+	fun importPlugin(
+		uri: Uri,
+		getOriginalName: (Uri) -> String?,
+		askName: suspend (String) -> String?,
+		askOverwrite: suspend (String) -> Boolean,
+		onResult: (Boolean) -> Unit
+	) {
+		launchJob(Dispatchers.Default) {
+			val originalName = getOriginalName(uri) ?: "plugin_${System.currentTimeMillis()}.jar"
+			val pluginName = askName(originalName.removeSuffix(".jar"))?.trim().orEmpty()
+			if (pluginName.isBlank()) return@launchJob
+
+			val fileName = sanitizeJarFileName(pluginName)
+			if (isInstalled(fileName) && !askOverwrite(fileName)) return@launchJob
+
+			val success = importFromUri(uri, fileName)
+			withContext(Dispatchers.Main) { onResult(success) }
+		}
+	}
+
+	fun importGithubPlugin(
+		askInput: suspend () -> String?,
+		askOverwrite: suspend (String) -> Boolean,
+		onResult: (Boolean) -> Unit
+	) {
+		launchJob(Dispatchers.Default) {
+			val input = askInput()?.trim()?.takeIf { it.isNotBlank() } ?: return@launchJob
+			val release = resolveGithubRelease(input)
+			if (release == null) {
+				withContext(Dispatchers.Main) { onResult(false) }
+				return@launchJob
+			}
+
+			val fileName = sanitizeJarFileName(release.fileName)
+			if (isInstalled(fileName) && !askOverwrite(fileName)) return@launchJob
+
+			val success = importFromGithub(release, fileName)
+			withContext(Dispatchers.Main) { onResult(success) }
+		}
+	}
+
 	suspend fun updatePlugin(item: PluginManageItem.Plugin): Boolean {
 		val repository = item.repository ?: return false
 		val release = resolveGithubRelease(repository) ?: return false
@@ -111,8 +153,8 @@ class PluginsManageViewModel @Inject constructor(
 		}
 	}
 
-	suspend fun deletePlugin(item: PluginManageItem.Plugin): Boolean = withContext(Dispatchers.IO) {
-		runCatching {
+	suspend fun deletePlugin(item: PluginManageItem.Plugin): Boolean = withContext(Dispatchers.Default) {
+		runCatchingCancellable {
 			DynamicParserManager.deletePlugin(context, item.jarName)
 			clearGithubMeta(item.jarName)
 		}.isSuccess
@@ -190,7 +232,7 @@ class PluginsManageViewModel @Inject constructor(
 	}
 
 	private suspend fun requestLatestTag(repository: String): String? {
-		return runCatching {
+		return runCatchingCancellable {
 			val request = Request.Builder()
 				.get()
 				.url("https://github.com/$repository/releases/latest")
@@ -207,7 +249,7 @@ class PluginsManageViewModel @Inject constructor(
 	}
 
 	private suspend fun requestReleaseByTag(repository: String, tag: String): ExternalPluginDto? {
-		return runCatching {
+		return runCatchingCancellable {
 			val (owner, repoName) = splitRepository(repository) ?: return null
 			val url = HttpUrl.Builder()
 				.scheme("https")
