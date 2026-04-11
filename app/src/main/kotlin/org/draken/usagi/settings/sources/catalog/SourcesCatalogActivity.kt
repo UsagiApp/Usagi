@@ -126,7 +126,7 @@ class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),
 	) {
 		val chips = ArrayList<ChipModel>(contentTypes.size + 3)
 		chips += ChipModel(
-			title = appliedFilter.plugin ?: getString(R.string.any),
+			title = appliedFilter.plugin?.removeSuffix(".jar") ?: getString(R.string.any),
 			icon = R.drawable.ic_services,
 			isDropdown = true,
 			data = "plugins"
@@ -174,7 +174,7 @@ class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),
 		val menu = PopupMenu(this, anchor)
 		menu.menu.add(Menu.NONE, Menu.NONE, 0, getString(R.string.any))
 		for ((i, plugin) in viewModel.plugins.withIndex()) {
-			menu.menu.add(Menu.NONE, Menu.NONE, i + 1, plugin)
+			menu.menu.add(Menu.NONE, Menu.NONE, i + 1, plugin.removeSuffix(".jar"))
 		}
 		menu.setOnMenuItemClickListener {
 			val p = if (it.order == 0) null else viewModel.plugins[it.order - 1]
