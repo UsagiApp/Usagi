@@ -56,8 +56,23 @@ class PluginsManageViewModel @Inject constructor(
 
 	fun refresh() {
 		launchLoadingJob(Dispatchers.Default) {
-			pluginsSnapshot = loadPlugins()
+			val localPlugins = loadPluginsLocal()
+			pluginsSnapshot = localPlugins
 			publishFiltered()
+
+			if (localPlugins.isNotEmpty()) {
+				val updatedPlugins = coroutineScope {
+					localPlugins.map { plugin ->
+						async {
+							val repo = plugin.repository ?: return@async plugin
+							val latest = requestLatestTag(repo) ?: return@async plugin
+							plugin.copy(latestTag = latest)
+						}
+					}.awaitAll()
+				}
+				pluginsSnapshot = updatedPlugins
+				publishFiltered()
+			}
 		}
 	}
 
@@ -200,23 +215,18 @@ class PluginsManageViewModel @Inject constructor(
 		}
 	}
 
-	private suspend fun loadPlugins(): List<PluginManageItem.Plugin> {
+	private fun loadPluginsLocal(): List<PluginManageItem.Plugin> {
 		val plugins = DynamicParserManager.getInstalledPlugins(context).sorted()
 		if (plugins.isEmpty()) return emptyList()
 		val meta = readAndCleanupMeta(plugins.toSet())
-		val latestTags = coroutineScope {
-			plugins.mapNotNull { fileName ->
-				val repository = meta[fileName]?.repository ?: return@mapNotNull null
-				async { fileName to requestLatestTag(repository) }
-			}.awaitAll().toMap()
-		}
+
 		return plugins.map { fileName ->
 			val itemMeta = meta[fileName]
 			PluginManageItem.Plugin(
 				jarName = fileName,
 				repository = itemMeta?.repository,
 				installedTag = itemMeta?.tag,
-				latestTag = latestTags[fileName],
+				latestTag = null,
 			)
 		}
 	}
