@@ -282,7 +282,7 @@
     <string name="folder_with_images">Folder dengan gambar</string>
     <string name="import_completed_hint">Anda bisa menghapus berkas asli dari penyimpanan untuk menghemat ruang</string>
     <string name="feed">Umpan</string>
-    <string name="manga_error_description_pattern">Rincian galat:&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Coba &lt;a href=%2$s&gt;buka manga di peramban web&lt;/a&gt; untuk memastikan manga tersebut tersedia di sumbernya&lt;/a&gt;2. Pastikan Anda menggunakan Usagi &lt;a href=kotatsu://about&gt;versi terbaru&lt;/a&gt;&lt;br&gt;3. Jika itu tersedia, kirimkan laporan kesalahan ke pengembang.</string>
+    <string name="manga_error_description_pattern">Detail kesalahan:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Try to &lt;a href=\"%2$s\"&gt;membuka manga di peramban web&lt;/a&gt; untuk memastikan ketersediaannya di sumber aslinya&lt;br&gt;2. Pastikan Anda menggunakan&lt;a&gt;versi terbaru Usagi&lt;/a&gt;&lt;br&gt;3. Jika tersedia, kirimkan laporan kesalahan kepada pengembang.</string>
     <string name="brightness">Kecerahan</string>
     <string name="contrast">Kontras</string>
     <string name="reset">Atur Ulang</string>
@@ -914,4 +914,9 @@
     <string name="no_compatible_method">Tidak ditemukan metode yang kompatibel: %1$s(%2$s)</string>
     <string name="cover_only">Hanya sampulnya saja</string>
     <string name="import_from_github">Impor dari GitHub</string>
+    <string name="import_github_summary">Anda dapat memasukkan URL GitHub lengkap atau Nama Pengguna/Repositori. Usagi akan secara otomatis menemukan dan menginstal plugin dari rilis terbaru.</string>
+    <string name="load_from_storage">Impor dari penyimpanan lokal</string>
+    <string name="load_storage_summary">Anda dapat memilih file JAR dari penyimpanan lokal, File tersebut akan dikenali sebagai plugin.</string>
+    <string name="manage_plugins">Kelola plugin</string>
+    <string name="manage_plugins_summary">Muat semua sumber / plugin dengan mengimpor satu file JAR</string>
 </resources>
