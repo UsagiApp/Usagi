@@ -178,9 +178,9 @@
     <string name="captcha_required">CAPTCHA gerekli</string>
     <string name="cookies_cleared">Tüm çerezler kaldırıldı</string>
     <string name="reader_mode_hint">Seçilen yapılandırma bu manga için hatırlanacak</string>
-    <string name="text_clear_updates_feed_prompt">Tüm güncelleme geçmişi kalıcı olarak silinsin mi\?</string>
+    <string name="text_clear_updates_feed_prompt">Tüm güncelleme geçmişi kalıcı olarak silinsin mi?</string>
     <string name="protect_application_subtitle">Uygulamayı başlatmak için bir parola girin</string>
-    <string name="text_clear_search_history_prompt">Tüm son arama sorguları kalıcı olarak kaldırılsın mı\?</string>
+    <string name="text_clear_search_history_prompt">Tüm son arama sorguları kalıcı olarak kaldırılsın mı?</string>
     <string name="backup_saved">Yedek kaydedildi</string>
     <string name="genres">Türler</string>
     <string name="system_default">Varsayılan</string>
@@ -211,12 +211,12 @@
     <string name="various_languages">Çeşitli diller</string>
     <string name="search_chapters">Bölüm bul</string>
     <string name="chapters_empty">Bu mangada bölüm yok</string>
-    <string name="percent_string_pattern">%%%1$s</string>
+    <string name="percent_string_pattern" translatable="false">%%%1$s</string>
     <string name="suggestions_updating">Öneriler güncelleniyor</string>
     <string name="appearance">Görünüm</string>
     <string name="suggestions_excluded_genres">Türleri hariç tut</string>
     <string name="suggestions_excluded_genres_summary">Önerilerde görmek istemediğiniz türleri belirtin</string>
-    <string name="text_delete_local_manga_batch">Seçilen ögeler aygıttan kalıcı olarak silinsin mi\?</string>
+    <string name="text_delete_local_manga_batch">Seçilen ögeler aygıttan kalıcı olarak silinsin mi?</string>
     <string name="removal_completed">Kaldırma tamamlandı</string>
     <string name="chapters_will_removed_background">Bölümler arka planda kaldırılacak</string>
     <string name="download_slowdown">İndirme yavaşlatma</string>
@@ -299,7 +299,7 @@
     <string name="other_cache">Diğer önbellekler</string>
     <string name="storage_usage">Depolama kullanımı</string>
     <string name="available">Mevcut</string>
-    <string name="memory_usage_pattern">%1$s - %2$s</string>
+    <string name="memory_usage_pattern" translatable="false">%1$s - %2$s</string>
     <string name="options">Seçenekler</string>
     <string name="incognito_mode">Gizli mod</string>
     <string name="no_chapters">Bölüm yok</string>
@@ -392,7 +392,7 @@
     <string name="downloads_removed">İndirmeler silindi</string>
     <string name="mirror_switching">Yedek bağlantıyı otomatik olarak seç</string>
     <string name="downloads_cancelled">İndirmeler iptal edildi</string>
-    <string name="suggestions_enable_prompt">Kişiselleştirilmiş manga önerileri almak istiyor musunuz\?</string>
+    <string name="suggestions_enable_prompt">Kişiselleştirilmiş manga önerileri almak istiyor musunuz?</string>
     <string name="address">Adres</string>
     <string name="type">Tür</string>
     <string name="port">Port</string>
@@ -491,12 +491,11 @@
     <string name="manage_sources">Kaynakları yönet</string>
     <string name="reader_optimize_summary">Daha az bellek kullanımı için ekran dışı sayfaların çözünürlüğünü düşür</string>
     <string name="source_enabled">Kaynak etkinleştirildi</string>
-    <string name="no_manga_sources_catalog_text">Bu bölümde kullanılabilir kaynak yok ya da hepsi zaten eklenmiş olabilir.
-\nTakipte kalın</string>
+    <string name="no_manga_sources_catalog_text">Bu bölümde kullanılabilir kaynak yok ya da hepsi zaten eklenmiş olabilir. \nTakipte kalın</string>
     <string name="state_paused">Durduruldu</string>
     <string name="content_type_other">Diğer</string>
     <string name="error_multiple_states_not_supported">Birden fazla duruma göre filtreleme bu manga kaynağı tarafından desteklenmemektedir</string>
-    <string name="source_summary_pattern">%1$s,%2$s</string>
+    <string name="source_summary_pattern" translatable="false">%1$s,%2$s</string>
     <string name="content_type_comics">Karikatür</string>
     <string name="no_manga_sources_found">Sorgunuza göre mevcut manga kaynağı bulunamadı</string>
     <string name="error_multiple_genres_not_supported">Birden fazla türe göre filtreleme bu manga kaynağı tarafından desteklenmemektedir</string>
@@ -530,13 +529,11 @@
     <string name="rating_suggestive">Uygunsuz</string>
     <string name="default_tab">Varsayılan sekme</string>
     <string name="mark_as_completed">Tamamlandı olarak işaretle</string>
-    <string name="mark_as_completed_prompt">Seçili mangayı tamamlandı olarak işaretle?
-\n
-\nUyarı: Şu anki ilerleme kaybolacaktır.</string>
+    <string name="mark_as_completed_prompt">Seçili mangayı tamamlandı olarak işaretle? \n \nUyarı: Şu anki ilerleme kaybolacaktır.</string>
     <string name="category_hidden_done">Bu kategori ana ekrandan gizlendi ve Menü → Kategorileri yönet aracılığıyla erişilebilir</string>
     <string name="volume_">%d. cilt</string>
     <string name="volume_unknown">Bilinmeyen cilt</string>
-    <string name="remaining_time_pattern">%1$s %2$s</string>
+    <string name="remaining_time_pattern" translatable="false">%1$s %2$s</string>
     <string name="incognito_mode_hint">Okuma ilerleme durumunuz kaydedilmeyecek</string>
     <string name="vertical">Dikey</string>
     <string name="last_read">Son okunan</string>
@@ -621,7 +618,7 @@
     <string name="webtoon_gaps">Webtoon modunda boşluklar</string>
     <string name="webtoon_gaps_summary">Webtoon modunda sayfalar arasında dikey boşluklar göster</string>
     <string name="frequency_of_check">Denetleme sıklığı</string>
-    <string name="new_chapters_pattern">%1$s: %2$d</string>
+    <string name="new_chapters_pattern" translatable="false">%1$s: %2$d</string>
     <string name="pin_navigation_ui">Gezinme arayüzünü sabitle</string>
     <string name="less_frequently">Daha seyrek</string>
     <string name="more_frequently">Daha sık</string>
@@ -892,4 +889,45 @@
     <string name="details_ui">Detaylar ekranı stili</string>
     <string name="details_ui_modern">Modern (Yeni)</string>
     <string name="details_ui_classic">Klasik (Eski)</string>
+    <string name="preview"></string>
+    <string name="cover_only"></string>
+    <string name="overwrite_plugin_summary"></string>
+    <string name="deleted_plugin"></string>
+    <string name="load_from_jar_summary"></string>
+    <string name="plugin_name"></string>
+    <string name="details_backdrop"></string>
+    <string name="set_plugin_name"></string>
+    <string name="confirm_delete_plugin"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="load_success"></string>
+    <string name="details_appearance"></string>
+    <string name="load_failed"></string>
+    <string name="installed_plugin"></string>
+    <string name="overwrite_plugin"></string>
+    <string name="unknown_source"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="missing_in_plugin"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="experiment"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="no_plugins"></string>
+    <string name="delete_plugin"></string>
+    <string name="no_compatible_method"></string>
+    <string name="tap_to_delete_plugin"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="jar_not_loaded"></string>
+    <string name="details_backdrop_blur"></string>
+    <string name="no_plugins_summary"></string>
+    <string name="details_appearance_summary"></string>
+    <string name="plugin_not_found"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="details_backdrop_summary"></string>
+    <string name="shikimori" translatable="false"></string>
+    <string name="loaded_null"></string>
+    <string name="load_from_jar"></string>
 </resources>
