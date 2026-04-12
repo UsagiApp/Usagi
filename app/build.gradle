@@ -2,23 +2,22 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
 	id 'com.android.application'
-	id 'kotlin-android'
 	id 'com.google.devtools.ksp'
 	id 'kotlin-parcelize'
-	id 'dagger.hilt.android.plugin'
+	id 'com.google.dagger.hilt.android'
 	id 'androidx.room'
 	id 'org.jetbrains.kotlin.plugin.serialization'
 }
 
 android {
 	compileSdk = 36
-	buildToolsVersion = '36.1.0'
+	buildToolsVersion = '37.0.0'
 	namespace = 'org.draken.usagi'
 
 	defaultConfig {
 		applicationId 'org.draken.usagi'
 		minSdk = 23
-		targetSdk = 36
+		targetSdk = 37
 		versionCode = 6
 		versionName = '0.0.2-b1'
 		generatedDensities = []
@@ -58,10 +57,13 @@ android {
 				'META-INF/NOTICE.md'
 			]
 		}
+		jniLibs {
+			useLegacyPackaging true
+		}
 	}
 	sourceSets {
 		androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
-		main.java.srcDirs += 'src/main/kotlin/'
+		main.kotlin.srcDirs += 'src/main/kotlin/'
 	}
 	compileOptions {
 		coreLibraryDesugaringEnabled true
