@@ -264,7 +264,7 @@
     <string name="show_all">显示全部</string>
     <string name="manga_error_description_pattern">错误详情：&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1.尝试&lt;a href=%2$s&gt;在浏览器中打开漫画&lt;/a&gt;确保漫画在图源中正常显示&lt;br&gt;2.确认正在使用的是&lt;a href=kotatsu://about&gt;最新版本的Kotatsu&lt;/a&gt;&lt;br&gt;3.若已排除以上问题，请向开发人员发送错误报告。</string>
     <string name="invalid_domain_message">无效域名</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="canceled">已取消</string>
     <string name="account_already_exists">账号已存在</string>
     <string name="back">返回</string>
@@ -311,7 +311,7 @@
     <string name="import_completed_hint">可删除原文件节省存储空间</string>
     <string name="import_will_start_soon">即将开始导入</string>
     <string name="feed">订阅</string>
-    <string name="memory_usage_pattern">%1$s - %2$s</string>
+    <string name="memory_usage_pattern" translatable="false">%1$s - %2$s</string>
     <string name="not_found_404">没有章节或已被删除</string>
     <string name="reader_control_ltr_summary">硬件输入设备控制下，翻页方向将不随阅读模式调整。例：按下右键总是翻到下一页</string>
     <string name="reader_control_ltr">人性化操作</string>
@@ -486,13 +486,12 @@
     <string name="content_type_comics">美漫</string>
     <string name="content_type_other">其他</string>
     <string name="content_type_manga">日漫</string>
-    <string name="source_summary_pattern">%1$s，%2$s</string>
+    <string name="source_summary_pattern" translatable="false">%1$s，%2$s</string>
     <string name="sources_catalog">图源目录</string>
     <string name="source_enabled">图源已启用</string>
     <string name="content_type_hentai">成人</string>
     <string name="no_manga_sources_found">未搜索到可用图源</string>
-    <string name="no_manga_sources_catalog_text">此页面暂无可用图源，或可能已添加所有可用图源。
-\n敬请期待后续更新</string>
+    <string name="no_manga_sources_catalog_text">此页面暂无可用图源，或可能已添加所有可用图源。 \n敬请期待后续更新</string>
     <string name="welcome_text">请选择需要启用的图源，可之后在设置中更改</string>
     <string name="sync_auth">网络同步</string>
     <string name="downloads_settings_info">若出现服务器阻塞的情况，可在图源设置中为每个图源单独启用限速下载功能</string>
@@ -530,11 +529,9 @@
     <string name="error_multiple_states_not_supported">此图源不支持按多个状态筛选</string>
     <string name="by_relevance">关联</string>
     <string name="mark_as_completed">标记为已读</string>
-    <string name="mark_as_completed_prompt">确定将选定漫画标记为已读？
-\n
-\n警告： 当前的阅读进度将会丢失。</string>
+    <string name="mark_as_completed_prompt">确定将选定漫画标记为已读？ \n \n警告： 当前的阅读进度将会丢失。</string>
     <string name="category_hidden_done">此分类已从主页隐藏，可通过菜单 → 分类管理来访问</string>
-    <string name="remaining_time_pattern">%1$s %2$s</string>
+    <string name="remaining_time_pattern" translatable="false">%1$s %2$s</string>
     <string name="volume_">第 %d 卷</string>
     <string name="volume_unknown">未知卷</string>
     <string name="incognito_mode_hint">阅读进度不会保存</string>
@@ -622,7 +619,7 @@
     <string name="webtoon_gaps">条漫分割</string>
     <string name="pin_navigation_ui">固定导航 UI</string>
     <string name="frequency_of_check">自动检查更新频率</string>
-    <string name="new_chapters_pattern">%1$s: %2$d</string>
+    <string name="new_chapters_pattern" translatable="false">%1$s: %2$d</string>
     <string name="pin_navigation_ui_summary">当上下滑动时不隐藏导航栏和搜索框</string>
     <string name="more_frequently">高频</string>
     <string name="less_frequently">低频</string>
@@ -899,4 +896,38 @@
     <string name="details_appearance">详情页界面外观</string>
     <string name="details_appearance_summary">界面样式、背景图片和模糊效果</string>
     <string name="preview">预览</string>
+    <string name="cover_only"></string>
+    <string name="overwrite_plugin_summary"></string>
+    <string name="deleted_plugin"></string>
+    <string name="load_from_jar_summary"></string>
+    <string name="plugin_name"></string>
+    <string name="set_plugin_name"></string>
+    <string name="confirm_delete_plugin"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="load_success"></string>
+    <string name="load_failed"></string>
+    <string name="installed_plugin"></string>
+    <string name="overwrite_plugin"></string>
+    <string name="unknown_source"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="missing_in_plugin"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="no_plugins"></string>
+    <string name="delete_plugin"></string>
+    <string name="no_compatible_method"></string>
+    <string name="tap_to_delete_plugin"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="jar_not_loaded"></string>
+    <string name="no_plugins_summary"></string>
+    <string name="plugin_not_found"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="shikimori" translatable="false"></string>
+    <string name="loaded_null"></string>
+    <string name="load_from_jar"></string>
 </resources>
