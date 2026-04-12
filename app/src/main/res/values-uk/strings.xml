@@ -174,9 +174,9 @@
     <string name="various_languages">Різні мови</string>
     <string name="search_chapters">Знайти розділ</string>
     <string name="chapters_empty">Немає розділів у цій манзі</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="suggestions_updating">Оновлення пропозицій</string>
-    <string name="text_delete_local_manga_batch">Видалити вибрані елементи з пристрою назавжди\?</string>
+    <string name="text_delete_local_manga_batch">Видалити вибрані елементи з пристрою назавжди?</string>
     <string name="removal_completed">Видалення завершено</string>
     <string name="download_slowdown">Сповільнення завантаження</string>
     <string name="local_manga_processing">Обробка збереженої манґи</string>
@@ -210,7 +210,7 @@
     <string name="today">Сьогодні</string>
     <string name="silent">Без звуку</string>
     <string name="long_ago">Давно</string>
-    <string name="text_clear_updates_feed_prompt">Очистити всю історію оновлень назавжди\?</string>
+    <string name="text_clear_updates_feed_prompt">Очистити всю історію оновлень назавжди?</string>
     <string name="tracker_warning">Деякі пристрої мають різну поведінку системи, що може порушити фонові процеси.</string>
     <string name="text_clear_search_history_prompt">Видалити всі поточні пошукові запити назавжди?</string>
     <string name="screenshots_block_nsfw">Блок на NSFW</string>
@@ -311,7 +311,7 @@
     <string name="exit_confirmation">Підтвердження виходу</string>
     <string name="removed_from_favourites">Видалено з улюблених</string>
     <string name="other_cache">Інший кеш</string>
-    <string name="memory_usage_pattern">%s - %s</string>
+    <string name="memory_usage_pattern" translatable="false">%s - %s</string>
     <string name="manga_error_description_pattern">Деталі помилки:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Спробуйте &lt;a href=%2$s&gt;відкрити манґу у веб-браузері&lt;/a&gt;, щоб переконатися, що вона доступна в джерелі&lt;br&gt;2. Переконайтеся, що ви використовуєте &lt;a href=kotatsu://about&gt;останню версію Usagi&lt;/a&gt;&lt;br&gt;3. Якщо вона доступна, надішліть звіт про помилку розробникам.</string>
     <string name="history_shortcuts">Показувати ярлики останньої прочитаної манґи</string>
     <string name="history_shortcuts_summary">Зробити нещодавно прочитану манґу доступною за довгим натисканням на іконку застосунку</string>
@@ -321,7 +321,7 @@
     <string name="color_correction">Корекція кольору</string>
     <string name="contrast">Контрастність</string>
     <string name="reset">Скинути</string>
-    <string name="text_unsaved_changes_prompt">Зберегти чи скасувати незбережені зміни\?</string>
+    <string name="text_unsaved_changes_prompt">Зберегти чи скасувати незбережені зміни?</string>
     <string name="discard">Скасувати</string>
     <string name="server_error">Помилка на стороні сервера (%1$d). Будь ласка спробуйте пізніше</string>
     <string name="clear_new_chapters_counters">Також очистити інформацію про нові розділи</string>
@@ -486,7 +486,7 @@
     <string name="lock_screen_rotation">Блокування повороту екрану</string>
     <string name="sources_catalog">Каталог джерел</string>
     <string name="content_type_manga">Манґа</string>
-    <string name="source_summary_pattern">%1$s, %2$s</string>
+    <string name="source_summary_pattern" translatable="false">%1$s, %2$s</string>
     <string name="content_type_hentai">Хентай</string>
     <string name="content_type_comics">Комікси</string>
     <string name="catalog">Каталог</string>
@@ -531,7 +531,7 @@
     <string name="mark_as_completed">Позначити як завершене</string>
     <string name="mark_as_completed_prompt">Позначити обрану манґу як прочитану повністю? \n \nПопередження: поточний прогрес читання буде втрачений.</string>
     <string name="category_hidden_done">Ця категорія була прихована на головному екрані і є доступною через Меню → Керування категоріями</string>
-    <string name="remaining_time_pattern">%1$s %2$s</string>
+    <string name="remaining_time_pattern" translatable="false">%1$s %2$s</string>
     <string name="incognito_mode_hint">Прогрес вашого читання не буде збережений</string>
     <string name="volume_">Том %d</string>
     <string name="volume_unknown">Невідомий том</string>
@@ -624,7 +624,7 @@
     <string name="less_frequently">Рідше</string>
     <string name="more_frequently">Частіше</string>
     <string name="frequency_of_check">Частота перевірки</string>
-    <string name="new_chapters_pattern">%1$s: %2$d</string>
+    <string name="new_chapters_pattern" translatable="false">%1$s: %2$d</string>
     <string name="pin_navigation_ui">Закріпити інтерфейс навігації</string>
     <string name="pin_navigation_ui_summary">Не ховати навігаційну панель та відображення пошуку під час прокручування</string>
     <string name="blocked_by_server_message">Ви заблоковані сервером. Спробуйте використати інше підключення до мережі (VPN, проксі, тощо)</string>
@@ -918,4 +918,16 @@
     <string name="loaded_null">Плагін завантажений як нуль</string>
     <string name="no_compatible_method">Не знайдено сумісного методу: %1$s(%2$s)</string>
     <string name="cover_only">Тільки обкладинка</string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="shikimori" translatable="false"></string>
 </resources>
