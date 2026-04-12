@@ -912,4 +912,6 @@
     <string name="missing_in_plugin">Sumber hilang di plugin: %1$s</string>
     <string name="loaded_null">Plugin dimuat sebagai kosong</string>
     <string name="no_compatible_method">Tidak ditemukan metode yang kompatibel: %1$s(%2$s)</string>
+    <string name="cover_only">Hanya sampulnya saja</string>
+    <string name="import_from_github">Impor dari GitHub</string>
 </resources>
