@@ -159,7 +159,7 @@
     <string name="clear_cookies">Очистить куки</string>
     <string name="cookies_cleared">Все файлы cookie были удалены</string>
     <string name="clear_feed">Очистить ленту</string>
-    <string name="text_clear_updates_feed_prompt">Удалить всю историю обновлений навсегда\?</string>
+    <string name="text_clear_updates_feed_prompt">Удалить всю историю обновлений навсегда?</string>
     <string name="check_for_new_chapters">Проверка новых глав</string>
     <string name="reverse">В обратном порядке</string>
     <string name="sign_in">Войти</string>
@@ -170,7 +170,7 @@
     <string name="confirm">Подтвердить</string>
     <string name="password_length_hint">Пароль должен состоять из 4 символов или более</string>
     <string name="welcome">Добро пожаловать</string>
-    <string name="text_clear_search_history_prompt">Удалить все последние поисковые запросы навсегда\?</string>
+    <string name="text_clear_search_history_prompt">Удалить все последние поисковые запросы навсегда?</string>
     <string name="backup_saved">Резервная копия сохранена</string>
     <string name="tracker_warning">Некоторые устройства имеют различное поведение системы, что может привести к нарушению фоновых задач.</string>
     <string name="read_more">Подробнее</string>
@@ -258,7 +258,7 @@
     <string name="status_completed">Завершено</string>
     <string name="show_reading_indicators_summary">Показать процент прочитанного в истории и избранном</string>
     <string name="exclude_nsfw_from_history_summary">Манга, помеченная как NSFW, не будет добавлена в историю и ваш прогресс чтения не будет сохранен</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="report">Отчёт</string>
     <string name="logout">Выйти</string>
     <string name="status_re_reading">Перечитываю</string>
@@ -300,7 +300,7 @@
     <string name="last_2_hours">Последние 2 часа</string>
     <string name="categories_delete_confirm">Вы уверены, что хотите удалить выбранные категории избранного? \nВся манга в них будет потеряна и это не может быть отменено.</string>
     <string name="pages_cache">Кэш страниц</string>
-    <string name="memory_usage_pattern">%s - %s</string>
+    <string name="memory_usage_pattern" translatable="false">%s - %s</string>
     <string name="storage_usage">Использование хранилища</string>
     <string name="available">Доступно</string>
     <string name="saved_manga">Сохранённая манга</string>
@@ -319,7 +319,7 @@
     <string name="reader_control_ltr">Эргономичное управление режимом чтения</string>
     <string name="reset">Сбросить</string>
     <string name="discard">Отклонить</string>
-    <string name="text_unsaved_changes_prompt">Сохранить или отменить несохранённые изменения\?</string>
+    <string name="text_unsaved_changes_prompt">Сохранить или отменить несохранённые изменения?</string>
     <string name="contrast">Контрастность</string>
     <string name="brightness">Яркость</string>
     <string name="color_correction">Цветокоррекция</string>
@@ -390,7 +390,7 @@
     <string name="suggestion_manga">Рекомендация: %s</string>
     <string name="suggestions_notifications_summary">Иногда показывать уведомления с рекомендуемой мангой</string>
     <string name="remove_completed_downloads_confirm">Ваша история загрузок будет удалена навсегда. Загруженные файлы не будут затронуты</string>
-    <string name="suggestions_enable_prompt">Хотите ли Вы получать персонализированные рекомендации манги\?</string>
+    <string name="suggestions_enable_prompt">Хотите ли Вы получать персонализированные рекомендации манги?</string>
     <string name="web_view_unavailable">WebView недоступен: проверьте, установлен ли провайдер WebView</string>
     <string name="clear_network_cache">Очистить сетевой кэш</string>
     <string name="address">Адрес</string>
@@ -494,11 +494,10 @@
     <string name="manual">Вручную</string>
     <string name="source_enabled">Источник включён</string>
     <string name="disable_nsfw_summary">Отключить NSFW источники и скрывать мангу для взрослых в списках, если это возможно</string>
-    <string name="no_manga_sources_catalog_text">В этом разделе нет доступных источников, или все они могли быть уже добавлены.
-\nСледите за обновлениями</string>
+    <string name="no_manga_sources_catalog_text">В этом разделе нет доступных источников, или все они могли быть уже добавлены. \nСледите за обновлениями</string>
     <string name="available_d">Доступно: %1$d</string>
     <string name="content_type_other">Другое</string>
-    <string name="source_summary_pattern">%1$s, %2$s</string>
+    <string name="source_summary_pattern" translatable="false">%1$s, %2$s</string>
     <string name="state_paused">Приостановлено</string>
     <string name="error_multiple_states_not_supported">Фильтрация по нескольким состояниям не поддерживается этим источником манги</string>
     <string name="reader_optimize">Уменьшение потребления памяти (бета)</string>
@@ -531,10 +530,8 @@
     <string name="rating_adult">Взрослый</string>
     <string name="category_hidden_done">Эта категория была скрыта с главного экрана и доступна через Меню → Управление категориями</string>
     <string name="mark_as_completed">Отметить как завершённое</string>
-    <string name="mark_as_completed_prompt">Отметить выбранную мангу как полностью прочитанную?
-\n
-\nВнимание: текущий прогресс чтения будет потерян.</string>
-    <string name="remaining_time_pattern">%1$s %2$s</string>
+    <string name="mark_as_completed_prompt">Отметить выбранную мангу как полностью прочитанную? \n \nВнимание: текущий прогресс чтения будет потерян.</string>
+    <string name="remaining_time_pattern" translatable="false">%1$s %2$s</string>
     <string name="volume_unknown">Неизвестный том</string>
     <string name="volume_">Том %d</string>
     <string name="incognito_mode_hint">Ваш прогресс чтения не сохранится</string>
@@ -629,7 +626,7 @@
     <string name="more_frequently">Чаще</string>
     <string name="less_frequently">Реже</string>
     <string name="pin_navigation_ui_summary">Не прятать навигационную панель и строку поиска при прокрутке</string>
-    <string name="new_chapters_pattern">%1$s: %2$d</string>
+    <string name="new_chapters_pattern" translatable="false">%1$s: %2$d</string>
     <string name="blocked_by_server_message">Вы заблокированы сервером. Попробуйте использовать другое сетевое подключение (VPN, прокси и т. д.)</string>
     <string name="disable_connectivity_check">Отключить проверку подключения</string>
     <string name="ignore_ssl_errors_summary">Вы можете отключить проверку сертификата SSL, если при доступе к сетевым ресурсам возникают проблемы, связанные с SSL. Это может повлиять на вашу безопасность. После изменения этого параметра потребуется перезагрузка приложения.</string>
@@ -884,4 +881,53 @@
     <string name="enter_name">Введите имя</string>
     <string name="hide_broken_sources">Скрыть сломанные источники</string>
     <string name="hide_broken_sources_summary">Скрыть источники, помеченные как сломанные, из списков источников</string>
+    <string name="preview"></string>
+    <string name="details_ui_classic"></string>
+    <string name="cover_only"></string>
+    <string name="saved_filters"></string>
+    <string name="overwrite_plugin_summary"></string>
+    <string name="deleted_plugin"></string>
+    <string name="load_from_jar_summary"></string>
+    <string name="plugin_name"></string>
+    <string name="details_backdrop"></string>
+    <string name="set_plugin_name"></string>
+    <string name="confirm_delete_plugin"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="load_success"></string>
+    <string name="details_appearance"></string>
+    <string name="load_failed"></string>
+    <string name="installed_plugin"></string>
+    <string name="overwrite_plugin"></string>
+    <string name="unknown_source"></string>
+    <string name="pinned_sources_only"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="details_ui"></string>
+    <string name="missing_in_plugin"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="experiment"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="no_plugins"></string>
+    <string name="delete_plugin"></string>
+    <string name="no_compatible_method"></string>
+    <string name="tap_to_delete_plugin"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="jar_not_loaded"></string>
+    <string name="details_backdrop_blur"></string>
+    <string name="no_plugins_summary"></string>
+    <string name="details_appearance_summary"></string>
+    <string name="plugin_not_found"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="hide_empty_sources"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="details_ui_modern"></string>
+    <string name="auto_double_foldable"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="details_backdrop_summary"></string>
+    <string name="shikimori" translatable="false"></string>
+    <string name="frequency_every_6_hours"></string>
+    <string name="loaded_null"></string>
+    <string name="load_from_jar"></string>
 </resources>
