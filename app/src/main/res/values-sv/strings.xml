@@ -921,4 +921,13 @@
     <string name="loaded_null"></string>
     <string name="long_tap_action"></string>
     <string name="load_from_jar"></string>
+    <string name="demographic_shounen"></string>
+    <string name="reader_multitask_summary"></string>
+    <string name="demographic_seinen"></string>
+    <string name="demographic_josei"></string>
+    <string name="theme_name_itsuka"></string>
+    <string name="content_type_doujinshi"></string>
+    <string name="discord_rpc"></string>
+    <string name="content_type_game_cg"></string>
+    <string name="demographic_shoujo"></string>
 </resources>
