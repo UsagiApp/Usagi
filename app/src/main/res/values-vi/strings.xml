@@ -606,7 +606,7 @@
     <string name="webtoon_gaps_summary">Hiển thị khoảng cách dọc giữa các trang trong chế độ webtoon</string>
     <string name="authorization_optional">Xác thực (tuỳ chọn)</string>
     <string name="download_option_next_unread_n_chapters">Từ chưa đọc đến %s</string>
-    <string name="welcome_text">Vui lòng chọn nguồn mà bạn muốn bật. Có thể thay đổi lại sau trong cài đặt</string>
+    <string name="welcome_text">Đây là khởi đầu của Usagi, hãy bắt đầu. Bạn có thể khôi phục dữ liệu cũ bằng các tùy chọn nhanh bên dưới. Usagi không có sẵn bất kì nội dung nào, nhưng bạn có thể tùy chỉnh nội dung muốn đọc trong cài đặt ứng dụng sau này.</string>
     <string name="default_page_save_dir">Địa chỉ lưu trang mặc định</string>
     <string name="delete_read_chapters_summary">Xoá các chương mà bạn đã đọc khỏi bộ nhớ trong để giải phóng bộ nhớ</string>
     <string name="long_ago_read">Đã đọc từ rất lâu trước</string>
@@ -890,11 +890,16 @@
     <string name="details_ui_classic">Cổ điển (Cũ)</string>
     <string name="hide_broken_sources">Ẩn các nguồn bị hỏng</string>
     <string name="hide_broken_sources_summary">Ẩn các nguồn được đánh dấu là bị hỏng khỏi danh sách nguồn</string>
-	<string name="experiment">Thử nghiệm</string>
-	<string name="details_backdrop">Đặt ảnh bìa lớn làm nền</string>
-	<string name="details_backdrop_summary">Hiển thị ảnh bìa lớn ở trên cùng như là ảnh nền (giống Tachiyomi)</string>
-	<string name="details_backdrop_blur">Độ mờ (Blur) ảnh nền</string>
-	<string name="details_appearance">Giao diện màn hình chi tiết</string>
-	<string name="details_appearance_summary">Phong cách, ảnh nền và hiệu ứng mờ</string>
-	<string name="preview">Xem trước</string>
+    <string name="experiment">Thử nghiệm</string>
+    <string name="details_backdrop">Đặt ảnh bìa lớn làm nền</string>
+    <string name="details_backdrop_summary">Hiển thị ảnh bìa lớn ở trên cùng như là ảnh nền (giống Tachiyomi)</string>
+    <string name="details_backdrop_blur">Độ mờ (Blur) ảnh nền</string>
+    <string name="details_appearance">Giao diện màn hình chi tiết</string>
+    <string name="details_appearance_summary">Phong cách, ảnh nền và hiệu ứng mờ</string>
+    <string name="preview">Xem trước</string>
+    <string name="cover_only">Chỉ bìa</string>
+    <string name="confirm_delete_plugin">Bạn có muốn xoá tiện ích %1$s không?</string>
+    <string name="delete_plugin">Xoá tiện ích</string>
+    <string name="deleted_plugin">Đã xoá tiện ích %1$s!</string>
+    <string name="import_from_github">Nhập từ GitHub</string>
 </resources>
