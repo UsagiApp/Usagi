@@ -133,7 +133,7 @@
     <string name="next">Selanjutnya</string>
     <string name="protect_application_subtitle">Masukkan kata sandi untuk memulai aplikasi</string>
     <string name="confirm">Konfirmasi</string>
-    <string name="text_clear_search_history_prompt">Hapus semua kueri pencarian baru-baru ini secara permanen\?</string>
+    <string name="text_clear_search_history_prompt">Hapus semua kueri pencarian baru-baru ini secara permanen?</string>
     <string name="welcome">Selamat Datang</string>
     <string name="backup_saved">Cadangan disimpan</string>
     <string name="tracker_warning">Beberapa perangkat mempunyai perilaku sistem yang berbeda, yang mungkin akan merusak tugas latar belakang.</string>
@@ -171,11 +171,11 @@
     <string name="various_languages">Berbagai bahasa</string>
     <string name="search_chapters">Cari bab</string>
     <string name="chapters_empty">Tidak ada bab di manga ini</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="appearance">Tampilan</string>
     <string name="suggestions_excluded_genres">Kecualikan genre</string>
     <string name="suggestions_excluded_genres_summary">Tentukan genre yang Anda tidak ingin lihat di saran</string>
-    <string name="text_delete_local_manga_batch">Hapus yang dipilih dari perangkat secara permanen\?</string>
+    <string name="text_delete_local_manga_batch">Hapus yang dipilih dari perangkat secara permanen?</string>
     <string name="removal_completed">Selesai menghapus</string>
     <string name="download_slowdown">Perlambat unduhan</string>
     <string name="suggestions_updating">Memperbarui saran</string>
@@ -228,7 +228,7 @@
     <string name="file_not_found">Berkas tidak ditemukan</string>
     <string name="password_length_hint">Kata sandi harus 4 karakter atau lebih</string>
     <string name="preparing_">Mempersiapkan…</string>
-    <string name="text_clear_updates_feed_prompt">Bersihkan semua riwayat pembaruan secara permanen\?</string>
+    <string name="text_clear_updates_feed_prompt">Bersihkan semua riwayat pembaruan secara permanen?</string>
     <string name="sign_in">Masuk</string>
     <string name="default_s">Standar: %s</string>
     <string name="about_app_translation_summary">Terjemahkan aplikasi ini</string>
@@ -316,7 +316,7 @@
     <string name="server_error">Kesalahan di sisi server (%1$d). Silakan coba lagi nanti</string>
     <string name="compact">Padat</string>
     <string name="prefetch_content">Pramuat konten</string>
-    <string name="memory_usage_pattern">%s - %s</string>
+    <string name="memory_usage_pattern" translatable="false">%s - %s</string>
     <string name="nothing_here">Tidak ada apapun di sini</string>
     <string name="reader_control_ltr_summary">Jangan ubah arah pergantian halaman ke mode pembaca, misalnya, menekan tombol kanan selalu beralih ke halaman berikutnya. Opsi ini hanya berlaku untuk perangkat masukan hardware</string>
     <string name="source_disabled">Sumber dinonaktifkan</string>
@@ -390,7 +390,7 @@
     <string name="downloads_resumed">Unduhan telah dilanjutkan</string>
     <string name="downloads_paused">Unduhan telah dijeda</string>
     <string name="downloads_removed">Unduhan telah dihapus</string>
-    <string name="suggestions_enable_prompt">Apakah Anda ingin menerima saran manga yang dipersonalisasi\?</string>
+    <string name="suggestions_enable_prompt">Apakah Anda ingin menerima saran manga yang dipersonalisasi?</string>
     <string name="web_view_unavailable">WebView tidak tersedia: periksa apakah penyedia WebView telah diinstal</string>
     <string name="clear_network_cache">Hapus singgahan jaringan</string>
     <string name="type">Tipe</string>
@@ -517,19 +517,16 @@
     <string name="state_paused">Dijeda</string>
     <string name="content_type_other">Lainnya</string>
     <string name="sync_auth">Masuk untuk sinkronkan akun</string>
-    <string name="source_summary_pattern">%1$s, %2$s</string>
+    <string name="source_summary_pattern" translatable="false">%1$s, %2$s</string>
     <string name="downloads_settings_info">Anda dapat mengaktifkan perlambatan pengunduhan untuk setiap sumber manga satu per satu di pengaturan sumber, jika Anda mengalami masalah dengan pemblokiran sisi server</string>
     <string name="default_tab">Tab bawaan</string>
     <string name="category_hidden_done">Kategori ini telah disembunyikan dari tampilan utama dan dapat di akses melalui Menu -&gt; Manage categoties</string>
     <string name="grayscale">Skala abu-abu</string>
     <string name="manual">Manual</string>
-    <string name="no_manga_sources_catalog_text">Tidak ada sumber yang tersedia di bagian ini, atau semuanya mungkin sudah ditambahkan.
-\nPantau terus</string>
+    <string name="no_manga_sources_catalog_text">Tidak ada sumber yang tersedia di bagian ini, atau semuanya mungkin sudah ditambahkan. \nPantau terus</string>
     <string name="mark_as_completed">Tandai telah selesai</string>
     <string name="disable_battery_optimization_summary_downloads">Mungkin membantu dengan memulai pengunduhan jika Anda memiliki masalah dengannya</string>
-    <string name="mark_as_completed_prompt">Tandai manga yang dipilih telah selesai dibaca
-\n
-\nPeringatan : proses baca saat ini akan hilang.</string>
+    <string name="mark_as_completed_prompt">Tandai manga yang dipilih telah selesai dibaca \n \nPeringatan : proses baca saat ini akan hilang.</string>
     <string name="error_multiple_states_not_supported">Filter berdasarkan banyak status tidak didukung berdasarkan sumber manga ini</string>
     <string name="reader_optimize_summary">Mengurangi kualitas halaman di luar layar untuk menggunakan lebih sedikit memori</string>
     <string name="by_name_reverse">Nama terbalik</string>
@@ -539,7 +536,7 @@
     <string name="rating_suggestive">Disarankan</string>
     <string name="vertical">Vertikal</string>
     <string name="last_read">Terakhir dibaca</string>
-    <string name="remaining_time_pattern">%1$s%2$s</string>
+    <string name="remaining_time_pattern" translatable="false">%1$s%2$s</string>
     <string name="toggle_ui">Tampilkan/Sembunyikan UI</string>
     <string name="prev_chapter">Bab sebelumnya</string>
     <string name="switch_pages_volume_buttons">Aktifkan tombol volume</string>
@@ -919,4 +916,18 @@
     <string name="missing_in_plugin">Sumber hilang di plugin: %1$s</string>
     <string name="loaded_null">Plugin dimuat sebagai kosong</string>
     <string name="no_compatible_method">Tidak ditemukan metode yang kompatibel: %1$s(%2$s)</string>
+    <string name="cover_only"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="new_chapters_pattern" translatable="false"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="shikimori" translatable="false"></string>
 </resources>
