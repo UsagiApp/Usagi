@@ -155,7 +155,7 @@
     <string name="various_languages">Pelbagai bahasa</string>
     <string name="search_chapters">Cari bab</string>
     <string name="chapters_empty">Tiada bab dalam manga ini</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="appearance">Penampilan</string>
     <string name="suggestions_updating">Pengemaskinian pengesyoran</string>
     <string name="suggestions_excluded_genres_summary">Tentukan genre yang anda tidak mahu lihat dalam pengesyoran</string>
@@ -226,7 +226,7 @@
     <string name="other_cache">Cache lain-lain</string>
     <string name="storage_usage">Penggunaan storan</string>
     <string name="available">Tersedia</string>
-    <string name="memory_usage_pattern">%s - %s</string>
+    <string name="memory_usage_pattern" translatable="false">%s - %s</string>
     <string name="removed_from_favourites">Dibuang daripada kegemaran</string>
     <string name="options">Pilihan</string>
     <string name="local_storage">Storan tempatan</string>
@@ -900,4 +900,34 @@
     <string name="set_plugin_name">Tetapkan nama untuk pemalam ini</string>
     <string name="plugin_name">Nama pemalam</string>
     <string name="overwrite_plugin">Tulis ganti pemalam?</string>
+    <string name="cover_only"></string>
+    <string name="overwrite_plugin_summary"></string>
+    <string name="deleted_plugin"></string>
+    <string name="source_summary_pattern" translatable="false"></string>
+    <string name="confirm_delete_plugin"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="remaining_time_pattern" translatable="false"></string>
+    <string name="new_chapters_pattern" translatable="false"></string>
+    <string name="installed_plugin"></string>
+    <string name="unknown_source"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="missing_in_plugin"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="no_plugins"></string>
+    <string name="delete_plugin"></string>
+    <string name="no_compatible_method"></string>
+    <string name="tap_to_delete_plugin"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="jar_not_loaded"></string>
+    <string name="no_plugins_summary"></string>
+    <string name="plugin_not_found"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="shikimori" translatable="false"></string>
+    <string name="loaded_null"></string>
 </resources>
