@@ -929,4 +929,5 @@
     <string name="frequency_every_6_hours"></string>
     <string name="loaded_null"></string>
     <string name="load_from_jar"></string>
+    <string name="discord_rpc"></string>
 </resources>
