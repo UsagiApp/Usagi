@@ -889,8 +889,6 @@
     <string name="details_appearance">Itsura ng screen ng detalye</string>
     <string name="details_appearance_summary">Estilo ng screen, imaheng backdrop at effect na blur</string>
     <string name="preview">Silipin</string>
-    <string name="load_from_jar">I-import ang plugin</string>
-    <string name="load_from_jar_summary">I-load lahat ng mga source / plugin sa pamamagitan ng pag-import ng isang JAR file</string>
     <string name="load_success">Matagumpay na na-import at na-load ang plugin</string>
     <string name="load_failed">Nabigong i-load ang plugin</string>
     <string name="set_plugin_name">I-set ang pangalan para sa plugin na ito</string>
@@ -900,8 +898,6 @@
     <string name="confirm_delete_plugin">Sigurado ka bang buburahin ang %1$s?</string>
     <string name="delete_plugin">Burahin ang plugin</string>
     <string name="deleted_plugin">Nabura na ang %1$s na plugin!</string>
-    <string name="installed_plugin">Nakainstall na plugin</string>
-    <string name="tap_to_delete_plugin">I-tap upang mabura ang plugin na ito</string>
     <string name="no_plugins">Walang mga plugin ay naka-install</string>
     <string name="no_plugins_summary">Pindutin ang \'I-import ang plugin\' sa itaas upang magdagdag ng mga source mula sa mga plugin</string>
     <string name="plugin_not_found">Walang plugin na nahanap para sa source na: %1$s</string>
