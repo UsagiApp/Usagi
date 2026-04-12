@@ -896,38 +896,4 @@
     <string name="details_appearance">Giao diện màn hình chi tiết</string>
     <string name="details_appearance_summary">Phong cách, ảnh nền và hiệu ứng mờ</string>
     <string name="preview">Xem trước</string>
-    <string name="cover_only"></string>
-    <string name="overwrite_plugin_summary"></string>
-    <string name="deleted_plugin"></string>
-    <string name="load_from_jar_summary"></string>
-    <string name="plugin_name"></string>
-    <string name="set_plugin_name"></string>
-    <string name="confirm_delete_plugin"></string>
-    <string name="discord" translatable="false"></string>
-    <string name="kitsu" translatable="false"></string>
-    <string name="load_success"></string>
-    <string name="load_failed"></string>
-    <string name="installed_plugin"></string>
-    <string name="overwrite_plugin"></string>
-    <string name="unknown_source"></string>
-    <string name="fraction_pattern" translatable="false"></string>
-    <string name="missing_in_plugin"></string>
-    <string name="inline_preference_pattern" translatable="false"></string>
-    <string name="download_summary_pattern" translatable="false"></string>
-    <string name="mal" translatable="false"></string>
-    <string name="no_plugins"></string>
-    <string name="delete_plugin"></string>
-    <string name="no_compatible_method"></string>
-    <string name="tap_to_delete_plugin"></string>
-    <string name="anilist" translatable="false"></string>
-    <string name="breadcrumbs_separator" translatable="false"></string>
-    <string name="jar_not_loaded"></string>
-    <string name="no_plugins_summary"></string>
-    <string name="plugin_not_found"></string>
-    <string name="chapters_time_pattern" translatable="false"></string>
-    <string name="list_ellipsize_pattern" translatable="false"></string>
-    <string name="app_name" translatable="false"></string>
-    <string name="shikimori" translatable="false"></string>
-    <string name="loaded_null"></string>
-    <string name="load_from_jar"></string>
 </resources>

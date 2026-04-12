@@ -916,18 +916,4 @@
     <string name="missing_in_plugin">Sumber hilang di plugin: %1$s</string>
     <string name="loaded_null">Plugin dimuat sebagai kosong</string>
     <string name="no_compatible_method">Tidak ditemukan metode yang kompatibel: %1$s(%2$s)</string>
-    <string name="cover_only"></string>
-    <string name="discord" translatable="false"></string>
-    <string name="kitsu" translatable="false"></string>
-    <string name="new_chapters_pattern" translatable="false"></string>
-    <string name="fraction_pattern" translatable="false"></string>
-    <string name="inline_preference_pattern" translatable="false"></string>
-    <string name="download_summary_pattern" translatable="false"></string>
-    <string name="mal" translatable="false"></string>
-    <string name="anilist" translatable="false"></string>
-    <string name="breadcrumbs_separator" translatable="false"></string>
-    <string name="chapters_time_pattern" translatable="false"></string>
-    <string name="list_ellipsize_pattern" translatable="false"></string>
-    <string name="app_name" translatable="false"></string>
-    <string name="shikimori" translatable="false"></string>
 </resources>
