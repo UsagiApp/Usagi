@@ -917,4 +917,17 @@
     <string name="dont_allow"></string>
     <string name="loaded_null"></string>
     <string name="load_from_jar"></string>
+    <string name="demographic_shounen"></string>
+    <string name="reader_multitask_summary"></string>
+    <string name="demographic_seinen"></string>
+    <string name="demographic_josei"></string>
+    <string name="content_type_manhua"></string>
+    <string name="theme_name_itsuka"></string>
+    <string name="content_type_doujinshi"></string>
+    <string name="content_type_manhwa"></string>
+    <string name="discord_rpc"></string>
+    <string name="content_type_game_cg"></string>
+    <string name="captcha_required_message"></string>
+    <string name="demographic_shoujo"></string>
+    <string name="backup_tg_echo"></string>
 </resources>
