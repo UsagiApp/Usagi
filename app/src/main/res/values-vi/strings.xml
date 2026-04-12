@@ -109,7 +109,7 @@
     <string name="protect_application_subtitle">Hãy đặt mật khẩu để mở ứng dụng</string>
     <string name="confirm">Xác nhận</string>
     <string name="password_length_hint">Mật khẩu phải có 4 ký tự hoặc hơn</string>
-    <string name="text_clear_search_history_prompt">Xoá vĩnh viễn tất cả lịch sử tìm kiếm gần đây\?</string>
+    <string name="text_clear_search_history_prompt">Xoá vĩnh viễn tất cả lịch sử tìm kiếm gần đây?</string>
     <string name="read_more">Đọc thêm</string>
     <string name="queued">Trong hàng chờ</string>
     <string name="chapter_is_missing">Chương bị mất</string>
@@ -219,7 +219,7 @@
     <string name="restore_backup">Khôi phục từ bản sao lưu</string>
     <string name="data_restored">Đã khôi phục</string>
     <string name="data_restored_with_errors">Dữ liệu đã được khôi phục, nhưng có một số lỗi</string>
-    <string name="text_clear_updates_feed_prompt">Xoá vĩnh viễn tất cả lịch sử cập nhật\?</string>
+    <string name="text_clear_updates_feed_prompt">Xoá vĩnh viễn tất cả lịch sử cập nhật?</string>
     <string name="long_ago">Từ lâu</string>
     <string name="group">Nhóm</string>
     <string name="today">Hôm nay</string>
@@ -387,8 +387,8 @@
     <string name="removal_completed">Xoá hoàn thành</string>
     <string name="download_slowdown">Làm chậm tải xuống</string>
     <string name="local_manga_processing">Xử lý các truyện được lưu</string>
-    <string name="text_delete_local_manga_batch">Xoá vĩnh viễn những thứ được chọn khỏi thiết bị\?</string>
-    <string name="percent_string_pattern">%1$s%%</string>
+    <string name="text_delete_local_manga_batch">Xoá vĩnh viễn những thứ được chọn khỏi thiết bị?</string>
+    <string name="percent_string_pattern" translatable="false">%1$s%%</string>
     <string name="disable_battery_optimization_summary">Giúp kiểm tra chương mới trong khi chạy dưới nền dễ dàng hơn</string>
     <string name="show_on_shelf">Hiển thị trên kệ sách</string>
     <string name="mirror_switching">Tự động chuyển sang dự phòng</string>
@@ -404,7 +404,7 @@
     <string name="local_manga_directories">Thư mục truyện tên thiết bị</string>
     <string name="pick_custom_directory">Chọn thư mục tuỳ chỉnh</string>
     <string name="reader_info_pattern">Chương %1$d/%2$d - Trang %3$d/%4$d</string>
-    <string name="memory_usage_pattern">%s - %s</string>
+    <string name="memory_usage_pattern" translatable="false">%s - %s</string>
     <string name="web_view_unavailable">WebView hiện không có sẵn: Kiểm tra xem ứng dụng WebView được cài chưa</string>
     <string name="manga_error_description_pattern">Chi tiết lỗi: &lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Hãy thử &lt;a href=%2$s&gt;mở manga trong trình duyệt web&lt;/a&gt; để đảm bảo rằng manga này có trong nguồn&lt;br&gt;2. Hãy chắc chắn rằng bạn đang dùng &lt;a href=kotatsu://about&gt;bản mới nhất của Usagi&lt;/a&gt;&lt;br&gt;3. Nếu đã đáp ứng các yêu cầu trên, gửi báo cáo lỗi lên nhà phát triển.</string>
     <string name="text_history_holder_secondary">Tìm truyện để đọc trong phần «Khám phá»</string>
@@ -526,11 +526,10 @@
     <string name="periodic_backups_enable">Bật sao lưu định kì</string>
     <string name="last_successful_backup">Lần sao lưu thành công gần nhất: %s</string>
     <string name="source_enabled">Nguồn đã bật</string>
-    <string name="source_summary_pattern">%1$s, %2$s</string>
+    <string name="source_summary_pattern" translatable="false">%1$s, %2$s</string>
     <string name="content_type_other">Khác</string>
     <string name="sources_catalog">Danh mục nguồn</string>
-    <string name="no_manga_sources_catalog_text">Không còn nguồn nào cả hoặc đã bật hết các nguồn.
-\nHãy chờ bản cập nhật sau</string>
+    <string name="no_manga_sources_catalog_text">Không còn nguồn nào cả hoặc đã bật hết các nguồn. \nHãy chờ bản cập nhật sau</string>
     <string name="state_paused">Tạm dừng</string>
     <string name="error_multiple_genres_not_supported">Lọc với nhiều thể loại không được hỗ trợ trên nguồn truyện này</string>
     <string name="error_multiple_states_not_supported">Lọc với nhiều trạng thái không được hỗ trợ bởi nguồn này</string>
@@ -600,7 +599,7 @@
     <string name="order_oldest">Cũ nhất</string>
     <string name="unread">Chưa đọc</string>
     <string name="unsupported_backup_message">Vui lòng chọn một tệp sao lưu Kotatsu / Usagi hợp lệ</string>
-    <string name="remaining_time_pattern">Còn %1$s %2$s</string>
+    <string name="remaining_time_pattern" translatable="false">Còn %1$s %2$s</string>
     <string name="fix">Sửa lỗi</string>
     <string name="missing_storage_permission">Không có quyền để truy cập manga trên bộ nhớ ngoài</string>
     <string name="webtoon_gaps_summary">Hiển thị khoảng cách dọc giữa các trang trong chế độ webtoon</string>
@@ -621,7 +620,7 @@
     <string name="less_frequently">Ít thường xuyên</string>
     <string name="more_frequently">Thường xuyên</string>
     <string name="frequency_of_check">Tần xuất kiểm tra</string>
-    <string name="new_chapters_pattern">%1$s: %2$d</string>
+    <string name="new_chapters_pattern" translatable="false">%1$s: %2$d</string>
     <string name="pin_navigation_ui">Ghim UI điều hướng</string>
     <string name="pin_navigation_ui_summary">Không ẩn thanh điều hướng và chế độ xem tìm kiếm khi cuộn</string>
     <string name="search_suggestions">Gợi ý tìm kiếm</string>
@@ -897,4 +896,38 @@
     <string name="details_appearance">Giao diện màn hình chi tiết</string>
     <string name="details_appearance_summary">Phong cách, ảnh nền và hiệu ứng mờ</string>
     <string name="preview">Xem trước</string>
+    <string name="cover_only"></string>
+    <string name="overwrite_plugin_summary"></string>
+    <string name="deleted_plugin"></string>
+    <string name="load_from_jar_summary"></string>
+    <string name="plugin_name"></string>
+    <string name="set_plugin_name"></string>
+    <string name="confirm_delete_plugin"></string>
+    <string name="discord" translatable="false"></string>
+    <string name="kitsu" translatable="false"></string>
+    <string name="load_success"></string>
+    <string name="load_failed"></string>
+    <string name="installed_plugin"></string>
+    <string name="overwrite_plugin"></string>
+    <string name="unknown_source"></string>
+    <string name="fraction_pattern" translatable="false"></string>
+    <string name="missing_in_plugin"></string>
+    <string name="inline_preference_pattern" translatable="false"></string>
+    <string name="download_summary_pattern" translatable="false"></string>
+    <string name="mal" translatable="false"></string>
+    <string name="no_plugins"></string>
+    <string name="delete_plugin"></string>
+    <string name="no_compatible_method"></string>
+    <string name="tap_to_delete_plugin"></string>
+    <string name="anilist" translatable="false"></string>
+    <string name="breadcrumbs_separator" translatable="false"></string>
+    <string name="jar_not_loaded"></string>
+    <string name="no_plugins_summary"></string>
+    <string name="plugin_not_found"></string>
+    <string name="chapters_time_pattern" translatable="false"></string>
+    <string name="list_ellipsize_pattern" translatable="false"></string>
+    <string name="app_name" translatable="false"></string>
+    <string name="shikimori" translatable="false"></string>
+    <string name="loaded_null"></string>
+    <string name="load_from_jar"></string>
 </resources>
