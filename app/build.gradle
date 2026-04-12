@@ -20,7 +20,7 @@ android {
 		minSdk = 23
 		targetSdk = 36
 		versionCode = 6
-		versionName = '0.0.2'
+		versionName = '0.0.2-b1'
 		generatedDensities = []
 		testInstrumentationRunner 'org.draken.usagi.HiltTestRunner'
 		ksp {
