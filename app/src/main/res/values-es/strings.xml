@@ -927,4 +927,7 @@
     <string name="shikimori" translatable="false"></string>
     <string name="loaded_null"></string>
     <string name="load_from_jar"></string>
+    <string name="preview"></string>
+    <string name="details_appearance"></string>
+    <string name="details_appearance_summary"></string>
 </resources>
