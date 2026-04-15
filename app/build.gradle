@@ -148,6 +148,7 @@ dependencies {
 	implementation libs.okhttp.tls
 	implementation libs.okhttp.dnsoverhttps
 	implementation libs.okio
+	implementation libs.rxjava1
 	implementation libs.kotlinx.serialization.json
 
 	implementation libs.adapterdelegates

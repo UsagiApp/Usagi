@@ -1,5 +1,6 @@
 package org.draken.usagi.core.parser.favicon
 
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.Drawable
@@ -27,18 +28,22 @@ import okio.IOException
 import okio.Path.Companion.toOkioPath
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.CloudFlareProtectedException
-import org.draken.usagi.core.model.MangaSource
+import org.draken.usagi.core.model.TachiyomiPluginSource
+import org.draken.usagi.core.model.unwrap
 import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.PluginFileLoader
 import org.draken.usagi.core.parser.external.ExternalMangaRepository
 import org.draken.usagi.core.util.MimeTypes
 import org.draken.usagi.core.util.ext.fetch
+import org.draken.usagi.core.util.ext.mangaSourceKey
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.toMimeTypeOrNull
 import org.draken.usagi.local.data.FaviconCache
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.local.data.LocalStorageCache
+import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import java.io.File
 import javax.inject.Inject
@@ -53,7 +58,7 @@ class FaviconFetcher(
 ) : Fetcher {
 
 	override suspend fun fetch(): FetchResult? {
-		val mangaSource = MangaSource(uri.schemeSpecificPart)
+		val mangaSource = options.extras[mangaSourceKey] ?: org.draken.usagi.core.model.MangaSource(uri.schemeSpecificPart)
 
 		return when (val repo = mangaRepositoryFactory.create(mangaSource)) {
 			is ParserMangaRepository -> fetchParserFavicon(repo)
@@ -71,6 +76,7 @@ class FaviconFetcher(
 	}
 
 	private suspend fun fetchParserFavicon(repository: ParserMangaRepository): FetchResult {
+		fetchTachiyomiApkIcon(repository.source)?.let { return it }
 		val sizePx = maxOf(
 			options.size.width.pxOrElse { FALLBACK_SIZE },
 			options.size.height.pxOrElse { FALLBACK_SIZE },
@@ -109,6 +115,38 @@ class FaviconFetcher(
 			}
 		}
 		throwNSEE(lastError)
+	}
+
+	private suspend fun fetchTachiyomiApkIcon(source: MangaSource): FetchResult? {
+		val pluginSource = when (val unwrapped = source.unwrap()) {
+			is TachiyomiPluginSource -> unwrapped
+			else -> null
+		} ?: return null
+		val pluginFile = File(PluginFileLoader.pluginsDir(options.context), pluginSource.pluginFileName)
+		if (!pluginFile.exists()) return null
+		val icon = runCatchingCancellable {
+			runInterruptible {
+				val pm = options.context.packageManager
+				val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+					pm.getPackageArchiveInfo(
+						pluginFile.absolutePath,
+						PackageManager.PackageInfoFlags.of(PackageManager.GET_META_DATA.toLong()),
+					)
+				} else {
+					@Suppress("DEPRECATION")
+					pm.getPackageArchiveInfo(pluginFile.absolutePath, PackageManager.GET_META_DATA)
+				}
+				val appInfo = packageInfo?.applicationInfo ?: return@runInterruptible null
+				appInfo.sourceDir = pluginFile.absolutePath
+				appInfo.publicSourceDir = pluginFile.absolutePath
+				appInfo.loadIcon(pm)
+			}
+		}.getOrNull() ?: return null
+		return ImageFetchResult(
+			image = icon.nonAdaptive().asImage(),
+			isSampled = false,
+			dataSource = DataSource.DISK,
+		)
 	}
 
 	private suspend fun fetchPluginIcon(repository: ExternalMangaRepository): FetchResult {
@@ -192,4 +230,3 @@ class FaviconFetcher(
 
 	}
 }
-

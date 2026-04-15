@@ -7,6 +7,7 @@ import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateViewBinding
 import org.draken.usagi.R
 import org.draken.usagi.core.model.getSummary
 import org.draken.usagi.core.model.getTitle
+import org.draken.usagi.core.model.titleResId
 import org.draken.usagi.core.ui.image.FaviconDrawable
 import org.draken.usagi.core.ui.list.OnListItemClickListener
 import org.draken.usagi.core.util.ext.drawableStart
@@ -41,8 +42,20 @@ fun sourceCatalogItemSourceAD(
 
 	bind {
 		binding.textViewTitle.text = item.source.getTitle(context)
-		binding.textViewDescription.text = item.source.getSummary(context)
-		binding.textViewDescription.drawableStart = if (item.source.isBroken) {
+		val installable = item.installableRepoSource
+		binding.textViewDescription.text = if (installable == null) {
+			item.source.getSummary(context)
+		} else {
+			buildString {
+				append(context.getString(item.source.contentType.titleResId))
+				if (installable.sourceLang.isNotBlank()) {
+					append(" • ").append(installable.sourceLang)
+				}
+				append(" • ").append(installable.pluginFileName)
+				append(" • ").append(installable.repoOwnerTag)
+			}
+		}
+		binding.textViewDescription.drawableStart = if (installable == null && item.source.isBroken) {
 			ContextCompat.getDrawable(context, R.drawable.ic_off_small)
 		} else {
 			null

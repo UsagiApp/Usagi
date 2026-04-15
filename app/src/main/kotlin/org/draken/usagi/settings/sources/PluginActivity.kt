@@ -34,14 +34,14 @@ class PluginActivity : AppCompatActivity() {
 		lifecycleScope.launch {
 			val isSuccess = withContext(Dispatchers.IO) {
 				runCatching {
-					importJar(uri)
+					importPlugin(uri)
 				}.isSuccess
 			}
 			finishWithResult(isSuccess)
 		}
 	}
 
-	private fun importJar(uri: Uri) {
+	private fun importPlugin(uri: Uri) {
 		val pluginsDir = PluginFileLoader.pluginsDir(this)
 		val outFile = File(pluginsDir, resolveOutputFileName(uri))
 		PluginFileLoader.copyFromUri(this, uri, outFile)
@@ -51,12 +51,17 @@ class PluginActivity : AppCompatActivity() {
 	private fun resolveOutputFileName(uri: Uri): String {
 		val originalName = DocumentFile.fromSingleUri(this, uri)?.name
 			?: uri.lastPathSegment?.substringAfterLast('/')
-			?: "plugin_${System.currentTimeMillis()}.jar"
+			?: "plugin_${System.currentTimeMillis()}.apk"
 		val safeName = originalName
 			.replace('/', '_')
 			.replace('\\', '_')
-			.ifBlank { "plugin_${System.currentTimeMillis()}.jar" }
-		return if (safeName.lowercase(Locale.ROOT).endsWith(".jar")) safeName else "$safeName.jar"
+			.ifBlank { "plugin_${System.currentTimeMillis()}.apk" }
+		val lower = safeName.lowercase(Locale.ROOT)
+		if (lower.endsWith(".jar") || lower.endsWith(".apk")) {
+			return safeName
+		}
+		val isApkMime = intent.type?.lowercase(Locale.ROOT) == "application/vnd.android.package-archive"
+		return if (isApkMime) "$safeName.apk" else "$safeName.jar"
 	}
 
 	private fun isSupported(uri: Uri): Boolean {
@@ -67,7 +72,8 @@ class PluginActivity : AppCompatActivity() {
 		val name = DocumentFile.fromSingleUri(this, uri)?.name
 			?: uri.lastPathSegment
 			?: return false
-		return name.lowercase(Locale.ROOT).endsWith(".jar")
+		val lower = name.lowercase(Locale.ROOT)
+		return lower.endsWith(".jar") || lower.endsWith(".apk")
 	}
 
 	private fun finishWithResult(isSuccess: Boolean) {

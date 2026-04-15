@@ -95,6 +95,10 @@ class MangaLoaderContextImpl @Inject constructor(
 
 	override fun createBitmap(width: Int, height: Int): Bitmap = BitmapWrapper.create(width, height)
 
+	suspend fun syncWebViewSession(source: MangaSource, url: String) {
+		webViewExecutor.syncWebViewSession(source = source, url = url)
+	}
+
 	private fun parserSourceName(parser: MangaParser): String {
 		val s = runCatching { parser.javaClass.getMethod("getSource").invoke(parser) }.getOrNull() ?: return "Unknown"
 		if (s is String) return s

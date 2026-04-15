@@ -97,6 +97,8 @@ fun Collection<String>.toMangaSources() = map(::MangaSource)
 
 fun MangaSource.isNsfw(): Boolean = contentType == ContentType.HENTAI
 
+fun MangaSource.isTachiyomiExtensionSource(): Boolean = unwrap() is TachiyomiPluginSource
+
 @get:StringRes
 val ContentType.titleResId
 	get() = when (this) {
@@ -138,9 +140,13 @@ fun MangaSource.getSummary(context: Context): String? {
 		is MangaSourceInfo -> mangaSource as? PluginMangaSource
 		else -> null
 	}
-	return if (pluginSource != null && baseSummary != null) {
-		"$baseSummary • ${pluginSource.jarName}"
-	} else pluginSource?.jarName ?: baseSummary
+	val pluginLabel = when (val delegated = pluginSource?.delegate) {
+		is TachiyomiPluginSource -> delegated.pluginFileName
+		else -> pluginSource?.jarName
+	}
+	return if (pluginLabel != null && baseSummary != null) {
+		"$baseSummary • $pluginLabel"
+	} else pluginLabel ?: baseSummary
 }
 
 fun MangaSource.getTitle(context: Context): String = when {

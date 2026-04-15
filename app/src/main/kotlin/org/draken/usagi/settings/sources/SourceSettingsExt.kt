@@ -8,6 +8,7 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.EmptyMangaRepository
+import org.draken.usagi.core.parser.DynamicParserManager
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.ParserMangaRepository
 import org.koitharu.kotatsu.parsers.config.ConfigKey
@@ -107,6 +108,7 @@ private fun PreferenceFragmentCompat.addPreferencesFromParserRepository(reposito
 		preference.order = 10
 		screen.addPreference(preference)
 	}
+	DynamicParserManager.addTachiyomiExtensionPreferences(repository.source, screen)
 }
 
 private fun PreferenceFragmentCompat.addPreferencesFromEmptyRepository() {

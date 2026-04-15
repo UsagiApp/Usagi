@@ -10,16 +10,17 @@ sealed interface PluginManageItem : ListModel {
 		val repository: String?,
 		val installedTag: String?,
 		val latestTag: String?,
+		val isTachiyomiRepo: Boolean,
 	) : PluginManageItem {
 
 		val displayName: String
-			get() = jarName.removeSuffix(".jar")
+			get() = if (isTachiyomiRepo) jarName else jarName.removePluginFileSuffix()
 
 		val hasUpdate: Boolean
-			get() = !latestTag.isNullOrBlank() && latestTag != installedTag
+			get() = !isTachiyomiRepo && !latestTag.isNullOrBlank() && latestTag != installedTag
 
 		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is Plugin && jarName == other.jarName
+			return other is Plugin && jarName == other.jarName && isTachiyomiRepo == other.isTachiyomiRepo
 		}
 	}
 
@@ -30,5 +31,14 @@ sealed interface PluginManageItem : ListModel {
 		override fun areItemsTheSame(other: ListModel): Boolean {
 			return other is Placeholder && titleResId == other.titleResId && summaryResId == other.summaryResId
 		}
+	}
+}
+
+private fun String.removePluginFileSuffix(): String {
+	val dot = lastIndexOf('.')
+	if (dot <= 0) return this
+	return when (substring(dot).lowercase()) {
+		".jar", ".apk" -> substring(0, dot)
+		else -> this
 	}
 }

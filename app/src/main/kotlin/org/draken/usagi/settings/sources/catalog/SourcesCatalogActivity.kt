@@ -100,11 +100,15 @@ class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),
 	}
 
 	override fun onItemClick(item: SourceCatalogItem.Source, view: View) {
-		router.openList(item.source, null, null)
+		if (item.installableRepoSource == null) {
+			router.openList(item.source, null, null)
+		} else {
+			viewModel.addSource(item)
+		}
 	}
 
 	override fun onItemLongClick(item: SourceCatalogItem.Source, view: View): Boolean {
-		viewModel.addSource(item.source)
+		viewModel.addSource(item)
 		return false
 	}
 
@@ -126,7 +130,7 @@ class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),
 	) {
 		val chips = ArrayList<ChipModel>(contentTypes.size + 3)
 		chips += ChipModel(
-			title = appliedFilter.plugin?.removeSuffix(".jar") ?: getString(R.string.any),
+			title = appliedFilter.plugin?.removePluginFileSuffix() ?: getString(R.string.any),
 			icon = R.drawable.ic_services,
 			isDropdown = true,
 			data = "plugins"
@@ -171,16 +175,26 @@ class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),
 	}
 
 	private fun showPluginsMenu(anchor: View) {
+		val plugins = viewModel.plugins.value
 		val menu = PopupMenu(this, anchor)
 		menu.menu.add(Menu.NONE, Menu.NONE, 0, getString(R.string.any))
-		for ((i, plugin) in viewModel.plugins.withIndex()) {
-			menu.menu.add(Menu.NONE, Menu.NONE, i + 1, plugin.removeSuffix(".jar"))
+		for ((i, plugin) in plugins.withIndex()) {
+			menu.menu.add(Menu.NONE, Menu.NONE, i + 1, plugin.removePluginFileSuffix())
 		}
 		menu.setOnMenuItemClickListener {
-			val p = if (it.order == 0) null else viewModel.plugins[it.order - 1]
+			val p = if (it.order == 0) null else plugins[it.order - 1]
 			viewModel.setPlugin(p)
 			true
 		}
 		menu.show()
+	}
+
+	private fun String.removePluginFileSuffix(): String {
+		val dot = lastIndexOf('.')
+		if (dot <= 0) return this
+		return when (substring(dot).lowercase()) {
+			".jar", ".apk" -> substring(0, dot)
+			else -> this
+		}
 	}
 }

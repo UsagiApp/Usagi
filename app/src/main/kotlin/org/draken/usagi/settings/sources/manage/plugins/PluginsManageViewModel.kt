@@ -20,6 +20,9 @@ import org.draken.usagi.core.model.PluginSourceKeyNormalizer
 import org.draken.usagi.core.network.BaseHttpClient
 import org.draken.usagi.core.parser.DynamicParserManager
 import org.draken.usagi.core.parser.PluginFileLoader
+import org.draken.usagi.core.parser.tachiyomi.repo.TachiyomiRepoIndex
+import org.draken.usagi.core.parser.tachiyomi.repo.TachiyomiRepository
+import org.draken.usagi.core.parser.tachiyomi.repo.TachiyomiRepoStore
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.json.JSONArray
@@ -64,7 +67,9 @@ class PluginsManageViewModel @Inject constructor(
 				val updatedPlugins = coroutineScope {
 					localPlugins.map { plugin ->
 						async {
+							if (plugin.isTachiyomiRepo) return@async plugin
 							val repo = plugin.repository ?: return@async plugin
+							if (!REPOSITORY_REGEX.matches(repo) || splitRepository(repo) == null) return@async plugin
 							val latest = requestLatestTag(repo) ?: return@async plugin
 							plugin.copy(latestTag = latest)
 						}
@@ -87,48 +92,37 @@ class PluginsManageViewModel @Inject constructor(
 	}
 
 	suspend fun importFromUri(uri: Uri, fileName: String): Boolean = withContext(Dispatchers.Default) {
-		val safeName = sanitizeJarFileName(fileName)
+		val safeName = sanitizePluginFileName(fileName)
 		runCatchingCancellable {
 			val pluginsDir = PluginFileLoader.pluginsDir(context)
 			PluginFileLoader.copyFromUri(context, uri, File(pluginsDir, safeName))
 			clearGithubMeta(safeName)
+			TachiyomiRepoStore.removeInstalledPluginMeta(context, safeName)
 			reloadPlugins(pluginsDir)
 		}.isSuccess
 	}.also { if (it) refresh() }
 
 	suspend fun importFromGithub(release: ExternalPluginDto, fileName: String = release.fileName): Boolean =
-		withContext(Dispatchers.Default) {
-			val safeName = sanitizeJarFileName(fileName)
-			runCatchingCancellable {
-				val pluginsDir = PluginFileLoader.pluginsDir(context)
-				val outFile = File(pluginsDir, safeName)
-				val request = Request.Builder()
-					.get().url(release.downloadUrl)
-					.build()
-				okHttpClient.newCall(request).await().use { response ->
-					if (!response.isSuccessful) throw IOException()
-					PluginFileLoader.copyFromStream(outFile, response.body.byteStream())
-				}
-				saveGithubMeta(safeName, release.repository, release.tag)
-				reloadPlugins(pluginsDir)
-			}.isSuccess
-		}.also {
-			if (it) refresh()
-		}
+		importFromUrl(
+			downloadUrl = release.downloadUrl,
+			fileName = fileName,
+			meta = GithubMeta(repository = release.repository, tag = release.tag),
+		)
 
 	fun importPlugin(
 		uri: Uri,
 		getOriginalName: (Uri) -> String?,
 		askName: suspend (String) -> String?,
 		askOverwrite: suspend (String) -> Boolean,
-		onResult: (Boolean) -> Unit
+		onResult: (Boolean) -> Unit,
 	) {
 		launchJob(Dispatchers.Default) {
 			val originalName = getOriginalName(uri) ?: "plugin_${System.currentTimeMillis()}.jar"
-			val pluginName = askName(originalName.removeSuffix(".jar"))?.trim().orEmpty()
+			val preferredExtension = originalName.pluginFileExtension() ?: DEFAULT_PLUGIN_EXTENSION
+			val pluginName = askName(originalName.removePluginFileSuffix())?.trim().orEmpty()
 			if (pluginName.isBlank()) return@launchJob
 
-			val fileName = sanitizeJarFileName(pluginName)
+			val fileName = sanitizePluginFileName(pluginName, preferredExtension)
 			if (isInstalled(fileName) && !askOverwrite(fileName)) return@launchJob
 
 			val success = importFromUri(uri, fileName)
@@ -139,17 +133,25 @@ class PluginsManageViewModel @Inject constructor(
 	fun importGithubPlugin(
 		askInput: suspend () -> String?,
 		askOverwrite: suspend (String) -> Boolean,
-		onResult: (Boolean) -> Unit
+		onResult: (Boolean) -> Unit,
 	) {
 		launchJob(Dispatchers.Default) {
 			val input = askInput()?.trim()?.takeIf { it.isNotBlank() } ?: return@launchJob
+
+			val tachiyomiIndexUrl = TachiyomiRepoIndex.normalizeRepoUrl(input)
+			if (tachiyomiIndexUrl != null) {
+				val success = registerTachiyomiRepository(tachiyomiIndexUrl)
+				withContext(Dispatchers.Main) { onResult(success) }
+				return@launchJob
+			}
+
 			val release = resolveGithubRelease(input)
 			if (release == null) {
 				withContext(Dispatchers.Main) { onResult(false) }
 				return@launchJob
 			}
 
-			val fileName = sanitizeJarFileName(release.fileName)
+			val fileName = sanitizePluginFileName(release.fileName, release.fileName.pluginFileExtension())
 			if (isInstalled(fileName) && !askOverwrite(fileName)) return@launchJob
 
 			val success = importFromGithub(release, fileName)
@@ -157,8 +159,30 @@ class PluginsManageViewModel @Inject constructor(
 		}
 	}
 
+	private suspend fun registerTachiyomiRepository(indexUrl: String): Boolean {
+		return runCatchingCancellable {
+			val request = Request.Builder().get().url(indexUrl).build()
+			okHttpClient.newCall(request).await().use { response ->
+				if (!response.isSuccessful) return@use false
+				val body = response.body.string()
+				if (body.isBlank()) return@use false
+				val sources = TachiyomiRepoIndex.parseIndex(indexUrl, body)
+				if (sources.isEmpty()) return@use false
+				val ownerTag = sources.first().repoOwnerTag
+				TachiyomiRepoStore.saveRepository(
+					context = context,
+					repository = TachiyomiRepository(ownerTag = ownerTag, indexUrl = indexUrl),
+				)
+				refresh()
+				true
+			}
+		}.getOrElse { false }
+	}
+
 	suspend fun updatePlugin(item: PluginManageItem.Plugin): Boolean {
+		if (item.isTachiyomiRepo) return false
 		val repository = item.repository ?: return false
+		if (!REPOSITORY_REGEX.matches(repository) || splitRepository(repository) == null) return false
 		val release = resolveGithubRelease(repository) ?: return false
 		return if (release.tag == item.installedTag) {
 			refresh()
@@ -170,24 +194,74 @@ class PluginsManageViewModel @Inject constructor(
 
 	suspend fun deletePlugin(item: PluginManageItem.Plugin): Boolean = withContext(Dispatchers.Default) {
 		runCatchingCancellable {
-			DynamicParserManager.deletePlugin(context, item.jarName)
-			clearGithubMeta(item.jarName)
-		}.isSuccess
+			if (item.isTachiyomiRepo) {
+				val pluginsDir = PluginFileLoader.pluginsDir(context)
+				val managedFiles = TachiyomiRepoStore.findInstalledPluginFilesByOwner(context, item.jarName)
+				managedFiles.forEach { fileName ->
+					File(pluginsDir, fileName).takeIf { it.exists() }?.delete()
+					TachiyomiRepoStore.removeInstalledPluginMeta(context, fileName)
+				}
+				val removedRepo = TachiyomiRepoStore.removeRepository(context, item.jarName)
+				if (managedFiles.isNotEmpty()) {
+					reloadPlugins(pluginsDir)
+				}
+				removedRepo || managedFiles.isNotEmpty()
+			} else {
+				DynamicParserManager.deletePlugin(context, item.jarName)
+				clearGithubMeta(item.jarName)
+				true
+			}
+		}.getOrElse { false }
 	}.also {
 		if (it) refresh()
 	}
 
-	fun sanitizeJarFileName(rawName: String): String {
+	fun sanitizePluginFileName(rawName: String, preferredExtension: String? = null): String {
 		val sanitized = rawName
 			.trim()
 			.replace('/', '_')
 			.replace('\\', '_')
-			.ifBlank { "plugin_${System.currentTimeMillis()}.jar" }
-		return if (sanitized.lowercase(Locale.ROOT).endsWith(".jar")) sanitized else "$sanitized.jar"
+			.ifBlank { "plugin_${System.currentTimeMillis()}${preferredExtension ?: DEFAULT_PLUGIN_EXTENSION}" }
+		val lower = sanitized.lowercase(Locale.ROOT)
+		if (lower.endsWith(".jar") || lower.endsWith(".apk")) {
+			return sanitized
+		}
+		val normalizedExtension = when (preferredExtension?.lowercase(Locale.ROOT)) {
+			".apk", "apk" -> ".apk"
+			".jar", "jar" -> ".jar"
+			else -> DEFAULT_PLUGIN_EXTENSION
+		}
+		return "$sanitized$normalizedExtension"
 	}
 
 	fun isInstalled(fileName: String): Boolean {
-		return File(PluginFileLoader.pluginsDir(context), sanitizeJarFileName(fileName)).exists()
+		return File(PluginFileLoader.pluginsDir(context), sanitizePluginFileName(fileName)).exists()
+	}
+
+	private suspend fun importFromUrl(
+		downloadUrl: String,
+		fileName: String,
+		meta: GithubMeta?,
+	): Boolean = withContext(Dispatchers.Default) {
+		val safeName = sanitizePluginFileName(fileName, fileName.pluginFileExtension())
+		runCatchingCancellable {
+			val pluginsDir = PluginFileLoader.pluginsDir(context)
+			val outFile = File(pluginsDir, safeName)
+			val request = Request.Builder().get().url(downloadUrl).build()
+			okHttpClient.newCall(request).await().use { response ->
+				if (!response.isSuccessful) throw IOException()
+				PluginFileLoader.copyFromStream(outFile, response.body.byteStream())
+			}
+			if (meta != null) {
+				saveGithubMeta(safeName, meta.repository, meta.tag)
+				TachiyomiRepoStore.removeInstalledPluginMeta(context, safeName)
+			} else {
+				clearGithubMeta(safeName)
+			}
+			reloadPlugins(pluginsDir)
+		}.isSuccess
+	}.also {
+		if (it) refresh()
 	}
 
 	private fun publishFiltered() {
@@ -208,7 +282,7 @@ class PluginsManageViewModel @Inject constructor(
 		}
 		val filtered = all.filter { plugin ->
 			plugin.jarName.contains(q, ignoreCase = true) ||
-					plugin.repository?.contains(q, ignoreCase = true) == true
+				plugin.repository?.contains(q, ignoreCase = true) == true
 		}
 		content.value = filtered.ifEmpty {
 			listOf(PluginManageItem.Placeholder(titleResId = R.string.nothing_found, summaryResId = null))
@@ -216,19 +290,36 @@ class PluginsManageViewModel @Inject constructor(
 	}
 
 	private fun loadPluginsLocal(): List<PluginManageItem.Plugin> {
-		val plugins = DynamicParserManager.getInstalledPlugins(context).sorted()
-		if (plugins.isEmpty()) return emptyList()
-		val meta = readAndCleanupMeta(plugins.toSet())
+		val pluginFiles = DynamicParserManager.getInstalledPlugins(context).sorted()
+		val installedFiles = pluginFiles.toSet()
+		val githubMeta = readAndCleanupMeta(installedFiles)
+		TachiyomiRepoStore.cleanupInstalledPluginMeta(context, installedFiles)
+		val tachiyomiMeta = pluginFiles.associateWith { TachiyomiRepoStore.getInstalledPluginMeta(context, it) }
 
-		return plugins.map { fileName ->
-			val itemMeta = meta[fileName]
+		val localPlugins = pluginFiles.mapNotNull { fileName ->
+			val itemMeta = githubMeta[fileName]
+			val tachiMeta = tachiyomiMeta[fileName]
+			if (tachiMeta != null) return@mapNotNull null
 			PluginManageItem.Plugin(
 				jarName = fileName,
 				repository = itemMeta?.repository,
 				installedTag = itemMeta?.tag,
 				latestTag = null,
+				isTachiyomiRepo = false,
 			)
 		}
+
+		val repos = TachiyomiRepoStore.listRepositories(context).map { repo ->
+			PluginManageItem.Plugin(
+				jarName = repo.ownerTag,
+				repository = repo.indexUrl,
+				installedTag = null,
+				latestTag = null,
+				isTachiyomiRepo = true,
+			)
+		}
+
+		return (repos + localPlugins).sortedBy { it.displayName.lowercase(Locale.ROOT) }
 	}
 
 	private suspend fun reloadPlugins(pluginsDir: File) {
@@ -252,7 +343,7 @@ class PluginsManageViewModel @Inject constructor(
 				val pathSegments = response.request.url.pathSegments
 				val tagIndex = pathSegments.indexOf("tag")
 				val tag = if (tagIndex >= 0) pathSegments.getOrNull(tagIndex + 1)
-				          else pathSegments.lastOrNull()
+				else pathSegments.lastOrNull()
 				tag?.takeIf { it.isNotBlank() }
 			}
 		}.getOrNull()
@@ -274,7 +365,7 @@ class PluginsManageViewModel @Inject constructor(
 				val body = response.body.string()
 				if (body.isBlank()) return null
 				val json = JSONObject(body)
-				val asset = findJarAsset(json.optJSONArray("assets")) ?: return null
+				val asset = findPluginAsset(json.optJSONArray("assets")) ?: return null
 				ExternalPluginDto(repository, tag, asset.first, asset.second)
 			}
 		}.getOrNull()
@@ -295,17 +386,22 @@ class PluginsManageViewModel @Inject constructor(
 		return owner to repo
 	}
 
-	private fun findJarAsset(assets: JSONArray?): Pair<String, String>? {
+	private fun findPluginAsset(assets: JSONArray?): Pair<String, String>? {
 		assets ?: return null
+		var fallbackApk: Pair<String, String>? = null
 		for (i in 0 until assets.length()) {
 			val asset = assets.optJSONObject(i) ?: continue
 			val name = asset.optString("name")
 			val url = asset.optString("browser_download_url")
-			if (name.endsWith(".jar", ignoreCase = true) && url.isNotBlank()) {
+			if (url.isBlank()) continue
+			if (name.endsWith(".jar", ignoreCase = true)) {
 				return name to url
 			}
+			if (fallbackApk == null && name.endsWith(".apk", ignoreCase = true)) {
+				fallbackApk = name to url
+			}
 		}
-		return null
+		return fallbackApk
 	}
 
 	private fun readAndCleanupMeta(installedFiles: Set<String>): MutableMap<String, GithubMeta> {
@@ -376,11 +472,30 @@ class PluginsManageViewModel @Inject constructor(
 		val tag: String,
 	)
 
+	private fun String.pluginFileExtension(): String? {
+		val lower = lowercase(Locale.ROOT)
+		return when {
+			lower.endsWith(".apk") -> ".apk"
+			lower.endsWith(".jar") -> ".jar"
+			else -> null
+		}
+	}
+
+	private fun String.removePluginFileSuffix(): String {
+		val dot = lastIndexOf('.')
+		if (dot <= 0) return this
+		return when (substring(dot).lowercase(Locale.ROOT)) {
+			".jar", ".apk" -> substring(0, dot)
+			else -> this
+		}
+	}
+
 	private companion object {
 		const val PREFS_NAME = "plugins_manage"
 		const val PREFS_KEY_GITHUB_META = "github_meta"
 		const val JSON_KEY_REPOSITORY = "repository"
 		const val JSON_KEY_TAG = "tag"
+		const val DEFAULT_PLUGIN_EXTENSION = ".jar"
 		val REPOSITORY_REGEX = Regex("""^\s*([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?\s*$""")
 		val GITHUB_URL_REGEX = Regex(
 			"""(?i)^\s*(?:https?://)?(?:www\.)?github\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?(?:/.*)?\s*$""",

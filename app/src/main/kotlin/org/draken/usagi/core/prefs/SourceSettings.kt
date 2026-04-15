@@ -7,6 +7,7 @@ import org.draken.usagi.core.util.ext.getEnumValue
 import org.draken.usagi.core.util.ext.putEnumValue
 import org.draken.usagi.core.util.ext.sanitizeHeaderValue
 import org.draken.usagi.core.model.PluginMangaSource
+import org.draken.usagi.core.model.TachiyomiPluginSource
 import org.koitharu.kotatsu.parsers.config.ConfigKey
 import org.koitharu.kotatsu.parsers.config.MangaSourceConfig
 import org.koitharu.kotatsu.parsers.model.MangaSource
@@ -18,10 +19,12 @@ import java.io.File
 
 class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig {
 
-    private val prefs = context.getSharedPreferences(
-        prefsName(source),
-        Context.MODE_PRIVATE,
-    )
+	private val prefsName = prefsName(source)
+	private val prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+
+	init {
+		migrateLegacyTachiyomiPrefs(context, source, prefsName)
+	}
 
 	var defaultSortOrder: SortOrder?
 		get() = prefs.getEnumValue(KEY_SORT_ORDER, SortOrder::class.java)
@@ -69,16 +72,45 @@ class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig 
 		prefs.unregisterOnSharedPreferenceChangeListener(listener)
 	}
 
-	companion object {
+		companion object {
 
 		const val KEY_DOMAIN = "domain"
 		const val KEY_NO_CAPTCHA = "no_captcha"
 		const val KEY_SLOWDOWN = "slowdown"
 		const val KEY_SORT_ORDER = "sort_order"
 
-		fun prefsName(source: MangaSource): String {
-			val name = if (source is PluginMangaSource) source.sourceName else source.name
-			return name.replace(File.separatorChar, '$')
+			fun prefsName(source: MangaSource): String {
+				val unwrapped = if (source is PluginMangaSource) source.delegate else source
+				if (unwrapped is TachiyomiPluginSource) {
+					return "source_${unwrapped.sourceId}"
+				}
+				val name = if (source is PluginMangaSource) source.sourceName else source.name
+				return name.replace(File.separatorChar, '$')
+			}
+
+			private fun migrateLegacyTachiyomiPrefs(context: Context, source: MangaSource, targetName: String) {
+				val delegate = (source as? PluginMangaSource)?.delegate as? TachiyomiPluginSource ?: return
+				val legacyName = delegate.name.replace(File.separatorChar, '$')
+				if (legacyName == targetName) return
+				val legacy = context.getSharedPreferences(legacyName, Context.MODE_PRIVATE)
+				if (legacy.all.isEmpty()) return
+				val target = context.getSharedPreferences(targetName, Context.MODE_PRIVATE)
+				if (target.all.isNotEmpty()) return
+				target.edit(commit = true) {
+					for ((key, value) in legacy.all) {
+						when (value) {
+							is Boolean -> putBoolean(key, value)
+							is Float -> putFloat(key, value)
+							is Int -> putInt(key, value)
+							is Long -> putLong(key, value)
+							is String -> putString(key, value)
+							is Set<*> -> {
+								@Suppress("UNCHECKED_CAST")
+								putStringSet(key, value.filterIsInstance<String>().toSet())
+							}
+						}
+					}
+				}
+			}
 		}
-	}
 }

@@ -24,6 +24,7 @@ import org.conscrypt.Conscrypt
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.R
 import org.draken.usagi.core.db.MangaDatabase
+import eu.kanade.tachiyomi.RuntimeContext
 import org.draken.usagi.core.os.AppValidator
 import org.draken.usagi.core.os.RomCompat
 import org.draken.usagi.core.model.PluginSourceKeyNormalizer
@@ -81,6 +82,7 @@ open class BaseApp : Application(), Configuration.Provider {
 
 	override fun onCreate() {
 		super.onCreate()
+		RuntimeContext.init(this)
 		PlatformRegistry.applicationContext = this // TODO replace with OkHttp.initialize
 		if (ACRA.isACRASenderServiceProcess()) {
 			return

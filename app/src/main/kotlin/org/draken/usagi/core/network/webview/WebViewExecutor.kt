@@ -2,6 +2,7 @@ package org.draken.usagi.core.network.webview
 
 import android.content.Context
 import android.util.AndroidRuntimeException
+import android.webkit.CookieManager
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -13,6 +14,9 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import okhttp3.Cookie
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.draken.usagi.core.exceptions.CloudFlareException
 import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.network.cookies.MutableCookieJar
@@ -40,6 +44,7 @@ class WebViewExecutor @Inject constructor(
 
 	private var webViewCached: WeakReference<WebView>? = null
 	private val mutex = Mutex()
+	private val lastWarmupTimestampByHost = HashMap<String, Long>()
 
 	val defaultUserAgent: String? by lazy {
 		try {
@@ -97,7 +102,48 @@ class WebViewExecutor @Inject constructor(
 		}.onFailure { e ->
 			exception.addSuppressed(e)
 			e.printStackTraceDebug()
+			}.isSuccess
+	}
+
+	suspend fun syncWebViewSession(source: MangaSource, url: String) = mutex.withLock {
+		val httpUrl = url.toHttpUrlOrNull() ?: return@withLock
+		syncCookiesFromWebView(httpUrl)
+		val host = httpUrl.host
+		val now = System.currentTimeMillis()
+		val lastSync = lastWarmupTimestampByHost[host]
+		if (lastSync != null && now - lastSync < WEBVIEW_WARMUP_INTERVAL_MS) {
+			return@withLock
+		}
+		val warmedUp = runCatchingCancellable {
+			withContext(Dispatchers.Main.immediate) {
+				val webView = obtainWebView()
+				try {
+					source.getUserAgent()?.let {
+						webView.settings.userAgentString = it
+					}
+					withTimeout(WEBVIEW_WARMUP_TIMEOUT_MS) {
+						suspendCancellableCoroutine { cont ->
+							webView.webViewClient = ContinuationResumeWebViewClient(cont)
+							webView.loadUrl(httpUrl.toString())
+						}
+						suspendCoroutine { cont ->
+							webView.evaluateJavascript("try { localStorage.length } catch (e) { null }") {
+								cont.resume(Unit)
+							}
+						}
+						flushCookies()
+					}
+				} finally {
+					webView.reset()
+				}
+			}
+		}.onFailure {
+			it.printStackTraceDebug()
 		}.isSuccess
+		if (warmedUp) {
+			lastWarmupTimestampByHost[host] = now
+		}
+		syncCookiesFromWebView(httpUrl)
 	}
 
 	private suspend fun obtainWebView(): WebView {
@@ -130,5 +176,48 @@ class WebViewExecutor @Inject constructor(
 		settings.userAgentString = defaultUserAgent
 		loadDataWithBaseURL(null, " ", "text/html", null, null)
 		clearHistory()
+	}
+
+	private fun syncCookiesFromWebView(target: HttpUrl) {
+		val cookieManager = runCatching {
+			CookieManager.getInstance()
+		}.getOrNull() ?: return
+		val merged = LinkedHashMap<String, Cookie>()
+		for (probeUrl in buildCookieProbeUrls(target)) {
+			val rawCookie = runCatching {
+				cookieManager.getCookie(probeUrl)
+			}.getOrNull() ?: continue
+			rawCookie.split(';')
+				.mapNotNull { Cookie.parse(target, it.trim()) }
+				.forEach { cookie ->
+					merged[cookie.name + "|" + cookie.path] = cookie
+				}
+		}
+		if (merged.isNotEmpty()) {
+			cookieJar.saveFromResponse(target, merged.values.toList())
+		}
+	}
+
+	private fun flushCookies() {
+		runCatching {
+			CookieManager.getInstance().flush()
+		}
+	}
+
+	private fun buildCookieProbeUrls(target: HttpUrl): List<String> {
+		val urls = LinkedHashSet<String>(4)
+		urls += target.toString()
+		urls += "${target.scheme}://${target.host}/"
+		val topDomain = target.topPrivateDomain()
+		if (!topDomain.isNullOrBlank() && !topDomain.equals(target.host, ignoreCase = true)) {
+			urls += "${target.scheme}://$topDomain/"
+			urls += "${target.scheme}://www.$topDomain/"
+		}
+		return urls.toList()
+	}
+
+	private companion object {
+		private const val WEBVIEW_WARMUP_TIMEOUT_MS = 8_000L
+		private const val WEBVIEW_WARMUP_INTERVAL_MS = 60_000L
 	}
 }
