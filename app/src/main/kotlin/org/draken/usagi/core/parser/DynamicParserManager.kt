@@ -33,14 +33,10 @@ class PluginClassLoader(
             name == "org.koitharu.kotatsu.parsers.model.MangaParserSource" ||
             name.startsWith("org.koitharu.kotatsu.parsers.site.") ||
             name.startsWith("org.koitharu.kotatsu.parsers.core.") ||
+            name.startsWith("org.koitharu.kotatsu.core.parser.") ||
             name.startsWith("org.koitharu.kotatsu.parsers.util.") ||
             name.startsWith("org.koitharu.kotatsu.parsers.MangaParserFactory")
-        ) {
-            try {
-                return findClass(name)
-            } catch (_: ClassNotFoundException) {
-            }
-        }
+        ) { return findClass(name) }
         return super.loadClass(name, resolve)
     }
 }
