@@ -41,15 +41,10 @@ fun pluginItemDelegate(
 
 	bind {
 		binding.textViewTitle.text = item.displayName
-
 		val parts = ArrayList<String>(3)
 		item.repository?.takeIf { it.isNotBlank() }?.let(parts::add)
 		item.installedTag?.takeIf { it.isNotBlank() }?.let(parts::add)
-		if (item.hasUpdate) {
-			item.latestTag?.takeIf { it.isNotBlank() }?.let { parts.add("-> $it") }
-		}
 		binding.textViewDescription.text = if (parts.isEmpty()) item.jarName else parts.joinToString(" • ")
-
 		binding.imageViewRemove.setOnClickListener { onDeleteClick(item) }
 		binding.imageViewAdd.isVisible = item.hasUpdate
 		binding.imageViewAdd.setOnClickListener(
