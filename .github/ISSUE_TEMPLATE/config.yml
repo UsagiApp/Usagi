@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+    - name: ⚠️ Source / Plugin / Extension issue
+      url: https://github.com/UsagiApp/Usagi/issues#
+      about: We **DO NOT** provide support for them. You should contact the person who sent / created them instead of submitting issues about them to us.
