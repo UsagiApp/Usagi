@@ -2,6 +2,7 @@ package org.draken.usagi.details.data
 
 import org.draken.usagi.core.model.getLocale
 import org.draken.usagi.core.model.isLocal
+import org.draken.usagi.core.model.isTachiyomiExtensionSource
 import org.draken.usagi.core.model.withOverride
 import org.draken.usagi.core.ui.model.MangaOverride
 import org.draken.usagi.local.domain.model.LocalManga
@@ -111,7 +112,94 @@ data class MangaDetails(
         if (!localMap.isNullOrEmpty()) {
             result.addAll(localMap.values)
         }
-        return result
+        return normalizeTachiyomiChapterOrder(result)
+    }
+
+    private fun normalizeTachiyomiChapterOrder(chapters: List<MangaChapter>): List<MangaChapter> {
+        if (!manga.source.isTachiyomiExtensionSource() || chapters.size < 2) {
+            return chapters
+        }
+        val grouped = LinkedHashMap<String?, MutableList<MangaChapter>>()
+        for (chapter in chapters) {
+            grouped.getOrPut(chapter.branch) { ArrayList() } += chapter
+        }
+        var hasChanges = false
+        val normalized = ArrayList<MangaChapter>(chapters.size)
+        for (items in grouped.values) {
+            if (detectChapterOrder(items) == SortDirection.DESCENDING) {
+                normalized.addAll(items.asReversed())
+                hasChanges = true
+            } else {
+                normalized.addAll(items)
+            }
+        }
+        return if (hasChanges) normalized else chapters
+    }
+
+    private fun detectChapterOrder(chapters: List<MangaChapter>): SortDirection {
+        val byNumber = detectChapterNumberOrder(chapters)
+        if (byNumber != SortDirection.UNKNOWN) return byNumber
+        return detectChapterDateOrder(chapters)
+    }
+
+    private fun detectChapterNumberOrder(chapters: List<MangaChapter>): SortDirection {
+        var asc = 0
+        var desc = 0
+        var previous: Float? = null
+        for (chapter in chapters) {
+            val number = chapter.number
+                .takeIf { it > 0f }
+                ?: parseChapterNumber(chapter.title).takeIf { it > 0f }
+                ?: continue
+            val prev = previous
+            if (prev != null) {
+                when {
+                    number > prev + CHAPTER_NUMBER_EPSILON -> asc++
+                    number < prev - CHAPTER_NUMBER_EPSILON -> desc++
+                }
+            }
+            previous = number
+        }
+        return resolveOrder(asc, desc)
+    }
+
+    private fun detectChapterDateOrder(chapters: List<MangaChapter>): SortDirection {
+        var asc = 0
+        var desc = 0
+        var previous: Long? = null
+        for (chapter in chapters) {
+            val date = chapter.uploadDate.takeIf { it > 0L } ?: continue
+            val prev = previous
+            if (prev != null) {
+                when {
+                    date > prev -> asc++
+                    date < prev -> desc++
+                }
+            }
+            previous = date
+        }
+        return resolveOrder(asc, desc)
+    }
+
+    private fun parseChapterNumber(title: String?): Float {
+        val value = CHAPTER_NUMBER_REGEX.find(title.orEmpty())
+            ?.groupValues
+            ?.getOrNull(1)
+        return value?.toFloatOrNull() ?: 0f
+    }
+
+    private fun resolveOrder(asc: Int, desc: Int): SortDirection {
+        val comparisons = asc + desc
+        if (comparisons < MIN_ORDER_COMPARISONS) {
+            return SortDirection.UNKNOWN
+        }
+        val ascValue = asc.toFloat()
+        val descValue = desc.toFloat()
+        return when {
+            ascValue >= (descValue * ORDER_DOMINANCE_FACTOR) -> SortDirection.ASCENDING
+            descValue >= (ascValue * ORDER_DOMINANCE_FACTOR) -> SortDirection.DESCENDING
+            else -> SortDirection.UNKNOWN
+        }
     }
 
     private fun findAppropriateLocale(name: String?): Locale? {
@@ -124,5 +212,18 @@ data class MangaDetails(
                 name.contains(lc.getDisplayLanguage(lc), ignoreCase = true) ||
                 name.contains(lc.getDisplayLanguage(Locale.ENGLISH), ignoreCase = true)
         }
+    }
+
+    private enum class SortDirection {
+        ASCENDING,
+        DESCENDING,
+        UNKNOWN,
+    }
+
+    private companion object {
+        private val CHAPTER_NUMBER_REGEX = Regex("""(?i)(?:ch(?:apter)?|ep(?:isode)?|#)?\s*(\d+(?:\.\d+)?)""")
+        private const val MIN_ORDER_COMPARISONS = 3
+        private const val ORDER_DOMINANCE_FACTOR = 1.2f
+        private const val CHAPTER_NUMBER_EPSILON = 0.0001f
     }
 }

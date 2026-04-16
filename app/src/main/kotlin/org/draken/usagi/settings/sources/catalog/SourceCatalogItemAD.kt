@@ -11,8 +11,10 @@ import org.draken.usagi.core.model.titleResId
 import org.draken.usagi.core.ui.image.FaviconDrawable
 import org.draken.usagi.core.ui.list.OnListItemClickListener
 import org.draken.usagi.core.util.ext.drawableStart
+import org.draken.usagi.core.util.ext.getDisplayName
 import org.draken.usagi.core.util.ext.getThemeDimensionPixelOffset
 import org.draken.usagi.core.util.ext.setTextAndVisible
+import org.draken.usagi.core.util.ext.toLocaleOrNull
 import org.draken.usagi.databinding.ItemEmptyHintBinding
 import org.draken.usagi.databinding.ItemSourceCatalogBinding
 import org.draken.usagi.list.ui.model.ListModel
@@ -49,9 +51,10 @@ fun sourceCatalogItemSourceAD(
 			buildString {
 				append(context.getString(item.source.contentType.titleResId))
 				if (installable.sourceLang.isNotBlank()) {
-					append(" • ").append(installable.sourceLang)
+					append(", ").append(
+						installable.sourceLang.toLocaleOrNull()?.getDisplayName(context) ?: installable.sourceLang,
+					)
 				}
-				append(" • ").append(installable.pluginFileName)
 				append(" • ").append(installable.repoOwnerTag)
 			}
 		}

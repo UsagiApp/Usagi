@@ -26,6 +26,7 @@ open class BrowserClient(
 	override fun onPageFinished(webView: WebView, url: String) {
 		super.onPageFinished(webView, url)
 		callback.onLoadingStateChanged(isLoading = false)
+		callback.onPageFinished(url)
 	}
 
 	override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {

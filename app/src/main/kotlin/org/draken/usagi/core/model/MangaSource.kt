@@ -140,10 +140,7 @@ fun MangaSource.getSummary(context: Context): String? {
 		is MangaSourceInfo -> mangaSource as? PluginMangaSource
 		else -> null
 	}
-	val pluginLabel = when (val delegated = pluginSource?.delegate) {
-		is TachiyomiPluginSource -> delegated.pluginFileName
-		else -> pluginSource?.jarName
-	}
+	val pluginLabel = pluginSource?.jarName
 	return if (pluginLabel != null && baseSummary != null) {
 		"$baseSummary • $pluginLabel"
 	} else pluginLabel ?: baseSummary

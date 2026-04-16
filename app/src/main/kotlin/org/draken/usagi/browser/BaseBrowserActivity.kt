@@ -2,13 +2,21 @@ package org.draken.usagi.browser
 
 import android.os.Bundle
 import android.view.View
+import android.webkit.CookieManager
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.Cookie
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.network.CommonHeaders
+import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.network.proxy.ProxyProvider
 import org.draken.usagi.core.network.webview.adblock.AdBlock
 import org.draken.usagi.core.parser.MangaRepository
@@ -32,6 +40,9 @@ abstract class BaseBrowserActivity : BaseActivity<ActivityBrowserBinding>(), Bro
 
 	@Inject
 	lateinit var adBlock: AdBlock
+
+	@Inject
+	lateinit var cookieJar: MutableCookieJar
 
 	private lateinit var onBackPressedCallback: WebViewBackPressedCallback
 
@@ -107,5 +118,40 @@ abstract class BaseBrowserActivity : BaseActivity<ActivityBrowserBinding>(), Bro
 
 	override fun onHistoryChanged() {
 		onBackPressedCallback.onHistoryChanged()
+	}
+
+	override fun onPageFinished(url: String) {
+		val httpUrl = url.toHttpUrlOrNull() ?: return
+		lifecycleScope.launch(Dispatchers.Default) {
+			syncCookiesFromBrowser(httpUrl)
+		}
+	}
+
+	private fun syncCookiesFromBrowser(target: HttpUrl) {
+		val manager = runCatching { CookieManager.getInstance() }.getOrNull() ?: return
+		val cookies = LinkedHashMap<String, Cookie>()
+		for (probeUrl in buildCookieProbeUrls(target)) {
+			val rawCookie = runCatching { manager.getCookie(probeUrl) }.getOrNull() ?: continue
+			rawCookie.split(';')
+				.mapNotNull { Cookie.parse(target, it.trim()) }
+				.forEach { cookie ->
+					cookies[cookie.name + "|" + cookie.path] = cookie
+				}
+		}
+		if (cookies.isNotEmpty()) {
+			cookieJar.saveFromResponse(target, cookies.values.toList())
+		}
+	}
+
+	private fun buildCookieProbeUrls(target: HttpUrl): List<String> {
+		val urls = LinkedHashSet<String>(4)
+		urls += target.toString()
+		urls += "${target.scheme}://${target.host}/"
+		val topDomain = target.topPrivateDomain()
+		if (!topDomain.isNullOrBlank() && !topDomain.equals(target.host, ignoreCase = true)) {
+			urls += "${target.scheme}://$topDomain/"
+			urls += "${target.scheme}://www.$topDomain/"
+		}
+		return urls.toList()
 	}
 }

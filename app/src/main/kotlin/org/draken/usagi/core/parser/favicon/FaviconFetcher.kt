@@ -23,6 +23,7 @@ import coil3.toBitmap
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runInterruptible
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okio.FileSystem
 import okio.IOException
 import okio.Path.Companion.toOkioPath
@@ -59,6 +60,7 @@ class FaviconFetcher(
 
 	override suspend fun fetch(): FetchResult? {
 		val mangaSource = options.extras[mangaSourceKey] ?: org.draken.usagi.core.model.MangaSource(uri.schemeSpecificPart)
+		fetchInstallableTachiyomiIcon(mangaSource)?.let { return it }
 
 		return when (val repo = mangaRepositoryFactory.create(mangaSource)) {
 			is ParserMangaRepository -> fetchParserFavicon(repo)
@@ -73,6 +75,36 @@ class FaviconFetcher(
 
 			else -> throw IllegalArgumentException("Unsupported repo ${repo.javaClass.simpleName}")
 		}
+	}
+
+	private suspend fun fetchInstallableTachiyomiIcon(source: MangaSource): FetchResult? {
+		val sourceBaseUrl = source.readInstallableTachiyomiSourceBaseUrl()
+		val ownerTag = source.readInstallableTachiyomiOwnerTag()
+		val candidates = LinkedHashSet<String>(2).apply {
+			sourceBaseUrl
+				?.takeIf { it.isNotBlank() }
+				?.let { raw ->
+					val normalized = raw.toHttpUrlOrNull()?.newBuilder()?.encodedPath("/")?.build()?.toString()
+					if (!normalized.isNullOrBlank()) {
+						add("${normalized.trimEnd('/')}/favicon.ico")
+					}
+				}
+			ownerTag
+				?.removePrefix("@")
+				?.takeIf { it.isNotBlank() }
+				?.let { owner ->
+					add("https://github.com/$owner.png?size=96")
+				}
+		}
+		for (candidate in candidates) {
+			val result = runCatchingCancellable {
+				imageLoader.fetch(candidate, options)
+			}.getOrNull()
+			if (result != null) {
+				return result
+			}
+		}
+		return null
 	}
 
 	private suspend fun fetchParserFavicon(repository: ParserMangaRepository): FetchResult {
@@ -193,6 +225,29 @@ class FaviconFetcher(
 		dataSource = DataSource.DISK,
 	)
 
+	private fun MangaSource.getInstallableTachiyomiRepoSourceOrNull(): Any? {
+		if (javaClass.name != INSTALLABLE_TACHIYOMI_SOURCE_CLASS) return null
+		return runCatching {
+			javaClass.getMethod("getRepoSource").invoke(this)
+		}.getOrNull()
+	}
+
+	private fun MangaSource.readInstallableTachiyomiSourceBaseUrl(): String? {
+		val repoSource = getInstallableTachiyomiRepoSourceOrNull() ?: return null
+		val candidate = runCatching {
+			repoSource.javaClass.getMethod("getSourceBaseUrl").invoke(repoSource) as? String
+		}.getOrNull()
+		return candidate?.takeIf { it.isNotBlank() }
+	}
+
+	private fun MangaSource.readInstallableTachiyomiOwnerTag(): String? {
+		val repoSource = getInstallableTachiyomiRepoSourceOrNull() ?: return null
+		val candidate = runCatching {
+			repoSource.javaClass.getMethod("getRepoOwnerTag").invoke(repoSource) as? String
+		}.getOrNull()
+		return candidate?.takeIf { it.isNotBlank() }
+	}
+
 	class Factory @Inject constructor(
 		private val mangaRepositoryFactory: MangaRepository.Factory,
 		@FaviconCache private val faviconCache: LocalStorageCache,
@@ -212,6 +267,8 @@ class FaviconFetcher(
 	private companion object {
 
 		const val FALLBACK_SIZE = 9999 // largest icon
+		const val INSTALLABLE_TACHIYOMI_SOURCE_CLASS =
+			"org.draken.usagi.settings.sources.catalog.InstallableTachiyomiSource"
 
 		private fun throwNSEE(lastError: Exception?): Nothing {
 			if (lastError != null) {

@@ -22,7 +22,6 @@ import org.draken.usagi.core.exceptions.CloudFlareProtectedException
 import org.draken.usagi.core.exceptions.resolve.CaptchaHandler
 import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.nav.AppRouter
-import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.parser.ParserMangaRepository
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.printStackTraceDebug
@@ -36,9 +35,6 @@ import javax.inject.Inject
 class CloudFlareActivity : BaseBrowserActivity(), CloudFlareCallback {
 
 	private var pendingResult = RESULT_CANCELED
-
-	@Inject
-	lateinit var cookieJar: MutableCookieJar
 
 	@Inject
 	lateinit var captchaHandler: CaptchaHandler
