@@ -14,7 +14,7 @@
     <string name="chapters">Bab</string>
     <string name="list">Senarai</string>
     <string name="detailed_list">Senarai terperinci</string>
-    <string name="grid">Grid</string>
+    <string name="grid">Kisi</string>
     <string name="list_mode">Mod senarai</string>
     <string name="settings">Tetapan</string>
     <string name="remote_sources">Sumber Manga</string>
@@ -259,7 +259,7 @@
     <string name="operation_not_supported">Operasi ini tidak disokong</string>
     <string name="delete_manga">Buang manga</string>
     <string name="page_saved">Halaman disimpan</string>
-    <string name="domain">Domain</string>
+    <string name="domain">Ranah web</string>
     <string name="enabled_d_of_d" tools:ignore="PluralsCandidate">%1$d daripada %2$d pada</string>
     <string name="read_mode">Mod pembacaan</string>
     <string name="text_delete_local_manga">Buang \"%s\" selama-lamanya daripada peranti?</string>
@@ -328,7 +328,7 @@
     <string name="importing_manga">Mengimport komik</string>
     <string name="import_will_start_soon">Import akan bermula tidak lama lagi</string>
     <string name="feed">Suapan</string>
-    <string name="manga_error_description_pattern">Butiran ralat:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Cuba &lt;a href=%2$s&gt;buka manga dalam pelayar web&lt;/a&gt; untuk memastikan ia tersedia pada sumbernya&lt;br&gt;2. Pastikan anda menggunakan &lt;a href=kotatsu://about&gt;versi terbaharu Usagi&lt;/a&gt;&lt;br&gt;3. Jika tersedia, hantar laporan ralat kepada pembangun.</string>
+    <string name="manga_error_description_pattern">Butiran ralat:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Try to &lt;a href=\"%2$s\"&gt;buka manga dalam pelayar web&lt;/a&gt; untuk memastikan ia tersedia pada sumbernya&lt;br&gt;2. Pastikan anda menggunakan &lt;a&gt;versi terkini Usagi&lt;/a&gt;&lt;br&gt;3. Jika tersedia, hantar laporan ralat kepada pembangun.</string>
     <string name="color_correction">Pembetulan warna</string>
     <string name="brightness">Kecerahan</string>
     <string name="contrast">Berbeza</string>
@@ -409,7 +409,7 @@
     <string name="email_password_enter_hint">Masukkan e -mel dan kata laluan anda untuk diteruskan</string>
     <string name="downloaded">Dimuat turun</string>
     <string name="images_proxy_title">Proksi Pengoptimuman Imej</string>
-    <string name="images_procy_description">Gunakan perkhidmatan WSRV.NL untuk mengurangkan penggunaan lalu lintas dan mempercepat pemuatan imej jika boleh</string>
+    <string name="images_procy_description">Gunakan perkhidmatan wsrv.nl untuk mengurangkan penggunaan trafik dan mempercepatkan pemuatan imej jika boleh</string>
     <string name="invert_colors">Warna terbalik</string>
     <string name="username">Nama pengguna</string>
     <string name="password">Kata laluan</string>
@@ -530,7 +530,7 @@
     <string name="error_filter_states_genre_not_supported">Penapisan oleh kedua -dua genre dan negeri tidak disokong oleh sumber ini</string>
     <string name="genres_search_hint">Mula menaip nama genre</string>
     <string name="disable_battery_optimization_summary_downloads">Mungkin membantu mendapatkan muat turun bermula jika anda mempunyai masalah dengannya</string>
-    <string name="welcome_text">Sila pilih sumber kandungan mana yang anda ingin aktifkan. Ini juga boleh dikonfigurasikan kemudian dalam tetapan</string>
+    <string name="welcome_text">Ini permulaan Usagi, mari kita berkenalan. Anda boleh memulihkan data lama anda menggunakan pilihan pantas di bawah. Tiada kandungan yang tersedia dalam Usagi buat masa ini, tetapi anda boleh menyesuaikan kandungan yang ingin anda baca dalam tetapan aplikasi kemudian.</string>
     <string name="sync_auth">Log masuk ke Akaun Menyegerakkan</string>
     <string name="restore">Pulihkan</string>
     <string name="backup_date_">Tarikh sandaran: %s</string>
@@ -657,7 +657,7 @@
     <string name="image_server">Pelayan Imej Pilihan</string>
     <string name="crop_pages">Halaman tanaman</string>
     <string name="pin">Pin</string>
-    <string name="unpin">Batalkan PIN</string>
+    <string name="unpin">Nyahsemat</string>
     <string name="source_pinned">Sumber disematkan</string>
     <string name="source_unpinned">Sumber yang tidak diingini</string>
     <string name="sources_unpinned">Sumber yang tidak diingini</string>
@@ -667,7 +667,7 @@
     <string name="percent_left">Peratus kiri</string>
     <string name="chapters_read">Bab Baca</string>
     <string name="chapters_left">Bab kiri</string>
-    <string name="external_source">External/plugin</string>
+    <string name="external_source">Luaran/pemalam</string>
     <string name="plugin_incompatible">Plugin yang tidak serasi atau ralat dalaman. Pastikan anda menggunakan versi terkini plugin dan kotatsu</string>
     <string name="plugin_incompatible_with_cause">Ralat Plugin: %s\n Pastikan anda menggunakan versi terkini plugin dan kotatsu</string>
     <string name="connection_ok">Sambungan ok</string>
@@ -698,7 +698,7 @@
     <string name="no_fix_required">Tiada pembetulan diperlukan untuk \"%s\"</string>
     <string name="no_alternatives_found">Tiada alternatif yang dijumpai \"%s\"</string>
     <string name="manga_fix_prompt">Fungsi ini akan menemui sumber alternatif untuk manga yang dipilih. Tugas akan mengambil sedikit masa dan akan diteruskan di latar belakang</string>
-    <string name="content_type_novel">Novel</string>
+    <string name="content_type_novel">Novelis</string>
     <string name="content_type_manhua">Komik Mandarin (manhua)</string>
     <string name="content_type_manhwa">Komik Korea (Manhwa)</string>
     <string name="recently_added">Baru-baru ini ditambah</string>
@@ -888,4 +888,33 @@
     <string name="available_pattern">%1$s tersedia</string>
     <string name="experiment">Eksperimen</string>
     <string name="details_backdrop">Tetapkan penutup besar sebagai tirai latar</string>
+    <string name="cover_only">Sarung sahaja</string>
+    <string name="details_appearance_summary">Gaya skrin, imej latar belakang dan kesan kabur</string>
+    <string name="preview">Pratonton</string>
+    <string name="details_backdrop_summary">Tunjukkan imej muka depan yang besar di bahagian atas sebagai imej latar belakang (seperti Tachiyomi)</string>
+    <string name="details_backdrop_blur">Keamatan kabur latar belakang</string>
+    <string name="details_appearance">Rupa skrin butiran</string>
+    <string name="load_failed">Gagal memuatkan pemalam</string>
+    <string name="load_success">Plugin diimport dan dimuatkan dengan jayanya</string>
+    <string name="overwrite_plugin">Tulis ganti pemalam?</string>
+    <string name="plugin_name">Nama pemalam</string>
+    <string name="set_plugin_name">Tetapkan nama untuk pemalam ini</string>
+    <string name="confirm_delete_plugin">Adakah anda pasti mahu memadam %1$s?</string>
+    <string name="delete_plugin">Padam pemalam</string>
+    <string name="deleted_plugin">Dipadam %1$s pemalam!</string>
+    <string name="import_from_github">Import daripada GitHub</string>
+    <string name="import_github_summary">Anda boleh memasukkan URL GitHub penuh atau Nama Pengguna/Repositori. Usagi akan mencari dan memasang pemalam daripada keluaran terkini secara automatik.</string>
+    <string name="jar_not_loaded">JAR tidak dimuatkan: %1$s</string>
+    <string name="load_from_storage">Import daripada storan setempat</string>
+    <string name="load_storage_summary">Anda boleh memilih fail JAR daripada storan setempat, fail tersebut akan dikenali sebagai pemalam.</string>
+    <string name="loaded_null">Plugin dimuatkan sebagai null</string>
+    <string name="manage_plugins">Urus pemalam</string>
+    <string name="manage_plugins_summary">Muatkan semua sumber/plugin dengan mengimport satu fail JAR</string>
+    <string name="missing_in_plugin">Sumber tiada dalam pemalam: %1$s</string>
+    <string name="no_compatible_method">Tiada kaedah serasi ditemui: %1$s(%2$s)</string>
+    <string name="no_plugins">Tiada pemalam dipasang</string>
+    <string name="no_plugins_summary">Klik + di atas untuk menambah pemalam luaran</string>
+    <string name="overwrite_plugin_summary">Fail pemalam bernama %1$s telah dipasang. Gantikannya dengan yang ini?</string>
+    <string name="plugin_not_found">Tiada pemalam ditemui untuk sumber: %1$s</string>
+    <string name="unknown_source">Sumber tidak diketahui: %1$s</string>
 </resources>
