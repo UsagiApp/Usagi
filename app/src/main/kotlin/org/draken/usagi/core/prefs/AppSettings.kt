@@ -499,6 +499,9 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	val proxyPassword: String?
 		get() = prefs.getString(KEY_PROXY_PASSWORD, null)?.nullIfEmpty()
 
+	val isProxyBypassEnabled: Boolean
+		get() = prefs.getBoolean(KEY_PROXY_BYPASS_ENABLED, false)
+
 	var localListOrder: SortOrder
 		get() = prefs.getEnumValue(KEY_LOCAL_LIST_ORDER, SortOrder.NEWEST)
 		set(value) = prefs.edit { putEnumValue(KEY_LOCAL_LIST_ORDER, value) }
@@ -821,6 +824,7 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_PROXY_AUTH = "proxy_auth"
 		const val KEY_PROXY_LOGIN = "proxy_login"
 		const val KEY_PROXY_PASSWORD = "proxy_password"
+		const val KEY_PROXY_BYPASS_ENABLED = "proxy_bypass_enabled"
 		const val KEY_IMAGES_PROXY = "images_proxy_2"
 		const val KEY_LOCAL_MANGA_DIRS = "local_manga_dirs"
 		const val KEY_DISABLE_NSFW = "no_nsfw"

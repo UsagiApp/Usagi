@@ -8,14 +8,17 @@ import okhttp3.dnsoverhttps.DnsOverHttps
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import java.net.InetAddress
+import java.net.Proxy
 import java.net.UnknownHostException
 
 class DoHManager(
 	cache: Cache,
 	private val settings: AppSettings,
+	private val allowSystemFallback: Boolean = true,
+	private val forcedProvider: DoHProvider? = null,
 ) : Dns {
 
-	private val bootstrapClient = OkHttpClient.Builder().cache(cache).build()
+	private val bootstrapClient = OkHttpClient.Builder().cache(cache).proxy(Proxy.NO_PROXY).build()
 
 	private var cachedDelegate: Dns? = null
 	private var cachedProvider: DoHProvider? = null
@@ -24,15 +27,19 @@ class DoHManager(
 		return try {
 			getDelegate().lookup(hostname)
 		} catch (e: UnknownHostException) {
-			// fallback
-			Dns.SYSTEM.lookup(hostname)
+			if (allowSystemFallback) {
+				// fallback
+				Dns.SYSTEM.lookup(hostname)
+			} else {
+				throw e
+			}
 		}
 	}
 
 	@Synchronized
 	private fun getDelegate(): Dns {
 		var delegate = cachedDelegate
-		val provider = settings.dnsOverHttps
+		val provider = forcedProvider ?: settings.dnsOverHttps
 		if (delegate == null || provider != cachedProvider) {
 			delegate = createDelegate(provider)
 			cachedDelegate = delegate
