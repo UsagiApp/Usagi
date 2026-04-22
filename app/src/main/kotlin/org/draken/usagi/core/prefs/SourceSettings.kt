@@ -6,7 +6,6 @@ import androidx.core.content.edit
 import org.draken.usagi.core.util.ext.getEnumValue
 import org.draken.usagi.core.util.ext.putEnumValue
 import org.draken.usagi.core.util.ext.sanitizeHeaderValue
-import org.draken.usagi.core.model.PluginMangaSource
 import org.koitharu.kotatsu.parsers.config.ConfigKey
 import org.koitharu.kotatsu.parsers.config.MangaSourceConfig
 import org.koitharu.kotatsu.parsers.model.MangaSource
@@ -22,6 +21,25 @@ class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig 
         prefsName(source),
         Context.MODE_PRIVATE,
     )
+
+	init {
+		val newName = prefsName(source)
+		listOf(source.name, "plugin.jar:$newName").filter { it != newName }.forEach { legacyName ->
+			val legacy = context.getSharedPreferences(legacyName, Context.MODE_PRIVATE)
+			if (legacy.all.isEmpty()) return@forEach
+			prefs.edit(commit = true) {
+				legacy.all.forEach { (k, v) -> when (v) {
+					is String -> putString(k, v)
+					is Boolean -> putBoolean(k, v)
+					is Int -> putInt(k, v)
+					is Long -> putLong(k, v)
+					is Float -> putFloat(k, v)
+					is Set<*> -> @Suppress("UNCHECKED_CAST") putStringSet(k, v as Set<String>)
+				}}
+			}
+			legacy.edit(commit = true) { clear() }
+		}
+	}
 
 	var defaultSortOrder: SortOrder?
 		get() = prefs.getEnumValue(KEY_SORT_ORDER, SortOrder::class.java)
@@ -51,13 +69,13 @@ class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig 
 		} as T
 	}
 
-	operator fun <T> set(key: ConfigKey<T>, value: T) = prefs.edit {
+	operator fun <T> set(key: ConfigKey<T>, value: T) = prefs.edit(commit = true) {
 		when (key) {
 			is ConfigKey.Domain -> putString(key.key, value as String?)
 			is ConfigKey.ShowSuspiciousContent -> putBoolean(key.key, value as Boolean)
 			is ConfigKey.UserAgent -> putString(key.key, (value as String?)?.sanitizeHeaderValue())
 			is ConfigKey.SplitByTranslations -> putBoolean(key.key, value as Boolean)
-			is ConfigKey.PreferredImageServer -> putString(key.key, value as String? ?: "")
+			is ConfigKey.PreferredImageServer -> putString(key.key, value as String?)
 		}
 	}
 
@@ -77,8 +95,7 @@ class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig 
 		const val KEY_SORT_ORDER = "sort_order"
 
 		fun prefsName(source: MangaSource): String {
-			val name = if (source is PluginMangaSource) source.sourceName else source.name
-			return name.replace(File.separatorChar, '$')
+			return source.name.substringAfter(':').replace(File.separatorChar, '$')
 		}
 	}
 }
