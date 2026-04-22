@@ -70,4 +70,9 @@
         android:summary="@string/adblock_summary"
         android:title="@string/adblock" />
 
+	<SwitchPreferenceCompat
+		android:key="proxy_bypass_enabled"
+		android:title="@string/proxy_bypass_enabled"
+		android:summary="@string/proxy_bypass_enabled_summary"/>
+
 </PreferenceScreen>

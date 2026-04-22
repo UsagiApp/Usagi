@@ -6,6 +6,8 @@ import androidx.webkit.WebViewFeature
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.suspendCancellableCoroutine
+import okhttp3.Cache
 import okhttp3.Authenticator
 import okhttp3.Credentials
 import okhttp3.Request
@@ -25,13 +27,15 @@ import java.net.URI
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import java.net.Authenticator as JavaAuthenticator
 
 @Singleton
 class ProxyProvider @Inject constructor(
 	private val settings: AppSettings,
+	cache: Cache,
 ) {
+
+	private val bypassProxyServer = BypassProxyServer(settings, cache)
 
 	private var cachedProxy: Proxy? = null
 
@@ -60,8 +64,9 @@ class ProxyProvider @Inject constructor(
 			}
 		} else {
 			val controller = ProxyController.getInstance()
-			if (settings.proxyType == Proxy.Type.DIRECT) {
-				suspendCoroutine { cont ->
+			if (!isProxyEnabled) {
+				bypassProxyServer.stopIfRunning()
+				suspendCancellableCoroutine { cont ->
 					controller.clearProxyOverride(
 						(cont.context[CoroutineDispatcher] ?: Dispatchers.Main).asExecutor(),
 					) {
@@ -69,25 +74,31 @@ class ProxyProvider @Inject constructor(
 					}
 				}
 			} else {
-				val url = buildString {
-					when (settings.proxyType) {
-						Proxy.Type.DIRECT -> Unit
-						Proxy.Type.HTTP -> append("http")
-						Proxy.Type.SOCKS -> append("socks")
+				val url = if (isBypassEnabled()) {
+					val port = bypassProxyServer.ensureStarted()
+					"http://127.0.0.1:$port"
+				} else {
+					bypassProxyServer.stopIfRunning()
+					buildString {
+						when (settings.proxyType) {
+							Proxy.Type.DIRECT -> Unit
+							Proxy.Type.HTTP -> append("http")
+							Proxy.Type.SOCKS -> append("socks")
+						}
+						append("://")
+						append(settings.proxyAddress)
+						append(':')
+						append(settings.proxyPort)
 					}
-					append("://")
-					append(settings.proxyAddress)
-					append(':')
-					append(settings.proxyPort)
 				}
-				if (settings.proxyType == Proxy.Type.SOCKS) {
+				if (!isBypassEnabled() && settings.proxyType == Proxy.Type.SOCKS) {
 					System.setProperty("java.net.socks.username", settings.proxyLogin)
 					System.setProperty("java.net.socks.password", settings.proxyPassword)
 				}
 				val proxyConfig = ProxyConfig.Builder()
 					.addProxyRule(url)
 					.build()
-				suspendCoroutine { cont ->
+				suspendCancellableCoroutine { cont ->
 					controller.setProxyOverride(
 						proxyConfig,
 						(cont.context[CoroutineDispatcher] ?: Dispatchers.Main).asExecutor(),
@@ -99,9 +110,18 @@ class ProxyProvider @Inject constructor(
 		}
 	}
 
-	private fun isProxyEnabled() = settings.proxyType != Proxy.Type.DIRECT
+	private fun isBypassEnabled() = settings.isProxyBypassEnabled
+
+	private fun isRegularProxyEnabled() = settings.proxyType != Proxy.Type.DIRECT && !isBypassEnabled()
+
+	private fun isProxyEnabled() = isBypassEnabled() || settings.proxyType != Proxy.Type.DIRECT
 
 	private fun getProxy(): Proxy {
+		if (isBypassEnabled()) {
+			val port = bypassProxyServer.ensureStarted()
+			return Proxy(Proxy.Type.HTTP, InetSocketAddress("127.0.0.1", port))
+		}
+		bypassProxyServer.stopIfRunning()
 		val type = settings.proxyType
 		val address = settings.proxyAddress
 		val port = settings.proxyPort
@@ -125,7 +145,7 @@ class ProxyProvider @Inject constructor(
 	inner class ProxyAuthenticator : Authenticator, JavaAuthenticator() {
 
 		override fun authenticate(route: Route?, response: Response): Request? {
-			if (!isProxyEnabled()) {
+			if (!isRegularProxyEnabled()) {
 				return null
 			}
 			if (response.request.header(CommonHeaders.PROXY_AUTHORIZATION) != null) {
@@ -140,7 +160,7 @@ class ProxyProvider @Inject constructor(
 		}
 
 		public override fun getPasswordAuthentication(): PasswordAuthentication? {
-			if (!isProxyEnabled()) {
+			if (!isRegularProxyEnabled()) {
 				return null
 			}
 			val login = settings.proxyLogin ?: return null

@@ -417,6 +417,8 @@
     <string name="address">Address</string>
     <string name="port">Port</string>
     <string name="proxy">Proxy</string>
+    <string name="proxy_bypass_enabled">Censorship bypass</string>
+	<string name="proxy_bypass_enabled_summary">Route app traffic through the built-in bypass tunnel for blocked networks (beta)</string>
     <string name="invalid_value_message">Invalid value</string>
     <string name="kitsu" translatable="false">Kitsu</string>
     <string name="email_password_enter_hint">Enter your email and password to continue</string>
