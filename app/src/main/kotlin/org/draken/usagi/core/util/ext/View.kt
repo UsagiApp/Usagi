@@ -28,6 +28,7 @@ import com.google.android.material.progressindicator.BaseProgressIndicator
 import com.google.android.material.slider.RangeSlider
 import com.google.android.material.slider.Slider
 import com.google.android.material.tabs.TabLayout
+import org.draken.usagi.core.ui.OnContextClickListenerCompat
 import kotlin.math.roundToInt
 
 fun View.hasGlobalPoint(x: Int, y: Int): Boolean {
@@ -165,6 +166,12 @@ fun BaseProgressIndicator<*>.showOrHide(value: Boolean) {
 		show()
 	} else {
 		hide()
+	}
+}
+
+fun View.setOnContextClickListenerCompat(listener: OnContextClickListenerCompat) {
+	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+		setOnContextClickListener(listener::onContextClick)
 	}
 }
 
