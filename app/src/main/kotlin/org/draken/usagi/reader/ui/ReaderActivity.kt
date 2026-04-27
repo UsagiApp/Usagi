@@ -227,7 +227,7 @@ class ReaderActivity :
     }
 
     override fun onProvideAssistContent(outContent: AssistContent) {
-        super.onProvideAssistContent(outContent)
+		super.onProvideAssistContent(outContent)
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			viewModel.getMangaOrNull()?.publicUrl?.toUriOrNull()?.let { outContent.webUri = it }
 		}
