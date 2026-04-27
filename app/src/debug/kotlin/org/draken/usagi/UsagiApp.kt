@@ -43,7 +43,7 @@ class UsagiApp : BaseApp() {
 				detectNetwork()
 				detectDiskWrites()
 				detectCustomSlowCalls()
-				detectResourceMismatches()
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) detectResourceMismatches()
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) detectUnbufferedIo()
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) detectExplicitGc()
 				penaltyLog()

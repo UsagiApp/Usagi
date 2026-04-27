@@ -478,7 +478,7 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		get() = prefs.getEnumValue(KEY_DOH, DoHProvider.NONE)
 
 	var isSSLBypassEnabled: Boolean
-		get() = prefs.getBoolean(KEY_SSL_BYPASS, false)
+		get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.M || prefs.getBoolean(KEY_SSL_BYPASS, false)
 		set(value) = prefs.edit { putBoolean(KEY_SSL_BYPASS, value) }
 
 	val proxyType: Proxy.Type

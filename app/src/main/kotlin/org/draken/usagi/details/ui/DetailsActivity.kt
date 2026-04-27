@@ -7,6 +7,7 @@ import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.InsetDrawable
 import android.graphics.drawable.RippleDrawable
+import android.os.Build
 import android.os.Bundle
 import android.text.SpannedString
 import android.view.Gravity
@@ -28,6 +29,7 @@ import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
+import androidx.core.widget.NestedScrollView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.transition.TransitionManager
 import coil3.ImageLoader
@@ -163,19 +165,21 @@ class DetailsActivity :
 			lifecycle = this,
 			settings = settings,
 		)
-		viewBinding.scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
-			if (settings.isBackdropEnabled) {
-				viewBinding.backdropContainer.translationY = -scrollY.toFloat()
-			}
-			updateAppBarScrim(scrollY)
-			val titleView = viewBinding.textViewTitle
-			val loc = IntArray(2)
-			titleView.getLocationOnScreen(loc)
-			val titleBottom = loc[1] + titleView.height
-			viewBinding.appbar.getLocationOnScreen(loc)
-			val appBarBottom = loc[1] + viewBinding.appbar.height
-			supportActionBar?.setDisplayShowTitleEnabled(titleBottom < appBarBottom)
-		}
+		viewBinding.scrollView.setOnScrollChangeListener(
+			NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
+				if (settings.isBackdropEnabled) {
+					viewBinding.backdropContainer.translationY = -scrollY.toFloat()
+				}
+				updateAppBarScrim(scrollY)
+				val titleView = viewBinding.textViewTitle
+				val loc = IntArray(2)
+				titleView.getLocationOnScreen(loc)
+				val titleBottom = loc[1] + titleView.height
+				viewBinding.appbar.getLocationOnScreen(loc)
+				val appBarBottom = loc[1] + viewBinding.appbar.height
+				supportActionBar?.setDisplayShowTitleEnabled(titleBottom < appBarBottom)
+			},
+		)
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
 		supportActionBar?.setDisplayShowTitleEnabled(false)
 		viewBinding.chipFavorite.setOnClickListener(this)
@@ -251,7 +255,9 @@ class DetailsActivity :
 
 	override fun onProvideAssistContent(outContent: AssistContent) {
 		super.onProvideAssistContent(outContent)
-		viewModel.getMangaOrNull()?.publicUrl?.toUriOrNull()?.let { outContent.webUri = it }
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			viewModel.getMangaOrNull()?.publicUrl?.toUriOrNull()?.let { outContent.webUri = it }
+		}
 	}
 
 	override fun onDestroy() {

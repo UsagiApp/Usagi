@@ -2,12 +2,14 @@ package org.draken.usagi.image.ui
 
 import android.content.Context
 import android.graphics.drawable.LayerDrawable
+import android.os.Build
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnPreDrawListener
 import androidx.annotation.AttrRes
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.graphics.ColorUtils
@@ -81,7 +83,9 @@ class CoverImageView @JvmOverloads constructor(
 		if (fallbackDrawable == null) {
 			fallbackDrawable = context.getThemeColor(materialR.attr.colorSurfaceContainer).toDrawable()
 		}
-		addImageRequestListener(ErrorForegroundListener())
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			addImageRequestListener(ErrorForegroundListener())
+		}
 	}
 
 	override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -165,6 +169,7 @@ class CoverImageView @JvmOverloads constructor(
 		}
 	}
 
+	@RequiresApi(Build.VERSION_CODES.M)
 	private inner class ErrorForegroundListener : ImageRequest.Listener {
 
 		override fun onSuccess(request: ImageRequest, result: SuccessResult) {

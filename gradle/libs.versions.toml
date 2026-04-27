@@ -1,10 +1,12 @@
 [versions]
 acra = "5.13.1"
-activity = "1.12.2"
+#noinspection GradleDependency
+activity = "1.11.0"
 adapterdelegates = "4.3.2"
 appcompat = "1.7.1"
 avifDecoder = "1.3.0.841110fd"
-biometric = "1.4.0-alpha05"
+#noinspection GradleDependency
+biometric = "1.4.0-alpha04"
 coil = "3.4.0"
 collections = "1.5.0"
 # https://github.com/google/conscrypt/issues/1268
@@ -19,9 +21,10 @@ desugar = "2.1.5"
 diskLruCache = "1.5"
 documentfile = "1.1.0"
 fragment = "1.8.9"
-gradle = "8.13.0"
+gradle = "8.13.2"
 guava = "33.5.0-android"
-hilt = "1.3.0"
+#noinspection GradleDependency
+hilt = "1.2.0"
 json = "20251224"
 #noinspection NewerVersionAvailable
 jsoup = "1.17.2"
@@ -36,7 +39,7 @@ markwon = "4.6.2"
 material = "1.14.0-alpha08"
 moshi = "1.15.2"
 okhttp = "5.3.2"
-okio = "3.16.4"
+okio = "3.17.0"
 preference = "1.2.1"
 recyclerview = "1.4.0"
 room = "2.7.2"
@@ -47,8 +50,10 @@ testRules = "1.7.0"
 testRunner = "1.7.0"
 transition = "1.6.0"
 viewpager2 = "1.1.0"
-webkit = "1.15.0"
-workRuntime = "2.11.0"
+#noinspection GradleDependency
+webkit = "1.14.0"
+#noinspection GradleDependency
+workRuntime = "2.10.5"
 workinspector = "1.2"
 window = "1.3.0"
 
