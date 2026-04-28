@@ -38,6 +38,14 @@
 		<item name="colorOnErrorContainer">@color/onErrorContainer</item>
 		<item name="colorOutline">@color/usagi_outline</item>
 		<item name="colorOutlineVariant">@color/usagi_outline</item>
+		<item name="colorControlNormal">@color/usagi_onSurface</item>
+		<item name="colorControlActivated">@color/usagi_primary</item>
+		<item name="colorControlHighlight">@color/selector_overlay</item>
+		<item name="android:colorControlNormal">@color/usagi_onSurface</item>
+		<item name="android:colorControlActivated">@color/usagi_primary</item>
+		<item name="android:colorControlHighlight">@color/selector_overlay</item>
+		<item name="android:textColorPrimary">@color/usagi_onSurface</item>
+		<item name="android:textColorSecondary">@color/usagi_onSurfaceVariant</item>
 
 		<!-- Drawables (icons) -->
 		<item name="actionModeCloseDrawable">@drawable/abc_ic_clear_material</item>
@@ -45,9 +53,9 @@
 		<item name="expandCollapseIndicator">@drawable/m3_split_button_chevron_avd</item>
 
 		<!-- Base attributes -->
-		<item name="android:windowLightStatusBar">@bool/light_status_bar</item>
-		<item name="android:statusBarColor">@android:color/transparent</item>
-		<item name="android:navigationBarColor">@color/dim</item>
+		<item name="android:windowLightStatusBar" tools:targetApi="M">@bool/light_status_bar</item>
+		<item name="android:statusBarColor">@color/dim</item>
+		<item name="android:navigationBarColor">@color/surface_amoled</item>
 		<item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">@null</item>
 		<item name="android:enforceNavigationBarContrast" tools:targetApi="Q">false</item>
 		<item name="android:enforceStatusBarContrast" tools:targetApi="Q">false</item>
