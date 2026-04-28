@@ -6,7 +6,8 @@
 
     <org.draken.usagi.settings.utils.ThemeChooserPreference
         android:key="color_theme"
-        android:title="@string/color_theme" />
+        android:title="@string/color_theme"
+		app:isPreferenceVisible="@bool/is_color_themes_available"/>
 
     <ListPreference
         android:defaultValue="-1"

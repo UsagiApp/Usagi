@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<style name="Base.V23.Usagi" parent="Base.Theme.Usagi">
+		<item name="android:statusBarColor">@android:color/transparent</item>
+		<item name="android:navigationBarColor">@color/dim</item>
+	</style>
+
+	<style name="Theme.Usagi" parent="Base.V23.Usagi" />
+
+</resources>

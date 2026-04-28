@@ -9,6 +9,11 @@
 
 	<style name="AlertDialog.Usagi" parent="MaterialAlertDialog.Material3">
 		<item name="android:background">@drawable/m3_popup_background</item>
+		<item name="android:textColor">@color/usagi_onSurface</item>
+		<item name="android:textColorPrimary">@color/usagi_onSurface</item>
+		<item name="android:textColorSecondary">@color/usagi_onSurfaceVariant</item>
+		<item name="android:textColorAlertDialogListItem">@color/usagi_onSurface</item>
+		<item name="textColorAlertDialogListItem">@color/usagi_onSurface</item>
 	</style>
 
 	<!-- Bottom sheet -->
@@ -159,7 +164,7 @@
 		<item name="android:insetTop">2dp</item>
 		<item name="android:insetBottom">2dp</item>
 		<item name="android:orientation">horizontal</item>
-		<item name="android:textColor">@color/list_item_text_color</item>
+		<item name="android:textColor">@color/usagi_onSurface</item>
 		<item name="titleTextAppearance">?attr/textAppearanceTitleSmall</item>
 		<item name="subtitleTextAppearance">?attr/textAppearanceBodySmall</item>
 	</style>
