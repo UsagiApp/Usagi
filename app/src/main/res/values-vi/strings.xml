@@ -902,4 +902,14 @@
     <string name="delete_plugin">Xoá tiện ích</string>
     <string name="deleted_plugin">Đã xoá tiện ích %1$s!</string>
     <string name="import_from_github">Nhập từ GitHub</string>
+    <string name="proxy_bypass_enabled">Bỏ qua kiểm duyệt mạng</string>
+    <string name="proxy_bypass_enabled_summary">Đưa mạng của bạn qua lớp đường hầm tích hợp sẵn để ngăn nhà mạng chặn truy cập (beta)</string>
+    <string name="import_github_summary">Bạn có thể nhập URL đầy đủ của GitHub hoặc \"Username/Repository\". Usagi sẽ tự động tìm và cài đặt Plugin từ bản phát hành mới nhất.</string>
+    <string name="jar_not_loaded">Không thể tải tệp JAR: %1$s</string>
+    <string name="load_failed">Đã có lỗi xảy ra khi tải Plugin</string>
+    <string name="load_from_storage">Nhập từ bộ nhớ trong</string>
+    <string name="load_storage_summary">Bạn có thể lựa chọn một tệp JAR trong bộ nhớ nội bộ, tệp đó sẽ được ghi nhận như một Plugin.</string>
+    <string name="load_success">Plugin đã được thêm và tải thành công</string>
+    <string name="loaded_null">Plugin đã được tải như là null (không có nội dung)</string>
+    <string name="manage_plugins">Quản lý Plugin</string>
 </resources>
