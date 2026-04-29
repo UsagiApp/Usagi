@@ -88,6 +88,7 @@ androidx-transition = { module = "androidx.transition:transition-ktx", version.r
 androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
 androidx-webkit = { module = "androidx.webkit:webkit", version.ref = "webkit" }
 androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "workRuntime" }
+androidx-work-gcm = { module = "androidx.work:work-gcm", version.ref = "workRuntime" }
 avif-decoder = { module = "org.aomedia.avif.android:avif", version.ref = "avifDecoder" }
 core_exts = { module = "com.github.UsagiApp:core-exts", version.ref = "core-exts" }
 coil-core = { module = "io.coil-kt.coil3:coil-core", version.ref = "coil" }

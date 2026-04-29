@@ -6,7 +6,7 @@
 
 **[Usagi](https://github.com/UsagiApp/Usagi) is a free and open-source manga reader for Android.**
 
-![Android 6.0](https://img.shields.io/badge/android-6.0+-brightgreen) [![weblate](https://hosted.weblate.org/widgets/usagi/-/strings/svg-badge.svg)](https://hosted.weblate.org/engage/usagi/) [![Discord](https://img.shields.io/discord/1484655684879519885?color=5865f2&label=discord)](https://discord.gg/4AHskjwtj4) [![Telegram](https://img.shields.io/badge/chat-telegram-60ACFF?)](https://t.me/usagiapp)
+![Android 5.0](https://img.shields.io/badge/android-5.0+-brightgreen) [![weblate](https://hosted.weblate.org/widgets/usagi/-/strings/svg-badge.svg)](https://hosted.weblate.org/engage/usagi/) [![Discord](https://img.shields.io/discord/1484655684879519885?color=5865f2&label=discord)](https://discord.gg/4AHskjwtj4) [![Telegram](https://img.shields.io/badge/chat-telegram-60ACFF?)](https://t.me/usagiapp)
 
 ### Features
 
@@ -17,12 +17,14 @@
 
 #### All features from Usagi, include:
 
-* Added bug fixes for previously existing features in Kotatsu
-* Added some new features that requested by users / community
+* Bypass internet firewalls with tunnels built into the app, expanding access to content.
 * Integrate more new user interface styles (Modern, Classic, etc.)
-* The ability to customize the manga display user interface (style, backdrop, etc.)
+* Improve the ability to customize / read offline / downloaded manga.
 * The accompanying services are regularly updated (Sync server / client, bot, proxy, etc.)
-* Optimized for low-end devices / phones
+* Optimized for low-end devices / phones, continue to maintain / support for Android 5.0+
+* Providing access to content with external plugins / extensions.
+* Provides bug fixes for features that previously existed in Kotatsu.
+* Provides more options to customize the user interface (style, background, etc.).
 
 </div>
 </details>
