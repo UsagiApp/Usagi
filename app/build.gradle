@@ -55,7 +55,10 @@ android {
 		resources {
 			excludes += [
 				'META-INF/README.md',
-				'META-INF/NOTICE.md'
+				'META-INF/NOTICE.md',
+				'META-INF/LICENSE',
+				'META-INF/LICENSE.md',
+				'DebugProbesKt.bin'
 			]
 		}
 	}
