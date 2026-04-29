@@ -911,7 +911,6 @@
     <string name="load_success">Plugin berhasil diimpor dan dimuat</string>
     <string name="loaded_null">Plugin dimuat sebagai null</string>
     <string name="manage_plugins">Kelola plugin</string>
-    <string name="manage_plugins_summary">Muat semua sumber/plugin dengan mengimpor satu file JAR</string>
     <string name="missing_in_plugin">Sumber hilang di plugin: %1$s</string>
     <string name="no_compatible_method">Tidak ditemukan metode yang kompatibel: %1$s(%2$s)</string>
     <string name="no_plugins">Tidak ada plugin yang terpasang</string>

@@ -909,7 +909,6 @@
     <string name="load_storage_summary">Anda boleh memilih fail JAR daripada storan setempat, fail tersebut akan dikenali sebagai pemalam.</string>
     <string name="loaded_null">Plugin dimuatkan sebagai null</string>
     <string name="manage_plugins">Urus pemalam</string>
-    <string name="manage_plugins_summary">Muatkan semua sumber/plugin dengan mengimport satu fail JAR</string>
     <string name="missing_in_plugin">Sumber tiada dalam pemalam: %1$s</string>
     <string name="no_compatible_method">Tiada kaedah serasi ditemui: %1$s(%2$s)</string>
     <string name="no_plugins">Tiada pemalam dipasang</string>

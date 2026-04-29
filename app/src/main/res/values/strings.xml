@@ -935,7 +935,6 @@
 	<string name="load_success">Plugin imported and loaded successfully</string>
 	<string name="loaded_null">Plugin loaded as null</string>
 	<string name="manage_plugins">Manage plugins</string>
-	<string name="manage_plugins_summary">Load all sources / plugins by importing a single JAR file</string>
 	<string name="missing_in_plugin">Source missing in plugin: %1$s</string>
 	<string name="no_compatible_method">No compatible method found: %1$s(%2$s)</string>
 	<string name="no_plugins">No plugins installed</string>
