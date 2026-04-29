@@ -17,6 +17,8 @@
 -dontwarn com.google.re2j.**
 -dontwarn coil3.PlatformContext
 
+-keep class androidx.work.impl.background.gcm.GcmScheduler { *; }
+
 -keep class org.draken.usagi.settings.NotificationSettingsLegacyFragment
 -keep class org.draken.usagi.settings.about.changelog.ChangelogFragment
 
