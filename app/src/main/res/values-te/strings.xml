@@ -59,7 +59,7 @@
     <string name="_import">ఇంపోర్ట్</string>
     <string name="delete">తొలగించు</string>
     <string name="operation_not_supported">ఈ ఆపరేషన్‌కు మద్దతు లేదు</string>
-    <string name="text_file_not_supported">దయచేసి ZIP లేదా CBZ ఫైల్ ఎంచుకోండి</string>
+    <string name="text_file_not_supported">దయచేసి ZIP లేదా CBZ ఫైల్ ఎంచుకోండి.</string>
     <string name="no_description">వివరణ లేదు</string>
     <string name="clear_pages_cache">పేజీల క్యాష్ క్లియర్ చెయ్యి</string>
     <string name="text_file_sizes">B | kB | MB | GB | TB</string>
@@ -120,4 +120,22 @@
     <string name="rotate_screen">స్క్రీన్ తిరగబెట్టు</string>
     <string name="hide_broken_sources">విరిగిన మూలాలను దాచండి</string>
     <string name="hide_broken_sources_summary">మూలాధార జాబితాల నుండి విరిగినట్లుగా గుర్తించబడిన మూలాధారాలను దాచండి</string>
+    <string name="all_languages">అన్ని భాషలు</string>
+    <string name="_new">కొత్త</string>
+    <string name="unavailable">అందుబాటులో లేదు</string>
+    <string name="month">నెల</string>
+    <string name="address">చిరునామా</string>
+    <string name="port">పోర్ట్</string>
+    <string name="proxy">ప్రాక్సీ</string>
+    <string name="day">రోజు</string>
+    <string name="today">ఈరోజు</string>
+    <string name="text_downloads_list_holder">మీ దగ్గర డౌన్‌లోడ్లు లేవు</string>
+    <string name="download_option_whole_manga">మొత్తం మాంగా</string>
+    <string name="download_option_first_n_chapters">మొదటి%s</string>
+    <string name="downloads_paused">డౌన్‌లోడ్లు నిలిపివేయబడ్డాయి</string>
+    <string name="downloads_removed">డౌన్‌లోడ్లు తొలగించబడ్డాయి</string>
+    <string name="downloads_cancelled">డౌన్‌లోడ్లు రద్దు చేయబడ్డాయి</string>
+    <string name="status_completed">పూర్తిచేసినవి</string>
+    <string name="unread">చదవనిది</string>
+    <string name="update">నవీకరణ</string>
 </resources>
