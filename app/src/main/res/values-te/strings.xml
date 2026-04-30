@@ -140,4 +140,5 @@
     <string name="update">నవీకరణలు</string>
     <string name="create_category">కొత్త వర్గం జోడించు</string>
     <string name="name">పేరుతో</string>
+    <string name="empty_favourite_categories">ఫేవరెట్ వర్గాలు</string>
 </resources>
