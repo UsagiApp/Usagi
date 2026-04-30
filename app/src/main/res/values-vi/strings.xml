@@ -902,4 +902,24 @@
     <string name="delete_plugin">Xoá tiện ích</string>
     <string name="deleted_plugin">Đã xoá tiện ích %1$s!</string>
     <string name="import_from_github">Nhập từ GitHub</string>
+    <string name="proxy_bypass_enabled">Bỏ qua kiểm duyệt mạng</string>
+    <string name="proxy_bypass_enabled_summary">Đưa mạng của bạn qua lớp đường hầm tích hợp sẵn để ngăn nhà mạng chặn truy cập (beta)</string>
+    <string name="import_github_summary">Bạn có thể nhập URL đầy đủ của GitHub hoặc \"Username/Repository\". Usagi sẽ tự động tìm và cài đặt plugin từ bản phát hành mới nhất.</string>
+    <string name="jar_not_loaded">Không thể tải tệp JAR: %1$s</string>
+    <string name="load_failed">Đã có lỗi xảy ra khi tải plugin</string>
+    <string name="load_from_storage">Nhập từ bộ nhớ trong</string>
+    <string name="load_storage_summary">Bạn có thể lựa chọn một tệp JAR trong bộ nhớ nội bộ, tệp đó sẽ được ghi nhận như một plugin.</string>
+    <string name="load_success">Plugin đã được thêm và tải thành công</string>
+    <string name="loaded_null">Plugin đã được tải như là null (không có nội dung)</string>
+    <string name="manage_plugins">Quản lý plugin</string>
+    <string name="missing_in_plugin">Nguồn bị thiếu trong plugin: %1$s</string>
+    <string name="no_compatible_method">Không tìm thấy lớp tương thích: %1$s(%2$s)</string>
+    <string name="no_plugins">Không có plugin nào được cài</string>
+    <string name="no_plugins_summary">Ấn vào biểu tượng + ở phía trên để thêm plugin từ bên ngoài</string>
+    <string name="overwrite_plugin">Ghi đè plugin?</string>
+    <string name="overwrite_plugin_summary">Plugin với tên %1$s đã được cài đặt trước đó. Thay thế nó với plugin này?</string>
+    <string name="plugin_name">Tên plugin</string>
+    <string name="plugin_not_found">Không có plugin nào có nguồn: %1$s</string>
+    <string name="set_plugin_name">Đặt tên cho plugin này</string>
+    <string name="unknown_source">Không rõ nguồn: %1$s</string>
 </resources>
