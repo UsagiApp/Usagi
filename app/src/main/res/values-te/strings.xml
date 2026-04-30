@@ -138,4 +138,6 @@
     <string name="status_completed">పూర్తిచేసినవి</string>
     <string name="unread">చదవనిది</string>
     <string name="update">నవీకరణలు</string>
+    <string name="create_category">కొత్త వర్గం జోడించు</string>
+    <string name="name">పేరుతో</string>
 </resources>
