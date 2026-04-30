@@ -137,16 +137,17 @@
     <string name="downloads_cancelled">డౌన్‌లోడ్లు రద్దు చేయబడ్డాయి</string>
     <string name="status_completed">పూర్తిచేసినవి</string>
     <string name="unread">చదవనిది</string>
-    <string name="update">నవీకరణలు</string>
+    <string name="update">నవీకరణ</string>
     <string name="create_category">కొత్త వర్గం జోడించు</string>
-    <string name="name">పేరుతో</string>
-    <string name="empty_favourite_categories">ఫేవరెట్ వర్గాలు</string>
-    <string name="clear_all_history">చరిత్రని క్లియర్ చెయ్యి</string>
-    <string name="no_chapters">కొత్త చాప్టర్స్ / కొత్త అధ్యాయాలు</string>
-    <string name="downloaded">డౌన్‌లోడ్ పూర్తైంది</string>
+    <string name="name">పేరు</string>
+    <string name="empty_favourite_categories">ఎలాంటి ఫేవరెట్ వర్గాలు లేవు</string>
+    <string name="clear_all_history">చరిత్ర మొత్తాన్ని తొలగించండి</string>
+    <string name="no_chapters">కొత్త చాప్టర్స్ / కొత్త అధ్యాయాలు లేవు</string>
+    <string name="downloaded">డౌన్‌లోడ్ చేయబడింది</string>
     <string name="color_light">లైట్</string>
     <string name="color_dark">డార్క్</string>
     <string name="manage_sources">మంగా సోర్సెస్</string>
-    <string name="rating">రేటింగ్ ప్రకారం</string>
-    <string name="chapter_number">అధ్యాయాలు</string>
+    <string name="rating">రేటింగ్</string>
+    <string name="chapter_number">అధ్యాయం%s</string>
+    <string name="read_more">మరింత చదవండి</string>
 </resources>
