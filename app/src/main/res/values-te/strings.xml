@@ -144,4 +144,8 @@
     <string name="clear_all_history">చరిత్రని క్లియర్ చెయ్యి</string>
     <string name="no_chapters">కొత్త చాప్టర్స్ / కొత్త అధ్యాయాలు</string>
     <string name="downloaded">డౌన్‌లోడ్ పూర్తైంది</string>
+    <string name="color_light">లైట్</string>
+    <string name="color_dark">డార్క్</string>
+    <string name="manage_sources">మంగా సోర్సెస్</string>
+    <string name="rating">రేటింగ్ ప్రకారం</string>
 </resources>
