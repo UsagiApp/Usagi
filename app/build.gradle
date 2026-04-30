@@ -138,7 +138,6 @@ dependencies {
 	implementation libs.androidx.webkit
 
 	implementation libs.androidx.work.runtime
-	implementation libs.androidx.work.gcm
 	implementation libs.guava
 
     // Foldable/Window layout
