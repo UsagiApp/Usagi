@@ -131,7 +131,7 @@
     <string name="clear_history">기록 삭제</string>
     <string name="add">추가</string>
     <string name="history_is_empty">아직 기록이 없습니다</string>
-    <string name="create_shortcut">바로가기 추가…</string>
+    <string name="create_shortcut">단축키 만들기</string>
     <string name="theme">테마</string>
     <string name="_s_deleted_from_local_storage">\"%s\"가 로컬 저장소에서 삭제됨</string>
     <string name="operation_not_supported">지원되지 않는 동작입니다</string>
@@ -535,4 +535,7 @@
     <string name="reader_info_bar_transparent">투명한 독자 정보 막대기</string>
     <string name="chapter_volume_number">권 %1$s 장 %2$s</string>
     <string name="search_disabled_sources">장애인을 통한 검색</string>
+    <string name="retry">재시도</string>
+    <string name="saved_filters">필터 저장됨</string>
+    <string name="pages_saved">페이지 저장됨</string>
 </resources>
