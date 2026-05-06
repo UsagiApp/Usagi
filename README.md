@@ -1,10 +1,12 @@
 <div align="center">
 
 <a href="#">
-    <img src="./.github/assets/icon.png" alt="Usagi" title="Usagi" width=25%>
+    <img src="./.github/assets/icon.png" alt="Usagi" title="Usagi" width=20%>
 </a>
 
-**[Usagi](https://github.com/UsagiApp/Usagi) is a free and open-source manga reader for Android.**
+<br>
+
+**[Usagi](https://github.com/UsagiApp/Usagi) is a free and open-source manga reader for Android 5.0+**
 
 ![Android 5.0](https://img.shields.io/badge/android-5.0+-brightgreen) [![weblate](https://hosted.weblate.org/widgets/usagi/-/strings/svg-badge.svg)](https://hosted.weblate.org/engage/usagi/) [![Discord](https://img.shields.io/discord/1484655684879519885?color=5865f2&label=discord)](https://discord.gg/4AHskjwtj4) [![Telegram](https://img.shields.io/badge/chat-telegram-60ACFF?)](https://t.me/usagiapp)
 
@@ -54,18 +56,28 @@
 ### Contributing
 
 <details>
-  <summary>App development</summary>
+  <summary>Application / Library Development</summary>
+
+  <br>
+  
+  **This project includes two main repositories. While [Usagi](#) contains the entire source code of the main application, [core-exts](https://github.com/UsagiApp/core-exts) is the repository containing all the classes compatible with external plugins for Usagi.**
 
   <br>
 
   <a href="https://github.com/UsagiApp/Usagi">
     <picture>
-      <source srcset="https://github-readme-stats.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&bg_color=0d1117&text_color=1976d2&title_color=1976d2&icon_color=0877d2&border_radius=10&description_lines_count=2&show_owner=true" media="(prefers-color-scheme: dark)">
-      <img src="https://github-readme-stats.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&text_color=1976d2&title_color=1976d2&icon_color=0877d2&border_radius=10&description_lines_count=2&show_owner=true" alt="Usagi GitHub Repository">
+      <source srcset="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&theme=dracula" media="(prefers-color-scheme: dark)">
+      <img src="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=Usagi" alt="Usagi GitHub Repository">
+    </picture>
+  </a>
+  <a href="https://github.com/UsagiApp/core-exts">
+    <picture>
+      <source srcset="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=core-exts&theme=dracula" media="(prefers-color-scheme: dark)">
+      <img src="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=core-exts" alt="core-exts GitHub Repository">
     </picture>
   </a>
   
-  <br>
+  <br></br>
 
   **📌 Pull requests are welcome, if you want:
   See [CONTRIBUTING.md](https://github.com/UsagiApp/Usagi/blob/devel/CONTRIBUTING.md) for the guidelines**
