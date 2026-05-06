@@ -26,11 +26,6 @@
 -keep class org.jsoup.parser.Tag
 -keep class org.jsoup.internal.StringUtil
 
--keep class org.acra.security.NoKeyStoreFactory { *; }
--keep class org.acra.config.DefaultRetryPolicy { *; }
--keep class org.acra.attachment.DefaultAttachmentProvider { *; }
--keep class org.acra.sender.JobSenderService
-
 # For core-exts dependency, optimization is needed if possible
 -keep class org.koitharu.kotatsu.parsers.** { *; }
 -keep class * extends org.koitharu.kotatsu.parsers.MangaLoaderContext { *; }

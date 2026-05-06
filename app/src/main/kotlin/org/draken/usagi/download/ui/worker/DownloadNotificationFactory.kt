@@ -29,7 +29,6 @@ import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.util.ext.getDrawableOrThrow
 import org.draken.usagi.core.util.ext.getNotificationIconSize
-import org.draken.usagi.core.util.ext.isReportable
 import org.draken.usagi.core.util.ext.mangaSourceExtra
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.download.domain.DownloadState
@@ -209,16 +208,8 @@ class DownloadNotificationFactory @AssistedInject constructor(
 				builder.setShowWhen(true)
 				builder.setWhen(System.currentTimeMillis())
 				builder.setStyle(NotificationCompat.BigTextStyle().bigText(state.errorMessage))
-				if (state.error.isReportable()) {
-					ErrorReporterReceiver.getPendingIntent(context, state.error)?.let { reportIntent ->
-						builder.addAction(
-							NotificationCompat.Action(
-								0,
-								context.getString(R.string.report),
-								reportIntent,
-							),
-						)
-					}
+				ErrorReporterReceiver.getNotificationAction(context, state.error, uuid.hashCode(), uuid.toString())?.let { a ->
+					builder.addAction(a)
 				}
 			}
 

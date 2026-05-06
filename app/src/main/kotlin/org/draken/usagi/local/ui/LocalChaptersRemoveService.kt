@@ -65,10 +65,11 @@ class LocalChaptersRemoveService : CoroutineIntentService() {
 			.setContentText(error.getDisplayMessage(resources))
 			.setSmallIcon(android.R.drawable.stat_notify_error)
 			.setAutoCancel(true)
-			.setContentIntent(ErrorReporterReceiver.getPendingIntent(applicationContext, error))
-			.build()
+		ErrorReporterReceiver.getNotificationAction(applicationContext, error, startId, TAG)?.let { a ->
+			notification.addAction(a)
+		}
 		val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-		nm.notify(NOTIFICATION_ID + startId, notification)
+		nm.notify(NOTIFICATION_ID + startId, notification.build())
 	}
 
 	@SuppressLint("InlinedApi")

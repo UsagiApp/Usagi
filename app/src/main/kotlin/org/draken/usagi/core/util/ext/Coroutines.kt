@@ -9,17 +9,14 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
-import org.draken.usagi.core.util.AcraCoroutineErrorHandler
 import org.draken.usagi.core.util.RetainedLifecycleCoroutineScope
 import org.koitharu.kotatsu.parsers.util.cancelAll
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
 val processLifecycleScope: CoroutineScope
-	get() = ProcessLifecycleOwner.get().lifecycleScope + AcraCoroutineErrorHandler()
+	get() = ProcessLifecycleOwner.get().lifecycleScope
 
 val RetainedLifecycle.lifecycleScope: RetainedLifecycleCoroutineScope
 	inline get() = RetainedLifecycleCoroutineScope(this)
@@ -28,14 +25,6 @@ fun <T> Deferred<T>.getCompletionResultOrNull(): Result<T>? = if (isCompleted) {
 	getCompletionExceptionOrNull()?.let { error ->
 		Result.failure(error)
 	} ?: Result.success(getCompleted())
-} else {
-	null
-}
-
-fun <T> Deferred<T>.peek(): T? = if (isCompleted) {
-	runCatchingCancellable {
-		getCompleted()
-	}.getOrNull()
 } else {
 	null
 }

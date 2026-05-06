@@ -138,14 +138,9 @@ class ImportService : CoroutineIntentService() {
 		}.onFailure { error ->
 			notification.setContentTitle(applicationContext.getString(R.string.error_occurred))
 				.setContentText(error.getDisplayMessage(applicationContext.resources))
-				.setSmallIcon(android.R.drawable.stat_notify_error)
-			ErrorReporterReceiver.getNotificationAction(
-				context = applicationContext,
-				e = error,
-				notificationId = startId,
-				notificationTag = TAG,
-			)?.let { action ->
-				notification.addAction(action)
+			.setSmallIcon(android.R.drawable.stat_notify_error)
+			ErrorReporterReceiver.getNotificationAction(applicationContext, error, startId, TAG)?.let { a ->
+				notification.addAction(a)
 			}
 		}
 		return notification.build()
