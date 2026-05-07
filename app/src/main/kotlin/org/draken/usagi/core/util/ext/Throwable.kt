@@ -12,10 +12,7 @@ import okhttp3.internal.http2.StreamResetException
 import okio.FileNotFoundException
 import okio.IOException
 import okio.ProtocolException
-import org.acra.ktx.sendSilentlyWithAcra
-import org.acra.ktx.sendWithAcra
 import org.jsoup.HttpStatusException
-import org.draken.usagi.BuildConfig
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.BadBackupFormatException
 import org.draken.usagi.core.exceptions.CaughtException
@@ -232,11 +229,8 @@ fun Throwable.isNetworkError(): Boolean {
 }
 
 fun Throwable.report(silent: Boolean = false) {
-    val exception = CaughtException(this)
     if (!silent) {
-        exception.sendWithAcra()
-    } else if (!BuildConfig.DEBUG) {
-        exception.sendSilentlyWithAcra()
+        throw this // TODO
     }
 }
 

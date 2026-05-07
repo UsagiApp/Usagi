@@ -46,7 +46,6 @@ import org.draken.usagi.core.parser.favicon.FaviconFetcher
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.image.CoilImageGetter
 import org.draken.usagi.core.ui.util.ActivityRecreationHandle
-import org.draken.usagi.core.util.AcraScreenLogger
 import org.draken.usagi.core.util.FileSize
 import org.draken.usagi.core.util.ext.connectivityManager
 import org.draken.usagi.core.util.ext.isLowRamDevice
@@ -174,12 +173,10 @@ interface AppModule {
 		fun provideActivityLifecycleCallbacks(
 			appProtectHelper: AppProtectHelper,
 			activityRecreationHandle: ActivityRecreationHandle,
-			acraScreenLogger: AcraScreenLogger,
 			screenshotPolicyHelper: ScreenshotPolicyHelper,
 		): Set<@JvmSuppressWildcards Application.ActivityLifecycleCallbacks> = arraySetOf(
 			appProtectHelper,
 			activityRecreationHandle,
-			acraScreenLogger,
 			screenshotPolicyHelper,
 		)
 

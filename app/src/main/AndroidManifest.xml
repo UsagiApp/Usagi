@@ -79,6 +79,16 @@
 				android:value="org.draken.usagi.search.ui.multi.MultiSearchActivity" />
 		</activity>
 		<activity
+			android:name="org.draken.usagi.core.ui.BaseCrashActivity"
+			android:process=":crash"
+			android:theme="@style/Theme.Material3.DayNight.Dialog.Alert"
+			android:excludeFromRecents="true"
+			android:noHistory="true" />
+		<service
+			android:name="org.draken.usagi.core.ui.BaseCrashService"
+			android:process=":crash"
+			android:foregroundServiceType="dataSync" />
+		<activity
 			android:name="org.draken.usagi.details.ui.DetailsActivity"
 			android:exported="true">
 			<intent-filter>
