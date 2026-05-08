@@ -25,7 +25,7 @@ fragment = "1.8.9"
 gradle = "8.13.2"
 guava = "33.5.0-android"
 #noinspection GradleDependency
-hilt = "1.2.0"
+hilt = "1.3.0"
 json = "20251224"
 #noinspection NewerVersionAvailable
 jsoup = "1.17.2"
