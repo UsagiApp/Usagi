@@ -14,6 +14,8 @@ updates:
             -   dependency-name: "gradle-wrapper"
             -   dependency-name: "*"
                 update-types: [ "version-update:semver-major" ]
+            -   dependency-name: "androidx.hilt:hilt-compiler"
+            -   dependency-name: "androidx.hilt:hilt-work"
                 
     -   package-ecosystem: "github-actions"
         directory: "/"
