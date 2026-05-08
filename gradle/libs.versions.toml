@@ -1,6 +1,6 @@
 [versions]
 #noinspection GradleDependency
-activity = "1.11.0"
+activity = "1.13.0"
 adapterdelegates = "4.3.2"
 appcompat = "1.7.1"
 avifDecoder = "1.3.0.841110fd"
