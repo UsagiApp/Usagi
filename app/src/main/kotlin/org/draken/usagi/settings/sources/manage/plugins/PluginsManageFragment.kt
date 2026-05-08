@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.draken.usagi.R
+import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseFragment
 import org.draken.usagi.core.ui.dialog.buildAlertDialog
 import org.draken.usagi.core.ui.dialog.setEditText
@@ -32,6 +33,7 @@ import org.draken.usagi.databinding.DialogImportBinding
 import org.draken.usagi.databinding.FragmentSettingsSourcesBinding
 import org.draken.usagi.main.ui.owners.AppBarOwner
 import kotlin.coroutines.resume
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class PluginsManageFragment :
@@ -39,6 +41,12 @@ class PluginsManageFragment :
 	RecyclerViewOwner {
 	private val viewModel by viewModels<PluginsManageViewModel>()
 	private var pluginsAdapter: PluginManageAdapter? = null
+
+	@Inject
+	lateinit var settings: AppSettings
+
+	@Inject
+	lateinit var updatePluginsProvider: UpdatePluginsProvider
 
 	private val importJarLauncher = registerForActivityResult(
 		ActivityResultContracts.OpenDocument()
@@ -104,6 +112,11 @@ class PluginsManageFragment :
 	override fun onResume() {
 		super.onResume()
 		activity?.setTitle(R.string.manage_plugins)
+		if (settings.isAutoPluginsEnabled) {
+			viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+				updatePluginsProvider.runAutoUpdate(settings)
+			}
+		}
 		viewModel.refresh()
 	}
 

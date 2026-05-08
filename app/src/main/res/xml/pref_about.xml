@@ -15,6 +15,12 @@
 		android:summary="@string/allow_unstable_updates_summary"
 		android:title="@string/allow_unstable_updates" />
 
+	<SwitchPreferenceCompat
+		android:defaultValue="true"
+		android:key="updates_remind"
+		android:summary="@string/updates_remind_summary"
+		android:title="@string/updates_remind" />
+
 	<Preference
 		android:fragment="org.draken.usagi.settings.about.changelog.ChangelogFragment"
 		android:key="changelog"

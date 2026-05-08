@@ -32,6 +32,8 @@ class MainViewModel @Inject constructor(
 	readingResumeEnabledUseCase: ReadingResumeEnabledUseCase,
 ) : BaseViewModel() {
 
+	var isUpdateDialogShown = false // alway shows at startup
+
 	val onOpenReader = MutableEventFlow<Manga>()
 	val onFirstStart = MutableEventFlow<Unit>()
 

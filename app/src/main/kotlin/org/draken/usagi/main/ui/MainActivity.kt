@@ -46,11 +46,13 @@ import org.draken.usagi.R
 import org.draken.usagi.backups.ui.periodical.PeriodicalBackupService
 import org.draken.usagi.browser.AdListUpdateService
 import org.draken.usagi.core.exceptions.resolve.SnackbarErrorObserver
+import org.draken.usagi.core.github.AppVersion
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.os.VoiceInputContract
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.NavItem
 import org.draken.usagi.core.ui.BaseActivity
+import org.draken.usagi.core.ui.dialog.BigButtonsAlertDialog
 import org.draken.usagi.core.ui.util.FadingAppbarMediator
 import org.draken.usagi.core.ui.util.MenuInvalidator
 import org.draken.usagi.core.ui.widgets.SlidingBottomNavigationView
@@ -67,13 +69,14 @@ import org.draken.usagi.local.ui.LocalIndexUpdateService
 import org.draken.usagi.local.ui.LocalStorageCleanupWorker
 import org.draken.usagi.main.ui.owners.AppBarOwner
 import org.draken.usagi.main.ui.owners.BottomNavOwner
-import org.koitharu.kotatsu.parsers.model.Manga
 import org.draken.usagi.remotelist.ui.MangaSearchMenuProvider
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionItemCallback
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionListenerImpl
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionMenuProvider
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionViewModel
 import org.draken.usagi.search.ui.suggestion.adapter.SearchSuggestionAdapter
+import org.draken.usagi.settings.sources.manage.plugins.UpdatePluginsProvider
+import org.koitharu.kotatsu.parsers.model.Manga
 import javax.inject.Inject
 import com.google.android.material.R as materialR
 
@@ -87,6 +90,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 
 	@Inject
 	lateinit var settings: AppSettings
+
+	@Inject
+	lateinit var updatePluginsProvider: UpdatePluginsProvider
 
 	private val viewModel by viewModels<MainViewModel>()
 	private val searchSuggestionViewModel by viewModels<SearchSuggestionViewModel>()
@@ -147,6 +153,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		viewModel.isResumeEnabled.observe(this, this::onResumeEnabledChanged)
 		viewModel.feedCounter.observe(this, ::onFeedCounterChanged)
 		viewModel.appUpdate.observe(this, MenuInvalidator(this))
+		viewModel.appUpdate.observe(this, ::showUpdateDialog)
 		viewModel.onFirstStart.observeEvent(this) { router.showWelcomeSheet() }
 		viewModel.isBottomNavPinned.observe(this, ::setNavbarPinned)
 		searchSuggestionViewModel.isIncognitoModeEnabled.observe(this, this::onIncognitoModeChanged)
@@ -301,10 +308,30 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 				if (settings.isAdBlockEnabled) {
 					startService(Intent(this@MainActivity, AdListUpdateService::class.java))
 				}
+				lifecycleScope.launch(Dispatchers.Default) {
+					updatePluginsProvider.runAutoUpdate(settings)
+				}
 			}
 		}
 	} catch (e: IllegalStateException) {
 		throw e
+	}
+
+	private fun showUpdateDialog(version: AppVersion?) {
+		if (version == null) return
+		if (!settings.isUpdateReminderEnabled) return
+		if (viewModel.isUpdateDialogShown) return
+		viewModel.isUpdateDialogShown = true
+		if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
+		BigButtonsAlertDialog.Builder(this)
+			.setIcon(R.drawable.ic_app_update)
+			.setTitle(R.string.update_available_message)
+			.setPositiveButton(R.string.update) { _, _ ->
+				router.openAppUpdate()
+			}
+			.setNegativeButton(android.R.string.cancel, null)
+			.create()
+			.show()
 	}
 
 	private fun adjustAppbar(topFragment: Fragment) {

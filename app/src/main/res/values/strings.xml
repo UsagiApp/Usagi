@@ -945,4 +945,9 @@
 	<string name="plugin_not_found">No plugin found for source: %1$s</string>
 	<string name="set_plugin_name">Set name for this plugin</string>
 	<string name="unknown_source">Unknown source: %1$s</string>
+	<string name="updates_remind">Notify about app updates</string>
+	<string name="updates_remind_summary">Show a dialog on app start when an update is available</string>
+	<string name="update_available_message">A new version of Usagi is available. Do you want to update it now?</string>
+	<string name="auto_update_plugins">Auto update plugins</string>
+	<string name="auto_update_plugins_summary">Automatically refresh and update all installed plugins at startup</string>
 </resources>

@@ -14,15 +14,19 @@ import android.view.ViewGroup
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.SnackbarErrorObserver
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.external.ExternalMangaSource
+import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseFragment
 import org.draken.usagi.core.ui.dialog.BigButtonsAlertDialog
 import org.draken.usagi.core.ui.list.ListSelectionController
@@ -42,7 +46,9 @@ import org.draken.usagi.explore.ui.adapter.ExploreListEventListener
 import org.draken.usagi.explore.ui.model.MangaSourceItem
 import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListHeader
+import org.draken.usagi.settings.sources.manage.plugins.UpdatePluginsProvider
 import org.koitharu.kotatsu.parsers.model.Manga
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ExploreFragment :
@@ -54,6 +60,12 @@ class ExploreFragment :
 	private val viewModel by viewModels<ExploreViewModel>()
 	private var exploreAdapter: ExploreAdapter? = null
 	private var sourceSelectionController: ListSelectionController? = null
+
+	@Inject
+	lateinit var settings: AppSettings
+
+	@Inject
+	lateinit var updatePluginsProvider: UpdatePluginsProvider
 
 	override val recyclerView: RecyclerView?
 		get() = viewBinding?.recyclerView
@@ -107,6 +119,15 @@ class ExploreFragment :
 		super.onDestroyView()
 		sourceSelectionController = null
 		exploreAdapter = null
+	}
+
+	override fun onResume() {
+		super.onResume()
+		if (settings.isAutoPluginsEnabled) {
+			viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+				updatePluginsProvider.runAutoUpdate(settings)
+			}
+		}
 	}
 
 	override fun onListHeaderClick(item: ListHeader, view: View) {
