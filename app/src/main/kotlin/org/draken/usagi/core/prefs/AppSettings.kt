@@ -33,12 +33,12 @@ import org.draken.usagi.core.util.ext.takeIfReadable
 import org.draken.usagi.core.util.ext.toUriOrNull
 import org.draken.usagi.explore.data.SourcesSortOrder
 import org.draken.usagi.list.domain.ListSortOrder
+import org.draken.usagi.reader.domain.ReaderColorFilter
 import org.koitharu.kotatsu.parsers.model.SortOrder
 import org.koitharu.kotatsu.parsers.util.find
 import org.koitharu.kotatsu.parsers.util.mapNotNullToSet
 import org.koitharu.kotatsu.parsers.util.mapToSet
 import org.koitharu.kotatsu.parsers.util.nullIfEmpty
-import org.draken.usagi.reader.domain.ReaderColorFilter
 import java.io.File
 import java.net.Proxy
 import java.util.EnumSet
@@ -312,6 +312,13 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	val isUnstableUpdatesAllowed: Boolean
 		get() = prefs.getBoolean(KEY_UPDATES_UNSTABLE, false)
 
+	val isUpdateReminderEnabled: Boolean
+		get() = prefs.getBoolean(KEY_UPDATES_REMIND, true)
+
+	var lastAppUpdate: Long
+		get() = prefs.getLong(KEY_LAST_UPDATES_REMIND, 0L)
+		set(value) = prefs.edit { putLong(KEY_LAST_UPDATES_REMIND, value) }
+
 	val isPagesTabEnabled: Boolean
 		get() = prefs.getBoolean(KEY_PAGES_TAB, true)
 
@@ -360,6 +367,13 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	var isBrokenSourcesHidden: Boolean
 		get() = prefs.getBoolean(KEY_SOURCES_HIDE_BROKEN, false)
 		set(value) = prefs.edit { putBoolean(KEY_SOURCES_HIDE_BROKEN, value) }
+
+	val isAutoPluginsEnabled: Boolean
+		get() = prefs.getBoolean(KEY_AUTO_PLUGINS, false)
+
+	var lastAutoPlugins: Long
+		get() = prefs.getLong(KEY_LAST_AUTO_PLUGINS, 0L)
+		set(value) = prefs.edit { putLong(KEY_LAST_AUTO_PLUGINS, value) }
 
 	val isPagesNumbersEnabled: Boolean
 		get() = prefs.getBoolean(KEY_PAGES_NUMBERS, false)
@@ -812,6 +826,8 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_APP_LOCALE = "app_locale"
 		const val KEY_SOURCES_GRID = "sources_grid"
 		const val KEY_UPDATES_UNSTABLE = "updates_unstable"
+		const val KEY_UPDATES_REMIND = "updates_remind"
+		const val KEY_LAST_UPDATES_REMIND = "updates_remind_last_id"
 		const val KEY_TIPS_CLOSED = "tips_closed"
 		const val KEY_SSL_BYPASS = "ssl_bypass"
 		const val KEY_READER_AUTOSCROLL_SPEED = "as_speed"
@@ -853,6 +869,8 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_SOURCES_VERSION = "sources_version"
 		const val KEY_SOURCES_ENABLED_ALL = "sources_enabled_all"
 		const val KEY_SOURCES_HIDE_BROKEN = "sources_hide_broken"
+		const val KEY_AUTO_PLUGINS = "auto_plugins"
+		const val KEY_LAST_AUTO_PLUGINS = "last_auto_plugins"
 		const val KEY_QUICK_FILTER = "quick_filter"
 		const val KEY_COLLAPSE_DESCRIPTION = "description_collapse"
 		const val KEY_DETAILS_BACKDROP = "details_backdrop"
