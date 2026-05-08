@@ -19,7 +19,7 @@
 
 #### All features from Usagi, include:
 
-* Bypass internet firewalls with tunnels built into the app, expanding access to content.
+* Bypass internet firewalls with tunnels built into the app, expanding access to more content.
 * Integrate more new user interface styles (Modern, Classic, etc.)
 * Improve the ability to customize / read offline / downloaded manga.
 * The accompanying services are regularly updated (Sync server / client, bot, proxy, etc.)
@@ -36,7 +36,7 @@
 
 <div align="left">
 
-#### All features from Kotatsu (original), include:
+#### All features from Kotatsu (original application), include:
 
 * Search manga by name, genres and more filters
 * Favorites organized by user-defined categories
@@ -60,7 +60,7 @@
 
   <br>
   
-  **This project includes two main repositories. While [Usagi](#) contains the entire source code of the main application, [core-exts](https://github.com/UsagiApp/core-exts) is the repository containing all the classes compatible with external plugins for Usagi.**
+  **This project includes two main repositories. While [this repository](#) contains the entire source code of the main application, [core-exts](https://github.com/UsagiApp/core-exts) is the repository containing all the classes compatible with external plugins / extensions for Usagi.**
 
   <br>
 
