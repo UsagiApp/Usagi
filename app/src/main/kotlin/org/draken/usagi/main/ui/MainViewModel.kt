@@ -20,6 +20,7 @@ import org.draken.usagi.history.data.HistoryRepository
 import org.draken.usagi.main.domain.ReadingResumeEnabledUseCase
 import org.koitharu.kotatsu.parsers.model.Manga
 import org.draken.usagi.tracker.domain.TrackingRepository
+import org.draken.usagi.settings.sources.manage.plugins.UpdatePluginsProvider
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,6 +30,7 @@ class MainViewModel @Inject constructor(
 	trackingRepository: TrackingRepository,
 	private val settings: AppSettings,
 	private val sourcesRepository: MangaSourcesRepository,
+	private val updatePluginsProvider: UpdatePluginsProvider,
 	readingResumeEnabledUseCase: ReadingResumeEnabledUseCase,
 ) : BaseViewModel() {
 
@@ -84,5 +86,13 @@ class MainViewModel @Inject constructor(
 
 	fun setIncognitoMode(isEnabled: Boolean) {
 		settings.isIncognitoModeEnabled = isEnabled
+	}
+
+	fun runAutoUpdate() {
+		if (settings.isAutoPluginsEnabled) {
+			launchJob(Dispatchers.Default) {
+				updatePluginsProvider.runAutoUpdate(settings)
+			}
+		}
 	}
 }

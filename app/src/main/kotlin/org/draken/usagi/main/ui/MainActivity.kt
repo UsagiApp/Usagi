@@ -75,7 +75,6 @@ import org.draken.usagi.search.ui.suggestion.SearchSuggestionListenerImpl
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionMenuProvider
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionViewModel
 import org.draken.usagi.search.ui.suggestion.adapter.SearchSuggestionAdapter
-import org.draken.usagi.settings.sources.manage.plugins.UpdatePluginsProvider
 import org.koitharu.kotatsu.parsers.model.Manga
 import javax.inject.Inject
 import com.google.android.material.R as materialR
@@ -90,9 +89,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 
 	@Inject
 	lateinit var settings: AppSettings
-
-	@Inject
-	lateinit var updatePluginsProvider: UpdatePluginsProvider
 
 	private val viewModel by viewModels<MainViewModel>()
 	private val searchSuggestionViewModel by viewModels<SearchSuggestionViewModel>()
@@ -308,9 +304,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 				if (settings.isAdBlockEnabled) {
 					startService(Intent(this@MainActivity, AdListUpdateService::class.java))
 				}
-				lifecycleScope.launch(Dispatchers.Default) {
-					updatePluginsProvider.runAutoUpdate(settings)
-				}
+				viewModel.runAutoUpdate()
 			}
 		}
 	} catch (e: IllegalStateException) {
