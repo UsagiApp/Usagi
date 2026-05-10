@@ -24,7 +24,7 @@ class PluginClassLoader(
             name.startsWith("org.koitharu.kotatsu.parsers.util.LinkResolver$") ||
             name == "org.koitharu.kotatsu.parsers.MangaLoaderContext" ||
             (name.startsWith("org.koitharu.kotatsu.parsers.model.") &&
-                name != "org.koitharu.kotatsu.parsers.model.MangaParserSource") ||
+			name != "org.koitharu.kotatsu.parsers.model.MangaParserSource") ||
             name.startsWith("org.koitharu.kotatsu.parsers.config.")
         ) {
             return super.loadClass(name, resolve)
@@ -34,7 +34,11 @@ class PluginClassLoader(
             name.startsWith("org.koitharu.kotatsu.parsers.site.") ||
             name.startsWith("org.koitharu.kotatsu.parsers.core.") ||
             name.startsWith("org.koitharu.kotatsu.core.parser.") ||
+			name.startsWith("org.koitharu.kotatsu.parsers.compat.") ||
             name.startsWith("org.koitharu.kotatsu.parsers.util.") ||
+			name.startsWith("eu.kanade.tachiyomi.") ||
+			name.startsWith("uy.kohesive.injekt.") ||
+			name.startsWith("rx.") ||
             name.startsWith("org.koitharu.kotatsu.parsers.MangaParserFactory")
         ) { return findClass(name) }
         return super.loadClass(name, resolve)

@@ -46,7 +46,6 @@ import org.draken.usagi.explore.ui.adapter.ExploreListEventListener
 import org.draken.usagi.explore.ui.model.MangaSourceItem
 import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListHeader
-import org.draken.usagi.settings.sources.manage.plugins.UpdatePluginsProvider
 import org.koitharu.kotatsu.parsers.model.Manga
 import javax.inject.Inject
 
@@ -63,9 +62,6 @@ class ExploreFragment :
 
 	@Inject
 	lateinit var settings: AppSettings
-
-	@Inject
-	lateinit var updatePluginsProvider: UpdatePluginsProvider
 
 	override val recyclerView: RecyclerView?
 		get() = viewBinding?.recyclerView
@@ -123,11 +119,7 @@ class ExploreFragment :
 
 	override fun onResume() {
 		super.onResume()
-		if (settings.isAutoPluginsEnabled) {
-			viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
-				updatePluginsProvider.runAutoUpdate(settings)
-			}
-		}
+		viewModel.runAutoUpdate()
 	}
 
 	override fun onListHeaderClick(item: ListHeader, view: View) {

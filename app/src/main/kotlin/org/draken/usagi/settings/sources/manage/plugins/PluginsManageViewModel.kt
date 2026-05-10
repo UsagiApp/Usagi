@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 import org.draken.usagi.R
 import org.draken.usagi.core.db.MangaDatabase
+import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.model.PluginSourceKeyNormalizer
 import org.draken.usagi.core.parser.DynamicParserManager
 import org.draken.usagi.core.parser.PluginFileLoader
@@ -28,6 +29,7 @@ class PluginsManageViewModel @Inject constructor(
 	private val database: MangaDatabase,
 	private val savedFiltersRepository: SavedFiltersRepository,
 	private val updatePluginsProvider: UpdatePluginsProvider,
+	private val settings: AppSettings,
 ) : BaseViewModel() {
 
 	val content = MutableStateFlow<List<PluginManageItem>>(emptyList())
@@ -67,6 +69,14 @@ class PluginsManageViewModel @Inject constructor(
 	fun setQuery(value: String?) {
 		query = value?.trim().orEmpty()
 		publishFiltered()
+	}
+
+	fun runAutoUpdate() {
+		if (settings.isAutoPluginsEnabled) {
+			launchJob(Dispatchers.Default) {
+				updatePluginsProvider.runAutoUpdate(settings)
+			}
+		}
 	}
 
 	suspend fun resolveGithubRelease(input: String): ExternalPluginDto? = withContext(Dispatchers.Default) {

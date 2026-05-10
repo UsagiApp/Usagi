@@ -37,6 +37,7 @@ import org.koitharu.kotatsu.parsers.model.Manga
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import org.draken.usagi.suggestions.domain.SuggestionRepository
+import org.draken.usagi.settings.sources.manage.plugins.UpdatePluginsProvider
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,6 +47,7 @@ class ExploreViewModel @Inject constructor(
 	private val exploreRepository: ExploreRepository,
 	private val sourcesRepository: MangaSourcesRepository,
 	private val shortcutManager: AppShortcutManager,
+	private val updatePluginsProvider: UpdatePluginsProvider,
 ) : BaseViewModel() {
 
 	val isGrid = settings.observeAsStateFlow(
@@ -130,6 +132,14 @@ class ExploreViewModel @Inject constructor(
 	fun respondSuggestionTip(isAccepted: Boolean) {
 		settings.isSuggestionsEnabled = isAccepted
 		settings.closeTip(TIP_SUGGESTIONS)
+	}
+
+	fun runAutoUpdate() {
+		if (settings.isAutoPluginsEnabled) {
+			launchJob(Dispatchers.Default) {
+				updatePluginsProvider.runAutoUpdate(settings)
+			}
+		}
 	}
 
 	fun sourcesSnapshot(ids: LongSet): List<MangaSourceInfo> {
