@@ -63,12 +63,17 @@ class ReaderInfoBarView @JvmOverloads constructor(
 		(context.getThemeColorStateList(materialR.attr.colorSurface)
 			?: ColorStateList.valueOf(Color.WHITE)).withAlpha(ALPHA_BG)
 	private val batteryIcon = ContextCompat.getDrawable(context, R.drawable.ic_battery_outline)
+	private val batteryChargingIcon = ContextCompat.getDrawable(context, R.drawable.ic_battery_charging)
+	private val batteryIcons = listOfNotNull(batteryIcon, batteryChargingIcon)
+	private val currentBatteryIcon: Drawable?
+		get() = if (isBatteryCharging) batteryChargingIcon ?: batteryIcon else batteryIcon
 
 	private var currentTextColor: Int = Color.TRANSPARENT
 	private var currentBackgroundColor: Int = Color.TRANSPARENT
 	private var currentOutlineColor: Int = Color.TRANSPARENT
 	private var timeText = timeFormat.format(LocalTime.now())
 	private var batteryText = ""
+	private var isBatteryCharging = false
 	private var text: String = ""
 	private var prevTextHeight: Int = 0
 
@@ -101,7 +106,7 @@ class ReaderInfoBarView @JvmOverloads constructor(
 		insetLeftFallback = if (isRtl) insetEnd else insetStart
 		insetRightFallback = if (isRtl) insetStart else insetEnd
 		insetTopFallback = minOf(insetLeftFallback, insetRightFallback)
-		batteryIcon?.setTintList(colorText)
+		batteryIcons.forEach { it.setTintList(colorText) }
 	}
 
 	override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -149,7 +154,7 @@ class ReaderInfoBarView @JvmOverloads constructor(
 				} else {
 					canvas.drawTextOutline(batteryText, endX, paddingTop + insetTop + ty)
 				}
-				batteryIcon?.let {
+				currentBatteryIcon?.let {
 					paint.getTextBounds(batteryText, 0, batteryText.length, textBounds)
 					endX -= textBounds.width()
 					val iconCenter = paddingTop + insetTop + textBounds.height() / 2
@@ -199,16 +204,16 @@ class ReaderInfoBarView @JvmOverloads constructor(
 	}
 
 	override fun verifyDrawable(who: Drawable): Boolean {
-		return who == batteryIcon || super.verifyDrawable(who)
+		return batteryIcons.any { it === who } || super.verifyDrawable(who)
 	}
 
 	override fun jumpDrawablesToCurrentState() {
 		super.jumpDrawablesToCurrentState()
-		batteryIcon?.jumpToCurrentState()
+		batteryIcons.forEach { it.jumpToCurrentState() }
 	}
 
 	override fun onCreateDrawableState(extraSpace: Int): IntArray? {
-		val iconState = batteryIcon?.state ?: return super.onCreateDrawableState(extraSpace)
+		val iconState = currentBatteryIcon?.state ?: return super.onCreateDrawableState(extraSpace)
 		return mergeDrawableStates(super.onCreateDrawableState(extraSpace + iconState.size), iconState)
 	}
 
@@ -217,8 +222,10 @@ class ReaderInfoBarView @JvmOverloads constructor(
 		currentBackgroundColor = colorBackground.getColorForState(drawableState, colorBackground.defaultColor)
 		currentOutlineColor = ColorUtils.setAlphaComponent(currentBackgroundColor, Color.alpha(currentTextColor))
 		super.drawableStateChanged()
-		if (batteryIcon != null && batteryIcon.isStateful && batteryIcon.setState(drawableState)) {
-			invalidateDrawable(batteryIcon)
+		batteryIcons.forEach { icon ->
+			if (icon.isStateful && icon.setState(drawableState)) {
+				invalidateDrawable(icon)
+			}
 		}
 	}
 
@@ -230,7 +237,7 @@ class ReaderInfoBarView @JvmOverloads constructor(
 		colorBackground = (context.getThemeColorStateList(
 			if (isBlackOnWhite != isDarkTheme) materialR.attr.colorSurface else materialR.attr.colorSurfaceInverse,
 		) ?: ColorStateList.valueOf(if (isBlackOnWhite) Color.WHITE else Color.BLACK)).withAlpha(ALPHA_BG)
-		batteryIcon?.setTintList(colorText)
+		batteryIcons.forEach { it.setTintList(colorText) }
 		drawableStateChanged()
 	}
 
@@ -324,8 +331,15 @@ class ReaderInfoBarView @JvmOverloads constructor(
 		override fun onReceive(context: Context, intent: Intent) {
 			val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
 			val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
-			if (level != -1 && scale != -1) {
+			if (level != -1 && scale > 0) {
 				batteryText = context.getString(R.string.percent_string_pattern, (level * 100 / scale).toString())
+			}
+			if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
+				val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN)
+				val plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
+				isBatteryCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+					status == BatteryManager.BATTERY_STATUS_FULL ||
+					plugged != 0
 			}
 
 			timeText = timeFormat.format(LocalTime.now())
