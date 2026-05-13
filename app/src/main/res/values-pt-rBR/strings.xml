@@ -886,4 +886,14 @@
     <string name="auto_double_foldable">Duas Páginas Automático em Tela Dobrável</string>
     <string name="hide_broken_sources">Ocultar fontes quebradas</string>
     <string name="hide_broken_sources_summary">Ocultar fontes marcadas como quebradas nas listas de fontes</string>
+    <string name="cover_only">Apenas capa</string>
+    <string name="proxy_bypass_enabled">Contornar a censura da internet</string>
+    <string name="proxy_bypass_enabled_summary">Direcione o tráfego do aplicativo através do túnel de bypass integrado para redes bloqueadas (beta)</string>
+    <string name="details_ui">Estilo da tela de detalhes</string>
+    <string name="details_ui_modern">Moderno (Novo)</string>
+    <string name="details_ui_classic">Clássico (Antigo)</string>
+    <string name="experiment">Experimento</string>
+    <string name="details_backdrop">Defina uma capa grande como pano de fundo</string>
+    <string name="details_backdrop_summary">Exibir uma imagem de capa grande na parte superior como imagem de fundo (como em Tachiyomi)</string>
+    <string name="details_backdrop_blur">Intensidade de desfoque do cenário</string>
 </resources>
