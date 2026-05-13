@@ -23,48 +23,42 @@ import coil3.size.Scale
 import coil3.size.Size
 import coil3.size.isOriginal
 import coil3.size.pxOrElse
-import org.draken.usagi.core.util.ext.copyWithNewSource
 import kotlin.math.roundToInt
 
 class RegionBitmapDecoder(
 	private val fetchResult: SourceFetchResult,
 	private val options: Options,
-	private val imageLoader: ImageLoader,
 ) : Decoder {
 
 	override suspend fun decode(): DecodeResult? {
-		val regionDecoder = BitmapDecoderCompat.createRegionDecoder(fetchResult.source.source().inputStream())
+		val sourceBytes = fetchResult.source.source().readByteArray()
+		val regionDecoder = BitmapDecoderCompat.createRegionDecoder(sourceBytes.inputStream())
 		if (regionDecoder == null) {
-			val revivedFetchResult = fetchResult.copyWithNewSource()
-			return try {
-				val fallbackDecoder = imageLoader.components.newDecoder(
-					result = revivedFetchResult,
-					options = options,
-					imageLoader = imageLoader,
-					startIndex = 0,
-				)?.first
-				if (fallbackDecoder == null || fallbackDecoder is RegionBitmapDecoder) {
-					null
-				} else {
-					fallbackDecoder.decode()
-				}
-			} finally {
-				revivedFetchResult.source.close()
-			}
+			return decodeFullBitmap(sourceBytes)
 		}
 		val bitmapOptions = BitmapFactory.Options()
 		return try {
 			val rect = bitmapOptions.configureScale(regionDecoder.width, regionDecoder.height)
 			bitmapOptions.configureConfig()
 			val bitmap = regionDecoder.decodeRegion(rect, bitmapOptions)
-			bitmap.density = options.context.resources.displayMetrics.densityDpi
-			DecodeResult(
-				image = bitmap.asImage(),
-				isSampled = true,
-			)
+			if (bitmap != null) {
+				bitmap.density = options.context.resources.displayMetrics.densityDpi
+				DecodeResult(image = bitmap.asImage(), isSampled = true)
+			} else {
+				decodeFullBitmap(sourceBytes)
+			}
 		} finally {
 			regionDecoder.recycle()
 		}
+	}
+
+	/** Fallback when BitmapRegionDecoder.decodeRegion() fails. */
+	private fun decodeFullBitmap(bytes: ByteArray): DecodeResult? {
+		val opts = BitmapFactory.Options().apply { configureConfig() }
+		val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
+			?: return null
+		bitmap.density = options.context.resources.displayMetrics.densityDpi
+		return DecodeResult(image = bitmap.asImage(), isSampled = false)
 	}
 
 	/** Compute and set the scaling properties for [BitmapFactory.Options]. */
@@ -160,7 +154,7 @@ class RegionBitmapDecoder(
 			result: SourceFetchResult,
 			options: Options,
 			imageLoader: ImageLoader
-		): Decoder = RegionBitmapDecoder(result, options, imageLoader)
+		): Decoder = RegionBitmapDecoder(result, options)
 
 		override fun equals(other: Any?) = other is Factory
 

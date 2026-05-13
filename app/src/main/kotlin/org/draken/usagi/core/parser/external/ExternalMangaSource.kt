@@ -1,6 +1,7 @@
 package org.draken.usagi.core.parser.external
 
 import android.content.Context
+import org.koitharu.kotatsu.parsers.model.ContentType
 import org.koitharu.kotatsu.parsers.model.MangaSource
 
 data class ExternalMangaSource(
@@ -10,6 +11,18 @@ data class ExternalMangaSource(
 
 	override val name: String
 		get() = "content:$packageName/$authority"
+
+    override val title: String
+        get() = name
+
+    override val locale: String
+        get() = ""
+
+    override val contentType: ContentType
+        get() = ContentType.OTHER
+
+    override val isBroken: Boolean
+        get() = false
 
 	private var cachedName: String? = null
 

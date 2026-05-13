@@ -1,7 +1,6 @@
 package org.draken.usagi.core.parser
 
 import android.content.Context
-import dalvik.system.DexClassLoader
 import org.draken.usagi.R
 import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.model.PluginMangaSource
@@ -9,41 +8,10 @@ import org.koitharu.kotatsu.parsers.MangaLoaderContext
 import org.koitharu.kotatsu.parsers.MangaParser
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import java.io.File
+import java.io.IOException
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import java.util.concurrent.ConcurrentHashMap
-
-class PluginClassLoader(
-    dexPath: String,
-    optimizedDirectory: String?,
-    librarySearchPath: String?,
-    parent: ClassLoader,
-) : DexClassLoader(dexPath, optimizedDirectory, librarySearchPath, parent) {
-    override fun loadClass(name: String, resolve: Boolean): Class<*> {
-        if (name == "org.koitharu.kotatsu.parsers.util.LinkResolver" ||
-            name.startsWith("org.koitharu.kotatsu.parsers.util.LinkResolver$") ||
-            name == "org.koitharu.kotatsu.parsers.MangaLoaderContext" ||
-            (name.startsWith("org.koitharu.kotatsu.parsers.model.") &&
-			name != "org.koitharu.kotatsu.parsers.model.MangaParserSource") ||
-            name.startsWith("org.koitharu.kotatsu.parsers.config.")
-        ) {
-            return super.loadClass(name, resolve)
-        }
-        if (name == "org.koitharu.kotatsu.parsers.MangaParser" ||
-            name == "org.koitharu.kotatsu.parsers.model.MangaParserSource" ||
-            name.startsWith("org.koitharu.kotatsu.parsers.site.") ||
-            name.startsWith("org.koitharu.kotatsu.parsers.core.") ||
-            name.startsWith("org.koitharu.kotatsu.core.parser.") ||
-			name.startsWith("org.koitharu.kotatsu.parsers.compat.") ||
-            name.startsWith("org.koitharu.kotatsu.parsers.util.") ||
-			name.startsWith("eu.kanade.tachiyomi.") ||
-			name.startsWith("uy.kohesive.injekt.") ||
-			name.startsWith("rx.") ||
-            name.startsWith("org.koitharu.kotatsu.parsers.MangaParserFactory")
-        ) { return findClass(name) }
-        return super.loadClass(name, resolve)
-    }
-}
 
 object DynamicParserManager {
     private val classLoaders = mutableMapOf<String, ClassLoader>()
@@ -97,23 +65,34 @@ object DynamicParserManager {
     fun getInstalledPlugins(context: Context): List<String> =
         PluginFileLoader.pluginsDir(context).listFiles { it.extension == "jar" }?.map { it.name } ?: emptyList()
 
+	/** Should not crash under any circumstances */
+    @Throws(IOException::class)
     fun createParser(source: MangaSource, loaderContext: MangaLoaderContext, appContext: Context): MangaParser {
         val ctx = appContext.applicationContext
         val ps = resolvePluginSource(source)
-            ?: throw IllegalArgumentException(ctx.getString(R.string.plugin_not_found, source.name))
+            ?: throw IOException(ctx.getString(R.string.plugin_not_found, source.name))
         val cl = classLoaders[ps.jarName]
         val factoryMethod = newParserMethods[ps.name]
         if (cl == null || factoryMethod == null) {
-            throw IllegalStateException(
+            throw IOException(
                 if (cl == null) ctx.getString(R.string.jar_not_loaded, ps.jarName)
                 else ctx.getString(R.string.unknown_source, source.name),
             )
         }
         val enumC = cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
         val constant = enumC.enumConstants?.firstOrNull { (it as MangaSource).name == ps.sourceName }
-            ?: throw IllegalArgumentException(ctx.getString(R.string.missing_in_plugin, ps.sourceName))
-        val delegate = factoryMethod.invoke(null, constant, loaderContext)
-            ?: throw IllegalStateException(ctx.getString(R.string.loaded_null))
+            ?: throw IOException(ctx.getString(R.string.missing_in_plugin, ps.sourceName))
+        val delegate = try {
+            factoryMethod.invoke(null, constant, loaderContext)
+                ?: throw IOException(ctx.getString(R.string.loaded_null))
+        } catch (e: java.lang.reflect.InvocationTargetException) {
+            throw IOException(ctx.getString(R.string.error_occurred)
+				+ ": ${e.targetException.message}", e.targetException)
+        } catch (e: IOException) {
+            throw e
+        } catch (e: Throwable) {
+            throw IOException(ctx.getString(R.string.error_occurred) + ": ${e.message}", e)
+        }
         return Proxy.newProxyInstance(
             MangaParser::class.java.classLoader,
             arrayOf(MangaParser::class.java),
