@@ -29,3 +29,7 @@
 # For core-exts dependency, optimization is needed if possible
 -keep class org.koitharu.kotatsu.parsers.** { *; }
 -keep class * extends org.koitharu.kotatsu.parsers.MangaLoaderContext { *; }
+-keep class eu.kanade.tachiyomi.** { *; }
+-keep class okio.** { *; }
+-keep class rx.** { *; }
+-keep class uy.kohesive.injekt.** { *; }

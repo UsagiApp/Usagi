@@ -42,7 +42,7 @@ object DynamicParserManager {
                     }
                 }
                 loaders[jar.name] = cl
-            } catch (_: Exception) {
+            } catch (_: Throwable) {
             }
         }
         MangaSourceRegistry.sources.clear()
