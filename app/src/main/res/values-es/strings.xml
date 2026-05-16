@@ -912,4 +912,5 @@
     <string name="updates_remind">Notificar sobre actualizaciones de aplicaciones</string>
     <string name="updates_remind_summary">Mostrar un diálogo sobre el inicio de la aplicación cuando una actualización está disponible</string>
     <string name="update_available_message">Está disponible una nueva versión de Usagi. ¿Quieres actualizarlo ahora?</string>
+    <string name="auto_update_plugins_summary">Actualizar y actualizar automáticamente todos los plugins instalados al inicio</string>
 </resources>
