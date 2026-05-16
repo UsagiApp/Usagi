@@ -903,4 +903,6 @@
     <string name="load_from_storage">Importación del almacenamiento local</string>
     <string name="load_storage_summary">Puede seleccionar un archivo JAR desde el almacenamiento local, ese archivo será reconocido como un plugin.</string>
     <string name="load_success">Plugin importado y cargado con éxito</string>
+    <string name="manage_plugins">Gestionar plugins</string>
+    <string name="missing_in_plugin">Fuente que falta en el plugin: %1$s</string>
 </resources>
