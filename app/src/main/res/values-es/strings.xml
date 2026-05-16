@@ -905,4 +905,11 @@
     <string name="load_success">Plugin importado y cargado con éxito</string>
     <string name="manage_plugins">Gestionar plugins</string>
     <string name="missing_in_plugin">Fuente que falta en el plugin: %1$s</string>
+    <string name="no_compatible_method">No se ha encontrado ningún método compatible: %1$s(%2$s)</string>
+    <string name="no_plugins">No hay plugins instalados</string>
+    <string name="overwrite_plugin">¿Sobreescribir plugin?</string>
+    <string name="unknown_source">Fuente desconocida: %1$s</string>
+    <string name="updates_remind">Notificar sobre actualizaciones de aplicaciones</string>
+    <string name="updates_remind_summary">Mostrar un diálogo sobre el inicio de la aplicación cuando una actualización está disponible</string>
+    <string name="update_available_message">Está disponible una nueva versión de Usagi. ¿Quieres actualizarlo ahora?</string>
 </resources>
