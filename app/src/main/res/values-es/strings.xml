@@ -896,4 +896,9 @@
     <string name="two_page_scroll_sensitivity">Sensibilidad de desplazamiento de dos páginas</string>
     <string name="theme_name_itsuka">Itsuka</string>
     <string name="theme_name_totoro">Totoro</string>
+    <string name="cover_only">Cubierta solamente</string>
+    <string name="delete_plugin">Eliminar plugin</string>
+    <string name="import_github_summary">Puedes introducir una URL completa de GitHub o Nombre de usuario/Repositorio. Usagi encontrará e instalará automáticamente el plugin desde la última versión.</string>
+    <string name="jar_not_loaded">JAR no cargado: %1$s</string>
+    <string name="load_from_storage">Importación del almacenamiento local</string>
 </resources>
