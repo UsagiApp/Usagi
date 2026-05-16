@@ -901,4 +901,6 @@
     <string name="import_github_summary">Puedes introducir una URL completa de GitHub o Nombre de usuario/Repositorio. Usagi encontrará e instalará automáticamente el plugin desde la última versión.</string>
     <string name="jar_not_loaded">JAR no cargado: %1$s</string>
     <string name="load_from_storage">Importación del almacenamiento local</string>
+    <string name="load_storage_summary">Puede seleccionar un archivo JAR desde el almacenamiento local, ese archivo será reconocido como un plugin.</string>
+    <string name="load_success">Plugin importado y cargado con éxito</string>
 </resources>
