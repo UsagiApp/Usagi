@@ -20,7 +20,8 @@ class PluginClassLoader(
 			name.startsWith("org.koitharu.kotatsu.core.parser.") ||
 			name.startsWith("eu.kanade.tachiyomi.") ||
 			name.startsWith("uy.kohesive.injekt.") ||
-			name.startsWith("rx.")
+			name.startsWith("rx.") ||
+			name.startsWith("keiyoushi.")
 		) { return runCatching { findClass(name) }.getOrElse { super.loadClass(name, resolve) } }
 		return super.loadClass(name, resolve)
 	}
