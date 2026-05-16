@@ -927,4 +927,5 @@
     <string name="plugin_not_found">Ningún plugin encontrado para fuente: %1$s</string>
     <string name="set_plugin_name">Establece el nombre para este plugin</string>
     <string name="auto_update_plugins">Auto‐actualizar plugins</string>
+    <string name="preview">Vista previa</string>
 </resources>
