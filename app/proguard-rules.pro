@@ -30,6 +30,25 @@
 -keep class org.koitharu.kotatsu.parsers.** { *; }
 -keep class * extends org.koitharu.kotatsu.parsers.MangaLoaderContext { *; }
 -keep class eu.kanade.tachiyomi.** { *; }
--keep class okio.** { *; }
--keep class rx.** { *; }
+-keepclassmembers class okio.** { *; }
+-keep class rx.Observable { *; }
+-keep class rx.Observable$BlockingObservable { *; }
 -keep class uy.kohesive.injekt.** { *; }
+-keep class keiyoushi.** { *; }
+
+# Json utilities for Tachiyomi extensions
+-keepclassmembers class kotlinx.serialization.json.Json { *; }
+-keepclassmembers class kotlinx.serialization.json.JsonBuilder { *; }
+-keep interface kotlinx.serialization.KSerializer { *; }
+-keep interface kotlinx.serialization.internal.GeneratedSerializer { *; }
+-keep interface kotlinx.serialization.SerializationStrategy { *; }
+-keep interface kotlinx.serialization.DeserializationStrategy { *; }
+-keepclassmembers class kotlinx.serialization.internal.** { *; }
+-keepclassmembers class kotlinx.serialization.json.internal.** { *; }
+-keepclassmembers class kotlinx.serialization.descriptors.** { *; }
+-keepclassmembers class kotlinx.serialization.modules.** { *; }
+-keep,includedescriptorclasses class **$$serializer { *; }
+-keepclassmembers class * {
+    *** Companion;
+    kotlinx.serialization.KSerializer serializer(...);
+}
