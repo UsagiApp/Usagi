@@ -9,7 +9,7 @@
     <string name="chapters">Capítulos</string>
     <string name="list">Lista</string>
     <string name="detailed_list">Lista detallada</string>
-    <string name="grid">Cuadrículas</string>
+    <string name="grid">Cuadrícula</string>
     <string name="list_mode">Vista de lista</string>
     <string name="settings">Ajustes</string>
     <string name="remote_sources">Fuentes del manga</string>
@@ -915,7 +915,7 @@
     <string name="auto_update_plugins_summary">Refrescar automáticamente y actualizar todos los plugins instalados al inicio</string>
     <string name="proxy_bypass_enabled">Evitar la censura en Internet</string>
     <string name="proxy_bypass_enabled_summary">Enrutar el tráfico de la aplicación a través del túnel de derivación integrado para redes bloqueadas (beta)</string>
-    <string name="details_appearance">Detalles de la apariencia de la pantalla</string>
+    <string name="details_appearance">Apariencia de la pantalla de detalles</string>
     <string name="details_appearance_summary">Estilo de pantalla, imagen de fondo y efecto de desenfoque</string>
     <string name="confirm_delete_plugin">¿Seguro que quieres eliminar %1$s?</string>
     <string name="deleted_plugin">¡Plugin %1$s eliminado!</string>
@@ -924,8 +924,9 @@
     <string name="loaded_null">Complemento cargado como nulo</string>
     <string name="overwrite_plugin_summary">Ya está instalado un archivo de plugin nombrado como %1$s. ¿Lo remplazo con este?</string>
     <string name="plugin_name">Nombre de plugin</string>
-    <string name="plugin_not_found">Ningún plugin encontrado para fuente: %1$s</string>
+    <string name="plugin_not_found">Ningún plugin encontrado para origen: %1$s</string>
     <string name="set_plugin_name">Establece el nombre para este plugin</string>
     <string name="auto_update_plugins">Auto‐actualizar plugins</string>
     <string name="preview">Vista previa</string>
+    <string name="no_plugins_summary">Pulsa sobre el signo + de arriba para añadir plugins externos</string>
 </resources>
