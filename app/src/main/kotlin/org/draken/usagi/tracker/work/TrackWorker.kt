@@ -31,11 +31,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -58,14 +58,14 @@ import org.draken.usagi.core.util.ext.trySetForeground
 import org.draken.usagi.download.ui.worker.DownloadTask
 import org.draken.usagi.download.ui.worker.DownloadWorker
 import org.draken.usagi.local.data.LocalMangaRepository
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
-import org.koitharu.kotatsu.parsers.util.toIntUp
 import org.draken.usagi.settings.work.PeriodicWorkScheduler
 import org.draken.usagi.tracker.domain.CheckNewChaptersUseCase
 import org.draken.usagi.tracker.domain.GetTracksUseCase
 import org.draken.usagi.tracker.domain.model.MangaTracking
 import org.draken.usagi.tracker.domain.model.MangaUpdates
 import org.draken.usagi.tracker.work.TrackerNotificationHelper.NotificationInfo
+import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import org.koitharu.kotatsu.parsers.util.toIntUp
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
@@ -114,64 +114,77 @@ class TrackWorker @AssistedInject constructor(
 			return Result.success()
 		}
 
-		val notifications = checkUpdatesAsync(tracks)
-		if (notifications.isNotEmpty() && applicationContext.checkNotificationPermission(null)) {
-			val groupNotification = notificationHelper.createGroupNotification(notifications)
-			notifications.forEach { notificationManager.notify(it.tag, it.id, it.notification) }
-			if (groupNotification != null) {
-				notificationManager.notify(TAG, TrackerNotificationHelper.GROUP_NOTIFICATION_ID, groupNotification)
-			}
-		}
+		checkUpdatesAsync(tracks)
 		return Result.success()
 	}
 
 	@CheckResult
-	private suspend fun checkUpdatesAsync(tracks: List<MangaTracking>): List<NotificationInfo> {
+	private suspend fun checkUpdatesAsync(tracks: List<MangaTracking>) {
 		val semaphore = Semaphore(MAX_PARALLELISM)
-		return channelFlow {
-			for (track in tracks) {
-				launch {
-					semaphore.withPermit {
-						send(
-							runCatchingCancellable {
-								checkNewChaptersUseCase.invoke(track)
-							}.getOrElse { error ->
-								MangaUpdates.Failure(
-									manga = track.manga,
-									error = error,
-								)
-							},
-						)
-					}
+		val groupNotifications = mutableListOf<NotificationInfo>()
+
+		try {
+			channelFlow {
+				for (track in tracks) {
+					launch { semaphore.withPermit { send(retry(track)) } }
 				}
-			}
-		}.onEachIndexed { index, it ->
-			if (applicationContext.checkNotificationPermission(WORKER_CHANNEL_ID)) {
-				notificationManager.notify(WORKER_NOTIFICATION_ID, createWorkerNotification(tracks.size, index + 1))
-			}
-			when (it) {
-				is MangaUpdates.Failure -> {
-					val e = it.error
-					if (e is CloudFlareException) {
-						captchaHandler.handle(e)
-					}
+			}.onEachIndexed { i, it ->
+				if (applicationContext.checkNotificationPermission(WORKER_CHANNEL_ID)) {
+					notificationManager.notify(WORKER_NOTIFICATION_ID, createWorkerNotification(tracks.size, i + 1))
 				}
 
-				is MangaUpdates.Success -> processDownload(it)
-			}
-		}.mapNotNull {
-			when (it) {
-				is MangaUpdates.Failure -> null
-				is MangaUpdates.Success -> if (it.isValid && it.isNotEmpty()) {
-					notificationHelper.createNotification(
-						manga = it.manga,
-						newChapters = it.newChapters,
-					)
-				} else {
-					null
+				when (it) {
+					is MangaUpdates.Failure -> {
+						val e = it.error
+						if (e is CloudFlareException) {
+							captchaHandler.handle(e)
+						}
+					}
+
+					is MangaUpdates.Success -> {
+						processDownload(it)
+
+						if (it.isValid && it.isNotEmpty()) {
+							val notificationInfo = notificationHelper.createNotification(it.manga, it.newChapters)
+							if (notificationInfo != null && applicationContext.checkNotificationPermission(TrackerNotificationHelper.CHANNEL_ID)) {
+								notificationManager.notify(notificationInfo.tag, notificationInfo.id, notificationInfo.notification)
+								synchronized(groupNotifications) { groupNotifications.add(notificationInfo) }
+							}
+						}
+					}
+				}
+			}.collect()
+
+		} catch (e: CancellationException) {
+			e.printStackTraceDebug()
+		} finally {
+			withContext(NonCancellable) {
+				if (groupNotifications.size > 1 && applicationContext.checkNotificationPermission(TrackerNotificationHelper.CHANNEL_ID)) {
+					val groupNotification = notificationHelper.createGroupNotification(groupNotifications)
+					if (groupNotification != null) {
+						notificationManager.notify(TAG, TrackerNotificationHelper.GROUP_NOTIFICATION_ID, groupNotification)
+					}
 				}
 			}
-		}.toList()
+		}
+	}
+
+	private suspend fun retry(track: MangaTracking): MangaUpdates {
+		var lastResult: MangaUpdates = MangaUpdates.Failure(track.manga, null)
+		repeat(MAX_RETRY_ATTEMPTS) { attempt ->
+			val result = runCatchingCancellable {
+				checkNewChaptersUseCase.invoke(track)
+			}.getOrElse { error ->
+				MangaUpdates.Failure(track.manga, error)
+			}
+			lastResult = result
+			val shouldRetry = result is MangaUpdates.Failure && result.shouldRetry()
+			if (!shouldRetry) return result
+			if (attempt < MAX_RETRY_ATTEMPTS - 1) {
+				delay(RETRY_DELAY * (attempt + 1L))
+			}
+		}
+		return lastResult
 	}
 
 	override suspend fun getForegroundInfo(): ForegroundInfo {
@@ -339,7 +352,9 @@ class TrackWorker @AssistedInject constructor(
 		const val TAG = "tracking"
 		const val TAG_ONESHOT = "tracking_oneshot"
 		const val MAX_PARALLELISM = 6
-		val BATCH_SIZE = if (BuildConfig.DEBUG) 20 else 46
+		const val MAX_RETRY_ATTEMPTS = 5
+		const val RETRY_DELAY = 10_000L
+		val BATCH_SIZE = if (BuildConfig.DEBUG) 20 else 100
 		const val SETTINGS_ACTION_CODE = 5
 	}
 }
