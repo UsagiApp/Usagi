@@ -921,4 +921,8 @@
     <string name="plugin_not_found">Tidak ditemukan plugin untuk sumber tersebut: %1$s</string>
     <string name="set_plugin_name">Tetapkan nama untuk plugin ini</string>
     <string name="unknown_source">Sumber tidak diketahui: %1$s</string>
+    <string name="updates_remind">Dapatkan pemberitahuan tentang pembaruan aplikasi</string>
+    <string name="updates_remind_summary">Tampilkan dialog saat aplikasi dibuka ketika pembaruan tersedia</string>
+    <string name="update_available_message">Versi baru Usagi telah tersedia. Apakah Anda ingin memperbaruinya sekarang?</string>
+    <string name="auto_update_plugins">Pembaruan otomatis plugin</string>
 </resources>

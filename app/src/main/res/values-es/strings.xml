@@ -9,7 +9,7 @@
     <string name="chapters">Capítulos</string>
     <string name="list">Lista</string>
     <string name="detailed_list">Lista detallada</string>
-    <string name="grid">Cuadrículas</string>
+    <string name="grid">Cuadrícula</string>
     <string name="list_mode">Vista de lista</string>
     <string name="settings">Ajustes</string>
     <string name="remote_sources">Fuentes del manga</string>
@@ -517,7 +517,7 @@
     <string name="error_filter_locale_genre_not_supported">Esta fuente no permite filtrar por géneros ni por configuración regional</string>
     <string name="genres_search_hint">Empieza a escribir el nombre del género</string>
     <string name="disable_battery_optimization_summary_downloads">Puede que te ayude a iniciar la descarga si tienes algún problema</string>
-    <string name="welcome_text">Este es el comienzo de Usagi, vamos a conocernos. Puedes restaurar tus datos antiguos usando las opciones rápidas que aparecen a continuación. Actualmente, ninguno de los contenidos está disponible en Usagi, pero podrás personalizar el contenido que deseas leer en la configuración de la aplicación más adelante.</string>
+    <string name="welcome_text">Este es el comienzo de Usagi, vamos a conocernos. Puede restaurar sus datos antiguos utilizando las opciones rápidas a continuación. Ninguno de los contenidos está actualmente disponible en Usagi, pero puede personalizar el contenido que desea leer en la configuración de la aplicación más adelante.</string>
     <string name="restore">Restaurar</string>
     <string name="backup_date_">Fecha de la copia de seguridad: %s</string>
     <string name="sync_auth">Iniciar sesión en la cuenta de sincronización</string>
@@ -914,18 +914,19 @@
     <string name="update_available_message">Está disponible una versión de Usagi nueva. ¿Quieres actualizarlo ahora?</string>
     <string name="auto_update_plugins_summary">Refrescar automáticamente y actualizar todos los plugins instalados al inicio</string>
     <string name="proxy_bypass_enabled">Evitar la censura en Internet</string>
-    <string name="proxy_bypass_enabled_summary">Enrutar el tráfico de la aplicación a través del túnel de derivación integrado para redes bloqueadas (beta)</string>
-    <string name="details_appearance">Detalles de la apariencia de la pantalla</string>
+    <string name="proxy_bypass_enabled_summary">Ruta de tráfico de aplicaciones a través del túnel de bypass incorporado para redes bloqueadas (beta)</string>
+    <string name="details_appearance">Apariencia de la pantalla de detalles</string>
     <string name="details_appearance_summary">Estilo de pantalla, imagen de fondo y efecto de desenfoque</string>
     <string name="confirm_delete_plugin">¿Seguro que quieres eliminar %1$s?</string>
     <string name="deleted_plugin">¡Plugin %1$s eliminado!</string>
     <string name="import_from_github">Importar desde GitHub</string>
     <string name="load_failed">Ha fallado al cargar el plugin</string>
-    <string name="loaded_null">Complemento cargado como nulo</string>
-    <string name="overwrite_plugin_summary">Ya está instalado un archivo de plugin nombrado como %1$s. ¿Lo remplazo con este?</string>
+    <string name="loaded_null">Plugin cargado como null</string>
+    <string name="overwrite_plugin_summary">Un archivo plugin llamado %1$s ya está instalado. ¿Reemplazarlo con éste?</string>
     <string name="plugin_name">Nombre de plugin</string>
-    <string name="plugin_not_found">Ningún plugin encontrado para fuente: %1$s</string>
-    <string name="set_plugin_name">Establece el nombre para este plugin</string>
-    <string name="auto_update_plugins">Auto‐actualizar plugins</string>
+    <string name="plugin_not_found">Ningún plugin encontrado para origen: %1$s</string>
+    <string name="set_plugin_name">Establecer el nombre para este plugin</string>
+    <string name="auto_update_plugins">Plugins de actualización automática</string>
     <string name="preview">Vista previa</string>
+    <string name="no_plugins_summary">Pulsa sobre el signo + de arriba para añadir plugins externos</string>
 </resources>
