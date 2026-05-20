@@ -288,11 +288,51 @@ class BypassProxyServer(settings: AppSettings, cache: Cache) {
 		if (size <= 0) return
 		if (isTlsHello(data, size)) {
 			val sni = findSni(data, size)
-			if (sni != null) tcpSplit(data, size, sni, out)
+			if (sni != null) writeTlsFragmented(data, size, sni, out)
 			else simpleSplit(data, size, out)
 		} else {
 			simpleSplit(data, size, out)
 		}
+	}
+
+	private fun writeTlsFragmented(data: ByteArray, size: Int, sni: SniInfo, out: OutputStream) {
+		val payloadLen = u16(data, 3)
+		val recEnd = 5 + payloadLen
+		if (recEnd > size) { tcpSplit(data, size, sni, out); return }
+
+		val splits = splitPoints(sni, payloadLen)
+		var off = 5
+		for ((i, end) in splits.withIndex()) {
+			val fragLen = end - off
+			if (fragLen <= 0) continue
+			out.write(0x16)
+			out.write(data[1].toInt() and 0xFF)
+			out.write(data[2].toInt() and 0xFF)
+			out.write((fragLen shr 8) and 0xFF)
+			out.write(fragLen and 0xFF)
+			out.write(data, off, fragLen)
+			out.flush()
+			off = end
+			if (i < splits.size - 1) delay()
+		}
+		if (recEnd < size) { out.write(data, recEnd, size - recEnd); out.flush() }
+	}
+
+	private fun splitPoints(sni: SniInfo, payLen: Int): List<Int> {
+		val payEnd = 5 + payLen
+		val pts = mutableListOf<Int>()
+		val before = sni.offset
+		if (before > 5 + MIN_FRAG) pts.add(before)
+		val mid = sni.offset + sni.length / 2
+		if (mid > (pts.lastOrNull() ?: 5) + MIN_FRAG && mid < payEnd - MIN_FRAG) pts.add(mid)
+		val after = sni.offset + sni.length
+		if (after > (pts.lastOrNull() ?: 5) + MIN_FRAG && after < payEnd - MIN_FRAG) pts.add(after)
+		pts.add(payEnd)
+		if (pts.size <= 1) {
+			val early = 5 + min(MIN_FRAG, payLen / 3)
+			if (early < payEnd - MIN_FRAG) pts.add(0, early)
+		}
+		return pts
 	}
 
 	private fun tcpSplit(data: ByteArray, size: Int, sni: SniInfo, out: OutputStream) {
@@ -385,6 +425,7 @@ class BypassProxyServer(settings: AppSettings, cache: Cache) {
 		private const val CONNECT_TIMEOUT = 10_000
 		private const val READ_TIMEOUT = 30_000
 		private const val MAX_HELLO = 32 * 1024
+		private const val MIN_FRAG = 4
 		private fun httpResponse(code: Int) = "HTTP/1.1 $code\r\n\r\n".toByteArray(Charsets.ISO_8859_1)
 	}
 }
