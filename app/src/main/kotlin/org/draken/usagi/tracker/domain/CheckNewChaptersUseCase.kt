@@ -1,8 +1,7 @@
 package org.draken.usagi.tracker.domain
 
-import android.util.Log
 import coil3.request.CachePolicy
-import org.draken.usagi.BuildConfig
+import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.model.getPreferredBranch
 import org.draken.usagi.core.model.isLocal
 import org.draken.usagi.core.parser.CachingMangaRepository
@@ -12,11 +11,11 @@ import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.toInstantOrNull
 import org.draken.usagi.history.data.HistoryRepository
 import org.draken.usagi.local.data.LocalMangaRepository
+import org.draken.usagi.tracker.domain.model.MangaTracking
+import org.draken.usagi.tracker.domain.model.MangaUpdates
 import org.koitharu.kotatsu.parsers.model.Manga
 import org.koitharu.kotatsu.parsers.util.findById
 import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
-import org.draken.usagi.tracker.domain.model.MangaTracking
-import org.draken.usagi.tracker.domain.model.MangaUpdates
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,6 +26,7 @@ class CheckNewChaptersUseCase @Inject constructor(
 	private val historyRepository: HistoryRepository,
 	private val mangaRepositoryFactory: MangaRepository.Factory,
 	private val localMangaRepository: LocalMangaRepository,
+	private val database: MangaDatabase,
 ) {
 
 	private val mutex = MultiMutex<Long>()
@@ -50,7 +50,7 @@ class CheckNewChaptersUseCase @Inject constructor(
 			val details = getFullManga(manga)
 			val track = repository.getTrackOrNull(manga) ?: return@withLock
 			val branch = checkNotNull(details.chapters?.findById(currentChapterId)).branch
-			val chapters = details.getChapters(branch)
+			val chapters = details.getChapters(branch).sortedBy { it.number }
 			val chapterIndex = chapters.indexOfFirst { x -> x.id == currentChapterId }
 			val lastNewChapterIndex = chapters.size - track.newChapters
 			val lastChapter = chapters.lastOrNull()
@@ -97,15 +97,35 @@ class CheckNewChaptersUseCase @Inject constructor(
 		return manga.getPreferredBranch(null)
 	}
 
-	private suspend fun getFullManga(manga: Manga): Manga = when {
-		manga.isLocal -> fetchDetails(
-			requireNotNull(localMangaRepository.getRemoteManga(manga)) {
-				"Local manga is not supported"
-			},
-		)
+	private suspend fun <T> retry(
+		times: Int = 3,
+		initialDelay: Long = 1000,
+		maxDelay: Long = 4000,
+		factor: Double = 2.0,
+		shouldRetry: (Throwable) -> Boolean = {
+			it is java.io.IOException || it is android.os.DeadObjectException
+		},
+		block: suspend () -> T
+	): T {
+		var currentDelay = initialDelay
+		repeat(times - 1) {
+			try {
+				return block()
+			} catch (e: Throwable) {
+				if (!shouldRetry(e)) {
+					throw e
+				}
+				kotlinx.coroutines.delay(currentDelay)
+				currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
+			}
+		}
+		return block()
+	}
 
-		manga.chapters.isNullOrEmpty() -> fetchDetails(manga)
-		else -> manga
+	private suspend fun getFullManga(manga: Manga): Manga = retry {
+		if (manga.isLocal) {
+			localMangaRepository.getRemoteManga(manga)?.let { fetchDetails(it) } ?: manga
+		} else { fetchDetails(manga) }
 	}
 
 	private suspend fun fetchDetails(manga: Manga): Manga {
@@ -120,33 +140,50 @@ class CheckNewChaptersUseCase @Inject constructor(
 	/**
 	 * The main functionality of tracker: check new chapters in [manga] comparing to the [track]
 	 */
-	private fun compare(track: MangaTracking, manga: Manga, branch: String?): MangaUpdates.Success {
+	private suspend fun compare(track: MangaTracking, manga: Manga, branch: String?): MangaUpdates.Success {
 		if (track.isEmpty()) {
 			// first check or manga was empty on last check
-			return MangaUpdates.Success(manga, branch, emptyList(), isValid = false)
+			return MangaUpdates.Success(manga, branch, emptyList(), false)
 		}
-		val chapters = requireNotNull(manga.getChapters(branch))
-		if (BuildConfig.DEBUG && chapters.findById(track.lastChapterId) == null) {
-			Log.e("Tracker", "Chapter ${track.lastChapterId} not found")
+		val chapters = requireNotNull(manga.getChapters(branch)).sortedBy { it.number }
+		if (chapters.isEmpty()) {
+			return MangaUpdates.Success(manga, branch, emptyList(), false)
 		}
-		val newChapters = chapters.takeLastWhile { x -> x.id != track.lastChapterId }
-		return when {
-			newChapters.isEmpty() -> {
-				MangaUpdates.Success(
-					manga = manga,
-					branch = branch,
-					newChapters = emptyList(),
-					isValid = chapters.lastOrNull()?.id == track.lastChapterId,
-				)
+
+		val directMatchIndex = chapters.indexOfLast { it.id == track.lastChapterId }
+		if (directMatchIndex >= 0) {
+			return MangaUpdates.Success(manga, branch, chapters.subList(directMatchIndex + 1, chapters.size), true)
+		}
+
+		val cachedChapters = database.getChaptersDao().findAll(manga.id)
+		val lastChapterCached = cachedChapters.firstOrNull { it.chapterId == track.lastChapterId }
+
+		if (lastChapterCached != null) {
+			val urlMatchIndex = chapters.indexOfLast { it.url == lastChapterCached.url }
+			if (urlMatchIndex >= 0) {
+				return MangaUpdates.Success(manga, branch, chapters.subList(urlMatchIndex + 1, chapters.size), true)
 			}
 
-			newChapters.size == chapters.size -> {
-				MangaUpdates.Success(manga, branch, emptyList(), isValid = false)
+			val numberMatchIndex = chapters.indexOfLast {
+				it.number == lastChapterCached.number && (lastChapterCached.volume <= 0 || it.volume == lastChapterCached.volume)
+			}
+			if (numberMatchIndex >= 0) {
+				return MangaUpdates.Success(manga, branch, chapters.subList(numberMatchIndex + 1, chapters.size), true)
 			}
 
-			else -> {
-				MangaUpdates.Success(manga, branch, newChapters, isValid = true)
-			}
+			val newChapters = chapters.filter { it.number > lastChapterCached.number }
+			return MangaUpdates.Success(manga, branch, newChapters, true)
 		}
+
+		if (cachedChapters.isNotEmpty() && chapters.size > cachedChapters.size) {
+			val newCount = chapters.size - cachedChapters.size
+			return MangaUpdates.Success(manga, branch, chapters.takeLast(newCount), true)
+		}
+
+		if (cachedChapters.isNotEmpty()) {
+			return MangaUpdates.Success(manga, branch, emptyList(), true)
+		}
+
+		return MangaUpdates.Success(manga, branch, emptyList(), false)
 	}
 }
