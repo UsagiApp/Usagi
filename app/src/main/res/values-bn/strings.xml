@@ -23,7 +23,6 @@
     <string name="try_again">আবার চেষ্টা করুন</string>
     <string name="clear_history">ইতিহাস মুছুন</string>
     <string name="computing_">প্রস্তুত হচ্ছে…</string>
-    <string name="chapter_d_of_d">%2$d এর্ %1$d তম অধ্যায়</string>
     <string name="nothing_found">কিছু পাওয়া যায়নি</string>
     <string name="history_is_empty">কোনো ইতিহাস নেই</string>
     <string name="read">পড়ুন</string>

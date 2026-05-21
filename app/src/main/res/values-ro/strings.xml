@@ -65,7 +65,6 @@
     <string name="grid">Grilă</string>
     <string name="network_error">Eroare de rețea</string>
     <string name="settings">Setari</string>
-    <string name="chapter_d_of_d">Capitolul %1$d din %2$d</string>
     <string name="try_again">Incearca din nou</string>
     <string name="clear_history">Sterge istoric</string>
     <string name="history_is_empty">Nici un istoric inca</string>

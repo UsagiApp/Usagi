@@ -11,7 +11,6 @@
     <string name="remote_sources">Zdroje mang</string>
     <string name="loading_">Načítání…</string>
     <string name="computing_">Vypočítávání…</string>
-    <string name="chapter_d_of_d">Kapitola %1$d z %2$d</string>
     <string name="close">Zavřít</string>
     <string name="try_again">Zkusit znovu</string>
     <string name="clear_history">Vyčistit historii</string>

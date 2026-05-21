@@ -41,7 +41,6 @@
     <string name="try_again">Riprova</string>
     <string name="text_clear_updates_feed_prompt">Tutta la cronologia degli aggiornamenti sarà cancellata e questa azione non può essere annullata. Sei sicuro/a\?</string>
     <string name="close">Chiudi</string>
-    <string name="chapter_d_of_d">Capitolo %1$d di %2$d</string>
     <string name="loading_">Caricamento…</string>
     <string name="remote_sources">Fonti manga</string>
     <string name="settings">Impostazioni</string>

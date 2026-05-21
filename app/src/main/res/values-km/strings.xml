@@ -16,7 +16,6 @@
     <string name="remote_sources">ប្រភពម៉ងហ្គា</string>
     <string name="loading_">កំពុងលូដ…</string>
     <string name="computing_">កំពុងគណនា…</string>
-    <string name="chapter_d_of_d">ជំពូក%1$dនៃ%2$d</string>
     <string name="try_again">សាកល្បងម្តងទៀត</string>
     <string name="clear_history">លុប​ ប្រវត្តិអាន</string>
     <string name="nothing_found">រកអ្វីមិនឃើញ</string>

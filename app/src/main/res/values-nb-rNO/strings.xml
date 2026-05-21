@@ -160,7 +160,6 @@
     <string name="clear_history">Tøm historikk</string>
     <string name="try_again">Prøv igjen</string>
     <string name="close">Lukk</string>
-    <string name="chapter_d_of_d">Kapittel %1$d av %2$d</string>
     <string name="loading_">Laster inn …</string>
     <string name="settings">Innstillinger</string>
     <string name="list_mode">Listemodus</string>

@@ -6,7 +6,6 @@
     <string name="favourites">പ്രിയപ്പെട്ടവ</string>
     <string name="details">വിശദാംശങ്ങൾ</string>
     <string name="detailed_list">വിശദമായ ലിസ്റ്റ്</string>
-    <string name="chapter_d_of_d">%2$d-ൻ്റെ %1$d അധ്യായം</string>
     <string name="try_again">വീണ്ടും ശ്രമിക്കുക</string>
     <string name="you_have_not_favourites_yet">ഇതുവരെ പ്രിയപ്പെട്ടവയൊന്നുമില്ല</string>
     <string name="add_to_favourites">ഇത് പ്രിയപ്പെട്ടതാക്കുക</string>

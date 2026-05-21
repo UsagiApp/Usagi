@@ -15,7 +15,6 @@
     <string name="remote_sources">మంగా సోర్సెస్</string>
     <string name="loading_">లోడ్ అవుతోంది…</string>
     <string name="computing_">లెక్కించబడుతోంది…</string>
-    <string name="chapter_d_of_d">చాప్టర్ %1$d / %2$d</string>
     <string name="close">మూసివేయి</string>
     <string name="try_again">మళ్లీ ప్రయత్నించండి</string>
     <string name="retry">మళ్లీ ప్రయత్నించు</string>

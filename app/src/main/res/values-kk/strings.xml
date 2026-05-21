@@ -100,7 +100,6 @@
     <string name="list">Тізім</string>
     <string name="error_occurred">Қате орын алды</string>
     <string name="settings">Баптау</string>
-    <string name="chapter_d_of_d">%2$d ішіндегі %1$d тарау</string>
     <string name="close">Жабу</string>
     <string name="nothing_found">Түк табылмады</string>
     <string name="you_have_not_favourites_yet">Әзірге таңдаулы жоқ</string>

@@ -10,7 +10,6 @@
     <string name="settings">Cài đặt</string>
     <string name="remote_sources">Nguồn truyện</string>
     <string name="list_mode">Chế độ hiển thị</string>
-    <string name="chapter_d_of_d">Chương %1$d / %2$d</string>
     <string name="close">Đóng</string>
     <string name="nothing_found">Không tìm thấy kết quả</string>
     <string name="history_is_empty">Chưa có lịch sử</string>

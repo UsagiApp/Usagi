@@ -11,7 +11,6 @@
     <string name="remote_sources">ਮਾਂਗਾ ਸਰੋਤ</string>
     <string name="loading_">ਲੋਡ…</string>
     <string name="computing_">ਹਿਸਾਬ ਲਾ ਰਿਹਾ</string>
-    <string name="chapter_d_of_d">%2$d ਦਾ %1$d ਅਧਿਆਇ</string>
     <string name="close">ਬੰਦ</string>
     <string name="try_again">ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ</string>
     <string name="local_storage">ਲੋਕਲ ਸਟੋਰੇਜ</string>
