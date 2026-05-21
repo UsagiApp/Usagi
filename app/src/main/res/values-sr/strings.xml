@@ -855,7 +855,6 @@
     <string name="discord_rpc_summary">Прикажи свој статус читања на Дискорду</string>
     <string name="obtain">Добиј</string>
     <string name="discord_rpc_description">Читање манге на Котатсу - апликацији за читање манги</string>
-    <string name="reading_s">Читам %s</string>
     <string name="read_on_s">Читај на %s</string>
     <string name="rpc_skip_nsfw_summary">Не користи RPC за садржај за одрасле</string>
     <string name="invalid_token">Неважећи токен: %s</string>

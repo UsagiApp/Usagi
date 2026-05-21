@@ -847,7 +847,6 @@
     <string name="discord_rpc_summary">Hiển thị tiến trình đọc truyện của bạn trên Discord</string>
     <string name="obtain">Đã nhận được</string>
     <string name="discord_rpc_description">Đang đọc trên Usagi - Ứng dụng đọc truyện mã nguồn mở miễn phí</string>
-    <string name="reading_s">Hiện đang đọc: %s</string>
     <string name="read_on_s">Đọc trên %s</string>
     <string name="rpc_skip_nsfw_summary">Không tự động kích hoạt Discord Rich Presence đối với truyện người lớn</string>
     <string name="invalid_token">Token không hợp lệ: %s</string>

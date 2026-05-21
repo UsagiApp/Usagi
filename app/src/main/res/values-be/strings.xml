@@ -849,7 +849,6 @@
     <string name="discord_rpc_summary">Пакажыце свой статус чытання ў Discord</string>
     <string name="obtain">Атрымаць</string>
     <string name="discord_rpc_description">Чытанне мангі на Usagi - праграма для чытання мангі</string>
-    <string name="reading_s">Чытанне %s</string>
     <string name="read_on_s">Чытаць далей %s</string>
     <string name="rpc_skip_nsfw_summary">Не выкарыстоўваць RPC для дарослага кантэнту</string>
     <string name="invalid_token">Няправільны токен: %s</string>

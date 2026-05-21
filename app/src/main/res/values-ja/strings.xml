@@ -760,7 +760,6 @@
     <string name="discord_rpc_summary">Discordで読み取りステータスを表示</string>
     <string name="obtain">アクセス</string>
     <string name="discord_rpc_description">Kotatsuで漫画を読む - 漫画リーダーアプリ</string>
-    <string name="reading_s">読書 %s</string>
     <string name="read_on_s">%s で読む</string>
     <string name="rpc_skip_nsfw_summary">成人向けコンテンツに RPC を使用しないでください</string>
     <string name="invalid_token">無効なトークン: %s</string>

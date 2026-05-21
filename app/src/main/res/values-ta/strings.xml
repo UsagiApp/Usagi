@@ -841,7 +841,6 @@
     <string name="discord_rpc_summary">முரண்பாட்டில் உங்கள் வாசிப்பு நிலையைக் காட்டுங்கள்</string>
     <string name="obtain">பெறுங்கள்</string>
     <string name="discord_rpc_description">கோட்டாட்சுவில் மங்காவைப் படித்தல் - ஒரு மங்கா ரீடர் பயன்பாடு</string>
-    <string name="reading_s">படித்தல் %s</string>
     <string name="read_on_s">%s படிக்கவும்</string>
     <string name="rpc_skip_nsfw_summary">வயதுவந்த உள்ளடக்கத்திற்கு RPC ஐப் பயன்படுத்த வேண்டாம்</string>
     <string name="invalid_token">தவறான டோக்கன்: %s</string>

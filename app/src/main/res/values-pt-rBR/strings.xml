@@ -842,7 +842,6 @@
     <string name="discord_rpc_summary">Mostra seu status de leitura no Discord</string>
     <string name="obtain">Obtenha</string>
     <string name="discord_rpc_description">Lendo mangá no Usagi - um aplicativo de leitura de mangá</string>
-    <string name="reading_s">Lendo %s</string>
     <string name="rpc_skip_nsfw_summary">Não usar RPC para conteúdo adulto</string>
     <string name="invalid_token">Token inválido: %s</string>
     <string name="show_floating_control_button">Mostrar botão de controle flutuante</string>

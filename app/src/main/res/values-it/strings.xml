@@ -846,7 +846,6 @@
     <string name="discord_rpc_summary">Mostra il tuo stato di lettura su Discord</string>
     <string name="obtain">Ottieni</string>
     <string name="discord_rpc_description">Leggendo manga su Usagi - un’app per leggere manga</string>
-    <string name="reading_s">Leggendo %s</string>
     <string name="read_on_s">Leggendo su %s</string>
     <string name="invalid_token">Token non valido: %s</string>
     <string name="show_floating_control_button">Mostra pulsante di controllo fluttuante</string>

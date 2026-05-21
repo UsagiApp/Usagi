@@ -849,7 +849,6 @@
     <string name="discord_rpc_summary">Tunjukkan status bacaan anda pada Discord</string>
     <string name="obtain">Memperoleh</string>
     <string name="discord_rpc_description">Membaca Manga di Usagi - Aplikasi Pembaca Manga</string>
-    <string name="reading_s">Membaca %s</string>
     <string name="read_on_s">Baca terus %s</string>
     <string name="rpc_skip_nsfw_summary">Jangan gunakan RPC untuk kandungan dewasa</string>
     <string name="invalid_token">Token tidak sah: %s</string>

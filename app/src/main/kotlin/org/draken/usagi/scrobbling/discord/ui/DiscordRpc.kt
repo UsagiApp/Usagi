@@ -27,10 +27,10 @@ import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.lifecycleScope
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import org.draken.usagi.reader.ui.pager.ReaderUiState
 import org.draken.usagi.scrobbling.discord.data.DiscordRepository
+import org.koitharu.kotatsu.parsers.model.Manga
+import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import java.util.Collections
 import javax.inject.Inject
 
@@ -93,14 +93,21 @@ class DiscordRpc @Inject constructor(
 					applicationId = appId,
 					name = appName,
 					details = manga.title,
-					state = context.getString(R.string.chapter_d_of_d, state.chapterNumber, state.chaptersTotal),
+					state = state.getChapterTitle(context.resources),
 					type = 3,
 					timestamps = Timestamps(
 						start = lastActivity?.timestamps?.start ?: System.currentTimeMillis(),
 					),
 					assets = Assets(
 						largeImage = manga.coverUrl,
-						largeText = context.getString(R.string.reading_s, manga.title),
+						/**
+						 * Must be fixed and unchangeable so that Discord can identify it accurately
+						 * Detailed explanation is available in PreMiD docs, thanks to PreMiD
+						 * It's possible its language is fixed, or Discord will handle it, have no idea about that
+						 * PreMiD's docs -> Table of contents: For TV Shows with Seasons and Episodes
+						 * https://docs.premid.app/v1/examples/media.html
+						*/
+						largeText = context.getString(R.string.chapter_d_of_d, state.chapter.volume, state.chapterNumber),
 						smallText = context.getString(R.string.discord_rpc_description),
 						smallImage = appIcon,
 					),

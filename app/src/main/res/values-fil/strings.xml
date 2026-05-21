@@ -835,7 +835,6 @@
     <string name="invalid_token">Imbalidong token: %s</string>
     <string name="rpc_skip_nsfw_summary">Huwag gamitin ang RPC para sa pangmatandang content</string>
     <string name="read_on_s">Basahin sa %s</string>
-    <string name="reading_s">Binabasa ng %s</string>
     <string name="discord_rpc_description">Bumamasa ng manga sa Usagi - isang manga reader app</string>
     <string name="obtain">Kumuha</string>
     <string name="discord_rpc_summary">Ipakita ng status ng pagbabasa sa Discord</string>

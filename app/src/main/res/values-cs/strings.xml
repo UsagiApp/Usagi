@@ -860,7 +860,6 @@
     <string name="discord_rpc_summary">Zobrazit stav čtení na Discordu</string>
     <string name="obtain">Získat</string>
     <string name="discord_rpc_description">Čte mangu na Usagi - aplikace pro čtení mangy</string>
-    <string name="reading_s">Čtení %s</string>
     <string name="read_on_s">Číst na %s</string>
     <string name="rpc_skip_nsfw_summary">Nepoužívat RPC pro mangu pro dospělé</string>
     <string name="invalid_token">Neplatný token: %s</string>
