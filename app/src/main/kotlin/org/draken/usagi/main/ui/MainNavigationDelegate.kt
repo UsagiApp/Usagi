@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.onEach
 import org.draken.usagi.R
 import org.draken.usagi.bookmarks.ui.AllBookmarksFragment
 import org.draken.usagi.core.nav.AppRouter
+import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.NavItem
 import org.draken.usagi.core.ui.util.RecyclerViewOwner
@@ -40,6 +41,7 @@ import org.draken.usagi.databinding.NavigationRailFabBinding
 import org.draken.usagi.explore.ui.ExploreFragment
 import org.draken.usagi.favourites.ui.container.FavouritesContainerFragment
 import org.draken.usagi.history.ui.HistoryListFragment
+import org.draken.usagi.list.ui.config.ListConfigSection
 import org.draken.usagi.local.ui.LocalListFragment
 import org.draken.usagi.suggestions.ui.SuggestionsFragment
 import org.draken.usagi.tracker.ui.feed.FeedFragment
@@ -232,8 +234,14 @@ class MainNavigationDelegate(
 	}
 
 	private fun onNavigationItemReselected() {
-		val recyclerView = (primaryFragment as? RecyclerViewOwner)?.recyclerView ?: return
-		recyclerView.smoothScrollToTop()
+		val fragment = primaryFragment ?: return
+		when (fragment) {
+			is HistoryListFragment -> fragment.router.showListConfigSheet(ListConfigSection.History)
+			is FavouritesContainerFragment -> fragment.categoryId?.let {
+				fragment.router.showListConfigSheet(ListConfigSection.Favorites(it))
+			}
+			is RecyclerViewOwner -> fragment.recyclerView?.smoothScrollToTop()
+		}
 	}
 
 	private fun onFragmentChanged(fragment: Fragment, fromUser: Boolean) {

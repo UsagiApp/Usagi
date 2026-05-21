@@ -29,6 +29,7 @@ import org.draken.usagi.core.util.ext.setTabsEnabled
 import org.draken.usagi.core.util.ext.setTextAndVisible
 import org.draken.usagi.databinding.FragmentFavouritesContainerBinding
 import org.draken.usagi.databinding.ItemEmptyStateBinding
+import org.draken.usagi.favourites.ui.list.FavouritesListFragment
 
 @AndroidEntryPoint
 class FavouritesContainerFragment : BaseFragment<FragmentFavouritesContainerBinding>(),
@@ -41,6 +42,8 @@ class FavouritesContainerFragment : BaseFragment<FragmentFavouritesContainerBind
 
 	override val recyclerView: RecyclerView?
 		get() = (findCurrentFragment() as? RecyclerViewOwner)?.recyclerView
+
+	val categoryId get() = (findCurrentFragment() as? FavouritesListFragment)?.categoryId
 
 	override fun onCreateViewBinding(
 		inflater: LayoutInflater,
