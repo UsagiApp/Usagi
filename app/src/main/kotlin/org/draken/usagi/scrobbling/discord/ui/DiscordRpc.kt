@@ -107,7 +107,7 @@ class DiscordRpc @Inject constructor(
 						 * PreMiD's docs -> Table of contents: For TV Shows with Seasons and Episodes
 						 * https://docs.premid.app/v1/examples/media.html
 						*/
-						largeText = context.getString(R.string.chapter_d_of_d, state.chapter.volume, state.chapterNumber),
+						largeText = "Season ${state.chapter.volume}, Episode ${state.chapterNumber}",
 						smallText = context.getString(R.string.discord_rpc_description),
 						smallImage = appIcon,
 					),
