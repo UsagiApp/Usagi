@@ -3,7 +3,9 @@ package org.draken.usagi.reader.ui
 import android.app.assist.AssistContent
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
@@ -14,6 +16,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
@@ -28,6 +31,7 @@ import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -73,6 +77,7 @@ import org.draken.usagi.reader.ui.tapgrid.TapGridDispatcher
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import androidx.appcompat.R as appcompatR
+import com.google.android.material.R as materialR
 
 @AndroidEntryPoint
 class ReaderActivity :
@@ -119,6 +124,26 @@ class ReaderActivity :
     // Tracks whether the foldable device is in an unfolded state (half-opened or flat)
     private var isFoldUnfolded: Boolean = false
 
+    private var systemBarsBottomInset: Int = 0
+
+    private var lastSystemBarsInsets: Insets = Insets.NONE
+
+    private var lastToastBottomMargin: Int = -1
+
+    private var isToolbarDockedShown: Boolean = false
+
+    private val updateToastPositionRunnable = Runnable { updateChapterToastPosition() }
+
+    private var afterUiRevealRunnable: Runnable? = null
+
+    private val readerBarsPrefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        when (key) {
+            AppSettings.KEY_READER_TOP_BAR_OPACITY,
+            AppSettings.KEY_READER_BOTTOM_BAR_OPACITY,
+            AppSettings.KEY_READER_IS_FLOAT_BAR -> applyReaderBarsAppearance()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(ActivityReaderBinding.inflate(layoutInflater))
@@ -133,6 +158,8 @@ class ReaderActivity :
         viewBinding.buttonTimer?.setOnClickListener(this)
         idlingDetector.bindToLifecycle(this)
         screenOrientationHelper.applySettings()
+        applyReaderBarsAppearance()
+        settings.subscribe(readerBarsPrefListener)
         viewModel.isBookmarkAdded.observe(this) { viewBinding.actionsView.isBookmarkAdded = it }
         scrollTimer.isActive.observe(this) {
             updateScrollTimerButton()
@@ -214,6 +241,13 @@ class ReaderActivity :
             scrollTimer.onUserInteraction()
         }
         idlingDetector.onUserInteraction()
+    }
+
+    override fun onDestroy() {
+        settings.unsubscribe(readerBarsPrefListener)
+        viewBinding.root.removeCallbacks(updateToastPositionRunnable)
+        afterUiRevealRunnable?.let { viewBinding.root.removeCallbacks(it) }
+        super.onDestroy()
     }
 
     override fun onPause() {
@@ -393,37 +427,50 @@ class ReaderActivity :
             val isFullscreen = settings.isReaderFullscreenEnabled
             viewBinding.appbarTop.isVisible = isUiVisible
             viewBinding.toolbarDocked?.isVisible = isUiVisible
+            isToolbarDockedShown = isUiVisible
             viewBinding.infoBar.isGone = isUiVisible || (!viewModel.isInfoBarEnabled.value)
             viewBinding.infoBar.isTimeVisible = isFullscreen
             updateScrollTimerButton()
             systemUiController.setSystemUiVisible(isUiVisible || !isFullscreen)
             viewBinding.root.requestApplyInsets()
+            val animDuration = if (isAnimationsEnabled) {
+                resources.getInteger(R.integer.config_shorterAnimTime).toLong()
+            } else { 0L }
+            lastToastBottomMargin = -1
+            afterUiRevealRunnable?.let { viewBinding.root.removeCallbacks(it) }
+            val revealRunnable = Runnable { viewBinding.root.post(updateToastPositionRunnable) }
+            afterUiRevealRunnable = revealRunnable
+            viewBinding.root.postDelayed(revealRunnable, animDuration + 16L)
         }
     }
 
     override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
         gestureInsets = insets.getInsets(WindowInsetsCompat.Type.systemGestures())
         val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+        lastSystemBarsInsets = systemBars
+        systemBarsBottomInset = navigationBars.bottom
         viewBinding.toolbar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
             topMargin = systemBars.top
             rightMargin = systemBars.right
             leftMargin = systemBars.left
         }
         if (viewBinding.toolbarDocked != null) {
-            viewBinding.actionsView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = systemBars.bottom
-                rightMargin = systemBars.right
-                leftMargin = systemBars.left
-            }
+            applyBottomBarLayout()
+            viewBinding.root.post(updateToastPositionRunnable)
         }
         viewBinding.infoBar.updatePadding(
             top = systemBars.top,
         )
+        val bottomInset = viewBinding.toolbarDocked?.takeIf { it.isVisible }?.let { card ->
+            val lp = card.layoutParams as? CoordinatorLayout.LayoutParams
+            card.height + (lp?.bottomMargin ?: 0)
+        } ?: systemBars.bottom
         val innerInsets = Insets.of(
             systemBars.left,
             if (viewBinding.appbarTop.isVisible) viewBinding.appbarTop.height else systemBars.top,
             systemBars.right,
-            viewBinding.toolbarDocked?.takeIf { it.isVisible }?.height ?: systemBars.bottom,
+            bottomInset,
         )
         return WindowInsetsCompat.Builder(insets)
             .setInsets(WindowInsetsCompat.Type.systemBars(), innerInsets)
@@ -499,6 +546,79 @@ class ReaderActivity :
         viewBinding.infoBar.isVisible = isBarEnabled && viewBinding.appbarTop.isGone
     }
 
+    private fun applyReaderBarsAppearance() {
+        lastToastBottomMargin = -1
+        val barColor = MaterialColors.getColor(viewBinding.root, materialR.attr.colorSurfaceContainer)
+        val topColored = ColorUtils.setAlphaComponent(barColor, readerBarBgAlpha(settings.topBarOpacity))
+        viewBinding.appbarTop.setBackgroundColor(topColored)
+        viewBinding.toolbar.setBackgroundColor(Color.TRANSPARENT)
+        applyBottomBarLayout()
+        viewBinding.root.removeCallbacks(updateToastPositionRunnable)
+        viewBinding.root.post(updateToastPositionRunnable)
+    }
+
+    private fun applyBottomBarLayout() {
+        val card = viewBinding.toolbarDocked ?: return
+        val floatGap = resources.getDimensionPixelSize(R.dimen.reader_toolbar_float_gap)
+        val floating = settings.isFloatBar
+        val bgAlpha = readerBarBgAlpha(settings.bottomBarOpacity)
+        val barColor = MaterialColors.getColor(card, materialR.attr.colorSurfaceContainer)
+        card.setCardBackgroundColor(ColorUtils.setAlphaComponent(barColor, bgAlpha))
+        viewBinding.actionsView.setBarBackgroundAlpha(bgAlpha)
+        val lp = card.layoutParams as? CoordinatorLayout.LayoutParams ?: return
+        if (floating) {
+            val marginH = resources.getDimensionPixelSize(R.dimen.reader_toolbar_float_margin_h)
+            lp.leftMargin = marginH
+            lp.rightMargin = marginH
+            lp.bottomMargin = systemBarsBottomInset + floatGap
+            card.radius = resources.getDimension(R.dimen.reader_toolbar_corner_radius)
+            card.elevation = if (bgAlpha >= 255) {
+                resources.getDimension(R.dimen.reader_toolbar_float_elevation)
+            } else { 0f }
+        } else {
+            lp.leftMargin = 0
+            lp.rightMargin = 0
+            lp.bottomMargin = 0
+            card.radius = 0f
+            card.elevation = 0f
+        }
+        card.layoutParams = lp
+        val actionBarSize = getThemeDimensionPixelOffset(appcompatR.attr.actionBarSize)
+        viewBinding.actionsView.minimumHeight = actionBarSize
+        viewBinding.actionsView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            topMargin = 0
+            rightMargin = if (floating) 0 else lastSystemBarsInsets.right
+            leftMargin = if (floating) 0 else lastSystemBarsInsets.left
+            this.bottomMargin = if (floating) 0 else lastSystemBarsInsets.bottom
+        }
+    }
+
+    private fun showChapterToast(message: CharSequence) {
+        lastToastBottomMargin = -1
+        viewBinding.root.post {
+            updateChapterToastPosition()
+            viewBinding.toastView.showTemporary(message, TOAST_DURATION)
+        }
+    }
+
+    private fun updateChapterToastPosition() {
+        val card = viewBinding.toolbarDocked
+        val toastLp = viewBinding.toastView.layoutParams as? CoordinatorLayout.LayoutParams ?: return
+        val gap = resources.getDimensionPixelSize(R.dimen.reader_toast_above_bar_gap)
+        val newMargin = if (card != null && isToolbarDockedShown) {
+            val cardLp = card.layoutParams as? CoordinatorLayout.LayoutParams
+            val cardHeight = if (card.height > 0) card.height else card.measuredHeight
+            (cardLp?.bottomMargin ?: 0) + cardHeight + gap
+        } else { gap + systemBarsBottomInset }
+        if (newMargin == lastToastBottomMargin) return
+        lastToastBottomMargin = newMargin
+        toastLp.anchorId = View.NO_ID
+        toastLp.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+        toastLp.bottomMargin = newMargin
+        viewBinding.toastView.layoutParams = toastLp
+        viewBinding.toastView.bringToFront()
+    }
+
     private fun onUiStateChanged(pair: Pair<ReaderUiState?, ReaderUiState?>) {
         val (previous: ReaderUiState?, uiState: ReaderUiState?) = pair
         title = uiState?.mangaName ?: getString(R.string.loading_)
@@ -519,7 +639,7 @@ class ReaderActivity :
             chapterTitle != previous?.getChapterTitle(resources) &&
             chapterTitle.isNotEmpty()
         ) {
-            viewBinding.toastView.showTemporary(chapterTitle, TOAST_DURATION)
+            showChapterToast(chapterTitle)
         }
         if (uiState.isSliderAvailable()) {
             viewBinding.actionsView.setSliderValue(
@@ -589,8 +709,12 @@ class ReaderActivity :
         }.show()
     }
 
-    companion object {
+	private fun readerBarBgAlpha(transparency: Int): Int {
+		val t = transparency.coerceIn(50, 100)
+		return (255 - (t - 50) * 127f / 50f).toInt()
+	}
 
+    companion object {
         private const val TOAST_DURATION = 2000L
     }
 }
