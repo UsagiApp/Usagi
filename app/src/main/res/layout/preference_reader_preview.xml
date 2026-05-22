@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+
+	<com.google.android.material.card.MaterialCardView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="16dp"
+		android:layout_marginBottom="8dp"
+		app:cardCornerRadius="16dp"
+		app:cardElevation="0dp"
+		app:strokeColor="?colorOutlineVariant"
+		app:strokeWidth="1dp">
+
+		<androidx.constraintlayout.widget.ConstraintLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:minHeight="168dp">
+
+			<View
+				android:id="@+id/preview_page"
+				android:layout_width="0dp"
+				android:layout_height="0dp"
+				android:background="?colorSurfaceVariant"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent" />
+
+			<View
+				android:id="@+id/preview_top_bar"
+				android:layout_width="0dp"
+				android:layout_height="40dp"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent" />
+
+			<View
+				android:id="@+id/preview_top_title"
+				android:layout_width="0dp"
+				android:layout_height="8dp"
+				android:layout_marginStart="14dp"
+				android:layout_marginTop="12dp"
+				android:layout_marginEnd="14dp"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent" />
+
+			<View
+				android:id="@+id/preview_top_subtitle"
+				android:layout_width="0dp"
+				android:layout_height="6dp"
+				android:layout_marginStart="14dp"
+				android:layout_marginTop="5dp"
+				android:layout_marginEnd="48dp"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/preview_top_title" />
+
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/preview_bottom_bar"
+				android:layout_width="0dp"
+				android:layout_height="36dp"
+				android:layout_marginStart="@dimen/reader_toolbar_float_margin_h"
+				android:layout_marginEnd="@dimen/reader_toolbar_float_margin_h"
+				android:layout_marginBottom="@dimen/reader_toolbar_float_gap"
+				app:cardBackgroundColor="?colorSurfaceContainer"
+				app:cardCornerRadius="@dimen/reader_toolbar_corner_radius"
+				app:cardElevation="4dp"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent">
+
+				<View
+					android:id="@+id/preview_bottom_track"
+					android:layout_width="match_parent"
+					android:layout_height="6dp"
+					android:layout_gravity="center_vertical"
+					android:layout_marginHorizontal="14dp" />
+
+			</com.google.android.material.card.MaterialCardView>
+
+		</androidx.constraintlayout.widget.ConstraintLayout>
+
+	</com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

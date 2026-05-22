@@ -15,6 +15,7 @@ import org.draken.usagi.settings.AppearanceSettingsFragment
 import org.draken.usagi.settings.DownloadsSettingsFragment
 import org.draken.usagi.settings.ProxySettingsFragment
 import org.draken.usagi.settings.ReaderSettingsFragment
+import org.draken.usagi.settings.reader.ReaderPreviewSettingsFragment
 import org.draken.usagi.settings.ServicesSettingsFragment
 import org.draken.usagi.settings.StorageAndNetworkSettingsFragment
 import org.draken.usagi.settings.SuggestionsSettingsFragment
@@ -37,7 +38,8 @@ class SettingsSearchHelper @Inject constructor(
         val result = ArrayList<SettingsItem>()
         preferenceManager.inflateTo(result, R.xml.pref_appearance, emptyList(), AppearanceSettingsFragment::class.java)
         preferenceManager.inflateTo(result, R.xml.pref_sources, emptyList(), SourcesSettingsFragment::class.java)
-        preferenceManager.inflateTo(result, R.xml.pref_reader, emptyList(), ReaderSettingsFragment::class.java)
+        preferenceManager.inflateTo(result, R.xml.pref_readers, emptyList(), ReaderSettingsFragment::class.java)
+        preferenceManager.inflateTo(result, R.xml.pref_reader, listOf(context.getString(R.string.reader_settings)), ReaderPreviewSettingsFragment::class.java)
         preferenceManager.inflateTo(
             result,
             R.xml.pref_network_storage,

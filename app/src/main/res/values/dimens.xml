@@ -82,4 +82,11 @@
 
 	<dimen name="chip_icon_corner">3dp</dimen>
 	<dimen name="read_button_min_width">92dp</dimen>
+
+	<!-- Reader -->
+	<dimen name="reader_toolbar_corner_radius">20dp</dimen>
+	<dimen name="reader_toolbar_float_margin_h">25dp</dimen>
+	<dimen name="reader_toolbar_float_gap">8dp</dimen>
+	<dimen name="reader_toast_above_bar_gap">8dp</dimen>
+	<dimen name="reader_toolbar_float_elevation">8dp</dimen>
 </resources>

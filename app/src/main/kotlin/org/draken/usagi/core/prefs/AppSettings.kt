@@ -315,10 +315,6 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	val isUpdateReminderEnabled: Boolean
 		get() = prefs.getBoolean(KEY_UPDATES_REMIND, true)
 
-	var lastAppUpdate: Long
-		get() = prefs.getLong(KEY_LAST_UPDATES_REMIND, 0L)
-		set(value) = prefs.edit { putLong(KEY_LAST_UPDATES_REMIND, value) }
-
 	val isPagesTabEnabled: Boolean
 		get() = prefs.getBoolean(KEY_PAGES_TAB, true)
 
@@ -447,6 +443,15 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 
 	val isReaderBarTransparent: Boolean
 		get() = prefs.getBoolean(KEY_READER_BAR_TRANSPARENT, true)
+
+	val topBarOpacity: Int
+		get() = prefs.getInt(KEY_READER_TOP_BAR_OPACITY, 50).coerceIn(50, 100)
+
+	val bottomBarOpacity: Int
+		get() = prefs.getInt(KEY_READER_BOTTOM_BAR_OPACITY, 50).coerceIn(50, 100)
+
+	val isFloatBar: Boolean
+		get() = prefs.getBoolean(KEY_READER_IS_FLOAT_BAR, true)
 
 	val isReaderChapterToastEnabled: Boolean
 		get() = prefs.getBoolean(KEY_READER_CHAPTER_TOAST, true)
@@ -809,6 +814,9 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_SYNC_SETTINGS = "sync_settings"
 		const val KEY_READER_BAR = "reader_bar"
 		const val KEY_READER_BAR_TRANSPARENT = "reader_bar_transparent"
+		const val KEY_READER_TOP_BAR_OPACITY = "reader_top_bar_opacity"
+		const val KEY_READER_BOTTOM_BAR_OPACITY = "reader_bottom_bar_opacity"
+		const val KEY_READER_IS_FLOAT_BAR = "is_float_bar"
 		const val KEY_READER_CHAPTER_TOAST = "reader_chapter_toast"
 		const val KEY_READER_BACKGROUND = "reader_background"
 		const val KEY_READER_SCREEN_ON = "reader_screen_on"
@@ -827,7 +835,6 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_SOURCES_GRID = "sources_grid"
 		const val KEY_UPDATES_UNSTABLE = "updates_unstable"
 		const val KEY_UPDATES_REMIND = "updates_remind"
-		const val KEY_LAST_UPDATES_REMIND = "updates_remind_last_id"
 		const val KEY_TIPS_CLOSED = "tips_closed"
 		const val KEY_SSL_BYPASS = "ssl_bypass"
 		const val KEY_READER_AUTOSCROLL_SPEED = "as_speed"
