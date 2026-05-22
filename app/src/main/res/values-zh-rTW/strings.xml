@@ -46,6 +46,7 @@
     <string name="error_occurred">發生錯誤</string>
     <string name="network_error">網路錯誤</string>
     <string name="details">詳細資料</string>
+    <string name="chapter_d_of_d">%1$d/%2$d 章節</string>
     <string name="detailed_list">詳細清單</string>
     <string name="list_mode">清單模式</string>
     <string name="remote_sources">漫畫來源</string>

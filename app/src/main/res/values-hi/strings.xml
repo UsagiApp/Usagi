@@ -24,6 +24,7 @@
     <string name="detailed_list">विस्तृत सूची</string>
     <string name="settings">सेटिंग्स</string>
     <string name="list_mode">सूची मोड</string>
+    <string name="chapter_d_of_d">अध्याय %1$d, %2$d में से</string>
     <string name="computing_">गणना हो रही है…</string>
     <string name="add_new_category">नई श्रेणी</string>
     <string name="clear_history">इतिहास साफ करें</string>

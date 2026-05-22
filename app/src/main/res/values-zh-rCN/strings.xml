@@ -46,6 +46,7 @@
     <string name="remote_sources">图源</string>
     <string name="loading_">加载中…</string>
     <string name="computing_">计算中…</string>
+    <string name="chapter_d_of_d">%1$d/%2$d 章</string>
     <string name="close">关闭</string>
     <string name="try_again">重试</string>
     <string name="clear_history">清除阅读记录</string>

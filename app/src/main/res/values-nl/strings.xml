@@ -14,6 +14,7 @@
     <string name="remote_sources">Mangabronnen</string>
     <string name="loading_">Bezig met laden…</string>
     <string name="computing_">Computeren…</string>
+    <string name="chapter_d_of_d">Hoofdstuk %1$d van %2$d</string>
     <string name="close">Sluiten</string>
     <string name="try_again">Probeer het opnieuw</string>
     <string name="retry">Opnieuw proberen</string>

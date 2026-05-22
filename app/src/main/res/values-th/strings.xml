@@ -121,6 +121,7 @@
     <string name="search_chapters">ค้นหาตอน</string>
     <string name="chapters_empty">ไม่มีตอนในมังงะนี้</string>
     <string name="chapters">ตอน</string>
+    <string name="chapter_d_of_d">บทที่ %1$d จาก %2$d</string>
     <string name="disable_nsfw">ปิด NSFW</string>
     <string name="too_many_requests_message">คำขอมากเกินไป ลองอีกครั้งในภายหลัง</string>
     <string name="color_black">ดำ</string>

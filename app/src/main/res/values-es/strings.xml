@@ -14,6 +14,7 @@
     <string name="settings">Ajustes</string>
     <string name="remote_sources">Fuentes del manga</string>
     <string name="loading_">Cargando…</string>
+    <string name="chapter_d_of_d">Capítulo %1$d de %2$d</string>
     <string name="close">Cerrar</string>
     <string name="try_again">Inténtalo de nuevo</string>
     <string name="clear_history">Borrar historial</string>

@@ -14,6 +14,7 @@
     <string name="remote_sources">မန်ဂါရင်းမြစ်များ</string>
     <string name="loading_">စောင့်ဆိုင်းပါ…</string>
     <string name="computing_">တွက်ချက်နေသည်…</string>
+    <string name="chapter_d_of_d">%2$d ရဲ့ အခန်း %1$d</string>
     <string name="close">ပိတ်မည်</string>
     <string name="try_again">ပြန်လည်ကြိုးစားပါ</string>
     <string name="retry">ထပ်မံကြိုးစားပါ</string>

@@ -2,6 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="history">履歴</string>
     <string name="loading_">ロード中…</string>
+    <string name="chapter_d_of_d">%1$d/%2$d 章</string>
     <string name="share">共有</string>
     <string name="clear_history">履歴を削除</string>
     <string name="search">検索</string>

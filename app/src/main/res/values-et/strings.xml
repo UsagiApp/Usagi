@@ -254,6 +254,7 @@
     <string name="reorder">ümberjärjestamine</string>
     <string name="share_s">Jaga %s</string>
     <string name="suggestions_excluded_genres">Välista žanrid</string>
+    <string name="chapter_d_of_d">Peatükid %1$d %2$d-st</string>
     <string name="canceled">Peatatud</string>
     <string name="feed">Voog</string>
     <string name="account_already_exists">Kasutaja juba eksisteerib</string>

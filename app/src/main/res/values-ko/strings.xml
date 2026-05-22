@@ -41,6 +41,7 @@
     <string name="read">지금 읽기</string>
     <string name="by_name">이름 순</string>
     <string name="popular">인기 순</string>
+    <string name="chapter_d_of_d">%2$d화 중 %1$d화</string>
     <string name="downloads">다운로드</string>
     <string name="by_rating">평점 순</string>
     <string name="save_page">페이지 저장</string>

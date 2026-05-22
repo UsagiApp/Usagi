@@ -300,6 +300,7 @@
     <string name="settings_apply_restart_required">Byrja om appen for å nytta desse brigda</string>
     <string name="chapters">Kapittel</string>
     <string name="computing_">Utreknar…</string>
+    <string name="chapter_d_of_d">Kapittel %1$d av %2$d</string>
     <string name="operation_not_supported">Ustødd gjerd</string>
     <string name="text_file_sizes">B|kB|MB|GB|TB</string>
     <string name="domain">Domene</string>

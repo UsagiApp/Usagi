@@ -56,6 +56,7 @@
     <string name="list">Λίστα</string>
     <string name="detailed_list">Λεπτομερής λίστα</string>
     <string name="loading_">Φόρτωση…</string>
+    <string name="chapter_d_of_d">Κεφάλαιο %1$d από %2$d</string>
     <string name="you_have_not_favourites_yet">Δεν υπάρχουν αγαπημένα</string>
     <string name="add">Προσθήκη</string>
     <string name="processing_">Επεξεργασία…</string>
@@ -252,7 +253,7 @@
     <string name="source_summary_pattern">%1$s, %2$s</string>
     <string name="sources_catalog">Κατάλογος πηγών</string>
     <string name="source_enabled">Η πηγή ενεργοποιήθηκε</string>
-    <string name="no_manga_sources_catalog_text">Δεν υπάρχουν διαθέσιμες πηγές σε αυτό το τμήμα, ή πιθανώς όλες έχουν προστεθεί.
+    <string name="no_manga_sources_catalog_text">Δεν υπάρχουν διαθέσιμες πηγές σε αυτό το τμήμα, ή πιθανώς όλες έχουν προστεθεί. 
 \nΜείνετε σε επαφή</string>
     <string name="no_manga_sources_found">Η αναζήτηση σας δεν επέφερε διαθέσιμα manga</string>
     <string name="invalid_port_number">Μη έγκυρος αριθμός θύρας</string>

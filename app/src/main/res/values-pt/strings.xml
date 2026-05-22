@@ -11,6 +11,7 @@
     <string name="list_mode">Modo lista</string>
     <string name="settings">Configurações</string>
     <string name="loading_">Carregando…</string>
+    <string name="chapter_d_of_d">Capítulo %1$d de %2$d</string>
     <string name="try_again">Tente novamente</string>
     <string name="clear_history">Limpar histórico</string>
     <string name="nothing_found">Nada encontrado</string>
