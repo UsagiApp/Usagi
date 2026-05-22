@@ -63,13 +63,13 @@ import org.draken.usagi.core.util.ext.toUriOrNull
 import org.draken.usagi.core.util.ext.zipWithPrevious
 import org.draken.usagi.databinding.ActivityReaderBinding
 import org.draken.usagi.details.ui.pager.pages.PagesSavedObserver
-import org.koitharu.kotatsu.parsers.model.MangaChapter
 import org.draken.usagi.reader.data.TapGridSettings
 import org.draken.usagi.reader.domain.TapGridArea
 import org.draken.usagi.reader.ui.config.ReaderConfigSheet
 import org.draken.usagi.reader.ui.pager.ReaderPage
 import org.draken.usagi.reader.ui.pager.ReaderUiState
 import org.draken.usagi.reader.ui.tapgrid.TapGridDispatcher
+import org.koitharu.kotatsu.parsers.model.MangaChapter
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import androidx.appcompat.R as appcompatR
@@ -125,6 +125,7 @@ class ReaderActivity :
         readerManager = ReaderManager(supportFragmentManager, viewBinding.container, settings)
         setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
         touchHelper = TapGridDispatcher(viewBinding.root, this)
+        viewBinding.root.isFocusableInTouchMode = true
         scrollTimer = scrollTimerFactory.create(resources, this, this)
         pageSaveHelper = pageSaveHelperFactory.create(this)
         controlDelegate = ReaderControlDelegate(resources, settings, tapGridSettings, this)
@@ -299,19 +300,29 @@ class ReaderActivity :
     }
 
     override fun onProcessTouch(rawX: Int, rawY: Int): Boolean {
-        return if (
-            rawX <= gestureInsets.left ||
-            rawY <= gestureInsets.top ||
-            rawX >= viewBinding.root.width - gestureInsets.right ||
-            rawY >= viewBinding.root.height - gestureInsets.bottom ||
-            viewBinding.appbarTop.hasGlobalPoint(rawX, rawY) ||
-            viewBinding.toolbarDocked?.hasGlobalPoint(rawX, rawY) == true
-        ) {
-            false
-        } else {
-            val touchables = window.peekDecorView()?.touchables
-            touchables?.none { it.hasGlobalPoint(rawX, rawY) } != false
-        }
+        val root = viewBinding.root
+        val w = root.width
+        val h = root.height
+        if (w <= 0 || h <= 0) return false
+        val loc = rootLocBuffer
+        root.getLocationOnScreen(loc)
+        val x = rawX - loc[0]
+        val y = rawY - loc[1]
+        if (x !in 0 until w || y !in 0 until h) return false
+        val inset = gestureInsets.forRootSize(w, h)
+        if (x < inset.left || y < inset.top || x >= w - inset.right || y >= h - inset.bottom) return false
+        return readerTouchBlockers.none { it.hasGlobalPoint(rawX, rawY) }
+    }
+
+    private val readerTouchBlockers: List<View>
+        get() = listOfNotNull(
+            viewBinding.appbarTop, viewBinding.toolbarDocked, viewBinding.buttonTimer,
+            viewBinding.zoomControl, viewBinding.timerControl, viewBinding.infoBar,
+        )
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) viewBinding.root.requestFocus()
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
@@ -589,8 +600,15 @@ class ReaderActivity :
         }.show()
     }
 
-    companion object {
+	private fun Insets.forRootSize(width: Int, height: Int): Insets {
+		var l = left; var r = right; var t = top; var b = bottom
+		if (l + r >= width)  { l = 0; r = 0 }
+		if (t + b >= height) { t = 0; b = 0 }
+		return Insets.of(l, t, r, b)
+	}
 
+    companion object {
+		private val rootLocBuffer = IntArray(2)
         private const val TOAST_DURATION = 2000L
     }
 }
