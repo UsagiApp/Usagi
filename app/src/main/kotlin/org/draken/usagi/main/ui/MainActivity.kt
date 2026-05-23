@@ -3,6 +3,8 @@ package org.draken.usagi.main.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -11,6 +13,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.view.ActionMode
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.toColorInt
 import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
@@ -30,6 +34,7 @@ import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.search.SearchView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -77,6 +82,7 @@ import org.draken.usagi.search.ui.suggestion.SearchSuggestionViewModel
 import org.draken.usagi.search.ui.suggestion.adapter.SearchSuggestionAdapter
 import org.koitharu.kotatsu.parsers.model.Manga
 import javax.inject.Inject
+import androidx.appcompat.R as appcompatR
 import com.google.android.material.R as materialR
 
 @AndroidEntryPoint
@@ -154,6 +160,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		viewModel.isBottomNavPinned.observe(this, ::setNavbarPinned)
 		searchSuggestionViewModel.isIncognitoModeEnabled.observe(this, this::onIncognitoModeChanged)
 		viewBinding.bottomNav?.addOnLayoutChangeListener(this)
+		if (isDarkAmoledTheme()) {
+			viewBinding.bottomNav?.apply {
+				val primary = MaterialColors.getColor(this, appcompatR.attr.colorPrimary, Color.WHITE)
+				setBackgroundColor(Color.BLACK)
+				itemTextColor = ColorStateList(
+					arrayOf(intArrayOf(android.R.attr.state_selected), intArrayOf()),
+					intArrayOf(primary, "#99FFFFFF".toColorInt()),
+				).also { itemIconTintList = it }
+				itemActiveIndicatorColor = ColorStateList.valueOf(ColorUtils.setAlphaComponent(primary, 38))
+			}
+		}
 		viewBinding.searchView.addTransitionListener(this)
 		viewBinding.searchView.addTransitionListener(exitCallback)
 		initSearch()
