@@ -41,6 +41,8 @@ class CheckNewChaptersUseCase @Inject constructor(
 	}
 
 	suspend operator fun invoke(track: MangaTracking): MangaUpdates = mutex.withLock(track.manga.id) {
+		// re-fetch from repository (db) -> get latest state
+		val track = repository.getTrackOrNull(track.manga)?.takeUnless { it.isEmpty() } ?: track
 		invokeImpl(track)
 	}
 
@@ -143,6 +145,15 @@ class CheckNewChaptersUseCase @Inject constructor(
 	private suspend fun compare(track: MangaTracking, manga: Manga, branch: String?): MangaUpdates.Success {
 		if (track.isEmpty()) {
 			// first check or manga was empty on last check
+			val last = historyRepository.getOne(manga)?.chaptersCount ?: 0
+			if (last > 0) {
+				val chapters = manga.getChapters(branch).sortedBy { it.number }
+				if (chapters.isNotEmpty() && chapters.size > last) {
+					val new = chapters.size - last
+					return MangaUpdates.Success(manga, branch, chapters.takeLast(new), true)
+				}
+				return MangaUpdates.Success(manga, branch, emptyList(), true)
+			}
 			return MangaUpdates.Success(manga, branch, emptyList(), false)
 		}
 		val chapters = requireNotNull(manga.getChapters(branch)).sortedBy { it.number }

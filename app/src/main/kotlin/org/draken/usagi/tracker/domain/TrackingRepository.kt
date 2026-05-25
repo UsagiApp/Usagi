@@ -14,14 +14,14 @@ import org.draken.usagi.core.util.ext.mapItems
 import org.draken.usagi.core.util.ext.toInstantOrNull
 import org.draken.usagi.details.domain.ProgressUpdateUseCase
 import org.draken.usagi.list.domain.ListFilterOption
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.ifZero
 import org.draken.usagi.tracker.data.TrackEntity
 import org.draken.usagi.tracker.data.TrackLogEntity
 import org.draken.usagi.tracker.data.toTrackingLogItem
 import org.draken.usagi.tracker.domain.model.MangaTracking
 import org.draken.usagi.tracker.domain.model.MangaUpdates
 import org.draken.usagi.tracker.domain.model.TrackingLogItem
+import org.koitharu.kotatsu.parsers.model.Manga
+import org.koitharu.kotatsu.parsers.util.ifZero
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -130,6 +130,7 @@ class TrackingRepository @Inject constructor(
 		}
 	}
 
+	@Suppress("DEPRECATION")
 	suspend fun saveUpdates(updates: MangaUpdates) {
 		db.withTransaction {
 			val track = getOrCreateTrack(updates.manga.id).mergeWith(updates)
@@ -228,7 +229,9 @@ class TrackingRepository @Inject constructor(
 
 			is MangaUpdates.Success -> TrackEntity(
 				mangaId = mangaId,
-				lastChapterId = updates.manga.getChapters(updates.branch).lastOrNull()?.id ?: NO_ID,
+				lastChapterId = updates.manga.getChapters(updates.branch).lastOrNull()?.id
+					?: updates.manga.chapters?.lastOrNull()?.id
+					?: NO_ID,
 				newChapters = if (updates.isValid) newChapters + updates.newChapters.size else 0,
 				lastCheckTime = System.currentTimeMillis(),
 				lastChapterDate = updates.lastChapterDate().ifZero { lastChapterDate },
