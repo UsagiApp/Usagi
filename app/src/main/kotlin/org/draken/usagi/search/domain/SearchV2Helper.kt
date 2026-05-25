@@ -92,6 +92,7 @@ class SearchV2Helper @AssistedInject constructor(
 		}
 	}
 
+	@Suppress("DEPRECATION")
 	private fun MutableList<Manga>.sortByRelevance(query: String, kind: SearchKind) {
 		when (kind) {
 			SearchKind.SIMPLE,
@@ -124,7 +125,7 @@ class SearchV2Helper @AssistedInject constructor(
 		}
 	}
 
-
+	@Suppress("DEPRECATION")
 	private fun Manga.matches(query: String, threshold: Float): Boolean {
 		return matchesTitles(title, query, threshold) || matchesTitles(altTitle, query, threshold)
 	}

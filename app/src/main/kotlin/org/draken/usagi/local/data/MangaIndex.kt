@@ -5,13 +5,13 @@ import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import okio.buffer
-import org.jetbrains.annotations.Blocking
-import org.json.JSONArray
-import org.json.JSONObject
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.model.isLocal
 import org.draken.usagi.core.util.ext.printStackTraceDebug
+import org.jetbrains.annotations.Blocking
+import org.json.JSONArray
+import org.json.JSONObject
 import org.koitharu.kotatsu.parsers.model.ContentRating
 import org.koitharu.kotatsu.parsers.model.Manga
 import org.koitharu.kotatsu.parsers.model.MangaChapter
@@ -35,6 +35,7 @@ class MangaIndex(source: String?) {
 
 	private val json: JSONObject = source?.let(::JSONObject) ?: JSONObject()
 
+	@Suppress("DEPRECATION")
 	fun setMangaInfo(manga: Manga) {
 		require(!manga.isLocal) { "Local manga information cannot be stored" }
 		json.put(KEY_ID, manga.id)

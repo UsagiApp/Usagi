@@ -64,7 +64,7 @@ fun ChapterEntity.toMangaChapter() = MangaChapter(
 fun Collection<ChapterEntity>.toMangaChapters() = map { it.toMangaChapter() }
 
 // Model to entity
-
+@Suppress("DEPRECATION")
 fun Manga.toEntity() = MangaEntity(
 	id = id,
 	url = url,

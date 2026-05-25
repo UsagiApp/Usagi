@@ -56,6 +56,7 @@ class MangaLinkResolver @Inject constructor(
 		return context.newLinkResolver(uri).getManga()
 	}
 
+	@Suppress("DEPRECATION")
 	private suspend fun MangaRepository.findExact(url: String?, title: String?): Manga? {
 		if (!title.isNullOrEmpty()) {
 			val list = getList(0, null, MangaListFilter(query = title))
@@ -88,6 +89,7 @@ class MangaLinkResolver @Inject constructor(
 		getDetails(manga)
 	}
 
+	@Suppress("DEPRECATION")
 	private fun getSeedManga(source: MangaSource, url: String, title: String?) = Manga(
 		id = run {
 			var h = 1125899906842597L
