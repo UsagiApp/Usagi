@@ -29,7 +29,6 @@ import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.ui.model.titleRes
-import org.draken.usagi.core.ui.util.FadingAppbarMediator
 import org.draken.usagi.core.util.ViewBadge
 import org.draken.usagi.core.util.ext.consumeSystemBarsInsets
 import org.draken.usagi.core.util.ext.end
@@ -74,9 +73,6 @@ class MangaListActivity :
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(ActivityMangaListBinding.inflate(layoutInflater))
-		viewBinding.collapsingToolbarLayout?.let { collapsingToolbarLayout ->
-			FadingAppbarMediator(viewBinding.appbar, collapsingToolbarLayout).bind()
-		}
 		val filter = intent.getParcelableExtraCompat<ParcelableMangaListFilter>(AppRouter.KEY_FILTER)?.filter
 		val sortOrder = intent.getSerializableExtraCompat<SortOrder>(AppRouter.KEY_SORT_ORDER)
 		source = MangaSource(intent.getStringExtra(AppRouter.KEY_SOURCE))
