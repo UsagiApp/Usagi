@@ -45,6 +45,28 @@
 		<item name="android:windowExitAnimation">@anim/bottom_sheet_slide_out</item>
 	</style>
 
+	<!-- Expressive theme -->
+	<style name="Widget.Usagi.CollapsingToolbar.Medium.Expressive" parent="Widget.Material3.CollapsingToolbar.Medium">
+		<item name="expandedTitleMarginStart">14dp</item>
+		<item name="expandedTitleMarginBottom">15dp</item>
+		<item name="expandedTitleMarginTop">10dp</item>
+		<item name="maxLines">1</item>
+	</style>
+
+	<!--<style name="Widget.Usagi.CircularProgressIndicator.Expressive" parent="Widget.Material3Expressive.CircularProgressIndicator.Wavy">
+		<item name="waveAmplitude">4dp</item>
+		<item name="waveSpeed">20dp</item>
+	</style>-->
+
+	<style name="Widget.Usagi.LinearProgressIndicator" parent="Widget.Material3.LinearProgressIndicator">
+		<item name="trackCornerRadius">@dimen/mtrl_progress_indicator_full_rounded_corner_radius</item>
+	</style>
+
+	<style name="Widget.Usagi.LinearProgressIndicator.Expressive" parent="Widget.Material3Expressive.LinearProgressIndicator.Wavy">
+		<item name="waveAmplitude">3dp</item>
+		<item name="waveSpeed">3dp</item>
+	</style>
+
 	<!-- Widget styles -->
 
 	<style name="Widget.Usagi.SearchView" parent="@style/Widget.AppCompat.SearchView">
@@ -56,10 +78,6 @@
 	</style>
 
 	<style name="Widget.Usagi.CircularProgressIndicator" parent="Widget.Material3.CircularProgressIndicator">
-		<item name="trackCornerRadius">@dimen/mtrl_progress_indicator_full_rounded_corner_radius</item>
-	</style>
-
-	<style name="Widget.Usagi.LinearProgressIndicator" parent="Widget.Material3.LinearProgressIndicator">
 		<item name="trackCornerRadius">@dimen/mtrl_progress_indicator_full_rounded_corner_radius</item>
 	</style>
 

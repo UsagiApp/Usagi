@@ -100,8 +100,7 @@
 
 		<item name="appBarLayoutStyle">@style/Widget.Material3Expressive.AppBarLayout</item>
 		<item name="collapsingToolbarLayoutStyle">@style/Widget.Material3Expressive.CollapsingToolbar</item>
-		<item name="collapsingToolbarLayoutMediumStyle">@style/Widget.Material3Expressive.CollapsingToolbar.Medium
-		</item>
+		<item name="collapsingToolbarLayoutMediumStyle">@style/Widget.Usagi.CollapsingToolbar.Medium.Expressive</item>
 		<item name="collapsingToolbarLayoutLargeStyle">@style/Widget.Material3Expressive.CollapsingToolbar.Large</item>
 
 		<item name="materialSearchBarStyle">@style/Widget.Material3Expressive.SearchBar</item>
@@ -142,10 +141,30 @@
 		<item name="toolbarStyle">@style/Widget.Material3Expressive.Toolbar</item>
 		<item name="toolbarSurfaceStyle">@style/Widget.Material3Expressive.Toolbar.Surface</item>
 
-		<item name="linearProgressIndicatorStyle">@style/Widget.Material3Expressive.LinearProgressIndicator</item>
-		<item name="circularProgressIndicatorStyle">@style/Widget.Material3Expressive.CircularProgressIndicator</item>
+		<item name="linearProgressIndicatorStyle">@style/Widget.Usagi.LinearProgressIndicator.Expressive</item>
+		<item name="circularProgressIndicatorStyle">@style/Widget.Material3Expressive.CircularProgressIndicator.Wavy</item>
 
-		<item name="sliderStyle">@style/Widget.Material3Expressive.Slider.Xsmall</item>
+		<item name="expandedTitleTextAppearance">?attr/textAppearanceHeadlineSmall</item>
+
+		<item name="shapeAppearanceCornerExtraExtraLarge">@style/ShapeAppearance.Material3.Corner.ExtraExtraLarge</item>
+
+		<item name="textAppearanceDisplayLarge">?attr/textAppearanceDisplayLargeEmphasized</item>
+		<item name="textAppearanceDisplayMedium">?attr/textAppearanceDisplayMediumEmphasized</item>
+		<item name="textAppearanceDisplaySmall">?attr/textAppearanceDisplaySmallEmphasized</item>
+		<item name="textAppearanceHeadlineLarge">?attr/textAppearanceHeadlineLargeEmphasized</item>
+		<item name="textAppearanceHeadlineMedium">?attr/textAppearanceHeadlineMediumEmphasized</item>
+		<item name="textAppearanceHeadlineSmall">?attr/textAppearanceHeadlineSmallEmphasized</item>
+		<item name="textAppearanceTitleLarge">?attr/textAppearanceTitleLargeEmphasized</item>
+		<item name="textAppearanceTitleMedium">?attr/textAppearanceTitleMediumEmphasized</item>
+		<item name="textAppearanceTitleSmall">?attr/textAppearanceTitleSmallEmphasized</item>
+		<item name="textAppearanceBodyLarge">?attr/textAppearanceBodyLargeEmphasized</item>
+		<item name="textAppearanceBodyMedium">?attr/textAppearanceBodyMediumEmphasized</item>
+		<item name="textAppearanceBodySmall">?attr/textAppearanceBodySmallEmphasized</item>
+		<item name="textAppearanceLabelLarge">?attr/textAppearanceLabelLargeEmphasized</item>
+		<item name="textAppearanceLabelMedium">?attr/textAppearanceLabelMediumEmphasized</item>
+		<item name="textAppearanceLabelSmall">?attr/textAppearanceLabelSmallEmphasized</item>
+
+		<item name="sliderStyle">@style/Widget.Material3Expressive.Slider.Medium</item>
 
 		<item name="collapsingToolbarLayoutMediumSize">@dimen/m3_comp_app_bar_medium_flexible_container_height</item>
 		<item name="collapsingToolbarLayoutLargeSize">@dimen/m3_comp_app_bar_large_flexible_container_height</item>
