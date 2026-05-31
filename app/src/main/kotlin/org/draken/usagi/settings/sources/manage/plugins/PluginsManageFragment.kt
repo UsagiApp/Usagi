@@ -32,7 +32,6 @@ import org.draken.usagi.databinding.DialogImportBinding
 import org.draken.usagi.databinding.FragmentSettingsSourcesBinding
 import org.draken.usagi.main.ui.owners.AppBarOwner
 import kotlin.coroutines.resume
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class PluginsManageFragment :
@@ -177,6 +176,7 @@ class PluginsManageFragment :
 	private suspend fun askOverwrite(fileName: String): Boolean = withContext(Dispatchers.Main) {
 		suspendCancellableCoroutine { cont ->
 			val dialog = buildAlertDialog(requireContext()) {
+				setIcon(R.drawable.ic_replace)
 				setTitle(R.string.overwrite_plugin)
 				setMessage(getString(R.string.overwrite_plugin_summary, fileName))
 				setNegativeButton(android.R.string.cancel) { _, _ ->
