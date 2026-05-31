@@ -11,14 +11,14 @@ plugins {
 }
 
 android {
-	compileSdk = 36
-	buildToolsVersion = '36.1.0'
+	compileSdkVersion 'android-37.0'
+	buildToolsVersion = '37.0.0'
 	namespace = 'org.draken.usagi'
 
 	defaultConfig {
 		applicationId 'org.draken.usagi'
 		minSdk = 21
-		targetSdk = 36
+		targetSdk = 37
 		versionCode = 12
 		versionName = '0.0.3-beta3'
 		generatedDensities = []
