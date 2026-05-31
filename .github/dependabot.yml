@@ -16,6 +16,8 @@ updates:
                 update-types: [ "version-update:semver-major" ]
             -   dependency-name: "androidx.hilt:hilt-compiler"
             -   dependency-name: "androidx.hilt:hilt-work"
+            -   dependency-name: "androidx.activity:activity-ktx"
+            -   dependency-name: "androidx.biometric:biometric"
                 
     -   package-ecosystem: "github-actions"
         directory: "/"
