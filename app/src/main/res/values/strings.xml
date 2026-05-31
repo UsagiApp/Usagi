@@ -64,7 +64,7 @@
     <string name="_import">Import</string>
     <string name="delete">Delete</string>
     <string name="operation_not_supported">This operation is not supported</string>
-    <string name="text_file_not_supported">Either pick a ZIP or CBZ file.</string>
+    <string name="text_file_not_supported">Either pick a ZIP, PDF or CBZ file.</string>
     <string name="no_description">No description</string>
     <string name="clear_pages_cache">Clear page cache</string>
     <string name="text_file_sizes">B|kB|MB|GB|TB</string>
@@ -378,7 +378,7 @@
     <string name="sources_reorder_tip">Tap and hold on an item to reorder them</string>
     <string name="user_agent">UserAgent header</string>
     <string name="settings_apply_restart_required">Please restart the application to apply these changes</string>
-    <string name="comics_archive_import_description">You can select one or more .cbz or .zip files, each file will be recognized as a separate manga.</string>
+    <string name="comics_archive_import_description">You can select one or more .cbz, .pdf or .zip files, each file will be recognized as a separate manga.</string>
     <string name="folder_with_images_import_description">You can select a directory with archives or images. Each archive (or subdirectory) will be recognized as a chapter.</string>
     <string name="speed">Speed</string>
     <string name="show_on_shelf">Show on the Shelf</string>
