@@ -34,6 +34,11 @@
 		<item name="android:paddingBottom">0dp</item>
 	</style>
 
+	<style name="Widget.Usagi.BottomNavigationView.Expressive" parent="Widget.Material3Expressive.BottomNavigationView">
+		<item name="paddingBottomSystemWindowInsets">false</item>
+		<item name="itemPaddingTop">10dp</item>
+	</style>
+
 	<style name="Widget.Usagi.Spinner.DropDown" parent="Widget.AppCompat.Spinner.DropDown">
 		<item name="android:popupBackground">@drawable/m3_spinner_popup_background</item>
 		<item name="android:elevation">8dp</item>

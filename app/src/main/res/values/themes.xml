@@ -135,7 +135,7 @@
 		<item name="materialButtonGroupStyle">@style/Widget.Material3Expressive.MaterialButtonGroup</item>
 		<item name="materialButtonToggleGroupStyle">@style/Widget.Material3Expressive.MaterialButtonToggleGroup</item>
 
-		<item name="bottomNavigationStyle">@style/Widget.Material3Expressive.BottomNavigationView</item>
+		<item name="bottomNavigationStyle">@style/Widget.Usagi.BottomNavigationView.Expressive</item>
 		<item name="navigationRailStyle">@style/Widget.Material3Expressive.NavigationRailView</item>
 
 		<item name="toolbarStyle">@style/Widget.Material3Expressive.Toolbar</item>
