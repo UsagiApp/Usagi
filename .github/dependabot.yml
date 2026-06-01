@@ -18,6 +18,7 @@ updates:
             -   dependency-name: "androidx.hilt:hilt-work"
             -   dependency-name: "androidx.activity:activity-ktx"
             -   dependency-name: "androidx.biometric:biometric"
+            -   dependency-name: "org.conscrypt:conscrypt-android"
                 
     -   package-ecosystem: "github-actions"
         directory: "/"
