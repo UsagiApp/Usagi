@@ -56,7 +56,7 @@
     <string name="_import">Importar</string>
     <string name="delete">Borrar</string>
     <string name="operation_not_supported">Esta operación no está admitida</string>
-    <string name="text_file_not_supported">Elija un archivo ZIP o bien un archivo CBZ.</string>
+    <string name="text_file_not_supported">Elija un archivo ZIP, PDF o CBZ.</string>
     <string name="no_description">Sin descripción</string>
     <string name="clear_pages_cache">Borrar caché de página</string>
     <string name="text_file_sizes">B|kB|MB|GB|TB</string>
@@ -358,7 +358,7 @@
     <string name="user_agent">Encabezado del agente de usuario</string>
     <string name="settings_apply_restart_required">Por favor, reinicie la aplicación para aplicar estos cambios</string>
     <string name="sources_reorder_tip">Mantén pulsado un elemento para reordenarlos</string>
-    <string name="comics_archive_import_description">Puedes seleccionar uno o más archivos .cbz o .zip, cada archivo será reconocido como un manga independiente.</string>
+    <string name="comics_archive_import_description">Puedes seleccionar uno o más archivos .cbz, .pdf o .zip, cada archivo será reconocido como un manga independiente.</string>
     <string name="folder_with_images_import_description">Puedes seleccionar un directorio con unos archivos o imágenes. Cada archivo (o subdirectorio) se reconocerá como un capítulo.</string>
     <string name="speed">Velocidad</string>
     <string name="show_on_shelf">Mostrar en la estantería</string>
@@ -928,4 +928,10 @@
     <string name="auto_update_plugins">Plugins de actualización automática</string>
     <string name="preview">Vista previa</string>
     <string name="no_plugins_summary">Pulsa sobre el signo + de arriba para añadir plugins externos</string>
+    <string name="reader_appearance">Interfaz de lectura</string>
+    <string name="reader_appearance_summary">Personalizar diseño, gestos y opacidad en la interfaz del lector</string>
+    <string name="reader_top_bar_opacity">Opacidad de la barra del título</string>
+    <string name="reader_bottom_bar_opacity">Opacidad de la barra de acción</string>
+    <string name="is_float_bar">Barra de acción flotante</string>
+    <string name="is_float_bar_summary">Exhiba la barra de acción del lector (en el inferior) como una barra flotante en vez de una barra de muelle</string>
 </resources>
