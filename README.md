@@ -60,7 +60,7 @@
 
   <br>
   
-  **This project includes two main repositories. While [this repository](#) contains the entire source code of the main application, [core-exts](https://github.com/UsagiApp/core-exts) is the repository containing all the classes compatible with external plugins / extensions for Usagi.**
+  **This project includes 2 main repositories. [This repository](#) contains the entire source code of the main application, [core-exts](https://github.com/UsagiApp/core-exts) is the repository containing all the classes compatible with external plugins / extensions for Usagi.**
 
   <br>
 
