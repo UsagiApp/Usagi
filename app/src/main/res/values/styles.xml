@@ -68,8 +68,10 @@
 	</style>
 
 	<style name="Widget.Usagi.LinearProgressIndicator.Expressive" parent="Widget.Material3Expressive.LinearProgressIndicator.Wavy">
-		<item name="waveAmplitude">3dp</item>
+		<item name="waveAmplitude">1dp</item>
 		<item name="waveSpeed">3dp</item>
+		<item name="trackThickness">3dp</item>
+		<item name="trackCornerRadius">1dp</item>
 	</style>
 
 	<!-- Widget styles -->
