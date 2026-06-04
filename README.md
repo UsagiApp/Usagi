@@ -6,7 +6,7 @@
 
 <br>
 
-**[Usagi](https://github.com/UsagiApp/Usagi) is a free and open-source manga reader for Android 5.0+**
+**[Usagi](https://github.com/UsagiApp/Usagi) is a free and open-source manga reader for Android, inspired by Kotatsu**
 
 ![Android 5.0](https://img.shields.io/badge/android-5.0+-brightgreen) [![weblate](https://hosted.weblate.org/widgets/usagi/-/strings/svg-badge.svg)](https://hosted.weblate.org/engage/usagi/) [![Discord](https://img.shields.io/discord/1484655684879519885?color=5865f2&label=discord)](https://discord.gg/4AHskjwtj4) [![Telegram](https://img.shields.io/badge/chat-telegram-60ACFF?)](https://t.me/usagiapp)
 
