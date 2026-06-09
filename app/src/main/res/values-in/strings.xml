@@ -359,7 +359,7 @@
     <string name="network_unavailable">Jaringan tidak tersedia</string>
     <string name="got_it">Oke</string>
     <string name="sources_reorder_tip">Ketuk dan tahan item untuk menyusun ulang</string>
-    <string name="comics_archive_import_description">Anda dapat memilih satu atau beberapa berkas .cbz atau .zip, setiap file akan dikenali sebagai manga terpisah.</string>
+    <string name="comics_archive_import_description">Anda dapat memilih satu atau lebih file .cbz, .pdf, atau .zip; setiap file akan dikenali sebagai manga terpisah.</string>
     <string name="folder_with_images_import_description">Anda dapat memilih direktori yang berisi arsip atau gambar. Setiap arsip (atau subdirektori) akan dikenali sebagai sebuah bab.</string>
     <string name="speed">Kecepatan</string>
     <string name="show_on_shelf">Tampilkan di Rak</string>
@@ -924,4 +924,13 @@
     <string name="updates_remind_summary">Tampilkan dialog saat aplikasi dibuka ketika pembaruan tersedia</string>
     <string name="update_available_message">Versi baru Usagi telah tersedia. Apakah Anda ingin memperbaruinya sekarang?</string>
     <string name="auto_update_plugins">Pembaruan otomatis plugin</string>
+    <string name="proxy_bypass_enabled">Lewati sensor internet</string>
+    <string name="proxy_bypass_enabled_summary">Rutekan lalu lintas aplikasi melalui terowongan bypass bawaan untuk jaringan yang diblokir (beta)</string>
+    <string name="reader_appearance">Antarmuka pembaca</string>
+    <string name="reader_appearance_summary">Sesuaikan tata letak, gestur, dan opasitas pada antarmuka pembaca</string>
+    <string name="reader_top_bar_opacity">Opasitas bilah judul</string>
+    <string name="reader_bottom_bar_opacity">Opasitas bilah tindakan</string>
+    <string name="is_float_bar">Bilah tindakan mengambang</string>
+    <string name="is_float_bar_summary">Tampilkan bilah tindakan pembaca (di bawah) sebagai bilah mengambang, bukan bilah dok</string>
+    <string name="auto_update_plugins_summary">Segarkan dan perbarui semua plugin yang terpasang secara otomatis saat startup</string>
 </resources>
