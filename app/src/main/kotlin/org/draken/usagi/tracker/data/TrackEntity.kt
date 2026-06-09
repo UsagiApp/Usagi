@@ -18,7 +18,7 @@ import org.draken.usagi.core.db.entity.MangaEntity
 		),
 	],
 )
-class TrackEntity(
+data class TrackEntity(
 	@PrimaryKey(autoGenerate = false)
 	@ColumnInfo(name = "manga_id") val mangaId: Long,
 	@ColumnInfo(name = "last_chapter_id") val lastChapterId: Long,

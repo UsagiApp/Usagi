@@ -48,6 +48,9 @@ abstract class TrackLogsDao : MangaQueryBuilder.ConditionCallback {
 	@Query("SELECT COUNT(*) FROM track_logs")
 	abstract suspend fun count(): Int
 
+	@Query("SELECT * FROM track_logs WHERE manga_id = :mangaId ORDER BY created_at DESC LIMIT 1")
+	abstract suspend fun findLast(mangaId: Long): TrackLogEntity?
+
 	@Transaction
 	@RawQuery(observedEntities = [TrackLogEntity::class])
 	protected abstract fun observeAllImpl(query: SupportSQLiteQuery): Flow<List<TrackLogWithManga>>

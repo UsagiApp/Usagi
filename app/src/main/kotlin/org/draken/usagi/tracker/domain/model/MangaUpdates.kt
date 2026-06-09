@@ -23,6 +23,12 @@ sealed interface MangaUpdates {
 			return lastChapter?.uploadDate?.ifZero { System.currentTimeMillis() }
 				?: (manga.chapters?.lastOrNull()?.uploadDate ?: 0L)
 		}
+
+		fun lastChapterId(): Long {
+			return manga.getChapters(branch).maxByOrNull { it.number }?.id
+				?: manga.chapters?.maxByOrNull { it.number }?.id
+				?: 0L
+		}
 	}
 
 	data class Failure(

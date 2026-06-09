@@ -148,7 +148,10 @@ class TrackWorker @AssistedInject constructor(
 							val notificationInfo = notificationHelper.createNotification(it.manga, it.newChapters)
 							if (notificationInfo != null && applicationContext.checkNotificationPermission(TrackerNotificationHelper.CHANNEL_ID)) {
 								notificationManager.notify(notificationInfo.tag, notificationInfo.id, notificationInfo.notification)
-								synchronized(groupNotifications) { groupNotifications.add(notificationInfo) }
+								synchronized(groupNotifications) {
+									groupNotifications.add(notificationInfo)
+									notifyGroup(groupNotifications)
+								}
 							}
 						}
 					}
@@ -157,15 +160,6 @@ class TrackWorker @AssistedInject constructor(
 
 		} catch (e: CancellationException) {
 			e.printStackTraceDebug()
-		} finally {
-			withContext(NonCancellable) {
-				if (groupNotifications.size > 1 && applicationContext.checkNotificationPermission(TrackerNotificationHelper.CHANNEL_ID)) {
-					val groupNotification = notificationHelper.createGroupNotification(groupNotifications)
-					if (groupNotification != null) {
-						notificationManager.notify(TAG, TrackerNotificationHelper.GROUP_NOTIFICATION_ID, groupNotification)
-					}
-				}
-			}
 		}
 	}
 
@@ -205,6 +199,15 @@ class TrackWorker @AssistedInject constructor(
 			ForegroundInfo(WORKER_NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
 		} else {
 			ForegroundInfo(WORKER_NOTIFICATION_ID, notification)
+		}
+	}
+
+	private fun notifyGroup(notifications: List<NotificationInfo>) {
+		if (notifications.size > 1 && applicationContext.checkNotificationPermission(TrackerNotificationHelper.CHANNEL_ID)) {
+			val group = notificationHelper.createGroupNotification(notifications)
+			if (group != null) {
+				notificationManager.notify(TAG, TrackerNotificationHelper.GROUP_NOTIFICATION_ID, group)
+			}
 		}
 	}
 
