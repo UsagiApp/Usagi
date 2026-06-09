@@ -81,12 +81,6 @@ class SettingsSearchHelper @Inject constructor(
             listOf(context.getString(R.string.services)),
             DiscordSettingsFragment::class.java,
         )
-        preferenceManager.inflateTo(
-            result,
-            R.xml.pref_sources,
-            listOf(),
-            SourcesSettingsFragment::class.java,
-        )
         return result
     }
 
