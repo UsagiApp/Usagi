@@ -19,8 +19,8 @@ android {
 		applicationId 'org.draken.usagi'
 		minSdk = 21
 		targetSdk = 37
-		versionCode = 13
-		versionName = '0.0.3'
+		versionCode = 14
+		versionName = '0.0.31'
 		generatedDensities = []
 		testInstrumentationRunner 'org.draken.usagi.HiltTestRunner'
 		ksp {
