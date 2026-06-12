@@ -929,7 +929,7 @@
     <string name="preview">Vista previa</string>
     <string name="no_plugins_summary">Pulsa sobre el signo + de arriba para añadir plugins externos</string>
     <string name="reader_appearance">Interfaz de lectura</string>
-    <string name="reader_appearance_summary">Personalizar diseño, gestos y opacidad en la interfaz del lector</string>
+    <string name="reader_appearance_summary">Personalizar disposición, gestos y opacidad en la interfaz del lector</string>
     <string name="reader_top_bar_opacity">Opacidad de la barra del título</string>
     <string name="reader_bottom_bar_opacity">Opacidad de la barra de acción</string>
     <string name="is_float_bar">Barra de acción flotante</string>
