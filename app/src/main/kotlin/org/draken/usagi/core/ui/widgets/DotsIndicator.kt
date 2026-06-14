@@ -10,13 +10,13 @@ import android.view.View
 import androidx.core.content.withStyledAttributes
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
-import androidx.viewpager2.widget.ViewPager2
 import org.draken.usagi.R
 import org.draken.usagi.core.util.ext.getThemeColorStateList
 import org.draken.usagi.core.util.ext.measureDimension
 import org.draken.usagi.core.util.ext.resolveDp
 import org.koitharu.kotatsu.parsers.util.toIntUp
 import com.google.android.material.R as materialR
+import androidx.core.view.isEmpty
 
 class DotsIndicator @JvmOverloads constructor(
 	context: Context,
@@ -108,27 +108,34 @@ class DotsIndicator @JvmOverloads constructor(
 		)
 	}
 
-	fun bindToViewPager(pager: ViewPager2) {
-		pager.registerOnPageChangeCallback(ViewPagerCallback())
-		pager.adapter?.let {
-			it.registerAdapterDataObserver(AdapterObserver(it))
-		}
+	fun bindToRecyclerView(recyclerView: RecyclerView) {
+		val adapter = recyclerView.adapter ?: return
+		adapter.registerAdapterDataObserver(AdapterObserver(adapter).also { max = adapter.itemCount })
+		recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+			override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) = updateScrollPosition(rv)
+		})
+	}
+
+	private fun updateScrollPosition(rv: RecyclerView) {
+		if (rv.isEmpty()) return
+		val cx = rv.width / 2f
+		fun View.mid() = left + width / 2f
+		val child = (0 until rv.childCount).map { rv.getChildAt(it) }
+		val (l, r) = child.partition { it.mid() <= cx }
+		val lv = l.maxByOrNull { it.mid() }
+		val rV = r.minByOrNull { it.mid() }
+		val lp = lv?.let { rv.getChildAdapterPosition(it) } ?: -1
+		val rp = rV?.let { rv.getChildAdapterPosition(it) } ?: -1
+		position = if (lp >= 0) lp else rp
+		positionOffset = if (lp >= 0 && rp >= 0 && rV!!.mid() > lv!!.mid())
+			(cx - lv.mid()) / (rV.mid() - lv.mid()) else 0f
+		if (position >= 0) invalidate()
 	}
 
 	private fun getDotSize() = if (indicatorSize <= 0) {
 		(height - paddingTop - paddingBottom).toFloat()
 	} else {
 		indicatorSize
-	}
-
-	private inner class ViewPagerCallback : ViewPager2.OnPageChangeCallback() {
-
-		override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-			super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-			this@DotsIndicator.position = position
-			this@DotsIndicator.positionOffset = positionOffset
-			invalidate()
-		}
 	}
 
 	private inner class AdapterObserver(
