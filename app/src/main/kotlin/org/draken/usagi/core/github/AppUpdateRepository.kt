@@ -68,7 +68,7 @@ class AppUpdateRepository @Inject constructor(
 		}
 	}
 
-	suspend fun fetchUpdate(): AppVersion? = withContext(Dispatchers.Default) {
+	suspend fun fetchUpdate(): AppVersion? = withContext(Dispatchers.IO) {
 		if (!isUpdateSupported()) {
 			return@withContext null
 		}

@@ -4,8 +4,9 @@ import android.content.Context
 import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
@@ -39,9 +40,9 @@ class UpdatePluginsProvider @Inject constructor(
 	}
 
 	suspend fun runAutoUpdate(settings: AppSettings) {
-		if (!settings.isAutoPluginsEnabled) return
-		mutex.withLock {
-			withContext(Dispatchers.Default) {
+		if (!settings.isAutoPluginsEnabled || !mutex.tryLock()) return
+		try {
+			withContext(Dispatchers.IO) {
 				val now = System.currentTimeMillis()
 				if (now - settings.lastAutoPlugins < COOLDOWN) return@withContext
 				settings.lastAutoPlugins = now
@@ -50,21 +51,25 @@ class UpdatePluginsProvider @Inject constructor(
 				val meta = readAndCleanDto(installed)
 				if (meta.isEmpty()) return@withContext
 				val pluginsDir = PluginFileLoader.pluginsDir(context)
-				var updated = 0
-				for (jarName in installed.sorted()) {
-					val info = meta[jarName] ?: continue
-					val release = requestRelease(info.repository) ?: continue
-					if (release.tag == info.tag) continue
-					val ok = replacePlugin(release.downloadUrl, File(pluginsDir, jarName))
-					if (!ok) continue
-					meta[jarName] = RemoteReleaseDto(repository = info.repository, tag = release.tag)
-					updated++
-				}
-				if (updated > 0) {
+				val results = installed.map { jarName ->
+					async {
+						val info = meta[jarName] ?: return@async null
+						val release = requestRelease(info.repository) ?: return@async null
+						if (release.tag == info.tag) return@async null
+						if (replacePlugin(release.downloadUrl, File(pluginsDir, jarName))) {
+							jarName to RemoteReleaseDto(info.repository, release.tag)
+						} else null
+					}
+				}.awaitAll().filterNotNull()
+
+				if (results.isNotEmpty()) {
+					results.forEach { (name, dto) -> meta[name] = dto }
 					writeDto(meta)
 					reloadPlugins(pluginsDir)
 				}
 			}
+		} finally {
+			mutex.unlock()
 		}
 	}
 

@@ -24,6 +24,7 @@ import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
+import androidx.core.widget.NestedScrollView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.transition.TransitionManager
 import coil3.ImageLoader
@@ -174,18 +175,20 @@ class DetailsClassicActivity :
 			}
 			TitleExpandListener(textViewTitle).attach()
 			swipeRefreshLayout.setOnRefreshListener(this@DetailsClassicActivity)
-			scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
-				if (settings.isBackdropEnabled) {
-					viewBinding.backdropContainer.translationY = -scrollY.toFloat()
+			scrollView.setOnScrollChangeListener(
+				NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
+					if (settings.isBackdropEnabled) {
+						viewBinding.backdropContainer.translationY = -scrollY.toFloat()
+					}
+					updateAppBarScrim(scrollY)
+					val loc = IntArray(2)
+					textViewTitle.getLocationOnScreen(loc)
+					val titleBottom = loc[1] + textViewTitle.height
+					appbar.getLocationOnScreen(loc)
+					val appBarBottom = loc[1] + appbar.height
+					supportActionBar?.setDisplayShowTitleEnabled(titleBottom < appBarBottom)
 				}
-				updateAppBarScrim(scrollY)
-				val loc = IntArray(2)
-				textViewTitle.getLocationOnScreen(loc)
-				val titleBottom = loc[1] + textViewTitle.height
-				appbar.getLocationOnScreen(loc)
-				val appBarBottom = loc[1] + appbar.height
-				supportActionBar?.setDisplayShowTitleEnabled(titleBottom < appBarBottom)
-			}
+			)
 			containerBottomSheet.let { sheet ->
 				val behavior = (sheet.layoutParams as? CoordinatorLayout.LayoutParams)?.behavior as? BottomSheetBehavior<*>
 				if (behavior != null) {
