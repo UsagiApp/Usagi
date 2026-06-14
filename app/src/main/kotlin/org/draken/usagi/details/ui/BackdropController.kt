@@ -1,6 +1,5 @@
 package org.draken.usagi.details.ui
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.RenderEffect
@@ -11,6 +10,7 @@ import android.os.Build
 import android.view.View
 import android.widget.ImageView
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.scale
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -23,52 +23,63 @@ import coil3.request.allowRgb565
 import coil3.request.crossfade
 import coil3.request.lifecycle
 import coil3.size.Precision
+import org.draken.usagi.core.image.CoilImageView
 import org.draken.usagi.core.prefs.AppSettings
-import java.lang.ref.WeakReference
 
 class BackdropController(
-	backdrop: ImageView,
-	backdropGradient: View,
-	backdropTopGradient: View,
-	context: Context,
+	private var backdrop: ImageView?,
+	private var backdropGradient: View?,
+	private var backdropTopGradient: View?,
+	private var coverView: CoilImageView?,
 	private val imageLoader: ImageLoader,
 	private val lifecycle: LifecycleOwner,
 	private val settings: AppSettings,
 ) : DefaultLifecycleObserver {
-	private val backdropRef = WeakReference(backdrop)
-	private val gradientRef = WeakReference(backdropGradient)
-	private val topGradientRef = WeakReference(backdropTopGradient)
 	private var currentDisposable: Disposable? = null
+	private val placeholderDrawable: Drawable?
+		get() = coverView?.placeholderDrawable?.constantState?.newDrawable()?.mutate()
+	private val errorDrawable: Drawable?
+		get() = coverView?.errorDrawable?.constantState?.newDrawable()?.mutate()
+	private val fallbackDrawable: Drawable?
+		get() = coverView?.fallbackDrawable?.constantState?.newDrawable()?.mutate()
 
 	init {
-		val bgColor = context.obtainStyledAttributes(intArrayOf(android.R.attr.colorBackground)).run {
-			getColor(0, Color.WHITE).also { recycle() }
+		val context = backdrop?.context
+		if (context != null) {
+			val bgColor = context.obtainStyledAttributes(intArrayOf(android.R.attr.colorBackground)).run {
+				getColor(0, Color.WHITE).also { recycle() }
+			}
+			applyGradients(bgColor)
 		}
-		applyGradients(bgColor)
 		lifecycle.lifecycle.addObserver(this)
 	}
 
 	fun load(imageUrl: String?) {
-		val backdrop = backdropRef.get() ?: return
-		if (imageUrl.isNullOrBlank()) return
+		val view = backdrop ?: return
 		currentDisposable?.dispose()
-		val request = ImageRequest.Builder(backdrop.context)
-			.data(imageUrl)
+		val request = ImageRequest.Builder(view.context)
+			.data(imageUrl?.takeIf { it.isNotBlank() })
 			.lifecycle(lifecycle)
 			.crossfade(true)
 			.allowHardware(false)
 			.allowRgb565(true)
 			.precision(Precision.INEXACT)
 			.target(
+				onStart = {
+					val placeholder = placeholderDrawable ?: return@target
+					placeholder.setBounds(0, 0, view.width.coerceAtLeast(0), view.height.coerceAtLeast(0))
+					view.animate().cancel()
+					view.alpha = 1f
+					view.setImageDrawable(placeholder)
+					applyBlur(view)
+				},
 				onSuccess = { image ->
-					val view = backdropRef.get() ?: return@target
 					view.scaleX = 1f
 					view.scaleY = 1.1f
 					view.translationY = -view.height * 0.08f
-					val drawable = image.asDrawable(view.context.resources)
 					view.animate().cancel()
 					view.alpha = 0f
-					view.setImageDrawable(drawable)
+					view.setImageDrawable(image.asDrawable(view.context.resources))
 					applyBlur(view)
 					view.animate()
 						.alpha(1f)
@@ -76,6 +87,14 @@ class BackdropController(
 						.setInterpolator(android.view.animation.DecelerateInterpolator())
 						.start()
 				},
+				onError = {
+					val err = errorDrawable ?: fallbackDrawable ?: return@target
+					err.setBounds(0, 0, view.width.coerceAtLeast(0), view.height.coerceAtLeast(0))
+					view.animate().cancel()
+					view.alpha = 1f
+					view.setImageDrawable(err)
+					applyBlur(view)
+				}
 			).build()
 		currentDisposable = imageLoader.enqueue(request)
 	}
@@ -83,12 +102,16 @@ class BackdropController(
 	override fun onDestroy(owner: LifecycleOwner) {
 		currentDisposable?.dispose()
 		currentDisposable = null
+		backdrop = null
+		backdropGradient = null
+		backdropTopGradient = null
+		coverView = null
 		owner.lifecycle.removeObserver(this)
 	}
 
 	private fun applyGradients(surfaceColor: Int) {
 		fun alpha(a: Int) = ColorUtils.setAlphaComponent(surfaceColor, a)
-		gradientRef.get()?.background = GradientDrawable(
+		backdropGradient?.background = GradientDrawable(
 			GradientDrawable.Orientation.TOP_BOTTOM,
 			intArrayOf(
 				Color.TRANSPARENT,
@@ -97,7 +120,7 @@ class BackdropController(
 				alpha(248), alpha(253), surfaceColor,
 			),
 		)
-		topGradientRef.get()?.background = GradientDrawable(
+		backdropTopGradient?.background = GradientDrawable(
 			GradientDrawable.Orientation.TOP_BOTTOM,
 			intArrayOf(
 				surfaceColor,
@@ -111,9 +134,7 @@ class BackdropController(
 	private fun applyBlur(view: ImageView) {
 		val amount = settings.backdropBlurAmount
 		if (amount <= 0) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-				view.setRenderEffect(null)
-			}
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) view.setRenderEffect(null)
 			return
 		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -124,7 +145,7 @@ class BackdropController(
 			return
 		}
 
-		val bitmap = drawableToBitmap(view.drawable ?: return)
+		val bitmap = drawableToBitmap(view.drawable ?: return, view)
 		val scaled = bitmap.scale(
 			(bitmap.width * BLUR_SCALE_FACTOR).toInt().coerceAtLeast(1),
 			(bitmap.height * BLUR_SCALE_FACTOR).toInt().coerceAtLeast(1),
@@ -134,29 +155,26 @@ class BackdropController(
 		android.renderscript.RenderScript.create(view.context).also { rs ->
 			val input = android.renderscript.Allocation.createFromBitmap(rs, scaled)
 			val output = android.renderscript.Allocation.createTyped(rs, input.type)
-			android.renderscript.ScriptIntrinsicBlur.create(rs, android.renderscript.Element.U8_4(rs))
-				.apply {
-					setRadius(rsRadius)
-					setInput(input)
-					forEach(output)
-				}
+			android.renderscript.ScriptIntrinsicBlur.create(rs, android.renderscript.Element.U8_4(rs)).apply {
+				setRadius(rsRadius)
+				setInput(input)
+				forEach(output)
+			}
 			output.copyTo(scaled)
 			rs.destroy()
 		}
 		view.setImageBitmap(scaled)
 	}
 
-	private fun drawableToBitmap(drawable: Drawable): Bitmap {
-		if (drawable is android.graphics.drawable.BitmapDrawable)
+	private fun drawableToBitmap(drawable: Drawable, view: ImageView): Bitmap {
+		if (drawable is android.graphics.drawable.BitmapDrawable) {
 			return drawable.bitmap.copy(Bitmap.Config.ARGB_8888, true)
-		return androidx.core.graphics.createBitmap(
-			drawable.intrinsicWidth.coerceAtLeast(1),
-			drawable.intrinsicHeight.coerceAtLeast(1),
-		).also { bitmap ->
-			val canvas = android.graphics.Canvas(bitmap)
-			drawable.setBounds(0, 0, canvas.width, canvas.height)
-			drawable.draw(canvas)
 		}
+		val w = drawable.intrinsicWidth.takeIf { it > 0 }
+			?: view.width.takeIf { it > 0 } ?: view.resources.displayMetrics.widthPixels
+		val h = drawable.intrinsicHeight.takeIf { it > 0 }
+			?: view.height.takeIf { it > 0 } ?: view.resources.displayMetrics.heightPixels
+		return drawable.toBitmap(w, h, Bitmap.Config.ARGB_8888)
 	}
 
 	companion object {

@@ -144,7 +144,7 @@ class DetailsClassicActivity :
 			backdrop = viewBinding.backdrop,
 			backdropGradient = viewBinding.backdropGradient,
 			backdropTopGradient = viewBinding.backdropTopGradient,
-			context = this,
+			coverView = viewBinding.imageViewCover,
 			imageLoader = coil,
 			lifecycle = this,
 			settings = settings,
