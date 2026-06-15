@@ -2,20 +2,23 @@ package org.draken.usagi.scrobbling.discord.ui
 
 import android.content.Context
 import android.os.SystemClock
+import android.util.ArrayMap
 import androidx.annotation.AnyThread
-import androidx.collection.ArrayMap
-import com.my.kizzyrpc.KizzyRPC
-import com.my.kizzyrpc.entities.presence.Activity
-import com.my.kizzyrpc.entities.presence.Assets
-import com.my.kizzyrpc.entities.presence.Metadata
-import com.my.kizzyrpc.entities.presence.Timestamps
+import com.discord.oauth2rpc.GatewayClient
+import com.discord.oauth2rpc.GatewayConnectOptions
+import com.discord.oauth2rpc.structures.RichPresence
+import coil3.ImageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import com.discord.oauth2rpc.API
+import com.discord.oauth2rpc.DiscordAssetRegistrar
 import dagger.hilt.android.ViewModelLifecycle
 import dagger.hilt.android.lifecycle.RetainedLifecycle
 import dagger.hilt.android.scopes.ViewModelScoped
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import okio.utf8Size
@@ -37,13 +40,13 @@ import javax.inject.Inject
 private const val STATUS_ONLINE = "online"
 private const val STATUS_IDLE = "idle"
 private const val BUTTON_TEXT_LIMIT = 32
-private const val DEBOUNCE_TIMEOUT = 16_000L // 16 sec
 
 @ViewModelScoped
 class DiscordRpc @Inject constructor(
 	@LocalizedAppContext private val context: Context,
 	private val settings: AppSettings,
 	private val repository: DiscordRepository,
+	private val imageLoader: ImageLoader,
 	lifecycle: ViewModelLifecycle,
 ) : RetainedLifecycle.OnClearedListener {
 
@@ -53,13 +56,14 @@ class DiscordRpc @Inject constructor(
 	private val appIcon = context.getString(R.string.app_icon_url)
 	private val mpCache = Collections.synchronizedMap(ArrayMap<String, String>())
 	private var lastUpdate = 0L
-
-	private var rpc: KizzyRPC? = null
-
+	private var rpc: GatewayClient? = null
 	private var rpcUpdateJob: Job? = null
+	private var assetRegistrar: DiscordAssetRegistrar? = null
+	private var registrarToken: String? = null
+	private val apiInstance = API()
 
 	@Volatile
-	private var lastActivity: Activity? = null
+	private var lastPresence: RichPresence? = null
 
 	init {
 		lifecycle.addOnClearedListener(this)
@@ -67,121 +71,129 @@ class DiscordRpc @Inject constructor(
 
 	override fun onCleared() {
 		clearRpc()
+		apiInstance.close()
 	}
 
 	fun clearRpc() = synchronized(this) {
-		rpc?.closeRPC()
+		rpc?.disconnect()
 		rpc = null
 		lastUpdate = 0L
 	}
 
 	fun setIdle() {
-		lastActivity?.let { activity ->
-			getRpc()?.updateRpcAsync(activity, idle = true)
+		lastPresence?.let { activity ->
+			updateRpcAsync(activity, idle = true, isNsfw = false)
 		}
 	}
 
 	@AnyThread
 	fun updateRpc(manga: Manga, state: ReaderUiState) {
-		getRpc()?.run {
-			if (settings.isDiscordRpcSkipNsfw && manga.isNsfw()) {
-				clearRpc()
-				return
-			}
-			updateRpcAsync(
-				activity = Activity(
-					applicationId = appId,
-					name = appName,
-					details = manga.title,
-					state = state.getChapterTitle(context.resources),
-					type = 3,
-					timestamps = Timestamps(
-						start = lastActivity?.timestamps?.start ?: System.currentTimeMillis(),
-					),
-					assets = Assets(
-						largeImage = manga.coverUrl,
-						/**
-						 * Must be fixed and unchangeable so that Discord can identify it accurately
-						 * Detailed explanation is available in PreMiD docs, thanks to PreMiD
-						 * It's possible its language is fixed, or Discord will handle it, have no idea about that
-						 * PreMiD's docs -> Table of contents: For TV Shows with Seasons and Episodes
-						 * https://docs.premid.app/v1/examples/media.html
-						*/
-						largeText = "Season ${state.chapter.volume}, Episode ${state.chapterNumber}",
-						smallText = context.getString(R.string.discord_rpc_description),
-						smallImage = appIcon,
-					),
-					buttons = listOf(
-						context.getString(R.string.read_on_s, appName),
-						context.getString(R.string.read_on_s, manga.source.getTitle(context)),
-					),
-					metadata = Metadata(listOf(manga.appUrl.toString(), manga.publicUrl)),
-				),
-				idle = false,
+		if (settings.isDiscordRpcSkipNsfw && manga.isNsfw()) {
+			clearRpc()
+			return
+		}
+
+		val title = state.getChapterTitle(context.resources)
+		val noTitle = state.chapter.title.isNullOrBlank() || title == context.getString(R.string.chapter_number, state.chapterNumber.toString())
+		val (presenceState, largeText) = if (noTitle && state.chapter.volume == 0) {
+			context.getString(R.string.chapter_d_of_d, state.chapterNumber, state.chaptersTotal) to
+				context.getString(R.string.reading_s, manga.title)
+		} else title to "Season ${state.chapter.volume}, Episode ${state.chapterNumber}"
+
+		val presence = RichPresence()
+			.setApplicationId(appId)
+			.setName(appName)
+			.setDetails(manga.title)
+			.setState(presenceState)
+			.setType(3) // WATCHING
+			.setStartTimestamp(lastPresence?.timestamps?.get("start") ?: System.currentTimeMillis())
+			.setAssetsLargeImage(manga.coverUrl)
+			.setAssetsLargeText(largeText)
+			.setAssetsSmallImage(appIcon)
+			.setAssetsSmallText(context.getString(R.string.discord_rpc_description))
+
+		val btn1Name = context.getString(R.string.read_on_s, appName)
+		val btn2Name = context.getString(R.string.read_on_s, manga.source.getTitle(context))
+		if (btn1Name.utf8Size() <= BUTTON_TEXT_LIMIT && btn2Name.utf8Size() <= BUTTON_TEXT_LIMIT) {
+			presence.setButtons(
+				mapOf("name" to btn1Name, "url" to manga.appUrl.toString()),
+				mapOf("name" to btn2Name, "url" to manga.publicUrl),
 			)
 		}
+		updateRpcAsync(presence, false, manga.isNsfw())
 	}
 
-	private fun KizzyRPC.updateRpcAsync(activity: Activity, idle: Boolean) {
+	private fun updateRpcAsync(presence: RichPresence, idle: Boolean, isNsfw: Boolean) {
 		val prevJob = rpcUpdateJob
 		rpcUpdateJob = coroutineScope.launch {
 			prevJob?.cancelAndJoin()
-			val debounceTime = lastUpdate + DEBOUNCE_TIMEOUT - SystemClock.elapsedRealtime()
-			if (debounceTime > 0) {
-				delay(debounceTime)
+			launch { getRpc() }
+			presence.setAssetsLargeImage(presence.assets["largeImage"]?.toMediaProxyUrl(isNsfw))
+			presence.setAssetsSmallImage(presence.assets["smallImage"]?.toMediaProxyUrl(false))
+			lastPresence = presence
+			getRpc()?.let { client ->
+				val data = mutableMapOf<String, Any?>(
+					"activities" to listOf(presence.toJSON()),
+					"status" to if (idle) STATUS_IDLE else STATUS_ONLINE,
+					"since" to (presence.timestamps?.get("start") ?: System.currentTimeMillis()),
+					"afk" to idle
+				)
+				client.send(3, data)
+				lastUpdate = SystemClock.elapsedRealtime()
 			}
-			val hideButtons = activity.buttons?.any { it != null && it.utf8Size() > BUTTON_TEXT_LIMIT } ?: false
-			val mappedActivity = activity.copy(
-				assets = activity.assets?.let {
-					it.copy(
-						largeImage = it.largeImage?.toMediaProxyUrl(),
-						smallImage = it.smallImage?.toMediaProxyUrl(),
-					)
-				},
-				buttons = activity.buttons.takeUnless { hideButtons },
-				metadata = activity.metadata.takeUnless { hideButtons },
-			)
-			lastActivity = mappedActivity
-			updateRPC(
-				activity = mappedActivity,
-				status = if (idle) STATUS_IDLE else STATUS_ONLINE,
-				since = activity.timestamps?.start ?: System.currentTimeMillis(),
-			)
-			lastUpdate = SystemClock.elapsedRealtime()
 		}
 	}
 
-	suspend fun String.toMediaProxyUrl(): String? {
-		if (repository.isMediaProxyUrl(this)) {
-			return this
-		}
-		mpCache[this]?.let {
-			return it
-		}
-		return runCatchingCancellable {
-			repository.getMediaProxyUrl(this)
-		}.onSuccess { url ->
-			mpCache[this] = url
-		}.onFailure {
-			it.printStackTraceDebug()
-		}.getOrNull()
+	suspend fun String.toMediaProxyUrl(isNsfw: Boolean): String? {
+		if (repository.isMediaProxyUrl(this)) return this
+		return mpCache[this] ?: runCatchingCancellable {
+			if (isNsfw) {
+				val file = getCacheFile(this)
+				val uploadedUrl = file?.let { repository.getMediaProxyUrl(it) }
+				if (uploadedUrl != null) {
+					getRegistrar()?.resolve(uploadedUrl)
+				} else { getRegistrar()?.resolve(this) }
+			} else { getRegistrar()?.resolve(this) }
+		}.onSuccess { url -> url?.let { mpCache[this] = it } }.onFailure { it.printStackTraceDebug() }.getOrNull()
 	}
 
-	private fun getRpc(): KizzyRPC? {
-		rpc?.let {
-			return it
+	private suspend fun getCacheFile(url: String): File? {
+		var snapshot = imageLoader.diskCache?.openSnapshot(url)
+		if (snapshot == null) {
+			val request = ImageRequest.Builder(context).data(url).build()
+			val result = imageLoader.execute(request)
+			if (result is SuccessResult) { snapshot = imageLoader.diskCache?.openSnapshot(url) }
 		}
-		return synchronized(this) {
-			rpc?.let {
-				return@synchronized it
+		return snapshot?.use { File(it.data.toString()) }
+	}
+
+	private fun getRpc(): GatewayClient? = rpc ?: synchronized(this) {
+		rpc ?: settings.discordToken?.takeIf { settings.isDiscordRpcEnabled }?.let { token ->
+			GatewayClient().apply {
+				onReady = { lastPresence?.let { updateRpcAsync(it, idle = false, isNsfw = false) } }
+				onResumed = { lastPresence?.let { updateRpcAsync(it, idle = false, isNsfw = false) } }
+				coroutineScope.launch {
+					try {
+						var currentToken = token
+						runCatching { repository.checkToken(currentToken) }.onFailure {
+							repository.refreshToken()
+							currentToken = settings.discordToken ?: token
+						}
+						connect(GatewayConnectOptions(token = currentToken))
+					} catch (e: Exception) {
+						e.printStackTraceDebug().also { clearRpc() }
+					}
+				}
 			}
-			if (settings.isDiscordRpcEnabled) {
-				settings.discordToken?.let { KizzyRPC(it) }
-			} else {
-				null
-			}.also {
-				rpc = it
-			}
+		}.also { rpc = it }
+	}
+
+	private fun getRegistrar(): DiscordAssetRegistrar? {
+		val currentToken = settings.discordToken ?: return null
+		if (assetRegistrar == null || registrarToken != currentToken) {
+			registrarToken = currentToken
+			assetRegistrar = DiscordAssetRegistrar(apiInstance, appId, currentToken)
 		}
+		return assetRegistrar
 	}
 }

@@ -349,7 +349,6 @@
     <string name="pages_cache">Кэш старонак</string>
     <string name="other_cache">Іншы кэш</string>
     <string name="storage_usage">Выкарыстанне памяці</string>
-    <string name="memory_usage_pattern">%s - %s</string>
     <string name="removed_from_favourites">Выдалена з абранага</string>
     <string name="options">Параметры</string>
     <string name="user_agent">Загаловак UserAgent</string>
@@ -849,6 +848,7 @@
     <string name="discord_rpc_summary">Пакажыце свой статус чытання ў Discord</string>
     <string name="obtain">Атрымаць</string>
     <string name="discord_rpc_description">Чытанне мангі на Usagi - праграма для чытання мангі</string>
+    <string name="reading_s">Чытанне %s</string>
     <string name="read_on_s">Чытаць далей %s</string>
     <string name="rpc_skip_nsfw_summary">Не выкарыстоўваць RPC для дарослага кантэнту</string>
     <string name="invalid_token">Няправільны токен: %s</string>

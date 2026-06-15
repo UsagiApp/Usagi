@@ -316,7 +316,6 @@
     <string name="other_cache">Outros cache</string>
     <string name="storage_usage">Armazenamento usado</string>
     <string name="available">Disponível</string>
-    <string name="memory_usage_pattern">%s - %s</string>
     <string name="removed_from_favourites">Removido dos favoritos</string>
     <string name="options">Opções</string>
     <string name="not_found_404">Conteúdo não encontrado ou removido</string>
@@ -848,6 +847,7 @@
     <string name="discord_rpc_summary">Mostrar seu estado de leitura no Discord</string>
     <string name="obtain">Obter</string>
     <string name="discord_rpc_description">Lendo manga no Usagi - um app leitor de manga</string>
+    <string name="reading_s">Lendo %s</string>
     <string name="read_on_s">Lendo em %s</string>
     <string name="rpc_skip_nsfw_summary">Não use RPC para conteúdo adulto</string>
     <string name="invalid_token">Token inválido: %s</string>

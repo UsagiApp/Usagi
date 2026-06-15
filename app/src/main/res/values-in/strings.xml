@@ -316,7 +316,6 @@
     <string name="server_error">Kesalahan di sisi server (%1$d). Silakan coba lagi nanti</string>
     <string name="compact">Padat</string>
     <string name="prefetch_content">Pramuat konten</string>
-    <string name="memory_usage_pattern">%s - %s</string>
     <string name="nothing_here">Tidak ada apapun di sini</string>
     <string name="reader_control_ltr_summary">Jangan ubah arah pergantian halaman ke mode pembaca, misalnya, menekan tombol kanan selalu beralih ke halaman berikutnya. Opsi ini hanya berlaku untuk perangkat masukan hardware</string>
     <string name="source_disabled">Sumber dinonaktifkan</string>
@@ -856,6 +855,7 @@
     <string name="no_chapters_in_manga">Manga ini tidak mengandung bab apa pun</string>
     <string name="telegram_integration">Integrasi Telegram</string>
     <string name="test_parser">Uji sumber manga</string>
+    <string name="reading_s">Membaca %s</string>
     <string name="read_on_s">Baca terus %s</string>
     <string name="obtain">Memperoleh</string>
     <string name="pull_to_prev_chapter">Lepas untuk membuka bab sebelumnya</string>

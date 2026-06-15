@@ -307,7 +307,6 @@
     <string name="reader_info_pattern">Cap. %1$d/%2$d Pág. %3$d/%4$d</string>
     <string name="reader_info_bar">Mostrar barra de informações no leitor</string>
     <string name="folder_with_images">Pasta com imagens</string>
-    <string name="memory_usage_pattern">%1$s - %2$s</string>
     <string name="comics_archive">Arquivo de quadrinhos</string>
     <string name="importing_manga">Importando obra(s)</string>
     <string name="import_completed">Importação completa</string>
@@ -854,6 +853,7 @@
     <string name="discord_token_summary">Insira seu Token do Discord para habilitar a Rich Presence</string>
     <string name="discord_rpc">Discord Rich Presence</string>
     <string name="discord_token_description">Insira seu Token do Discord ou clique em %s para obtê-lo usando o navegador</string>
+    <string name="reading_s">Lendo %s</string>
     <string name="read_on_s">Leia em %s</string>
     <string name="saved_filters">Filtros salvos</string>
     <string name="pull_to_prev_chapter">Soltar para abrir o capítulo anterior</string>

@@ -1,17 +1,20 @@
 package org.draken.usagi.scrobbling.discord.data
 
 import android.content.Context
+import android.util.Base64
+import java.io.File
+import java.security.MessageDigest
+import okhttp3.MultipartBody
+import okhttp3.FormBody.Builder
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import dagger.Reusable
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.closeQuietly
 import org.draken.usagi.R
 import org.draken.usagi.core.network.BaseHttpClient
@@ -20,9 +23,11 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.ensureSuccess
 import org.koitharu.kotatsu.parsers.util.await
 import org.koitharu.kotatsu.parsers.util.parseRaw
+import java.util.UUID
 import javax.inject.Inject
 
 private const val SCHEME_MP = "mp:"
+private const val REDIRECT_URI = "usagi://discord-auth"
 
 @Reusable
 class DiscordRepository @Inject constructor(
@@ -33,31 +38,23 @@ class DiscordRepository @Inject constructor(
 
 	private val appId = context.getString(R.string.discord_app_id)
 
-	suspend fun getMediaProxyUrl(url: String): String? {
-		if (isMediaProxyUrl(url)) {
-			return url
-		}
-		val token = checkNotNull(settings.discordToken) {
-			"Discord token is missing"
-		}
+	suspend fun getMediaProxyUrl(file: File): String? {
+		val requestBody = MultipartBody.Builder()
+			.setType(MultipartBody.FORM)
+			.addFormDataPart("reqtype", "fileupload")
+			.addFormDataPart("time", "24h")
+			.addFormDataPart(
+				"fileToUpload", file.name,
+				file.asRequestBody("image/*".toMediaTypeOrNull())
+			).build()
 		val request = Request.Builder()
-			.url("https://discord.com/api/v10/applications/${appId}/external-assets")
-			.header(CommonHeaders.AUTHORIZATION, token)
-			.post("{\"urls\":[\"${url}\"]}".toRequestBody("application/json".toMediaType()))
+			.url("https://litterbox.catbox.moe/resources/internals/api.php")
+			.post(requestBody)
 			.build()
-		val body = httpClient.newCall(request).await().parseRaw()
-		when (val json = Json.parseToJsonElement(body)) {
-			is JsonObject -> throw RuntimeException(json.jsonObject["message"]?.jsonPrimitive?.content)
-			is JsonArray -> {
-				val externalAssetPath = json.firstOrNull()
-					?.jsonObject
-					?.get("external_asset_path")
-					?.toString()
-					?.replace("\"", "")
-				return externalAssetPath?.let { SCHEME_MP + it }
-			}
-			else -> throw RuntimeException("Unexpected response: $json")
-		}
+		return try {
+			val response = httpClient.newCall(request).await()
+			if (response.isSuccessful) { response.parseRaw().trim() } else null
+		} catch (_: Exception) { null }
 	}
 
 	fun isMediaProxyUrl(url: String) = url.startsWith(SCHEME_MP)
@@ -69,5 +66,77 @@ class DiscordRepository @Inject constructor(
 			.get()
 			.build()
 		httpClient.newCall(request).await().ensureSuccess().closeQuietly()
+	}
+
+	val oauthUrl: String
+		get() {
+			val verifier = UUID.randomUUID().toString() + UUID.randomUUID().toString()
+			settings.discordCodeVerifier = verifier
+			val challenge = generateCodeChallenge(verifier)
+			val state = UUID.randomUUID().toString()
+			return "discord://action/oauth2/authorize?client_id=$appId" +
+				"&scope=openid%20sdk.social_layer_presence" +
+				"&response_type=code" +
+				"&state=$state" +
+				"&code_challenge=$challenge" +
+				"&code_challenge_method=S256" +
+				"&redirect_uri=$REDIRECT_URI"
+		}
+
+	val oauthFallbackUrl: String
+		get() = "https://discord.com/oauth2/authorize?client_id=$appId" +
+			"&scope=openid%20sdk.social_layer_presence" +
+			"&response_type=code&redirect_uri=$REDIRECT_URI" +
+			"&code_challenge=${generateCodeChallenge(settings.discordCodeVerifier.orEmpty())}" +
+			"&code_challenge_method=S256"
+
+	suspend fun authorize(code: String) {
+		val verifier = settings.discordCodeVerifier ?: throw IllegalStateException("Code verifier is missing")
+		val request = Request.Builder()
+			.url("https://discord.com/api/v10/oauth2/token")
+			.post(Builder()
+				.add("client_id", appId)
+				.add("grant_type", "authorization_code")
+				.add("code", code)
+				.add("redirect_uri", REDIRECT_URI)
+				.add("code_verifier", verifier)
+				.build()
+			).build()
+
+		val response = httpClient.newCall(request).await().ensureSuccess().parseRaw()
+		val json = Json.parseToJsonElement(response).jsonObject
+		val accessToken = json["access_token"]?.jsonPrimitive?.content
+		val tokenType = json["token_type"]?.jsonPrimitive?.content ?: "Bearer"
+		val refreshToken = json["refresh_token"]?.jsonPrimitive?.content
+		settings.discordToken = "$tokenType $accessToken"
+		settings.discordRefreshToken = refreshToken
+		settings.discordCodeVerifier = null
+	}
+
+	suspend fun refreshToken() {
+		val refreshToken = settings.discordRefreshToken ?: throw IllegalStateException("Refresh token is missing")
+		val request = Request.Builder()
+			.url("https://discord.com/api/v10/oauth2/token")
+			.post(Builder()
+				.add("client_id", appId)
+				.add("grant_type", "refresh_token")
+				.add("refresh_token", refreshToken)
+				.build()
+			).build()
+
+		val response = httpClient.newCall(request).await().ensureSuccess().parseRaw()
+		val json = Json.parseToJsonElement(response).jsonObject
+		val accessToken = json["access_token"]?.jsonPrimitive?.content
+		val tokenType = json["token_type"]?.jsonPrimitive?.content ?: "Bearer"
+		val newRefreshToken = json["refresh_token"]?.jsonPrimitive?.content
+
+		settings.discordToken = "$tokenType $accessToken"
+		settings.discordRefreshToken = newRefreshToken
+	}
+
+	private fun generateCodeChallenge(verifier: String): String {
+		val bytes = verifier.toByteArray(Charsets.US_ASCII)
+		val digest = MessageDigest.getInstance("SHA-256").digest(bytes)
+		return Base64.encodeToString(digest, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
 	}
 }

@@ -1,52 +1,69 @@
 package org.draken.usagi.scrobbling.discord.ui
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
+import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import org.draken.usagi.browser.BaseBrowserActivity
-import org.draken.usagi.core.parser.ParserMangaRepository
+import kotlinx.coroutines.launch
 import org.draken.usagi.core.prefs.AppSettings
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import org.draken.usagi.scrobbling.discord.data.DiscordRepository
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 @AndroidEntryPoint
-class DiscordAuthActivity : BaseBrowserActivity(), DiscordTokenWebClient.Callback {
+class DiscordAuthActivity : ComponentActivity() {
 
 	@Inject
 	lateinit var settings: AppSettings
 
-	override fun onCreate2(
-		savedInstanceState: Bundle?,
-		source: MangaSource,
-		repository: ParserMangaRepository?
-	) {
-		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = true)
-		viewBinding.webView.settings.userAgentString = USER_AGENT
-		viewBinding.webView.webViewClient = DiscordTokenWebClient(this)
-		if (savedInstanceState == null) {
-			viewBinding.webView.loadUrl(BASE_URL)
+	@Inject
+	lateinit var repository: DiscordRepository
+
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		handleIntent(intent)
+	}
+
+	override fun onNewIntent(intent: Intent) {
+		super.onNewIntent(intent)
+		setIntent(intent)
+		handleIntent(intent)
+	}
+
+	private fun handleIntent(intent: Intent) {
+		val data = intent.data
+		if (data != null && (data.scheme == "usagi" || data.scheme == "kotatsu") && data.host == "discord-auth") {
+			val code = data.getQueryParameter("code")
+			if (code != null) {
+				lifecycleScope.launch {
+					try {
+						repository.authorize(code)
+						setResult(RESULT_OK)
+						finish()
+					} catch (e: Exception) {
+						e.printStackTrace()
+						startAuth()
+					}
+				}
+			} else { finish() }
+		} else { startAuth() }
+	}
+
+	private fun startAuth() {
+		val discordUri = repository.oauthUrl.toUri()
+		val intent = Intent(Intent.ACTION_VIEW, discordUri).apply {
+			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 		}
-	}
 
-	override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-		android.R.id.home -> {
-			viewBinding.webView.stopLoading()
-			finishAfterTransition()
-			true
+		try {
+			startActivity(intent)
+		} catch (_: Exception) {
+			intent.data = repository.oauthFallbackUrl.toUri()
+			try { startActivity(intent) } catch (e: Exception) {
+				e.printStackTrace()
+				finish()
+			}
 		}
-
-		else -> super.onOptionsItemSelected(item)
-	}
-
-	override fun onTokenObtained(token: String) {
-		settings.discordToken = token
-		setResult(RESULT_OK)
-		finish()
-	}
-
-	private companion object {
-
-		const val BASE_URL = "https://discord.com/login"
-		private const val USER_AGENT = "Mozilla/5.0 (Linux; Android 14; SM-S921U; Build/UP1A.231005.007) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.363"
 	}
 }

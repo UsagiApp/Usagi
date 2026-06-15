@@ -192,10 +192,10 @@
 				<data android:scheme="file" android:mimeType="application/x-java-archive" />
 				<data android:scheme="content" android:mimeType="application/vnd.android.package-archive" />
 				<data android:scheme="file" android:mimeType="application/vnd.android.package-archive" />
-				<data android:scheme="content" android:mimeType="application/octet-stream" android:pathPattern=".*\\.jar" />
-				<data android:scheme="file" android:mimeType="application/octet-stream" android:pathPattern=".*\\.jar" />
-				<data android:scheme="content" android:mimeType="application/octet-stream" android:pathPattern=".*\\.JAR" />
-				<data android:scheme="file" android:mimeType="application/octet-stream" android:pathPattern=".*\\.JAR" />
+				<data android:scheme="content" />
+				<data android:scheme="file" />
+				<data android:pathPattern=".*\\.jar" />
+				<data android:pathPattern=".*\\.JAR" />
 			</intent-filter>
 			<intent-filter>
 				<action android:name="android.intent.action.SEND" />
@@ -295,7 +295,7 @@
 			android:label="@string/sources_catalog" />
 		<activity
 			android:name="org.draken.usagi.scrobbling.kitsu.ui.KitsuAuthActivity"
-			android:exported="false"
+			android:exported="true"
 			android:label="@string/kitsu"
 			tools:ignore="AppLinkUrlError">
 			<intent-filter>
@@ -337,7 +337,18 @@
 		</activity>
 		<activity
 			android:name="org.draken.usagi.scrobbling.discord.ui.DiscordAuthActivity"
-			android:label="@string/discord" />
+			android:exported="true"
+			android:launchMode="singleTask"
+			android:label="@string/discord">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="kotatsu" />
+				<data android:scheme="usagi" />
+    			<data android:host="discord-auth" />
+			</intent-filter>
+		</activity>
 
 		<service
 			android:name="androidx.work.impl.foreground.SystemForegroundService"

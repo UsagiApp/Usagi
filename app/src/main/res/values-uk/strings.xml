@@ -311,7 +311,6 @@
     <string name="exit_confirmation">Підтвердження виходу</string>
     <string name="removed_from_favourites">Видалено з улюблених</string>
     <string name="other_cache">Інший кеш</string>
-    <string name="memory_usage_pattern">%s - %s</string>
     <string name="manga_error_description_pattern">Деталі помилки:&lt;br&gt;&lt;tt&gt;%1$s&lt;/tt&gt;&lt;br&gt;&lt;br&gt;1. Спробуйте &lt;a href=%2$s&gt;відкрити манґу у веб-браузері&lt;/a&gt;, щоб переконатися, що вона доступна в джерелі&lt;br&gt;2. Переконайтеся, що ви використовуєте &lt;a href=kotatsu://about&gt;останню версію Usagi&lt;/a&gt;&lt;br&gt;3. Якщо вона доступна, надішліть звіт про помилку розробникам.</string>
     <string name="history_shortcuts">Показувати ярлики останньої прочитаної манґи</string>
     <string name="history_shortcuts_summary">Зробити нещодавно прочитану манґу доступною за довгим натисканням на іконку застосунку</string>
@@ -846,6 +845,7 @@
     <string name="discord_rpc_summary">Показувати ваш статус читання в Discord</string>
     <string name="obtain">Отримати</string>
     <string name="discord_rpc_description">Читання манґи в Usagi - програма для читання манґи</string>
+    <string name="reading_s">Читання %s</string>
     <string name="read_on_s">Читати на %s</string>
     <string name="rpc_skip_nsfw_summary">Не використовуйте RPC для контенту для дорослих</string>
     <string name="invalid_token">Недійсний токен: %s</string>
