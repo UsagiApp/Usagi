@@ -7,9 +7,15 @@ import androidx.annotation.AnyThread
 import com.discord.oauth2rpc.GatewayClient
 import com.discord.oauth2rpc.GatewayConnectOptions
 import com.discord.oauth2rpc.structures.RichPresence
+import coil3.ImageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import com.discord.oauth2rpc.API
+import com.discord.oauth2rpc.DiscordAssetRegistrar
 import dagger.hilt.android.ViewModelLifecycle
 import dagger.hilt.android.lifecycle.RetainedLifecycle
 import dagger.hilt.android.scopes.ViewModelScoped
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -42,6 +48,7 @@ class DiscordRpc @Inject constructor(
 	@LocalizedAppContext private val context: Context,
 	private val settings: AppSettings,
 	private val repository: DiscordRepository,
+	private val imageLoader: ImageLoader,
 	lifecycle: ViewModelLifecycle,
 ) : RetainedLifecycle.OnClearedListener {
 
@@ -53,6 +60,9 @@ class DiscordRpc @Inject constructor(
 	private var lastUpdate = 0L
 	private var rpc: GatewayClient? = null
 	private var rpcUpdateJob: Job? = null
+	private var assetRegistrar: DiscordAssetRegistrar? = null
+	private var registrarToken: String? = null
+	private val apiInstance = API()
 
 	@Volatile
 	private var lastPresence: RichPresence? = null
@@ -63,6 +73,7 @@ class DiscordRpc @Inject constructor(
 
 	override fun onCleared() {
 		clearRpc()
+		apiInstance.close()
 	}
 
 	fun clearRpc() = synchronized(this) {
@@ -73,7 +84,7 @@ class DiscordRpc @Inject constructor(
 
 	fun setIdle() {
 		lastPresence?.let { activity ->
-			updateRpcAsync(activity, true)
+			updateRpcAsync(activity, idle = true, isNsfw = false)
 		}
 	}
 
@@ -111,17 +122,18 @@ class DiscordRpc @Inject constructor(
 				mapOf("name" to btn2Name, "url" to manga.publicUrl),
 			)
 		}
-		updateRpcAsync(presence, false)
+		updateRpcAsync(presence, false, manga.isNsfw())
 	}
 
-	private fun updateRpcAsync(presence: RichPresence, idle: Boolean) {
+	private fun updateRpcAsync(presence: RichPresence, idle: Boolean, isNsfw: Boolean) {
 		val prevJob = rpcUpdateJob
 		rpcUpdateJob = coroutineScope.launch {
 			prevJob?.cancelAndJoin()
 			val debounceTime = lastUpdate + DEBOUNCE_TIMEOUT - SystemClock.elapsedRealtime()
 			if (debounceTime > 0) delay(debounceTime)
-			presence.setAssetsLargeImage(presence.assets["largeImage"]?.toMediaProxyUrl())
-			presence.setAssetsSmallImage(presence.assets["smallImage"]?.toMediaProxyUrl())
+			launch { getRpc() }
+			presence.setAssetsLargeImage(presence.assets["largeImage"]?.toMediaProxyUrl(isNsfw))
+			presence.setAssetsSmallImage(presence.assets["smallImage"]?.toMediaProxyUrl(false))
 			lastPresence = presence
 			getRpc()?.let { client ->
 				val data = mutableMapOf<String, Any?>(
@@ -136,19 +148,37 @@ class DiscordRpc @Inject constructor(
 		}
 	}
 
-	suspend fun String.toMediaProxyUrl(): String? {
+	suspend fun String.toMediaProxyUrl(isNsfw: Boolean): String? {
 		if (repository.isMediaProxyUrl(this)) return this
 		return mpCache[this] ?: runCatchingCancellable {
-			repository.getMediaProxyUrl(this)
+			if (isNsfw) {
+				val file = getCacheFile(this)
+				val uploadedUrl = file?.let { repository.getMediaProxyUrl(it) }
+				if (uploadedUrl != null) {
+					getRegistrar()?.resolve(uploadedUrl)
+				} else { getRegistrar()?.resolve(this) }
+			} else { getRegistrar()?.resolve(this) }
 		}.onSuccess { url -> url?.let { mpCache[this] = it } }
 		.onFailure { it.printStackTraceDebug() }.getOrNull()
+	}
+
+	private suspend fun getCacheFile(url: String): File? {
+		var snapshot = imageLoader.diskCache?.openSnapshot(url)
+		if (snapshot == null) {
+			val request = ImageRequest.Builder(context).data(url).build()
+			val result = imageLoader.execute(request)
+			if (result is SuccessResult) {
+				snapshot = imageLoader.diskCache?.openSnapshot(url)
+			}
+		}
+		return snapshot?.use { File(it.data.toString()) }
 	}
 
 	private fun getRpc(): GatewayClient? = rpc ?: synchronized(this) {
 		rpc ?: settings.discordToken?.takeIf { settings.isDiscordRpcEnabled }?.let { token ->
 			GatewayClient().apply {
-				onReady = { lastPresence?.let { updateRpcAsync(it, false) } }
-				onResumed = { lastPresence?.let { updateRpcAsync(it, false) } }
+				onReady = { lastPresence?.let { updateRpcAsync(it, idle = false, isNsfw = false) } }
+				onResumed = { lastPresence?.let { updateRpcAsync(it, idle = false, isNsfw = false) } }
 				coroutineScope.launch {
 					try {
 						var currentToken = token
@@ -163,5 +193,14 @@ class DiscordRpc @Inject constructor(
 				}
 			}
 		}.also { rpc = it }
+	}
+
+	private fun getRegistrar(): DiscordAssetRegistrar? {
+		val currentToken = settings.discordToken ?: return null
+		if (assetRegistrar == null || registrarToken != currentToken) {
+			registrarToken = currentToken
+			assetRegistrar = DiscordAssetRegistrar(apiInstance, appId, currentToken)
+		}
+		return assetRegistrar
 	}
 }
