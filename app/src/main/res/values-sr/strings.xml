@@ -471,7 +471,6 @@
     <string name="invert_colors">Обрни боје</string>
     <string name="color_theme">Палета боја</string>
     <string name="brightness">Осветљеност</string>
-    <string name="memory_usage_pattern">%1$s - %2$s</string>
     <string name="preparing_">Припрема се…</string>
     <string name="exit_confirmation_summary">Притисни Назад двапут да би изашао из апликације</string>
     <string name="bookmarks_removed">Обележивачи су уклоњени</string>
@@ -855,6 +854,7 @@
     <string name="discord_rpc_summary">Прикажи свој статус читања на Дискорду</string>
     <string name="obtain">Добиј</string>
     <string name="discord_rpc_description">Читање манге на Котатсу - апликацији за читање манги</string>
+    <string name="reading_s">Читам %s</string>
     <string name="read_on_s">Читај на %s</string>
     <string name="rpc_skip_nsfw_summary">Не користи RPC за садржај за одрасле</string>
     <string name="invalid_token">Неважећи токен: %s</string>

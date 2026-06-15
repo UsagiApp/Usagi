@@ -222,7 +222,7 @@ class ReaderViewModel @Inject constructor(
     }
 
     fun onStop() {
-        discordRpc.clearRpc()
+        discordRpc.setIdle()
     }
 
     fun onIdle() {

@@ -235,7 +235,6 @@
     <string name="pages_cache">पन्नो का कैशे</string>
     <string name="other_cache">अन्य कैशे</string>
     <string name="available">उपलब्ध</string>
-    <string name="memory_usage_pattern">%1$s - %2$s</string>
     <string name="removed_from_favourites">पसंदीदा से हटाया गया</string>
     <string name="options">विकल्प</string>
     <string name="not_found_404">सामग्री नहीं मिली या हटाई गई</string>

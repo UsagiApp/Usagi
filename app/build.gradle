@@ -19,8 +19,8 @@ android {
 		applicationId 'org.draken.usagi'
 		minSdk = 21
 		targetSdk = 37
-		versionCode = 14
-		versionName = '0.0.31'
+		versionCode = 15
+		versionName = '1.0.0'
 		generatedDensities = []
 		testInstrumentationRunner 'org.draken.usagi.HiltTestRunner'
 		ksp {
@@ -169,7 +169,9 @@ dependencies {
 	implementation libs.ssiv
 	implementation libs.disk.lru.cache
 	implementation libs.markwon
-	implementation libs.kizzyrpc
+	implementation(libs.usagi.rpc) {
+		exclude group: 'org.json', module: 'json'
+	}
 
 	implementation libs.conscrypt.android
 

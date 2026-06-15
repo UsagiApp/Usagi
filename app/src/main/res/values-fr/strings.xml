@@ -275,7 +275,6 @@
     <string name="exit_confirmation_summary">Appuyez deux fois sur la touche Retour pour quitter l\'appli</string>
     <string name="available">Disponible</string>
     <string name="exit_confirmation">Confirmation de sortie</string>
-    <string name="memory_usage_pattern">%s - %s</string>
     <string name="feed">Flux</string>
     <string name="importing_manga">Importation de mangas</string>
     <string name="removed_from_favourites">Supprimé des favoris</string>
@@ -847,6 +846,7 @@
     <string name="discord_rpc_summary">Affiche ton statut de lecture sur Discord</string>
     <string name="obtain">Obtenir</string>
     <string name="discord_rpc_description">Lecture de manga sur Usagi – une application de lecture de manga</string>
+    <string name="reading_s">Lecture de %s</string>
     <string name="read_on_s">Lire sur %s</string>
     <string name="rpc_skip_nsfw_summary">Ne pas utiliser la présence enrichie pour du contenu adulte</string>
     <string name="invalid_token">Jeton invalide : %s</string>

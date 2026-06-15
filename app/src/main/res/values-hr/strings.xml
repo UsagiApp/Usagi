@@ -848,6 +848,7 @@
     <string name="discord_rpc_summary">Prikaži svoje stanje čitanja na Discordu</string>
     <string name="obtain">Nabavi</string>
     <string name="discord_rpc_description">Čitanje manga na Usagi – aplikaciji za čitanje manga</string>
+    <string name="reading_s">Čitaš %s</string>
     <string name="read_on_s">Čitaj na %s</string>
     <string name="rpc_skip_nsfw_summary">Ne koristi Rich Presence klijent (RPC) za sadržaj za odrasle</string>
     <string name="invalid_token">Nevažeći token: %s</string>

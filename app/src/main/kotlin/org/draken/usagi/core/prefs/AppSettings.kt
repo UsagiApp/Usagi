@@ -590,6 +590,16 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		get() = prefs.getString(KEY_DISCORD_TOKEN, null)?.trim()?.nullIfEmpty()
 		set(value) = prefs.edit { putString(KEY_DISCORD_TOKEN, value?.nullIfEmpty()) }
 
+	var discordRefreshToken: String?
+		get() = prefs.getString(KEY_DISCORD_REFRESH_TOKEN, null)?.trim()?.nullIfEmpty()
+		set(value) = prefs.edit { putString(KEY_DISCORD_REFRESH_TOKEN, value?.nullIfEmpty()) }
+
+	var discordCodeVerifier: String?
+		get() = prefs.getString(KEY_DISCORD_CODE_VERIFIER, null)
+		set(value) = prefs.edit {
+			if (value != null) putString(KEY_DISCORD_CODE_VERIFIER, value) else remove(KEY_DISCORD_CODE_VERIFIER)
+		}
+
 	val isPeriodicalBackupEnabled: Boolean
 		get() = prefs.getBoolean(KEY_BACKUP_PERIODICAL_ENABLED, false)
 
@@ -889,6 +899,8 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_DISCORD_RPC = "discord_rpc"
 		const val KEY_DISCORD_RPC_SKIP_NSFW = "discord_rpc_skip_nsfw"
 		const val KEY_DISCORD_TOKEN = "discord_token"
+		const val KEY_DISCORD_REFRESH_TOKEN = "discord_refresh_token"
+		const val KEY_DISCORD_CODE_VERIFIER = "discord_code_verifier"
 
 		// keys for non-persistent preferences
 		const val KEY_APP_VERSION = "app_version"
