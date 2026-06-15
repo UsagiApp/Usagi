@@ -46,12 +46,8 @@ class DiscordAuthActivity : ComponentActivity() {
 						startAuth()
 					}
 				}
-			} else {
-				finish()
-			}
-		} else {
-			startAuth()
-		}
+			} else { finish() }
+		} else { startAuth() }
 	}
 
 	private fun startAuth() {
@@ -64,10 +60,8 @@ class DiscordAuthActivity : ComponentActivity() {
 			startActivity(intent)
 		} catch (_: Exception) {
 			intent.data = repository.oauthFallbackUrl.toUri()
-			try {
-				startActivity(intent)
-			} catch (e2: Exception) {
-				e2.printStackTrace()
+			try { startActivity(intent) } catch (e: Exception) {
+				e.printStackTrace()
 				finish()
 			}
 		}

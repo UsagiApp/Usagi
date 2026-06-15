@@ -5,6 +5,7 @@ import android.util.Base64
 import java.io.File
 import java.security.MessageDigest
 import okhttp3.MultipartBody
+import okhttp3.FormBody.Builder
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import dagger.Reusable
@@ -22,6 +23,7 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.ensureSuccess
 import org.koitharu.kotatsu.parsers.util.await
 import org.koitharu.kotatsu.parsers.util.parseRaw
+import java.util.UUID
 import javax.inject.Inject
 
 private const val SCHEME_MP = "mp:"
@@ -68,10 +70,10 @@ class DiscordRepository @Inject constructor(
 
 	val oauthUrl: String
 		get() {
-			val verifier = java.util.UUID.randomUUID().toString() + java.util.UUID.randomUUID().toString()
+			val verifier = UUID.randomUUID().toString() + UUID.randomUUID().toString()
 			settings.discordCodeVerifier = verifier
 			val challenge = generateCodeChallenge(verifier)
-			val state = java.util.UUID.randomUUID().toString()
+			val state = UUID.randomUUID().toString()
 			return "discord://action/oauth2/authorize?client_id=$appId" +
 				"&scope=openid%20sdk.social_layer_presence" +
 				"&response_type=code" +
@@ -84,8 +86,7 @@ class DiscordRepository @Inject constructor(
 	val oauthFallbackUrl: String
 		get() = "https://discord.com/oauth2/authorize?client_id=$appId" +
 			"&scope=openid%20sdk.social_layer_presence" +
-			"&response_type=code" +
-			"&redirect_uri=$REDIRECT_URI" +
+			"&response_type=code&redirect_uri=$REDIRECT_URI" +
 			"&code_challenge=${generateCodeChallenge(settings.discordCodeVerifier.orEmpty())}" +
 			"&code_challenge_method=S256"
 
@@ -93,23 +94,20 @@ class DiscordRepository @Inject constructor(
 		val verifier = settings.discordCodeVerifier ?: throw IllegalStateException("Code verifier is missing")
 		val request = Request.Builder()
 			.url("https://discord.com/api/v10/oauth2/token")
-			.post(
-				okhttp3.FormBody.Builder()
-					.add("client_id", appId)
-					.add("grant_type", "authorization_code")
-					.add("code", code)
-					.add("redirect_uri", REDIRECT_URI)
-					.add("code_verifier", verifier)
-					.build()
-			)
-			.build()
+			.post(Builder()
+				.add("client_id", appId)
+				.add("grant_type", "authorization_code")
+				.add("code", code)
+				.add("redirect_uri", REDIRECT_URI)
+				.add("code_verifier", verifier)
+				.build()
+			).build()
 
 		val response = httpClient.newCall(request).await().ensureSuccess().parseRaw()
 		val json = Json.parseToJsonElement(response).jsonObject
 		val accessToken = json["access_token"]?.jsonPrimitive?.content
 		val tokenType = json["token_type"]?.jsonPrimitive?.content ?: "Bearer"
 		val refreshToken = json["refresh_token"]?.jsonPrimitive?.content
-
 		settings.discordToken = "$tokenType $accessToken"
 		settings.discordRefreshToken = refreshToken
 		settings.discordCodeVerifier = null
@@ -119,14 +117,12 @@ class DiscordRepository @Inject constructor(
 		val refreshToken = settings.discordRefreshToken ?: throw IllegalStateException("Refresh token is missing")
 		val request = Request.Builder()
 			.url("https://discord.com/api/v10/oauth2/token")
-			.post(
-				okhttp3.FormBody.Builder()
-					.add("client_id", appId)
-					.add("grant_type", "refresh_token")
-					.add("refresh_token", refreshToken)
-					.build()
-			)
-			.build()
+			.post(Builder()
+				.add("client_id", appId)
+				.add("grant_type", "refresh_token")
+				.add("refresh_token", refreshToken)
+				.build()
+			).build()
 
 		val response = httpClient.newCall(request).await().ensureSuccess().parseRaw()
 		val json = Json.parseToJsonElement(response).jsonObject

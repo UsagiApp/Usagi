@@ -19,7 +19,6 @@ import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import okio.utf8Size
@@ -41,7 +40,6 @@ import javax.inject.Inject
 private const val STATUS_ONLINE = "online"
 private const val STATUS_IDLE = "idle"
 private const val BUTTON_TEXT_LIMIT = 32
-private const val DEBOUNCE_TIMEOUT = 3_000L // 3 sec
 
 @ViewModelScoped
 class DiscordRpc @Inject constructor(
@@ -129,8 +127,6 @@ class DiscordRpc @Inject constructor(
 		val prevJob = rpcUpdateJob
 		rpcUpdateJob = coroutineScope.launch {
 			prevJob?.cancelAndJoin()
-			val debounceTime = lastUpdate + DEBOUNCE_TIMEOUT - SystemClock.elapsedRealtime()
-			if (debounceTime > 0) delay(debounceTime)
 			launch { getRpc() }
 			presence.setAssetsLargeImage(presence.assets["largeImage"]?.toMediaProxyUrl(isNsfw))
 			presence.setAssetsSmallImage(presence.assets["smallImage"]?.toMediaProxyUrl(false))
@@ -158,8 +154,7 @@ class DiscordRpc @Inject constructor(
 					getRegistrar()?.resolve(uploadedUrl)
 				} else { getRegistrar()?.resolve(this) }
 			} else { getRegistrar()?.resolve(this) }
-		}.onSuccess { url -> url?.let { mpCache[this] = it } }
-		.onFailure { it.printStackTraceDebug() }.getOrNull()
+		}.onSuccess { url -> url?.let { mpCache[this] = it } }.onFailure { it.printStackTraceDebug() }.getOrNull()
 	}
 
 	private suspend fun getCacheFile(url: String): File? {
@@ -167,9 +162,7 @@ class DiscordRpc @Inject constructor(
 		if (snapshot == null) {
 			val request = ImageRequest.Builder(context).data(url).build()
 			val result = imageLoader.execute(request)
-			if (result is SuccessResult) {
-				snapshot = imageLoader.diskCache?.openSnapshot(url)
-			}
+			if (result is SuccessResult) { snapshot = imageLoader.diskCache?.openSnapshot(url) }
 		}
 		return snapshot?.use { File(it.data.toString()) }
 	}
