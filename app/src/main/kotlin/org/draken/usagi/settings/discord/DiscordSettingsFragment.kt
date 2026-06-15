@@ -77,7 +77,8 @@ class DiscordSettingsFragment : BasePreferenceFragment(R.string.discord) {
 
 			TokenState.VALID -> {
 				pref.icon = null
-				pref.summary = token
+				pref.summary = if (token.isNullOrBlank()) { getString(R.string.logged_in_as, "null") }
+					else { getString(R.string.logged_in_as, token) }
 			}
 
 			TokenState.CHECKING -> {

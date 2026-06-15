@@ -31,7 +31,7 @@ class DiscordSettingsViewModel @Inject constructor(
 	}.stateIn(
 		viewModelScope + Dispatchers.Default,
 		SharingStarted.Eagerly,
-		TokenState.CHECKING to settings.discordToken,
+		TokenState.CHECKING to null,
 	)
 
 	private fun checkToken(): Flow<Pair<TokenState, String?>> = flow {
@@ -41,7 +41,7 @@ class DiscordSettingsViewModel @Inject constructor(
 				if (token == null) {
 					TokenState.EMPTY to null
 				} else {
-					TokenState.VALID to token
+					TokenState.VALID to null
 				},
 			)
 			return@flow
@@ -50,18 +50,20 @@ class DiscordSettingsViewModel @Inject constructor(
 			emit(TokenState.REQUIRED to null)
 			return@flow
 		}
-		emit(TokenState.CHECKING to token)
-		if (validateToken(token)) {
-			emit(TokenState.VALID to token)
-		} else {
-			emit(TokenState.INVALID to token)
-		}
+		emit(TokenState.CHECKING to null)
+		runCatchingCancellable {
+			repository.checkToken(token)
+		}.fold(
+			onSuccess = { username ->
+				emit(TokenState.VALID to username)
+			},
+			onFailure = {
+				if (it.isNetworkError()) {
+					emit(TokenState.VALID to null)
+				} else {
+					emit(TokenState.INVALID to token)
+				}
+			}
+		)
 	}
-
-	private suspend fun validateToken(token: String) = runCatchingCancellable {
-		repository.checkToken(token)
-	}.fold(
-		onSuccess = { true },
-		onFailure = { it.isNetworkError() },
-	)
 }

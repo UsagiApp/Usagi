@@ -51,21 +51,27 @@ class DiscordRepository @Inject constructor(
 			.url("https://litterbox.catbox.moe/resources/internals/api.php")
 			.post(requestBody)
 			.build()
+		var response: okhttp3.Response? = null
 		return try {
-			val response = httpClient.newCall(request).await()
+			response = httpClient.newCall(request).await()
 			if (response.isSuccessful) { response.parseRaw().trim() } else null
-		} catch (_: Exception) { null }
+		} catch (_: Exception) { null } finally { response?.closeQuietly() }
 	}
 
 	fun isMediaProxyUrl(url: String) = url.startsWith(SCHEME_MP)
 
-	suspend fun checkToken(token: String) {
+	suspend fun checkToken(token: String): String {
 		val request = Request.Builder()
 			.url("https://discord.com/api/v10/users/@me")
 			.header(CommonHeaders.AUTHORIZATION, token)
 			.get()
 			.build()
-		httpClient.newCall(request).await().ensureSuccess().closeQuietly()
+		val response = httpClient.newCall(request).await().ensureSuccess()
+		val raw = try { response.parseRaw() } finally { response.closeQuietly() }
+		val json = Json.parseToJsonElement(raw).jsonObject
+		val globalName = json["global_name"]?.jsonPrimitive?.content
+		val username = json["username"]?.jsonPrimitive?.content
+		return globalName ?: username ?: ""
 	}
 
 	val oauthUrl: String
@@ -103,8 +109,9 @@ class DiscordRepository @Inject constructor(
 				.build()
 			).build()
 
-		val response = httpClient.newCall(request).await().ensureSuccess().parseRaw()
-		val json = Json.parseToJsonElement(response).jsonObject
+		val response = httpClient.newCall(request).await().ensureSuccess()
+		val raw = try { response.parseRaw() } finally { response.closeQuietly() }
+		val json = Json.parseToJsonElement(raw).jsonObject
 		val accessToken = json["access_token"]?.jsonPrimitive?.content
 		val tokenType = json["token_type"]?.jsonPrimitive?.content ?: "Bearer"
 		val refreshToken = json["refresh_token"]?.jsonPrimitive?.content
@@ -124,8 +131,9 @@ class DiscordRepository @Inject constructor(
 				.build()
 			).build()
 
-		val response = httpClient.newCall(request).await().ensureSuccess().parseRaw()
-		val json = Json.parseToJsonElement(response).jsonObject
+		val response = httpClient.newCall(request).await().ensureSuccess()
+		val raw = try { response.parseRaw() } finally { response.closeQuietly() }
+		val json = Json.parseToJsonElement(raw).jsonObject
 		val accessToken = json["access_token"]?.jsonPrimitive?.content
 		val tokenType = json["token_type"]?.jsonPrimitive?.content ?: "Bearer"
 		val newRefreshToken = json["refresh_token"]?.jsonPrimitive?.content
