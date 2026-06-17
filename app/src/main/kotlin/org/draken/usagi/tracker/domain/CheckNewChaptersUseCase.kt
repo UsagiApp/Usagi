@@ -76,14 +76,17 @@ class CheckNewChaptersUseCase @Inject constructor(
 
 	private suspend fun invokeImpl(track: MangaTracking): MangaUpdates = runCatchingCancellable {
 		val details = getFullManga(track.manga)
-		compare(track, details, getBranch(details, track.lastChapterId))
+		val updates = compare(track, details, getBranch(details, track.lastChapterId))
+		if (repository.saveUpdates(updates)) { updates } else {
+			updates.copy(newChapters = emptyList())
+		}
 	}.getOrElse { error ->
-		MangaUpdates.Failure(
+		val updates = MangaUpdates.Failure(
 			manga = track.manga,
 			error = error,
 		)
-	}.also { updates ->
 		repository.saveUpdates(updates)
+		updates
 	}
 
 	private suspend fun getBranch(manga: Manga, trackChapterId: Long): String? {

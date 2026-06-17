@@ -104,6 +104,7 @@ class TrackingRepository @Inject constructor(
 	}
 
 	@VisibleForTesting
+	@Suppress("unused")
 	suspend fun deleteTrack(mangaId: Long) {
 		db.getTracksDao().delete(mangaId)
 	}
@@ -131,14 +132,21 @@ class TrackingRepository @Inject constructor(
 	}
 
 	@Suppress("DEPRECATION")
-	suspend fun saveUpdates(updates: MangaUpdates) {
-		db.withTransaction {
+	suspend fun saveUpdates(updates: MangaUpdates): Boolean {
+		return db.withTransaction {
 			val track = getOrCreateTrack(updates.manga.id)
 			if (updates is MangaUpdates.Success && updates.isValid && updates.isNotEmpty()) {
 				val chaptersText = updates.newChapters.joinToString("\n") { x -> x.name }
 				if (db.getTrackLogsDao().findLast(updates.manga.id)?.chapters == chaptersText) {
-					db.getTracksDao().upsert(track.copy(lastCheckTime = System.currentTimeMillis()))
-					return@withTransaction
+					db.getTracksDao().upsert(
+						track.copy(
+							lastCheckTime = System.currentTimeMillis(),
+							lastChapterId = updates.lastChapterId(),
+							lastChapterDate = updates.lastChapterDate().ifZero { track.lastChapterDate },
+							lastResult = TrackEntity.RESULT_NO_UPDATE,
+						),
+					)
+					return@withTransaction false
 				}
 				progressUpdateUseCase(updates.manga)
 				db.getTrackLogsDao().insert(
@@ -151,6 +159,7 @@ class TrackingRepository @Inject constructor(
 				)
 			}
 			db.getTracksDao().upsert(track.mergeWith(updates))
+			updates is MangaUpdates.Success && updates.isNotEmpty()
 		}
 	}
 

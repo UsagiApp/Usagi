@@ -54,6 +54,7 @@ import org.draken.usagi.core.util.ext.awaitUniqueWorkInfoByName
 import org.draken.usagi.core.util.ext.checkNotificationPermission
 import org.draken.usagi.core.util.ext.onEachIndexed
 import org.draken.usagi.core.util.ext.printStackTraceDebug
+import org.draken.usagi.core.util.ext.trySetForeground
 import org.draken.usagi.download.ui.worker.DownloadTask
 import org.draken.usagi.download.ui.worker.DownloadWorker
 import org.draken.usagi.local.data.LocalMangaRepository
@@ -89,8 +90,9 @@ class TrackWorker @AssistedInject constructor(
 
 	override suspend fun doWork(): Result {
 		notificationHelper.updateChannels()
+		val isForeground = trySetForeground()
 		return try {
-			doWorkImpl(isFullRun = TAG_ONESHOT in tags)
+			doWorkImpl(isFullRun = isForeground && TAG_ONESHOT in tags)
 		} catch (e: CancellationException) {
 			throw e
 		} catch (e: Throwable) {
