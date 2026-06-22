@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.XmlRes
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
 import androidx.preference.get
@@ -99,17 +100,17 @@ class SettingsSearchHelper @Inject constructor(
         )
     }
 
-    private fun PreferenceScreen.inflateTo(
+    private fun PreferenceGroup.inflateTo(
         result: MutableList<SettingsItem>,
         breadcrumbs: List<String>,
         fragmentClass: Class<out PreferenceFragmentCompat>
     ): Unit = repeat(preferenceCount) { i ->
         val pref = this[i]
-        if (pref is PreferenceScreen) {
+        if (pref is PreferenceGroup) {
             val screenTitle = pref.title?.toString()
             pref.inflateTo(
                 result = result,
-                breadcrumbs = if (screenTitle.isNullOrEmpty()) breadcrumbs else breadcrumbs + screenTitle,
+                breadcrumbs = if (screenTitle.isNullOrEmpty() || pref !is PreferenceScreen) breadcrumbs else breadcrumbs + screenTitle,
                 fragmentClass = fragmentClass,
             )
         } else {
