@@ -38,7 +38,7 @@ class CloudFlareClient(
 		counter = 0
 	}
 
-	private fun checkClearance() {
+	fun checkClearance() {
 		val clearance = getClearance()
 		if (clearance != null && clearance != oldClearance) {
 			callback.onCheckPassed()

@@ -70,6 +70,12 @@
         android:summary="@string/adblock_summary"
         android:title="@string/adblock" />
 
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="cloudflare_auto_solver"
+        android:summary="@string/auto_solver_summary"
+        android:title="@string/auto_solver" />
+
 	<SwitchPreferenceCompat
 		android:key="proxy_bypass_enabled"
 		android:title="@string/proxy_bypass_enabled"

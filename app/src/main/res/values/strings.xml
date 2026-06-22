@@ -956,4 +956,7 @@
 	<string name="update_available_message">A new version of Usagi is available. Do you want to update it now?</string>
 	<string name="auto_update_plugins">Auto update plugins</string>
 	<string name="auto_update_plugins_summary">Automatically refresh and update all installed plugins at startup</string>
+    <string name="auto_solver">Cloudflare Auto-solver</string>
+    <string name="auto_solver_summary">Automatically attempt to solve Cloudflare Turnstile and challenge pages by simulating clicks.</string>
+    <string name="auto_solver_failed">Auto-solve failed. Please solve the challenge manually.</string>
 </resources>

@@ -380,6 +380,9 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	val isAdBlockEnabled: Boolean
 		get() = prefs.getBoolean(KEY_ADBLOCK, false)
 
+	val isCloudflareAutoSolverEnabled: Boolean
+		get() = prefs.getBoolean(KEY_CLOUDFLARE_AUTO_SOLVER, false)
+
 	var userSpecifiedMangaDirectories: Set<File>
 		get() {
 			val set = prefs.getStringSet(KEY_LOCAL_MANGA_DIRS, emptySet()).orEmpty()
@@ -780,6 +783,7 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_READER_MODE = "reader_mode"
 		const val KEY_READER_MODE_DETECT = "reader_mode_detect"
 		const val KEY_READER_CROP = "reader_crop"
+		const val KEY_CLOUDFLARE_AUTO_SOLVER = "cloudflare_auto_solver"
 		const val KEY_APP_PASSWORD = "app_password"
 		const val KEY_APP_PASSWORD_NUMERIC = "app_password_num"
 		const val KEY_PROTECT_APP = "protect_app"
