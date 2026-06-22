@@ -111,11 +111,15 @@ interface MangaRepository {
 				EmptyMangaRepository(source)
 			}
 
-			else -> ParserMangaRepository(
-				parser = loaderContext.newParserInstance(source),
-				cache = contentCache,
-				mirrorSwitcher = mirrorSwitcher,
-			)
+			else -> try {
+				ParserMangaRepository(
+					parser = loaderContext.newParserInstance(source),
+					cache = contentCache,
+					mirrorSwitcher = mirrorSwitcher,
+				)
+			} catch (_: Exception) {
+				EmptyMangaRepository(source)
+			}
 		}
 	}
 }
