@@ -1,9 +1,7 @@
 Usagi là một ứng dụng đọc truyện mã nguồn mở miễn phí dành cho các thiết bị Android, là một nhánh được lấy cảm hứng từ Kotatsu
 
 
-
 Các chức năng nổi bật của Usagi so với ứng dụng gốc bao gồm:
-
 
 - Các dịch vụ vẫn được cập nhật và bảo trì thường xuyên (Máy chủ đồng bộ, Bot, Proxy,...)
 - Cung cấp các bản vá lỗi cho các tính năng đã tồn tại trước đây trên Kotatsu
@@ -13,9 +11,7 @@ Các chức năng nổi bật của Usagi so với ứng dụng gốc bao gồm:
 - Được tối ưu hóa toàn diện cho các thiết bị cũ / cấu hình thấp, mở rộng hỗ trợ cho các thiết bị Android 5.0+
 - Vượt tường lửa mạng bằng đường hầm siêu nhẹ ngay trong ứng dụng, khả năng truy cập nội dung được mở rộng hơn
 
-
-Ngoài ra còn có các tính năng chính của Kotatsu:
-
+Ngoài ra còn có các tính năng chính từ Kotatsu:
 
 - Hỗ trợ 100% tiếng Việt, được phát triển và đóng góp bởi cộng đồng người Việt
 - Tìm kiếm manga với nhiều bộ lọc khác nhau (tên, thể loại,...)

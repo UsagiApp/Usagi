@@ -1,9 +1,7 @@
 Usagi is a free and open-source manga reader for Android, inspired by Kotatsu
 
 
-
-**Usagi's unique features:**
-
+Usagi's unique features:
 
 - Bypass internet firewalls with tunnels built into the app, expanding access to more content.
 - Integrate more new user interface styles (Modern, Classic, etc.)
@@ -14,9 +12,7 @@ Usagi is a free and open-source manga reader for Android, inspired by Kotatsu
 - Provides bug fixes for features that previously existed in Kotatsu.
 - Provides more options to customize the user interface (style, background, etc.).
 
-
-**Main features from Kotatsu:**
-
+Main features from Kotatsu:
 
 - Search manga by name, genres and more filters
 - Favorites organized by user-defined categories
