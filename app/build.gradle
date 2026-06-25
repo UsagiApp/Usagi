@@ -37,6 +37,10 @@ android {
 		}
 		resValue 'string', 'tg_backup_bot_token', localProperties.getProperty('tg_backup_bot_token', '7455491254:AAHk2hH87BDy6l__XZ7pfgRv2paWiwpvuYk')
 	}
+	dependenciesInfo {
+		includeInApk = false
+		includeInBundle = false
+	}
 	buildTypes {
 		debug {
 			applicationIdSuffix = '.debug'
