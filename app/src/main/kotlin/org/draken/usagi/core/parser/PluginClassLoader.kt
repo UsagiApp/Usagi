@@ -9,6 +9,10 @@ class PluginClassLoader(
 	parent: ClassLoader,
 ) : DexClassLoader(dexPath, optimizedDirectory, librarySearchPath, parent) {
 	override fun loadClass(name: String, resolve: Boolean): Class<*> {
+		val name = if (name.startsWith("kotatsuki.")) {
+			"org.koitharu.kotatsu.parsers." + name.substring("kotatsuki.".length)
+		} else { name }
+
 		if (name == "org.koitharu.kotatsu.parsers.MangaLoaderContext" ||
 			name == "org.koitharu.kotatsu.parsers.MangaParserAuthProvider" ||
 			name.startsWith("org.koitharu.kotatsu.parsers.config.") ||

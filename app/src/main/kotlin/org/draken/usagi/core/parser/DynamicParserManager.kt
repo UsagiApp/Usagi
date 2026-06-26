@@ -30,9 +30,19 @@ object DynamicParserManager {
             jar.setReadOnly()
             val cl = PluginClassLoader(jar.absolutePath, cacheDir, null, parent)
             try {
-                val factory = cl.loadClass("org.koitharu.kotatsu.parsers.MangaParserFactoryKt")
-                val enumC = cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
-                val ctxC = cl.loadClass("org.koitharu.kotatsu.parsers.MangaLoaderContext")
+                val (factory, enumC, ctxC) = try {
+                    Triple(
+						cl.loadClass("kotatsuki.MangaParserFactoryKt"),
+						cl.loadClass("kotatsuki.model.MangaParserSource"),
+						cl.loadClass("kotatsuki.MangaLoaderContext")
+                    )
+                } catch (_: ClassNotFoundException) {
+                    Triple(
+						cl.loadClass("org.koitharu.kotatsu.parsers.MangaParserFactoryKt"),
+						cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource"),
+						cl.loadClass("org.koitharu.kotatsu.parsers.MangaLoaderContext")
+                    )
+                }
                 val newParser = factory.getMethod("newParser", enumC, ctxC)
                 enumC.enumConstants?.forEach { c ->
                     if (c is MangaSource) {
@@ -79,7 +89,8 @@ object DynamicParserManager {
                 else ctx.getString(R.string.unknown_source, source.name),
             )
         }
-        val enumC = cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource")
+        val enumC = runCatching { cl.loadClass("kotatsuki.model.MangaParserSource") }
+            .getOrElse { cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource") }
         val constant = enumC.enumConstants?.firstOrNull { (it as MangaSource).name == ps.sourceName }
             ?: throw IOException(ctx.getString(R.string.missing_in_plugin, ps.sourceName))
         val delegate = try {
