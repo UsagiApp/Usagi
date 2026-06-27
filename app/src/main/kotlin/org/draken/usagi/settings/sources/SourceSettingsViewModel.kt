@@ -13,7 +13,7 @@ import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.parser.CachingMangaRepository
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.util.ReversibleAction
@@ -44,7 +44,7 @@ class SourceSettingsViewModel @Inject constructor(
 
 	init {
 		when (repository) {
-			is ParserMangaRepository -> {
+			is MangaParserRepository -> {
 				browserUrl.value = "https://${repository.domain}"
 				repository.getConfig().subscribe(this)
 				loadUsername(repository.getAuthProvider())
@@ -54,7 +54,7 @@ class SourceSettingsViewModel @Inject constructor(
 
 	override fun onCleared() {
 		when (repository) {
-			is ParserMangaRepository -> {
+			is MangaParserRepository -> {
 				repository.getConfig().unsubscribe(this)
 			}
 		}
@@ -67,7 +67,7 @@ class SourceSettingsViewModel @Inject constructor(
 				repository.invalidateCache()
 			}
 		}
-		if (repository is ParserMangaRepository) {
+		if (repository is MangaParserRepository) {
 			if (key == SourceSettings.KEY_DOMAIN) {
 				browserUrl.value = "https://${repository.domain}"
 			}
@@ -75,13 +75,13 @@ class SourceSettingsViewModel @Inject constructor(
 	}
 
 	fun onResume() {
-		if (usernameLoadJob?.isActive != true && repository is ParserMangaRepository) {
+		if (usernameLoadJob?.isActive != true && repository is MangaParserRepository) {
 			loadUsername(repository.getAuthProvider())
 		}
 	}
 
 	fun clearCookies() {
-		if (repository !is ParserMangaRepository) return
+		if (repository !is MangaParserRepository) return
 		launchLoadingJob(Dispatchers.Default) {
 			val url = HttpUrl.Builder()
 				.scheme("https")

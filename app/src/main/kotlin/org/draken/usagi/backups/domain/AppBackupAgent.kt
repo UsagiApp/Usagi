@@ -21,6 +21,7 @@ import java.io.FileInputStream
 import java.util.EnumSet
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import org.draken.usagi.core.model.PluginKeyResolver
 
 class AppBackupAgent : BackupAgent() {
 
@@ -52,6 +53,7 @@ class AppBackupAgent : BackupAgent() {
 				savedFiltersRepository = SavedFiltersRepository(
 					context = applicationContext,
 				),
+				pluginKeyResolver = PluginKeyResolver(),
 			),
 		)
 		try {
@@ -85,6 +87,7 @@ class AppBackupAgent : BackupAgent() {
 					savedFiltersRepository = SavedFiltersRepository(
 						context = applicationContext,
 					),
+					pluginKeyResolver = PluginKeyResolver(),
 				),
 			)
 			destination.delete()

@@ -30,7 +30,7 @@ import org.draken.usagi.core.exceptions.CloudFlareProtectedException
 import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.external.ExternalMangaRepository
 import org.draken.usagi.core.util.MimeTypes
 import org.draken.usagi.core.util.ext.fetch
@@ -56,7 +56,7 @@ class FaviconFetcher(
 		val mangaSource = MangaSource(uri.schemeSpecificPart)
 
 		return when (val repo = mangaRepositoryFactory.create(mangaSource)) {
-			is ParserMangaRepository -> fetchParserFavicon(repo)
+			is MangaParserRepository -> fetchParserFavicon(repo)
 			is ExternalMangaRepository -> fetchPluginIcon(repo)
 			is EmptyMangaRepository -> ImageFetchResult(
 				image = ColorImage(Color.WHITE),
@@ -70,7 +70,7 @@ class FaviconFetcher(
 		}
 	}
 
-	private suspend fun fetchParserFavicon(repository: ParserMangaRepository): FetchResult {
+	private suspend fun fetchParserFavicon(repository: MangaParserRepository): FetchResult {
 		val sizePx = maxOf(
 			options.size.width.pxOrElse { FALLBACK_SIZE },
 			options.size.height.pxOrElse { FALLBACK_SIZE },

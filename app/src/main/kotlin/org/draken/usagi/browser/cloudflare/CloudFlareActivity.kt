@@ -23,7 +23,7 @@ import org.draken.usagi.core.exceptions.resolve.CaptchaHandler
 import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.network.cookies.MutableCookieJar
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.koitharu.kotatsu.parsers.model.MangaSource
@@ -45,7 +45,7 @@ class CloudFlareActivity : BaseBrowserActivity(), CloudFlareCallback {
 
 	private lateinit var cfClient: CloudFlareClient
 
-	override fun onCreate2(savedInstanceState: Bundle?, source: MangaSource, repository: ParserMangaRepository?) {
+	override fun onCreate2(savedInstanceState: Bundle?, source: MangaSource, repository: MangaParserRepository?) {
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = true)
 		val url = intent?.dataString
 		if (url.isNullOrEmpty()) {

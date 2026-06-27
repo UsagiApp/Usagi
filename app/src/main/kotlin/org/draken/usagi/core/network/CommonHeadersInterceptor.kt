@@ -11,7 +11,7 @@ import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.parser.MangaLoaderContextImpl
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.mergeWith
@@ -31,7 +31,7 @@ class CommonHeadersInterceptor @Inject constructor(
 		val source = request.tag(MangaSource::class.java)
 			?: request.headers[CommonHeaders.MANGA_SOURCE]?.let { MangaSource(it) }
 		val repository = if (source is MangaSource) {
-			mangaRepositoryFactoryLazy.get().create(source) as? ParserMangaRepository
+			mangaRepositoryFactoryLazy.get().create(source) as? MangaParserRepository
 		} else {
 			if (BuildConfig.DEBUG) {
 				IllegalArgumentException("Request without source tag: ${request.url}")

@@ -13,14 +13,14 @@ import kotlinx.coroutines.withContext
 import org.draken.usagi.R
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.prefs.AppSettings
-import org.draken.usagi.core.model.PluginSourceKeyNormalizer
-import org.draken.usagi.core.parser.DynamicParserManager
+import org.draken.usagi.core.model.PluginKeyResolver
+import org.draken.usagi.core.parser.MangaDynamicRepository
 import org.draken.usagi.core.parser.PluginFileLoader
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.filter.data.SavedFiltersRepository
+import org.draken.usagi.settings.sources.manage.plugins.model.PluginManageItem
 import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import java.io.File
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,9 +30,12 @@ class PluginsManageViewModel @Inject constructor(
 	private val savedFiltersRepository: SavedFiltersRepository,
 	private val updatePluginsProvider: UpdatePluginsProvider,
 	private val settings: AppSettings,
+	private val mangaDynamicRepository: MangaDynamicRepository,
+	private val pluginKeyResolver: PluginKeyResolver,
 ) : BaseViewModel() {
 
 	val content = MutableStateFlow<List<PluginManageItem>>(emptyList())
+	val selectedPlugins = MutableStateFlow<Set<String>>(emptySet())
 
 	@Volatile
 	private var pluginsSnapshot = emptyList<PluginManageItem.Plugin>()
@@ -85,9 +88,9 @@ class PluginsManageViewModel @Inject constructor(
 	}
 
 	suspend fun importFromUri(uri: Uri, fileName: String): Boolean = withContext(Dispatchers.Default) {
-		val safeName = sanitizeJarFileName(fileName)
+		val safeName = PluginFileLoader.sanitizeName(fileName)
 		runCatchingCancellable {
-			val pluginsDir = PluginFileLoader.pluginsDir(context)
+			val pluginsDir = mangaDynamicRepository.getDir()
 			PluginFileLoader.copyFromUri(context, uri, File(pluginsDir, safeName))
 			updatePluginsProvider.clearDto(safeName)
 			reloadPlugins(pluginsDir)
@@ -95,7 +98,7 @@ class PluginsManageViewModel @Inject constructor(
 	}.also { if (it) refresh() }
 
 	suspend fun importFromGithub(release: ExternalPluginDto, fileName: String = release.fileName): Boolean =
-		updatePluginsProvider.installPlugin(release, sanitizeJarFileName(fileName))
+		updatePluginsProvider.installPlugin(release, PluginFileLoader.sanitizeName(fileName))
 			.also { if (it) refresh() }
 
 	fun importPlugin(
@@ -110,7 +113,7 @@ class PluginsManageViewModel @Inject constructor(
 			val pluginName = askName(originalName.removeSuffix(".jar"))?.trim().orEmpty()
 			if (pluginName.isBlank()) return@launchJob
 
-			val fileName = sanitizeJarFileName(pluginName)
+			val fileName = PluginFileLoader.sanitizeName(pluginName)
 			if (isInstalled(fileName) && !askOverwrite(fileName)) return@launchJob
 
 			val success = importFromUri(uri, fileName)
@@ -131,7 +134,7 @@ class PluginsManageViewModel @Inject constructor(
 				return@launchJob
 			}
 
-			val fileName = sanitizeJarFileName(release.fileName)
+			val fileName = PluginFileLoader.sanitizeName(release.fileName)
 			if (isInstalled(fileName) && !askOverwrite(fileName)) return@launchJob
 
 			val success = importFromGithub(release, fileName)
@@ -146,30 +149,60 @@ class PluginsManageViewModel @Inject constructor(
 			refresh()
 			true
 		} else {
-			importFromGithub(release, item.jarName)
+			importFromGithub(release, item.name)
 		}
 	}
 
-	suspend fun deletePlugin(item: PluginManageItem.Plugin): Boolean = withContext(Dispatchers.Default) {
-		runCatchingCancellable {
-			DynamicParserManager.deletePlugin(context, item.jarName)
-			updatePluginsProvider.clearDto(item.jarName)
-		}.isSuccess
-	}.also {
-		if (it) refresh()
+	fun toggleSelection(jarName: String) {
+		val current = selectedPlugins.value
+		selectedPlugins.value = if (jarName in current) current - jarName else current + jarName
 	}
 
-	fun sanitizeJarFileName(rawName: String): String {
-		val sanitized = rawName
-			.trim()
-			.replace('/', '_')
-			.replace('\\', '_')
-			.ifBlank { "plugin_${System.currentTimeMillis()}.jar" }
-		return if (sanitized.lowercase(Locale.ROOT).endsWith(".jar")) sanitized else "$sanitized.jar"
+	fun clearSelection() {
+		selectedPlugins.value = emptySet()
 	}
+
+	fun isSelected(jarName: String): Boolean {
+		return jarName in selectedPlugins.value
+	}
+
+	suspend fun delete(): Boolean = withContext(Dispatchers.Default) {
+		val select = selectedPlugins.value
+		if (select.isEmpty()) return@withContext false
+		var allSuccess = true
+		for (jar in select) {
+			try {
+				mangaDynamicRepository.deletePlugin(jar)
+				updatePluginsProvider.clearDto(jar)
+			} catch (_: Throwable) {
+				allSuccess = false
+			}
+		}
+		selectedPlugins.value = emptySet()
+		reloadPlugins(mangaDynamicRepository.getDir())
+		allSuccess
+	}.also { if (it) refresh() }
+
+	suspend fun rename(item: PluginManageItem.Plugin, newRawName: String): Boolean = withContext(Dispatchers.Default) {
+		val name = PluginFileLoader.sanitizeName(newRawName)
+		if (name == item.name) return@withContext true
+		val pluginsDir = mangaDynamicRepository.getDir()
+		val old = File(pluginsDir, item.name)
+		val new = File(pluginsDir, name)
+		if (new.exists()) return@withContext false
+		runCatchingCancellable {
+			if (old.exists() && old.renameTo(new)) {
+				updatePluginsProvider.renameDto(item.name, name)
+				reloadPlugins(pluginsDir)
+				true
+			} else {
+				false
+			}
+		}.getOrDefault(false)
+	}.also { if (it) refresh() }
 
 	fun isInstalled(fileName: String): Boolean {
-		return File(PluginFileLoader.pluginsDir(context), sanitizeJarFileName(fileName)).exists()
+		return File(mangaDynamicRepository.getDir(), PluginFileLoader.sanitizeName(fileName)).exists()
 	}
 
 	private fun publishFiltered() {
@@ -189,8 +222,8 @@ class PluginsManageViewModel @Inject constructor(
 			return
 		}
 		val filtered = all.filter { plugin ->
-			plugin.jarName.contains(q, ignoreCase = true) ||
-					plugin.repository?.contains(q, ignoreCase = true) == true
+			plugin.name.contains(q, true) ||
+				plugin.repository?.contains(q, true) == true
 		}
 		content.value = filtered.ifEmpty {
 			listOf(PluginManageItem.Placeholder(titleResId = R.string.nothing_found, summaryResId = null))
@@ -198,14 +231,14 @@ class PluginsManageViewModel @Inject constructor(
 	}
 
 	private fun loadPluginsLocal(): List<PluginManageItem.Plugin> {
-		val plugins = DynamicParserManager.getInstalledPlugins(context).sorted()
+		val plugins = mangaDynamicRepository.get().sorted()
 		if (plugins.isEmpty()) return emptyList()
 		val meta = updatePluginsProvider.readAndCleanDto(plugins.toSet())
 
 		return plugins.map { fileName ->
 			val itemMeta = meta[fileName]
 			PluginManageItem.Plugin(
-				jarName = fileName,
+				name = fileName,
 				repository = itemMeta?.repository,
 				installedTag = itemMeta?.tag,
 				latestTag = null,
@@ -214,8 +247,7 @@ class PluginsManageViewModel @Inject constructor(
 	}
 
 	private suspend fun reloadPlugins(pluginsDir: File) {
-		DynamicParserManager.loadParsersFromDirectory(context, pluginsDir)
-		PluginSourceKeyNormalizer.normalize(database, savedFiltersRepository)
+		mangaDynamicRepository.load(pluginsDir)
+		pluginKeyResolver.normalize(database, savedFiltersRepository)
 	}
 }
-

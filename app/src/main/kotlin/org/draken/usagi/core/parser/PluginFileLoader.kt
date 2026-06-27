@@ -7,14 +7,21 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
+import java.util.Locale
 
 object PluginFileLoader {
 
-	private const val DIR_NAME = "plugins"
-	private const val PARTIAL_SUFFIX = ".partial"
-
 	fun pluginsDir(context: Context): File =
-		File(context.filesDir, DIR_NAME).also { it.mkdirs() }
+		File(context.filesDir, PLUGIN_DIR).also { it.mkdirs() }
+
+	fun sanitizeName(rawName: String): String {
+		val sanitized = rawName
+			.trim()
+			.replace('/', '_')
+			.replace('\\', '_')
+			.ifBlank { "plugin_${System.currentTimeMillis()}.jar" }
+		return if (sanitized.lowercase(Locale.ROOT).endsWith(".jar")) sanitized else "$sanitized.jar"
+	}
 
 	@WorkerThread
 	@Throws(IOException::class)
@@ -50,4 +57,13 @@ object PluginFileLoader {
 			throw t
 		}
 	}
+
+	private const val PLUGIN_DIR = "plugins"
+	private const val PARTIAL_SUFFIX = ".partial"
+	val SUPPORTED_MIME_TYPES = arrayOf(
+		"application/java-archive",
+		"application/x-java-archive",
+		"application/vnd.android.package-archive",
+		"application/octet-stream",
+	)
 }

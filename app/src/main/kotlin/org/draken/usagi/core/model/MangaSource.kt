@@ -68,20 +68,12 @@ fun MangaSource(name: String?): MangaSource {
 		val parts = name.substringAfter(':').splitTwoParts('/') ?: return UnknownMangaSource
 		return ExternalMangaSource(packageName = parts.first, authority = parts.second)
 	}
-	MangaSourceRegistry.sources.forEach {
-		if (it.name == name) return it
-	}
-	MangaSourceRegistry.sources.forEach {
-		if (it is PluginMangaSource && it.sourceName == name) return it
-	}
-    // Backward compatibility for loaded database items saved as '1.jar:MANGADEX'
+	MangaSourceRegistry.resolveByName(name)?.let { return it }
+	// Backward compatibility for loaded database items saved as '1.jar:MANGADEX'
 	if (name.contains(':')) {
-        val cleanName = name.substringAfter(":")
-        MangaSourceRegistry.sources.forEach {
-            if (it.name == cleanName) return it
-            if (it is PluginMangaSource && it.sourceName == cleanName) return it
-        }
-    }
+		val name = name.substringAfter(":")
+		MangaSourceRegistry.resolveByName(name)?.let { return it }
+	}
 	return UnresolvedMangaSource(name)
 }
 

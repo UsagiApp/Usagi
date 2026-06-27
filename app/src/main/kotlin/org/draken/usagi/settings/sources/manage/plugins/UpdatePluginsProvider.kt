@@ -12,9 +12,9 @@ import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.draken.usagi.core.db.MangaDatabase
-import org.draken.usagi.core.model.PluginSourceKeyNormalizer
+import org.draken.usagi.core.model.PluginKeyResolver
 import org.draken.usagi.core.network.BaseHttpClient
-import org.draken.usagi.core.parser.DynamicParserManager
+import org.draken.usagi.core.parser.MangaDynamicRepository
 import org.draken.usagi.core.parser.PluginFileLoader
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.filter.data.SavedFiltersRepository
@@ -33,6 +33,8 @@ class UpdatePluginsProvider @Inject constructor(
 	@BaseHttpClient private val okHttpClient: OkHttpClient,
 	private val database: MangaDatabase,
 	private val savedFiltersRepository: SavedFiltersRepository,
+	private val mangaDynamicRepository: MangaDynamicRepository,
+	private val pluginKeyResolver: PluginKeyResolver,
 ) {
 	private val mutex = Mutex()
 	private val prefs by lazy {
@@ -46,11 +48,11 @@ class UpdatePluginsProvider @Inject constructor(
 				val now = System.currentTimeMillis()
 				if (now - settings.lastAutoPlugins < COOLDOWN) return@withContext
 				settings.lastAutoPlugins = now
-				val installed = DynamicParserManager.getInstalledPlugins(context).toSet()
+				val installed = mangaDynamicRepository.get().toSet()
 				if (installed.isEmpty()) return@withContext
 				val meta = readAndCleanDto(installed)
 				if (meta.isEmpty()) return@withContext
-				val pluginsDir = PluginFileLoader.pluginsDir(context)
+				val pluginsDir = mangaDynamicRepository.getDir()
 				val results = installed.map { jarName ->
 					async {
 						val info = meta[jarName] ?: return@async null
@@ -76,7 +78,7 @@ class UpdatePluginsProvider @Inject constructor(
 	suspend fun installPlugin(release: ExternalPluginDto, fileName: String): Boolean =
 		withContext(Dispatchers.Default) {
 			runCatchingCancellable {
-				val pluginsDir = PluginFileLoader.pluginsDir(context)
+				val pluginsDir = mangaDynamicRepository.getDir()
 				val outFile = File(pluginsDir, fileName)
 				val ok = replacePlugin(release.downloadUrl, outFile)
 				if (!ok) throw IOException()
@@ -86,8 +88,8 @@ class UpdatePluginsProvider @Inject constructor(
 		}
 
 	private suspend fun reloadPlugins(pluginsDir: File) {
-		DynamicParserManager.loadParsersFromDirectory(context, pluginsDir)
-		PluginSourceKeyNormalizer.normalize(database, savedFiltersRepository)
+		mangaDynamicRepository.load(pluginsDir)
+		pluginKeyResolver.normalize(database, savedFiltersRepository)
 	}
 
 	suspend fun requestRelease(repository: String): ExternalPluginDto? {
@@ -189,6 +191,15 @@ class UpdatePluginsProvider @Inject constructor(
 	fun clearDto(fileName: String) {
 		updateDto {
 			it.remove(fileName)
+		}
+	}
+
+	fun renameDto(oldName: String, newName: String) {
+		updateDto {
+			val value = it.remove(oldName)
+			if (value != null) {
+				it[newName] = value
+			}
 		}
 	}
 

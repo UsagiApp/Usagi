@@ -9,7 +9,7 @@ import androidx.preference.SwitchPreferenceCompat
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.koitharu.kotatsu.parsers.config.ConfigKey
 import org.koitharu.kotatsu.parsers.network.UserAgents
 import org.koitharu.kotatsu.parsers.util.mapToArray
@@ -20,12 +20,12 @@ import org.draken.usagi.settings.utils.validation.DomainValidator
 import org.draken.usagi.settings.utils.validation.HeaderValidator
 
 fun PreferenceFragmentCompat.addPreferencesFromRepository(repository: MangaRepository) = when (repository) {
-	is ParserMangaRepository -> addPreferencesFromParserRepository(repository)
+	is MangaParserRepository -> addPreferencesFromParserRepository(repository)
 	is EmptyMangaRepository -> addPreferencesFromEmptyRepository()
 	else -> Unit
 }
 
-private fun PreferenceFragmentCompat.addPreferencesFromParserRepository(repository: ParserMangaRepository) {
+private fun PreferenceFragmentCompat.addPreferencesFromParserRepository(repository: MangaParserRepository) {
 	addPreferencesFromResource(R.xml.pref_source_parser)
 	val configKeys = repository.getConfigKeys()
 	val screen = preferenceScreen

@@ -4,7 +4,7 @@ import android.os.SystemClock
 import androidx.collection.MutableObjectLongMap
 import kotlinx.coroutines.delay
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -17,7 +17,7 @@ class DownloadSlowdownDispatcher @Inject constructor(
 	private val defaultDelay = 1_600L
 
 	suspend fun delay(source: MangaSource) {
-		val repo = mangaRepositoryFactory.create(source) as? ParserMangaRepository ?: return
+		val repo = mangaRepositoryFactory.create(source) as? MangaParserRepository ?: return
 		if (!repo.isSlowdownEnabled()) {
 			return
 		}

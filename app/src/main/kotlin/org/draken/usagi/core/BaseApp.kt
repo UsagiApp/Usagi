@@ -16,9 +16,8 @@ import okhttp3.internal.platform.PlatformRegistry
 import org.conscrypt.Conscrypt
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.os.AppValidator
-import org.draken.usagi.core.model.PluginSourceKeyNormalizer
-import org.draken.usagi.core.parser.DynamicParserManager
-import org.draken.usagi.core.parser.PluginFileLoader
+import org.draken.usagi.core.model.PluginKeyResolver
+import org.draken.usagi.core.parser.MangaDynamicRepository
 import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.GlobalExceptionHandler
@@ -61,6 +60,12 @@ open class BaseApp : Application(), Configuration.Provider {
 	lateinit var localMangaIndexProvider: Provider<LocalMangaIndex>
 
 	@Inject
+	lateinit var mangaDynamicRepository: MangaDynamicRepository
+
+	@Inject
+	lateinit var pluginKeyResolver: PluginKeyResolver
+
+	@Inject
 	@LocalStorageChanges
 	lateinit var localStorageChanges: MutableSharedFlow<LocalManga?>
 
@@ -87,10 +92,9 @@ open class BaseApp : Application(), Configuration.Provider {
 		}
 
 		processLifecycleScope.launch(Dispatchers.IO) {
-			val pluginsDir = PluginFileLoader.pluginsDir(this@BaseApp)
-			DynamicParserManager.loadParsersFromDirectory(this@BaseApp, pluginsDir)
+			mangaDynamicRepository.load(mangaDynamicRepository.getDir())
 			withContext(Dispatchers.Default) {
-				PluginSourceKeyNormalizer.normalize(database.get(), savedFiltersRepository)
+				pluginKeyResolver.normalize(database.get(), savedFiltersRepository)
 			}
 		}
 		workScheduleManager.init()

@@ -14,7 +14,7 @@ import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.InteractiveActionRequiredException
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.koitharu.kotatsu.parsers.model.MangaSource
@@ -22,7 +22,7 @@ import org.koitharu.kotatsu.parsers.model.MangaSource
 @AndroidEntryPoint
 class BrowserActivity : BaseBrowserActivity() {
 
-	override fun onCreate2(savedInstanceState: Bundle?, source: MangaSource, repository: ParserMangaRepository?) {
+	override fun onCreate2(savedInstanceState: Bundle?, source: MangaSource, repository: MangaParserRepository?) {
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = true)
 		viewBinding.webView.webViewClient = BrowserClient(this, adBlock)
 		lifecycleScope.launch {

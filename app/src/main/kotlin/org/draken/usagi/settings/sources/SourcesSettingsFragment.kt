@@ -10,7 +10,7 @@ import androidx.preference.TwoStatePreference
 import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
 import org.draken.usagi.core.nav.router
-import org.draken.usagi.core.parser.DynamicParserManager
+import org.draken.usagi.core.parser.MangaDynamicRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.TriStateOption
 import org.draken.usagi.core.ui.BasePreferenceFragment
@@ -19,12 +19,16 @@ import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
 import org.draken.usagi.explore.data.SourcesSortOrder
 import org.koitharu.kotatsu.parsers.util.names
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 	SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private val viewModel by viewModels<SourcesSettingsViewModel>()
+
+	@Inject
+	lateinit var mangaDynamicRepository: MangaDynamicRepository
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 		addPreferencesFromResource(R.xml.pref_sources)
@@ -104,7 +108,7 @@ class SourcesSettingsFragment : BasePreferenceFragment(R.string.remote_sources),
 	}
 
 	private fun updatePluginsSummary() {
-		val count = DynamicParserManager.getInstalledPlugins(requireContext()).size
+		val count = mangaDynamicRepository.get().size
 		findPreference<Preference>("plugins_manager")?.summary =
 			resources.getQuantityStringSafe(R.plurals.items, count, count)
 	}

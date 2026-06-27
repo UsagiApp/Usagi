@@ -40,6 +40,7 @@ class MangaLoaderContextImpl @Inject constructor(
 	override val cookieJar: MutableCookieJar,
 	@ApplicationContext private val androidContext: Context,
 	private val webViewExecutor: WebViewExecutor,
+	private val mangaDynamicRepository: MangaDynamicRepository,
 ) : MangaLoaderContext() {
 
 	private val jsTimeout = TimeUnit.SECONDS.toMillis(4)
@@ -57,7 +58,7 @@ class MangaLoaderContextImpl @Inject constructor(
 	override fun getParserSources(): List<MangaSource> = org.draken.usagi.core.model.MangaSourceRegistry.sources
 
 	override fun newParserInstance(source: MangaSource): MangaParser =
-		DynamicParserManager.createParser(source, this, androidContext)
+		mangaDynamicRepository.create(source, this)
 
 	override fun getConfig(source: MangaSource): MangaSourceConfig {
 		return SourceSettings(androidContext, source)

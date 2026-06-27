@@ -17,7 +17,7 @@ import org.draken.usagi.browser.BrowserCallback
 import org.draken.usagi.browser.BrowserClient
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.AppRouter
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.koitharu.kotatsu.parsers.MangaParserAuthProvider
 import org.koitharu.kotatsu.parsers.model.MangaSource
@@ -30,7 +30,7 @@ class SourceAuthActivity : BaseBrowserActivity(), BrowserCallback {
 
 	private var authCheckJob: Job? = null
 
-	override fun onCreate2(savedInstanceState: Bundle?, source: MangaSource, repository: ParserMangaRepository?) {
+	override fun onCreate2(savedInstanceState: Bundle?, source: MangaSource, repository: MangaParserRepository?) {
 		if (repository == null) {
 			finishAfterTransition()
 			return

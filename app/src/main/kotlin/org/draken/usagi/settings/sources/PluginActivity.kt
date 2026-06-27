@@ -7,18 +7,36 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.draken.usagi.R
+import org.draken.usagi.core.db.MangaDatabase
+import org.draken.usagi.core.model.PluginKeyResolver
 import org.draken.usagi.core.nav.AppRouter
-import org.draken.usagi.core.parser.DynamicParserManager
+import org.draken.usagi.core.parser.MangaDynamicRepository
 import org.draken.usagi.core.parser.PluginFileLoader
 import org.draken.usagi.core.util.ext.getParcelableExtraCompat
+import org.draken.usagi.filter.data.SavedFiltersRepository
 import java.io.File
 import java.util.Locale
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PluginActivity : AppCompatActivity() {
+
+	@Inject
+	lateinit var mangaDynamicRepository: MangaDynamicRepository
+
+	@Inject
+	lateinit var database: MangaDatabase
+
+	@Inject
+	lateinit var savedFiltersRepository: SavedFiltersRepository
+
+	@Inject
+	lateinit var pluginKeyResolver: PluginKeyResolver
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -34,34 +52,33 @@ class PluginActivity : AppCompatActivity() {
 		lifecycleScope.launch {
 			val isSuccess = withContext(Dispatchers.IO) {
 				runCatching {
-					importJar(uri)
+					import(uri)
 				}.isSuccess
 			}
 			finishWithResult(isSuccess)
 		}
 	}
 
-	private fun importJar(uri: Uri) {
-		val pluginsDir = PluginFileLoader.pluginsDir(this)
-		val outFile = File(pluginsDir, resolveOutputFileName(uri))
+	private suspend fun import(uri: Uri) {
+		val pluginsDir = mangaDynamicRepository.getDir()
+		val outFile = File(pluginsDir, resolve(uri))
 		PluginFileLoader.copyFromUri(this, uri, outFile)
-		DynamicParserManager.loadParsersFromDirectory(this, pluginsDir)
+		mangaDynamicRepository.load(pluginsDir)
+		withContext(Dispatchers.Default) {
+			pluginKeyResolver.normalize(database, savedFiltersRepository)
+		}
 	}
 
-	private fun resolveOutputFileName(uri: Uri): String {
+	private fun resolve(uri: Uri): String {
 		val originalName = DocumentFile.fromSingleUri(this, uri)?.name
 			?: uri.lastPathSegment?.substringAfterLast('/')
 			?: "plugin_${System.currentTimeMillis()}.jar"
-		val safeName = originalName
-			.replace('/', '_')
-			.replace('\\', '_')
-			.ifBlank { "plugin_${System.currentTimeMillis()}.jar" }
-		return if (safeName.lowercase(Locale.ROOT).endsWith(".jar")) safeName else "$safeName.jar"
+		return PluginFileLoader.sanitizeName(originalName)
 	}
 
 	private fun isSupported(uri: Uri): Boolean {
 		val type = intent.type?.lowercase(Locale.ROOT)
-		if (type in SUPPORTED_MIME_TYPES) {
+		if (type in PluginFileLoader.SUPPORTED_MIME_TYPES) {
 			return true
 		}
 		val name = DocumentFile.fromSingleUri(this, uri)?.name
@@ -87,14 +104,5 @@ class PluginActivity : AppCompatActivity() {
 		Intent.ACTION_VIEW -> data
 		Intent.ACTION_SEND -> getParcelableExtraCompat(Intent.EXTRA_STREAM)
 		else -> data ?: getParcelableExtraCompat(Intent.EXTRA_STREAM)
-	}
-
-	private companion object {
-		val SUPPORTED_MIME_TYPES = setOf(
-			"application/java-archive",
-			"application/x-java-archive",
-			"application/vnd.android.package-archive",
-			"application/octet-stream",
-		)
 	}
 }

@@ -565,7 +565,7 @@ class DetailsActivity :
 
 	private fun loadLargeCover(imageUrl: String?) {
 		if (settings.isBackdropEnabled) {
-			backdropController.load(imageUrl)
+			backdropController.load(imageUrl, viewModel.getMangaOrNull()?.source)
 		} else {
 			viewBinding.backdropContainer.isGone = true
 			val isTablet = viewBinding.cardChapters != null

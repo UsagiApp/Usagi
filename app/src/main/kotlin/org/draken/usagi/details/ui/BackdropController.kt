@@ -25,6 +25,8 @@ import coil3.request.lifecycle
 import coil3.size.Precision
 import org.draken.usagi.core.image.CoilImageView
 import org.draken.usagi.core.prefs.AppSettings
+import org.draken.usagi.core.util.ext.mangaSourceExtra
+import org.koitharu.kotatsu.parsers.model.MangaSource
 
 class BackdropController(
 	private var backdrop: ImageView?,
@@ -54,11 +56,12 @@ class BackdropController(
 		lifecycle.lifecycle.addObserver(this)
 	}
 
-	fun load(imageUrl: String?) {
+	fun load(imageUrl: String?, source: MangaSource? = null) {
 		val view = backdrop ?: return
 		currentDisposable?.dispose()
 		val request = ImageRequest.Builder(view.context)
 			.data(imageUrl?.takeIf { it.isNotBlank() })
+			.mangaSourceExtra(source)
 			.lifecycle(lifecycle)
 			.crossfade(true)
 			.allowHardware(false)

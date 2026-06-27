@@ -16,7 +16,7 @@ import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.EmptyMangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.core.ui.BasePreferenceFragment
@@ -50,7 +50,7 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 			onPreferenceChangeListener = this@SourceSettingsFragment
 		}
 		findPreference<Preference>(KEY_AUTH)?.run {
-			val authProvider = (viewModel.repository as? ParserMangaRepository)?.getAuthProvider()
+			val authProvider = (viewModel.repository as? MangaParserRepository)?.getAuthProvider()
 			isVisible = authProvider != null
 		}
 		findPreference<Preference>(SourceSettings.KEY_SLOWDOWN)?.isVisible = isValidSource

@@ -24,7 +24,7 @@ class MirrorSwitcher @Inject constructor(
 	val isEnabled: Boolean
 		get() = settings.isMirrorSwitchingEnabled
 
-	suspend fun <T : Any> trySwitchMirror(repository: ParserMangaRepository, loader: suspend () -> T?): T? {
+	suspend fun <T : Any> trySwitchMirror(repository: MangaParserRepository, loader: suspend () -> T?): T? {
 		val source = repository.source
 		if (!isEnabled || source in blacklist) {
 			return null
@@ -64,7 +64,7 @@ class MirrorSwitcher @Inject constructor(
 		}
 	}
 
-	suspend fun findRedirect(repository: ParserMangaRepository): String? {
+	suspend fun findRedirect(repository: MangaParserRepository): String? {
 		if (!isEnabled) {
 			return null
 		}

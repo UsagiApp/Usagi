@@ -854,9 +854,7 @@
     <string name="local_storage_cleanup">Czyszczenie pamięci lokalnej</string>
     <string name="discord_rpc_description">Czytanie mangi na Usagi - aplikacji do czytania mangi</string>
     <string name="invalid_token">Niepoprawny token: %s</string>
-    <string name="unknown_source">Nieznane źródło: %1$s</string>
     <string name="set_plugin_name">Nadaj nazwę temu pluginowi</string>
-    <string name="plugin_not_found">Nie znaleziono pluginu dla źródła: %1$s</string>
     <string name="plugin_name">Nazwa pluginu</string>
     <string name="overwrite_plugin_summary">plugin nazwany %1$s jest już zainstalowany. Zastąpić go?</string>
     <string name="overwrite_plugin">Nadpisać plugin?</string>

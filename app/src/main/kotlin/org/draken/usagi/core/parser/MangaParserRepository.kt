@@ -24,7 +24,8 @@ import org.koitharu.kotatsu.parsers.model.SortOrder
 import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import org.koitharu.kotatsu.parsers.util.suspendlazy.suspendLazy
 
-class ParserMangaRepository(
+class MangaParserRepository(
+	private val compoundSource: MangaSource,
 	private val parser: MangaParser,
 	private val mirrorSwitcher: MirrorSwitcher,
 	cache: MemoryContentCache,
@@ -37,7 +38,7 @@ class ParserMangaRepository(
 	}
 
 	override val source: MangaSource
-		get() = parser.source
+		get() = compoundSource
 
 	override val sortOrders: Set<SortOrder>
 		get() = parser.availableSortOrders
@@ -65,7 +66,7 @@ class ParserMangaRepository(
 	override suspend fun getList(offset: Int, order: SortOrder?, filter: MangaListFilter?): List<Manga> {
 		return withMirrors {
 			parser.getList(offset, order ?: defaultSortOrder, filter ?: MangaListFilter.EMPTY)
-		}
+		}.map { it.copy(source = compoundSource) }
 	}
 
 	override suspend fun getPagesImpl(
@@ -86,10 +87,16 @@ class ParserMangaRepository(
 		parser.getFavicons()
 	}
 
-	override suspend fun getRelatedMangaImpl(seed: Manga): List<Manga> = parser.getRelatedManga(seed)
+	override suspend fun getRelatedMangaImpl(seed: Manga): List<Manga> =
+		parser.getRelatedManga(seed).map { it.copy(source = compoundSource) }
 
 	override suspend fun getDetailsImpl(manga: Manga): Manga = withMirrors {
-		parser.getDetails(manga)
+		parser.getDetails(manga).let { details ->
+			details.copy(
+				source = compoundSource,
+				chapters = details.chapters?.map { it.copy(source = compoundSource) }
+			)
+		}
 	}
 
 	fun getAuthProvider(): MangaParserAuthProvider? = parser.authorizationProvider
@@ -98,10 +105,6 @@ class ParserMangaRepository(
 
 	fun getConfigKeys(): List<ConfigKey<*>> = ArrayList<ConfigKey<*>>().also {
 		parser.onCreateConfig(it)
-	}
-
-	fun getAvailableMirrors(): List<String> {
-		return parser.configKeyDomain.presetValues.toList()
 	}
 
 	fun isSlowdownEnabled(): Boolean {

@@ -18,7 +18,7 @@ import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.network.proxy.ProxyProvider
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.util.ext.configureForParser
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.koitharu.kotatsu.parsers.model.MangaSource
@@ -119,7 +119,7 @@ class WebViewExecutor @Inject constructor(
 	}
 
 	private fun MangaSource.getUserAgent(): String? {
-		val repository = mangaRepositoryFactoryProvider.get().create(this) as? ParserMangaRepository
+		val repository = mangaRepositoryFactoryProvider.get().create(this) as? MangaParserRepository
 		return repository?.getRequestHeaders()?.get(CommonHeaders.USER_AGENT)
 	}
 

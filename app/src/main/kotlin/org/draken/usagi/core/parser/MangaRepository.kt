@@ -112,7 +112,8 @@ interface MangaRepository {
 			}
 
 			else -> try {
-				ParserMangaRepository(
+				MangaParserRepository(
+					compoundSource = source,
 					parser = loaderContext.newParserInstance(source),
 					cache = contentCache,
 					mirrorSwitcher = mirrorSwitcher,

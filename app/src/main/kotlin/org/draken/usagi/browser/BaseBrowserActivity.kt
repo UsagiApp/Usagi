@@ -12,7 +12,7 @@ import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.network.proxy.ProxyProvider
 import org.draken.usagi.core.network.webview.adblock.AdBlock
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.util.ext.configureForParser
 import org.draken.usagi.core.util.ext.consumeAll
@@ -45,7 +45,7 @@ abstract class BaseBrowserActivity : BaseActivity<ActivityBrowserBinding>(), Bro
 		onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
 		val mangaSource = MangaSource(intent?.getStringExtra(AppRouter.KEY_SOURCE))
-		val repository = mangaRepositoryFactory.create(mangaSource) as? ParserMangaRepository
+		val repository = mangaRepositoryFactory.create(mangaSource) as? MangaParserRepository
 		val userAgent = intent?.getStringExtra(AppRouter.KEY_USER_AGENT)?.nullIfEmpty()
 			?: repository?.getRequestHeaders()?.get(CommonHeaders.USER_AGENT)
 		viewBinding.webView.configureForParser(userAgent)
@@ -56,7 +56,7 @@ abstract class BaseBrowserActivity : BaseActivity<ActivityBrowserBinding>(), Bro
 	protected abstract fun onCreate2(
 		savedInstanceState: Bundle?,
 		source: MangaSource,
-		repository: ParserMangaRepository?
+		repository: MangaParserRepository?
 	)
 
 	override fun onApplyWindowInsets(

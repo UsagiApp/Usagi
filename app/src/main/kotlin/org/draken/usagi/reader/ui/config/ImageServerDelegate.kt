@@ -7,7 +7,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.koitharu.kotatsu.parsers.config.ConfigKey
 import org.koitharu.kotatsu.parsers.model.MangaSource
 import org.koitharu.kotatsu.parsers.util.mapToArray
@@ -21,7 +21,7 @@ class ImageServerDelegate(
 ) {
 
 	private val repositoryLazy = suspendLazy {
-		mangaRepositoryFactory.create(checkNotNull(mangaSource)) as ParserMangaRepository
+		mangaRepositoryFactory.create(checkNotNull(mangaSource)) as MangaParserRepository
 	}
 
 	suspend fun isAvailable() = withContext(Dispatchers.Default) {
