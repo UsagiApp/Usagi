@@ -25,7 +25,7 @@ class AboutSettingsViewModel @Inject constructor(
 
 	fun checkForUpdates() {
 		launchLoadingJob {
-			val update = appUpdateRepository.fetchUpdate()
+			val update = appUpdateRepository.fetchUpdate(true)
 			onUpdateAvailable.call(update)
 		}
 	}

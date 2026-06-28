@@ -38,7 +38,7 @@ class AppUpdateViewModel @Inject constructor(
 	init {
 		if (nextVersion.value == null) {
 			launchLoadingJob(Dispatchers.Default) {
-				repository.fetchUpdate()
+				repository.fetchUpdate(true)
 			}
 		}
 	}

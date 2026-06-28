@@ -948,6 +948,8 @@
 	<string name="updates_remind">Notify about app updates</string>
 	<string name="updates_remind_summary">Show a dialog on app start when an update is available</string>
 	<string name="update_available_message">A new version of Usagi is available. Do you want to update it now?</string>
+	<string name="check_app_update">Automatically check for updates</string>
+	<string name="check_app_update_summary">Check for app updates automatically at startup</string>
 	<string name="auto_update_plugins">Auto update plugins</string>
 	<string name="auto_update_plugins_summary">Automatically refresh and update all installed plugins at startup</string>
 </resources>

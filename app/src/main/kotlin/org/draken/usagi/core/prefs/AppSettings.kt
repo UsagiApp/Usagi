@@ -312,6 +312,9 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	val isUnstableUpdatesAllowed: Boolean
 		get() = prefs.getBoolean(KEY_UPDATES_UNSTABLE, false)
 
+	val isCheckAppUpdateEnabled: Boolean
+		get() = prefs.getBoolean(KEY_CHECK_APP_UPDATE, true)
+
 	val isUpdateReminderEnabled: Boolean
 		get() = prefs.getBoolean(KEY_UPDATES_REMIND, true)
 
@@ -843,6 +846,7 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_PREFETCH_CONTENT = "prefetch_content"
 		const val KEY_APP_LOCALE = "app_locale"
 		const val KEY_SOURCES_GRID = "sources_grid"
+		const val KEY_CHECK_APP_UPDATE = "check_app_update"
 		const val KEY_UPDATES_UNSTABLE = "updates_unstable"
 		const val KEY_UPDATES_REMIND = "updates_remind"
 		const val KEY_TIPS_CLOSED = "tips_closed"

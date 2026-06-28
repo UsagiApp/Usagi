@@ -68,8 +68,8 @@ class AppUpdateRepository @Inject constructor(
 		}
 	}
 
-	suspend fun fetchUpdate(): AppVersion? = withContext(Dispatchers.IO) {
-		if (!isUpdateSupported()) {
+	suspend fun fetchUpdate(force: Boolean = false): AppVersion? = withContext(Dispatchers.IO) {
+		if (!isUpdateSupported() || (!force && !settings.isCheckAppUpdateEnabled)) {
 			return@withContext null
 		}
 		runCatchingCancellable {
