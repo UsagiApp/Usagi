@@ -34,6 +34,7 @@ class ListSelectionController(
 
 	private var actionMode: ActionMode? = null
 	private var focusedItemId: LongSet? = null
+	private val dragListener = DragSelectionListener(this, decoration)
 
 	var useActionMode: Boolean = true
 
@@ -66,6 +67,7 @@ class ListSelectionController(
 
 	fun attachToRecyclerView(recyclerView: RecyclerView) {
 		recyclerView.addItemDecoration(decoration)
+		dragListener.attach(recyclerView)
 	}
 
 	override fun saveState(): Bundle {
@@ -90,7 +92,9 @@ class ListSelectionController(
 
 	fun onItemLongClick(view: View, id: Long): Boolean {
 		return if (useActionMode) {
-			startSelection(id)
+			val started = startSelection(id)
+			if (started) dragListener.onSelectionStarted(view)
+			started
 		} else {
 			onItemContextClick(view, id)
 		}
@@ -147,7 +151,7 @@ class ListSelectionController(
 		}
 	}
 
-	private fun notifySelectionChanged() {
+	fun notifySelectionChanged() {
 		val count = decoration.checkedItemsCount
 		callback.onSelectionChanged(this, count)
 		if (count == 0) {
