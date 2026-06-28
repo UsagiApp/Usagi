@@ -17,6 +17,7 @@ import org.draken.usagi.core.network.cookies.PreferencesCookieJar
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor
 import org.draken.usagi.core.network.imageproxy.RealImageProxyInterceptor
 import org.draken.usagi.core.network.proxy.ProxyProvider
+import org.draken.usagi.core.network.proxy.bypass.BypassTunnelFactory
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.assertNotInMainThread
 import org.draken.usagi.core.util.ext.printStackTraceDebug
@@ -30,9 +31,11 @@ import javax.inject.Singleton
 interface NetworkModule {
 
 	@Binds
+	@Suppress("unused")
 	fun bindCookieJar(androidCookieJar: MutableCookieJar): CookieJar
 
 	@Binds
+	@Suppress("unused")
 	fun bindImageProxyInterceptor(impl: RealImageProxyInterceptor): ImageProxyInterceptor
 
 	companion object {
@@ -64,12 +67,14 @@ interface NetworkModule {
 			cookieJar: CookieJar,
 			settings: AppSettings,
 			proxyProvider: ProxyProvider,
+			bypassTunnelFactory: BypassTunnelFactory,
 		): OkHttpClient = OkHttpClient.Builder().apply {
 			assertNotInMainThread()
 			connectTimeout(20, TimeUnit.SECONDS)
 			readTimeout(60, TimeUnit.SECONDS)
 			writeTimeout(20, TimeUnit.SECONDS)
 			cookieJar(cookieJar)
+			socketFactory(bypassTunnelFactory)
 			proxySelector(proxyProvider.selector)
 			proxyAuthenticator(proxyProvider.authenticator)
 			dns(DoHManager(cache, settings))

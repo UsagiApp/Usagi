@@ -419,6 +419,7 @@
     <string name="proxy">Proxy</string>
     <string name="proxy_bypass_enabled">Bypass internet censorship</string>
 	<string name="proxy_bypass_enabled_summary">Route app traffic through the built-in bypass tunnel for blocked networks (beta)</string>
+	<string name="proxy_webview_unavailable">Proxy for WebView is not supported</string>
     <string name="invalid_value_message">Invalid value</string>
     <string name="kitsu" translatable="false">Kitsu</string>
     <string name="email_password_enter_hint">Enter your email and password to continue</string>

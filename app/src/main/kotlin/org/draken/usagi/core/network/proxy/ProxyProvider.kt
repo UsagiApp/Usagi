@@ -1,19 +1,21 @@
 package org.draken.usagi.core.network.proxy
 
+import android.content.Context
 import androidx.webkit.ProxyConfig
 import androidx.webkit.ProxyController
 import androidx.webkit.WebViewFeature
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.suspendCancellableCoroutine
-import okhttp3.Cache
 import okhttp3.Authenticator
 import okhttp3.Credentials
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
 import okio.IOException
+import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.ProxyConfigException
 import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.prefs.AppSettings
@@ -31,11 +33,9 @@ import java.net.Authenticator as JavaAuthenticator
 
 @Singleton
 class ProxyProvider @Inject constructor(
+	@ApplicationContext private val context: Context,
 	private val settings: AppSettings,
-	cache: Cache,
 ) {
-
-	private val bypassProxyServer = BypassProxyServer(settings, cache)
 
 	private var cachedProxy: Proxy? = null
 
@@ -60,12 +60,11 @@ class ProxyProvider @Inject constructor(
 		val isProxyEnabled = isProxyEnabled()
 		if (!WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) {
 			if (isProxyEnabled) {
-				throw IllegalArgumentException("Proxy for WebView is not supported") // TODO localize
+				throw IllegalArgumentException(context.getString(R.string.proxy_webview_unavailable))
 			}
 		} else {
 			val controller = ProxyController.getInstance()
 			if (!isProxyEnabled) {
-				bypassProxyServer.stopIfRunning()
 				suspendCancellableCoroutine { cont ->
 					controller.clearProxyOverride(
 						(cont.context[CoroutineDispatcher] ?: Dispatchers.Main).asExecutor(),
@@ -74,24 +73,18 @@ class ProxyProvider @Inject constructor(
 					}
 				}
 			} else {
-				val url = if (isBypassEnabled()) {
-					val port = bypassProxyServer.ensureStarted()
-					"http://localhost:$port"
-				} else {
-					bypassProxyServer.stopIfRunning()
-					buildString {
-						when (settings.proxyType) {
-							Proxy.Type.DIRECT -> Unit
-							Proxy.Type.HTTP -> append("http")
-							Proxy.Type.SOCKS -> append("socks")
-						}
-						append("://")
-						append(settings.proxyAddress)
-						append(':')
-						append(settings.proxyPort)
+				val url = buildString {
+					when (settings.proxyType) {
+						Proxy.Type.DIRECT -> Unit
+						Proxy.Type.HTTP -> append("http")
+						Proxy.Type.SOCKS -> append("socks")
 					}
+					append("://")
+					append(settings.proxyAddress)
+					append(':')
+					append(settings.proxyPort)
 				}
-				if (!isBypassEnabled() && settings.proxyType == Proxy.Type.SOCKS) {
+				if (settings.proxyType == Proxy.Type.SOCKS) {
 					System.setProperty("java.net.socks.username", settings.proxyLogin)
 					System.setProperty("java.net.socks.password", settings.proxyPassword)
 				}
@@ -110,18 +103,10 @@ class ProxyProvider @Inject constructor(
 		}
 	}
 
-	private fun isBypassEnabled() = settings.isProxyBypassEnabled
-
-	private fun isRegularProxyEnabled() = settings.proxyType != Proxy.Type.DIRECT && !isBypassEnabled()
-
-	private fun isProxyEnabled() = isBypassEnabled() || settings.proxyType != Proxy.Type.DIRECT
+	private fun isProxyEnabled() = settings.proxyType != Proxy.Type.DIRECT
 
 	private fun getProxy(): Proxy {
-		if (isBypassEnabled()) {
-			val port = bypassProxyServer.ensureStarted()
-			return Proxy(Proxy.Type.HTTP, InetSocketAddress("localhost", port))
-		}
-		bypassProxyServer.stopIfRunning()
+		if (settings.isProxyBypassEnabled) return Proxy.NO_PROXY
 		val type = settings.proxyType
 		val address = settings.proxyAddress
 		val port = settings.proxyPort
@@ -145,7 +130,7 @@ class ProxyProvider @Inject constructor(
 	inner class ProxyAuthenticator : Authenticator, JavaAuthenticator() {
 
 		override fun authenticate(route: Route?, response: Response): Request? {
-			if (!isRegularProxyEnabled()) {
+			if (!isProxyEnabled()) {
 				return null
 			}
 			if (response.request.header(CommonHeaders.PROXY_AUTHORIZATION) != null) {
@@ -160,7 +145,7 @@ class ProxyProvider @Inject constructor(
 		}
 
 		public override fun getPasswordAuthentication(): PasswordAuthentication? {
-			if (!isRegularProxyEnabled()) {
+			if (!isProxyEnabled()) {
 				return null
 			}
 			val login = settings.proxyLogin ?: return null
