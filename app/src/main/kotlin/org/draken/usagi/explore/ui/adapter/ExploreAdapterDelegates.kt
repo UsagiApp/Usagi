@@ -7,10 +7,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
+import androidx.core.view.updateLayoutParams
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.carousel.CarouselLayoutManager
 import com.google.android.material.carousel.CarouselSnapHelper
 import com.google.android.material.carousel.HeroCarouselStrategy
 import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateViewBinding
+import org.draken.usagi.core.util.ext.resolveDp
 import org.draken.usagi.R
 import org.draken.usagi.core.model.getSummary
 import org.draken.usagi.core.model.getTitle
@@ -63,18 +67,19 @@ fun exploreRecommendationItemAD(
 	{ layoutInflater, parent -> ItemRecommendationBinding.inflate(layoutInflater, parent, false) },
 ) {
 
-	val adapter = BaseListAdapter<MangaCompactListModel>().addDelegate(ListItemType.MANGA_LIST, recommendationMangaItemAD(itemClickListener))
+	val adapter = BaseListAdapter<MangaCompactListModel>().addDelegate(
+		ListItemType.MANGA_LIST,
+		recommendationMangaItemAD(itemClickListener),
+	)
+
+	val snapHelper = CarouselSnapHelper()
 	binding.recyclerViewCarousel.apply {
-		layoutManager = CarouselLayoutManager(HeroCarouselStrategy()).apply {
-			carouselAlignment = CarouselLayoutManager.ALIGNMENT_CENTER
-		}
 		this.adapter = adapter
 		isNestedScrollingEnabled = false
-		CarouselSnapHelper().attachToRecyclerView(this)
 		setChildDrawingOrderCallback { n, i ->
 			val c = width / 2
 			(0 until n).sortedByDescending {
-				getChildAt(it)?.run {abs((left + right) / 2 - c) } ?: 0
+				getChildAt(it)?.run { abs((left + right) / 2 - c) } ?: 0
 			}.getOrElse(i) { i }
 		}
 		binding.dots.bindToRecyclerView(this)
@@ -82,6 +87,22 @@ fun exploreRecommendationItemAD(
 
 	bind {
 		adapter.items = item.manga
+		val h = (context.resources.displayMetrics.widthPixels * 0.6f).coerceIn(
+			context.resources.resolveDp(180f), context.resources.resolveDp(300f)).toInt()
+		binding.recyclerViewCarousel.updateLayoutParams { height = h }
+		if (adapter.items.size < 3) {
+			snapHelper.attachToRecyclerView(null)
+			binding.recyclerViewCarousel.layoutManager = LinearLayoutManager(
+				context,
+				LinearLayoutManager.HORIZONTAL,
+				false,
+			)
+		} else {
+			binding.recyclerViewCarousel.layoutManager = CarouselLayoutManager(HeroCarouselStrategy()).apply {
+				carouselAlignment = CarouselLayoutManager.ALIGNMENT_CENTER
+			}
+			snapHelper.attachToRecyclerView(binding.recyclerViewCarousel)
+		}
 	}
 }
 
@@ -104,6 +125,17 @@ fun recommendationMangaItemAD(
 		binding.textViewTitle.text = item.manga.title
 		binding.textViewSubtitle.textAndVisible = item.subtitle
 		binding.imageViewCover.setImageAsync(item.manga.coverUrl, item.manga.source)
+		val count = (binding.root.parent as? RecyclerView)?.adapter?.itemCount ?: 0
+		val w = (binding.root.parent as? View)?.width ?: 0
+		val h = (binding.root.parent as? View)?.height?.takeIf { it > 0 }
+			?: (context.resources.displayMetrics.widthPixels * 0.6f).coerceIn(
+				context.resources.resolveDp(180f), context.resources.resolveDp(300f)
+			).toInt()
+		binding.root.updateLayoutParams {
+			width = if (count < 3 && w > 0) {
+				w / count - context.resources.resolveDp(12f).toInt()
+			} else h * 2 / 3
+		}
 	}
 }
 
