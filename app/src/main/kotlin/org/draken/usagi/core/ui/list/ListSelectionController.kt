@@ -92,9 +92,11 @@ class ListSelectionController(
 
 	fun onItemLongClick(view: View, id: Long): Boolean {
 		return if (useActionMode) {
-			val started = startSelection(id)
-			if (started) dragListener.onSelectionStarted(view)
-			started
+			val checked = id in decoration.checkedItemsIds
+			view.post {
+				startSelection(id, !checked)
+				dragListener.onSelectionStarted(view, !checked)
+			}; true
 		} else {
 			onItemContextClick(view, id)
 		}
@@ -121,8 +123,8 @@ class ListSelectionController(
 		}
 	}
 
-	fun startSelection(id: Long): Boolean = startActionMode()?.also {
-		decoration.setItemIsChecked(id, true)
+	fun startSelection(id: Long, checked: Boolean = true): Boolean = startActionMode()?.also {
+		decoration.setItemIsChecked(id, checked)
 		notifySelectionChanged()
 	} != null
 

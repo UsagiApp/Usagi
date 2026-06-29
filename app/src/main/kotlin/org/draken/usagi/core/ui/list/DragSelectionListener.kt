@@ -58,13 +58,13 @@ class DragSelectionListener(
 		})
 	}
 
-	fun onSelectionStarted(view: View) {
+	fun onSelectionStarted(view: View, isSelecting: Boolean = true) {
 		val rv = recyclerView ?: return
 		val pos = rv.findContainingItemView(view) ?.let { rv.getChildAdapterPosition(it) }
 			?.takeIf { it != RecyclerView.NO_POSITION } ?: return
 		isDragging = true
 		start = pos; current = pos; min = pos; max = pos
-		isSelecting = true; init = decoration.checkedItemsIds.toSet()
+		this.isSelecting = isSelecting; init = decoration.checkedItemsIds.toSet()
 		rv.parent?.requestDisallowInterceptTouchEvent(true)
 	}
 
