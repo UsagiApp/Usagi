@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.withContext
 import org.draken.usagi.list.ui.adapter.ListItemType
+import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.list.ui.model.ListModel
 import org.koitharu.kotatsu.parsers.util.move
 import java.util.LinkedList
@@ -42,17 +43,25 @@ open class ReorderableListAdapter<T : ListModel> : ListDelegationAdapter<List<T>
 		notifyItemMoved(oldPos, newPos)
 	}
 
+	fun updateItems(new: List<T>) {
+		val old = items.orEmpty()
+		val callback = DiffCallback(old, new)
+		val result = DiffUtil.calculateDiff(callback)
+		super.setItems(new)
+		result.dispatchUpdatesTo(this)
+		listListeners.forEach { it.onCurrentListChanged(old, new) }
+	}
+
 	fun addDelegate(type: ListItemType, delegate: AdapterDelegate<List<T>>): ReorderableListAdapter<T> {
 		delegatesManager.addDelegate(type.ordinal, delegate)
 		return this
 	}
 
-	fun addListListener(listListener: ListListener<T>) {
-		listListeners.add(listListener)
-	}
-
-	fun removeListListener(listListener: ListListener<T>) {
-		listListeners.remove(listListener)
+	fun findHeader(position: Int): ListHeader? {
+		for (i in (0..position).reversed()) {
+			val item = items.orEmpty().getOrNull(i) ?: continue
+			if (item is ListHeader) return item
+		}; return null
 	}
 
 	protected class DiffCallback<T : ListModel>(

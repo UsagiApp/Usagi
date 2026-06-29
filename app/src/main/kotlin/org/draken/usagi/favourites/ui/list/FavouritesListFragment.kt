@@ -8,6 +8,7 @@ import android.view.View
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
@@ -18,6 +19,7 @@ import org.draken.usagi.core.util.ext.withArgs
 import org.draken.usagi.databinding.FragmentListBinding
 import org.draken.usagi.list.domain.ListSortOrder
 import org.draken.usagi.list.ui.MangaListFragment
+import org.draken.usagi.list.ui.adapter.MangaListAdapter
 
 @AndroidEntryPoint
 class FavouritesListFragment : MangaListFragment(), PopupMenu.OnMenuItemClickListener {
@@ -29,9 +31,31 @@ class FavouritesListFragment : MangaListFragment(), PopupMenu.OnMenuItemClickLis
 	val categoryId
 		get() = viewModel.categoryId
 
+	private val favouritesAdapter: MangaListAdapter?
+		get() = recyclerView?.adapter as? MangaListAdapter
+
+	private var reorderHelper: ItemTouchHelper? = null
+
 	override fun onViewBindingCreated(binding: FragmentListBinding, savedInstanceState: Bundle?) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		binding.recyclerView.isVP2BugWorkaroundEnabled = true
+		reorderHelper = ItemTouchHelper(
+			FavouritesReorderCallback(
+				sortOrder = { viewModel.sortOrder.value },
+				getAdapter = { favouritesAdapter },
+				getSelectedItemsIds = { selectedItemsIds },
+				saveMangaOrder = { viewModel.saveMangaOrder(it) },
+				onDragStateChanged = { isDrag -> recyclerView?.isNestedScrollingEnabled = !isDrag },
+				canDrag = viewModel.categoryId != NO_ID,
+			)
+		).also { it.attachToRecyclerView(binding.recyclerView) }
+		binding.recyclerView.addOnItemTouchListener(
+			FavouritesTouchListener(
+				sortOrder = { viewModel.sortOrder.value },
+				reorderHelper = { reorderHelper },
+				canDrag = { viewModel.categoryId != NO_ID },
+			)
+		)
 	}
 
 	override fun onScrolledToEnd() = viewModel.requestMoreItems()

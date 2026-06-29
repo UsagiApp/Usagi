@@ -68,6 +68,9 @@ abstract class FavouritesDao : MangaQueryBuilder.ConditionCallback {
 	)
 	abstract suspend fun findAll(categoryId: Long): List<FavouriteManga>
 
+	@Query("SELECT manga_id FROM favourites WHERE category_id = :categoryId AND deleted_at = 0 ORDER BY sort_key ASC, created_at DESC")
+	abstract suspend fun findAllIds(categoryId: Long): LongArray
+
 	fun observeAll(
 		categoryId: Long,
 		order: ListSortOrder,
@@ -214,9 +217,12 @@ abstract class FavouritesDao : MangaQueryBuilder.ConditionCallback {
 	@Query("UPDATE favourites SET deleted_at = :deletedAt WHERE category_id = :categoryId AND deleted_at = 0")
 	protected abstract suspend fun setDeletedAtAll(categoryId: Long, deletedAt: Long)
 
+	@Query("UPDATE favourites SET sort_key = :sortKey WHERE category_id = :categoryId AND manga_id = :mangaId")
+	abstract suspend fun setSortKey(categoryId: Long, mangaId: Long, sortKey: Int)
+
 	private fun getOrderBy(sortOrder: ListSortOrder) = when (sortOrder) {
 		ListSortOrder.RATING -> "manga.rating DESC"
-		ListSortOrder.NEWEST -> "favourites.created_at DESC"
+		ListSortOrder.NEWEST -> "favourites.sort_key ASC, favourites.created_at DESC"
 		ListSortOrder.OLDEST -> "favourites.created_at ASC"
 		ListSortOrder.ALPHABETIC -> "manga.title ASC"
 		ListSortOrder.ALPHABETIC_REVERSE -> "manga.title DESC"

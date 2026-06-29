@@ -77,7 +77,7 @@ abstract class MangaListFragment :
 
 	private var listAdapter: MangaListAdapter? = null
 	private var paginationListener: PaginationScrollListener? = null
-	private var selectionController: ListSelectionController? = null
+	protected var selectionController: ListSelectionController? = null
 	private var spanResolver: GridSpanResolver? = null
 	private val spanSizeLookup = SpanSizeLookup()
 	open val isSwipeRefreshEnabled = true

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -36,13 +37,13 @@ import org.draken.usagi.list.ui.MangaListViewModel
 import org.draken.usagi.list.ui.model.EmptyState
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingState
+import org.draken.usagi.list.ui.model.MangaListModel
 import org.draken.usagi.list.ui.model.toErrorState
+import org.draken.usagi.local.data.LocalStorageChanges
+import org.draken.usagi.local.domain.model.LocalManga
 import org.koitharu.kotatsu.parsers.model.Manga
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
-import org.draken.usagi.local.data.LocalStorageChanges
-import org.draken.usagi.local.domain.model.LocalManga
-import kotlinx.coroutines.flow.SharedFlow
 
 private const val PAGE_SIZE = 16
 
@@ -130,6 +131,16 @@ class FavouritesListViewModel @Inject constructor(
 		}
 		launchJob {
 			repository.setCategoryOrder(categoryId, order)
+		}
+	}
+
+	fun saveMangaOrder(items: List<ListModel>) {
+		if (categoryId == NO_ID) return
+		val mangaIds = items.mapNotNull { (it as? MangaListModel)?.id }
+		launchJob(Dispatchers.IO) {
+			kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
+				repository.reorderManga(categoryId, mangaIds)
+			}
 		}
 	}
 

@@ -138,10 +138,6 @@ class FavouritesRepository @Inject constructor(
 			.map { it?.toFavouriteCategory() }
 	}
 
-	fun observeCategoriesIds(mangaId: Long): Flow<Set<Long>> {
-		return db.getFavouritesDao().observeIds(mangaId).map { it.toSet() }
-	}
-
 	fun observeCategories(mangaId: Long): Flow<Set<FavouriteCategory>> {
 		return db.getFavouritesDao().observeCategories(mangaId).map {
 			it.mapTo(LinkedHashSet(it.size)) { x -> x.toFavouriteCategory() }
@@ -229,6 +225,14 @@ class FavouritesRepository @Inject constructor(
 			for ((i, id) in orderedIds.withIndex()) {
 				dao.updateSortKey(id, i)
 			}
+		}
+	}
+
+	suspend fun reorderManga(categoryId: Long, orderedMangaIds: List<Long>) {
+		val dao = db.getFavouritesDao()
+		db.withTransaction {
+			(orderedMangaIds + dao.findAllIds(categoryId).filterNot(orderedMangaIds::contains))
+				.forEachIndexed { i, id -> dao.setSortKey(categoryId, id, i) }
 		}
 	}
 
