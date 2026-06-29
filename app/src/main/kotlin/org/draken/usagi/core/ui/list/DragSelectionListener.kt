@@ -94,12 +94,11 @@ class DragSelectionListener(
 		min = minOf(min, pos); max = maxOf(max, pos)
 		val adapter = rv.adapter?.takeIf { it.itemCount > 0 } ?: return
 		val itemsList = adapter.getItemsList()
-		val start = minOf(start, current).coerceIn(0, adapter.itemCount - 1)
+		val touch = minOf(start, current).coerceIn(0, adapter.itemCount - 1)
 		val end = maxOf(start, current).coerceIn(0, adapter.itemCount - 1)
-
 		for (i in min..max) {
 			val id = getItem(rv, itemsList, i).takeIf { it != RecyclerView.NO_ID } ?: continue
-			decoration.setItemIsChecked(id, if (i in start..end) isSelecting else id in init)
+			decoration.setItemIsChecked(id, if (i in touch..end) isSelecting else id in init)
 		}
 		controller.notifySelectionChanged()
 	}
