@@ -11,8 +11,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
+import android.os.Build
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.DecodeSequenceMode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeToSequence
@@ -245,8 +248,13 @@ class BackupRepository @Inject constructor(
     }
 
     private fun <T> InputStream.readJsonArray(
-        serializer: DeserializationStrategy<T>,
-    ): Sequence<T> = json.decodeToSequence(this, serializer, DecodeSequenceMode.ARRAY_WRAPPED)
+		serializer: DeserializationStrategy<T>,
+	): Sequence<T> {
+		return if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+			val reader = this.reader().readText()
+			json.decodeFromString(ListSerializer(serializer as KSerializer<T>), reader).asSequence()
+        } else json.decodeToSequence(this, serializer, DecodeSequenceMode.ARRAY_WRAPPED)
+    }
 
     private fun InputStream.readMap(): Map<String, Any?> {
         val jo = JSONArray(readString()).getJSONObject(0)

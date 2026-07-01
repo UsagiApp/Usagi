@@ -7,6 +7,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runInterruptible
+import android.os.Build
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import org.draken.usagi.backups.data.model.BackupIndex
@@ -104,7 +105,9 @@ class RestoreViewModel @Inject constructor(
 	}
 
 	private fun InputStream.readDate(): Date? = runCatching {
-		val index = Json.decodeFromStream<List<BackupIndex>>(this)
+		val index = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+			Json.decodeFromString<List<BackupIndex>>(this.reader().readText())
+		} else Json.decodeFromStream<List<BackupIndex>>(this)
 		Date(index.single().createdAt)
 	}.onFailure { e ->
 		e.printStackTraceDebug()
