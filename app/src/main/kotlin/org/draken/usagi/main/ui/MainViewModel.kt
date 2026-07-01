@@ -67,11 +67,14 @@ class MainViewModel @Inject constructor(
 
 	init {
 		launchJob {
-			appUpdateRepository.fetchUpdate()
+			if (settings.isCheckAppUpdateEnabled) {
+				appUpdateRepository.fetchUpdate()
+			}
 		}
 		launchJob {
 			if (settings.isFirstLaunch) {
 				settings.isFirstLaunch = false
+				settings.isCheckAppUpdateEnabled = false
 				onFirstStart.call(Unit)
 			}
 		}

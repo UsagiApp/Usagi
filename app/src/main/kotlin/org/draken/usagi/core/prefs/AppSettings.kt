@@ -312,8 +312,9 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	val isUnstableUpdatesAllowed: Boolean
 		get() = prefs.getBoolean(KEY_UPDATES_UNSTABLE, false)
 
-	val isCheckAppUpdateEnabled: Boolean
+	var isCheckAppUpdateEnabled: Boolean
 		get() = prefs.getBoolean(KEY_CHECK_APP_UPDATE, true)
+		set(value) = prefs.edit { putBoolean(KEY_CHECK_APP_UPDATE, value) }
 
 	val isUpdateReminderEnabled: Boolean
 		get() = prefs.getBoolean(KEY_UPDATES_REMIND, true)
