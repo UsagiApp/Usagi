@@ -46,7 +46,10 @@ class MangaDynamicRepository @Inject constructor(
 		for (jar in jarFiles) {
 			jar.setReadOnly()
 			val temp = File(cache, "load_${jar.name.removeSuffix(".jar")}_${jar.lastModified()}.jar")
-			try { jar.copyTo(temp, true) } catch (_: Throwable) { temp.delete() }
+			try {
+				jar.copyTo(temp, true)
+				temp.setReadOnly()
+			} catch (_: Throwable) { temp.delete() }
 			val load = if (temp.exists()) temp else jar
 			val cl = PluginClassLoader(load.absolutePath, dir, null, parent)
 			try {
