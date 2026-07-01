@@ -9,7 +9,6 @@ import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.carousel.CarouselLayoutManager
 import com.google.android.material.carousel.CarouselSnapHelper
 import com.google.android.material.carousel.HeroCarouselStrategy
@@ -67,9 +66,10 @@ fun exploreRecommendationItemAD(
 	{ layoutInflater, parent -> ItemRecommendationBinding.inflate(layoutInflater, parent, false) },
 ) {
 
-	val adapter = BaseListAdapter<MangaCompactListModel>().addDelegate(
+	val adapter = BaseListAdapter<MangaCompactListModel>()
+	adapter.addDelegate(
 		ListItemType.MANGA_LIST,
-		recommendationMangaItemAD(itemClickListener),
+		recommendMangaItemAD(itemClickListener) { adapter.items.size },
 	)
 
 	val snapHelper = CarouselSnapHelper()
@@ -106,8 +106,9 @@ fun exploreRecommendationItemAD(
 	}
 }
 
-fun recommendationMangaItemAD(
+fun recommendMangaItemAD(
 	itemClickListener: OnListItemClickListener<Manga>,
+	itemCountProvider: () -> Int,
 ) = adapterDelegateViewBinding<MangaCompactListModel, MangaCompactListModel, ItemRecommendationMangaBinding>(
 	{ layoutInflater, parent -> ItemRecommendationMangaBinding.inflate(layoutInflater, parent, false) },
 ) {
@@ -125,20 +126,23 @@ fun recommendationMangaItemAD(
 		binding.textViewTitle.text = item.manga.title
 		binding.textViewSubtitle.textAndVisible = item.subtitle
 		binding.imageViewCover.setImageAsync(item.manga.coverUrl, item.manga.source)
-		val count = (binding.root.parent as? RecyclerView)?.adapter?.itemCount ?: 0
-		val w = (binding.root.parent as? View)?.width ?: 0
+		val count = itemCountProvider()
 		val h = (binding.root.parent as? View)?.height?.takeIf { it > 0 }
 			?: (context.resources.displayMetrics.widthPixels * 0.6f).coerceIn(
 				context.resources.resolveDp(180f), context.resources.resolveDp(300f)
 			).toInt()
-		binding.root.updateLayoutParams {
-			width = if (count < 3 && w > 0) {
-				w / count - context.resources.resolveDp(12f).toInt()
-			} else h * 2 / 3
-		}
+		if (count < 3) {
+			binding.root.post {
+				val parent = (binding.root.parent as? View)?.width ?: 0
+				if (parent > 0) {
+					val t = parent / count - context.resources.resolveDp(12f).toInt()
+					binding.root.updateLayoutParams { width = t }
+					binding.root.maskRectF = android.graphics.RectF(0f, 0f, t.toFloat(), h.toFloat())
+				}
+			}
+		} else binding.root.updateLayoutParams { width = h * 2 / 3 }
 	}
 }
-
 
 fun exploreSourceListItemAD(
 	listener: OnListItemClickListener<MangaSourceItem>,
