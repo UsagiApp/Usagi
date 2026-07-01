@@ -53,13 +53,13 @@ class UpdatePluginsProvider @Inject constructor(
 				val meta = readAndCleanDto(installed)
 				if (meta.isEmpty()) return@withContext
 				val pluginsDir = mangaDynamicRepository.getDir()
-				val results = installed.map { jarName ->
+				val results = installed.map { name ->
 					async {
-						val info = meta[jarName] ?: return@async null
-						val release = requestRelease(info.repository) ?: return@async null
+						val info = meta[name] ?: return@async null
+						val release = requestRelease(info.repository, name) ?: return@async null
 						if (release.tag == info.tag) return@async null
-						if (replacePlugin(release.downloadUrl, File(pluginsDir, jarName))) {
-							jarName to RemoteReleaseDto(info.repository, release.tag)
+						if (replacePlugin(release.downloadUrl, File(pluginsDir, name))) {
+							name to RemoteReleaseDto(info.repository, release.tag)
 						} else null
 					}
 				}.awaitAll().filterNotNull()
@@ -92,9 +92,12 @@ class UpdatePluginsProvider @Inject constructor(
 		pluginKeyResolver.normalize(database, savedFiltersRepository)
 	}
 
-	suspend fun requestRelease(repository: String): ExternalPluginDto? {
+	suspend fun requestRelease(repository: String, name: String? = null): ExternalPluginDto? {
 		val tag = requestTag(repository) ?: return null
-		return requestPlugin(repository, tag)
+		val releases = requestPlugins(repository, tag)
+		if (releases.isEmpty()) return null
+		if (name != null) releases.find { it.fileName == name }?.let { return it }
+		return releases.firstOrNull()
 	}
 
 	suspend fun requestTag(repository: String): String? {
@@ -114,9 +117,9 @@ class UpdatePluginsProvider @Inject constructor(
 		}.getOrNull()
 	}
 
-	suspend fun requestPlugin(repository: String, tag: String): ExternalPluginDto? {
+	suspend fun requestPlugins(repository: String, tag: String): List<ExternalPluginDto> {
 		return runCatchingCancellable {
-			val (owner, repoName) = splitRepository(repository) ?: return null
+			val (owner, repoName) = splitRepository(repository) ?: return emptyList()
 			val url = HttpUrl.Builder()
 				.scheme("https")
 				.host("api.github.com")
@@ -126,17 +129,17 @@ class UpdatePluginsProvider @Inject constructor(
 				.get().url(url)
 				.build()
 			okHttpClient.newCall(request).await().use { response ->
-				if (!response.isSuccessful) return null
+				if (!response.isSuccessful) return emptyList()
 				val body = response.body.string()
-				if (body.isBlank()) return null
+				if (body.isBlank()) return emptyList()
 				val json = JSONObject(body)
-				val asset = findPlugin(json.optJSONArray("assets")) ?: return null
-				ExternalPluginDto(repository, tag, asset.first, asset.second)
+				val assets = find(json.optJSONArray("assets"))
+				assets.map { ExternalPluginDto(repository, tag, it.first, it.second) }
 			}
-		}.getOrNull()
+		}.getOrDefault(emptyList())
 	}
 
-	fun normalizeRepository(input: String): String? {
+	fun resolve(input: String): String? {
 		val trimmed = input.trim().takeIf { it.isNotEmpty() } ?: return null
 		return (GITHUB_URL_REGEX.matchEntire(trimmed) ?: REPOSITORY_REGEX.matchEntire(trimmed))
 			?.let { "${it.groupValues[1]}/${it.groupValues[2]}" }
@@ -151,17 +154,18 @@ class UpdatePluginsProvider @Inject constructor(
 		return owner to repo
 	}
 
-	fun findPlugin(assets: JSONArray?): Pair<String, String>? {
-		assets ?: return null
+	fun find(assets: JSONArray?): List<Pair<String, String>> {
+		assets ?: return emptyList()
+		val list = mutableListOf<Pair<String, String>>()
 		for (i in 0 until assets.length()) {
 			val asset = assets.optJSONObject(i) ?: continue
 			val name = asset.optString("name")
 			val url = asset.optString("browser_download_url")
 			if (name.endsWith(".jar", true) && url.isNotBlank()) {
-				return name to url
+				list.add(name to url)
 			}
 		}
-		return null
+		return list
 	}
 
 	suspend fun replacePlugin(url: String, dest: File): Boolean {

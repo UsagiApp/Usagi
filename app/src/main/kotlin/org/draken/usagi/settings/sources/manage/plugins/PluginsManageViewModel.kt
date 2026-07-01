@@ -82,13 +82,19 @@ class PluginsManageViewModel @Inject constructor(
 		}
 	}
 
-	suspend fun resolveGithubRelease(input: String): ExternalPluginDto? = withContext(Dispatchers.Default) {
-		val repository = updatePluginsProvider.normalizeRepository(input) ?: return@withContext null
-		updatePluginsProvider.requestRelease(repository)
+	suspend fun resolveRelease(input: String, name: String? = null): ExternalPluginDto? = withContext(Dispatchers.Default) {
+		val repository = updatePluginsProvider.resolve(input) ?: return@withContext null
+		updatePluginsProvider.requestRelease(repository, name)
+	}
+
+	suspend fun resolveGithubReleases(input: String): List<ExternalPluginDto> = withContext(Dispatchers.Default) {
+		val repository = updatePluginsProvider.resolve(input) ?: return@withContext emptyList()
+		val tag = updatePluginsProvider.requestTag(repository) ?: return@withContext emptyList()
+		updatePluginsProvider.requestPlugins(repository, tag)
 	}
 
 	suspend fun importFromUri(uri: Uri, fileName: String): Boolean = withContext(Dispatchers.Default) {
-		val safeName = PluginFileLoader.sanitizeName(fileName)
+		val safeName = PluginFileLoader.resolve(fileName)
 		runCatchingCancellable {
 			val pluginsDir = mangaDynamicRepository.getDir()
 			PluginFileLoader.copyFromUri(context, uri, File(pluginsDir, safeName))
@@ -98,7 +104,7 @@ class PluginsManageViewModel @Inject constructor(
 	}.also { if (it) refresh() }
 
 	suspend fun importFromGithub(release: ExternalPluginDto, fileName: String = release.fileName): Boolean =
-		updatePluginsProvider.installPlugin(release, PluginFileLoader.sanitizeName(fileName))
+		updatePluginsProvider.installPlugin(release, PluginFileLoader.resolve(fileName))
 			.also { if (it) refresh() }
 
 	fun importPlugin(
@@ -113,7 +119,7 @@ class PluginsManageViewModel @Inject constructor(
 			val pluginName = askName(originalName.removeSuffix(".jar"))?.trim().orEmpty()
 			if (pluginName.isBlank()) return@launchJob
 
-			val fileName = PluginFileLoader.sanitizeName(pluginName)
+			val fileName = PluginFileLoader.resolve(pluginName)
 			if (isInstalled(fileName) && !askOverwrite(fileName)) return@launchJob
 
 			val success = importFromUri(uri, fileName)
@@ -121,30 +127,33 @@ class PluginsManageViewModel @Inject constructor(
 		}
 	}
 
-	fun importGithubPlugin(
-		askInput: suspend () -> String?,
-		askOverwrite: suspend (String) -> Boolean,
-		onResult: (Boolean) -> Unit
+	fun import(askInput: suspend () -> String?, askSelect: suspend (List<String>) -> Int?,
+		askOverwrite: suspend (String) -> Boolean, onResult: (Boolean) -> Unit,
 	) {
 		launchJob(Dispatchers.Default) {
 			val input = askInput()?.trim()?.takeIf { it.isNotBlank() } ?: return@launchJob
-			val release = resolveGithubRelease(input)
-			if (release == null) {
+			val releases = resolveGithubReleases(input)
+			if (releases.isEmpty()) {
 				withContext(Dispatchers.Main) { onResult(false) }
 				return@launchJob
 			}
 
-			val fileName = PluginFileLoader.sanitizeName(release.fileName)
-			if (isInstalled(fileName) && !askOverwrite(fileName)) return@launchJob
+			val select = if (releases.size > 1) {
+				val index = askSelect(releases.map { it.fileName }) ?: return@launchJob
+				releases.getOrNull(index) ?: return@launchJob
+			} else releases.firstOrNull() ?: return@launchJob
 
-			val success = importFromGithub(release, fileName)
+			val name = PluginFileLoader.resolve(select.fileName)
+			if (isInstalled(name) && !askOverwrite(name)) return@launchJob
+
+			val success = importFromGithub(select, name)
 			withContext(Dispatchers.Main) { onResult(success) }
 		}
 	}
 
 	suspend fun updatePlugin(item: PluginManageItem.Plugin): Boolean {
 		val repository = item.repository ?: return false
-		val release = resolveGithubRelease(repository) ?: return false
+		val release = resolveRelease(repository, item.name) ?: return false
 		return if (release.tag == item.installedTag) {
 			refresh()
 			true
@@ -184,7 +193,7 @@ class PluginsManageViewModel @Inject constructor(
 	}.also { if (it) refresh() }
 
 	suspend fun rename(item: PluginManageItem.Plugin, newRawName: String): Boolean = withContext(Dispatchers.Default) {
-		val name = PluginFileLoader.sanitizeName(newRawName)
+		val name = PluginFileLoader.resolve(newRawName)
 		if (name == item.name) return@withContext true
 		val pluginsDir = mangaDynamicRepository.getDir()
 		val old = File(pluginsDir, item.name)
@@ -202,7 +211,7 @@ class PluginsManageViewModel @Inject constructor(
 	}.also { if (it) refresh() }
 
 	fun isInstalled(fileName: String): Boolean {
-		return File(mangaDynamicRepository.getDir(), PluginFileLoader.sanitizeName(fileName)).exists()
+		return File(mangaDynamicRepository.getDir(), PluginFileLoader.resolve(fileName)).exists()
 	}
 
 	private fun publishFiltered() {

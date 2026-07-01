@@ -73,7 +73,7 @@ class PluginActivity : AppCompatActivity() {
 		val originalName = DocumentFile.fromSingleUri(this, uri)?.name
 			?: uri.lastPathSegment?.substringAfterLast('/')
 			?: "plugin_${System.currentTimeMillis()}.jar"
-		return PluginFileLoader.sanitizeName(originalName)
+		return PluginFileLoader.resolve(originalName)
 	}
 
 	private fun isSupported(uri: Uri): Boolean {

@@ -14,7 +14,7 @@ object PluginFileLoader {
 	fun pluginsDir(context: Context): File =
 		File(context.filesDir, PLUGIN_DIR).also { it.mkdirs() }
 
-	fun sanitizeName(rawName: String): String {
+	fun resolve(rawName: String): String {
 		val sanitized = rawName
 			.trim()
 			.replace('/', '_')
