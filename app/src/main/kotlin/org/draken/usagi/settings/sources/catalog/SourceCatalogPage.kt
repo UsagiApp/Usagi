@@ -2,7 +2,7 @@ package org.draken.usagi.settings.sources.catalog
 
 import org.draken.usagi.list.ui.ListModelDiffCallback
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.ContentType
+import tsuki.model.ContentType
 
 data class SourceCatalogPage(
 	val type: ContentType,

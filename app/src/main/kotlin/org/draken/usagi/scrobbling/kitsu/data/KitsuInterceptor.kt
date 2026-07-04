@@ -6,10 +6,10 @@ import okhttp3.Response
 import okhttp3.internal.closeQuietly
 import okio.IOException
 import org.draken.usagi.core.network.CommonHeaders
-import org.koitharu.kotatsu.parsers.util.mimeType
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
-import org.koitharu.kotatsu.parsers.util.parseHtml
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.mimeType
+import tsuki.util.nullIfEmpty
+import tsuki.util.parseHtml
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.scrobbling.common.data.ScrobblerStorage
 import org.draken.usagi.scrobbling.common.domain.ScrobblerAuthRequiredException
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblerService

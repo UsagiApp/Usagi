@@ -21,8 +21,8 @@ import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.tryLaunch
 import org.draken.usagi.databinding.ActivityOverrideEditBinding
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
+import tsuki.model.Manga
+import tsuki.util.ifNullOrEmpty
 import org.draken.usagi.picker.ui.PageImagePickContract
 import com.google.android.material.R as materialR
 

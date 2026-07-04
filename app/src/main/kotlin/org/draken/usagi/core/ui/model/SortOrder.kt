@@ -3,25 +3,25 @@ package org.draken.usagi.core.ui.model
 import androidx.annotation.StringRes
 import org.draken.usagi.R
 import org.draken.usagi.core.model.SortDirection
-import org.koitharu.kotatsu.parsers.model.SortOrder
-import org.koitharu.kotatsu.parsers.model.SortOrder.ADDED
-import org.koitharu.kotatsu.parsers.model.SortOrder.ADDED_ASC
-import org.koitharu.kotatsu.parsers.model.SortOrder.ALPHABETICAL
-import org.koitharu.kotatsu.parsers.model.SortOrder.ALPHABETICAL_DESC
-import org.koitharu.kotatsu.parsers.model.SortOrder.NEWEST
-import org.koitharu.kotatsu.parsers.model.SortOrder.NEWEST_ASC
-import org.koitharu.kotatsu.parsers.model.SortOrder.POPULARITY
-import org.koitharu.kotatsu.parsers.model.SortOrder.POPULARITY_ASC
-import org.koitharu.kotatsu.parsers.model.SortOrder.POPULARITY_HOUR
-import org.koitharu.kotatsu.parsers.model.SortOrder.POPULARITY_MONTH
-import org.koitharu.kotatsu.parsers.model.SortOrder.POPULARITY_TODAY
-import org.koitharu.kotatsu.parsers.model.SortOrder.POPULARITY_WEEK
-import org.koitharu.kotatsu.parsers.model.SortOrder.POPULARITY_YEAR
-import org.koitharu.kotatsu.parsers.model.SortOrder.RATING
-import org.koitharu.kotatsu.parsers.model.SortOrder.RATING_ASC
-import org.koitharu.kotatsu.parsers.model.SortOrder.RELEVANCE
-import org.koitharu.kotatsu.parsers.model.SortOrder.UPDATED
-import org.koitharu.kotatsu.parsers.model.SortOrder.UPDATED_ASC
+import tsuki.model.SortOrder
+import tsuki.model.SortOrder.ADDED
+import tsuki.model.SortOrder.ADDED_ASC
+import tsuki.model.SortOrder.ALPHABETICAL
+import tsuki.model.SortOrder.ALPHABETICAL_DESC
+import tsuki.model.SortOrder.NEWEST
+import tsuki.model.SortOrder.NEWEST_ASC
+import tsuki.model.SortOrder.POPULARITY
+import tsuki.model.SortOrder.POPULARITY_ASC
+import tsuki.model.SortOrder.POPULARITY_HOUR
+import tsuki.model.SortOrder.POPULARITY_MONTH
+import tsuki.model.SortOrder.POPULARITY_TODAY
+import tsuki.model.SortOrder.POPULARITY_WEEK
+import tsuki.model.SortOrder.POPULARITY_YEAR
+import tsuki.model.SortOrder.RATING
+import tsuki.model.SortOrder.RATING_ASC
+import tsuki.model.SortOrder.RELEVANCE
+import tsuki.model.SortOrder.UPDATED
+import tsuki.model.SortOrder.UPDATED_ASC
 
 @get:StringRes
 val SortOrder.titleRes: Int

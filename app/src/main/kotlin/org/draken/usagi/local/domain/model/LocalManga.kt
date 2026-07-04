@@ -5,8 +5,8 @@ import androidx.core.net.toFile
 import androidx.core.net.toUri
 import org.draken.usagi.core.util.ext.contains
 import org.draken.usagi.core.util.ext.creationTime
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.Manga
+import tsuki.model.MangaTag
 import java.io.File
 
 data class LocalManga(

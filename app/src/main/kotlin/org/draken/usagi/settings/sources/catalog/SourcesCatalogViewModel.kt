@@ -24,8 +24,8 @@ import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.explore.data.SourcesSortOrder
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingState
-import org.koitharu.kotatsu.parsers.model.ContentType
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.ContentType
+import tsuki.model.MangaSource
 import java.util.EnumSet
 import java.util.Locale
 import javax.inject.Inject

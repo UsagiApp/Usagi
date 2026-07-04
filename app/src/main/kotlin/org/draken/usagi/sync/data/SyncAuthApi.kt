@@ -7,10 +7,10 @@ import org.json.JSONObject
 import org.draken.usagi.core.exceptions.SyncApiException
 import org.draken.usagi.core.network.BaseHttpClient
 import org.draken.usagi.core.util.ext.toRequestBody
-import org.koitharu.kotatsu.parsers.util.await
-import org.koitharu.kotatsu.parsers.util.parseJson
-import org.koitharu.kotatsu.parsers.util.parseRaw
-import org.koitharu.kotatsu.parsers.util.removeSurrounding
+import tsuki.util.await
+import tsuki.util.parseJson
+import tsuki.util.parseRaw
+import tsuki.util.removeSurrounding
 import javax.inject.Inject
 
 @Reusable

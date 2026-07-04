@@ -4,9 +4,9 @@ import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.res.Configuration
 import org.draken.usagi.core.util.ext.isLowRamDevice
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.Manga
+import tsuki.model.MangaPage
+import tsuki.model.MangaSource
 import org.draken.usagi.core.model.MangaSourceRegistry
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject

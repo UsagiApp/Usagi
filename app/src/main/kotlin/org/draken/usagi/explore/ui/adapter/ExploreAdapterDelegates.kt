@@ -36,7 +36,7 @@ import org.draken.usagi.explore.ui.model.RecommendationsItem
 import org.draken.usagi.list.ui.adapter.ListItemType
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.MangaCompactListModel
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import kotlin.math.abs
 
 fun exploreButtonsAD(

@@ -2,7 +2,7 @@ package org.draken.usagi.explore.ui.model
 
 import org.draken.usagi.core.model.MangaSourceInfo
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.util.longHashCode
+import tsuki.util.longHashCode
 
 data class MangaSourceItem(
 	val source: MangaSourceInfo,

@@ -1,7 +1,7 @@
 package org.draken.usagi.core.parser.favicon
 
 import android.net.Uri
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 const val URI_SCHEME_FAVICON = "favicon"
 

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import org.draken.usagi.core.model.isLocal
 import org.draken.usagi.local.data.index.LocalMangaIndex
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 abstract class LocalObserveMapper<E : Any, R : Any>(
 	private val localMangaIndex: LocalMangaIndex,

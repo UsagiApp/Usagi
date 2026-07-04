@@ -18,7 +18,7 @@ import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.history.data.HistoryRepository
 import org.draken.usagi.main.domain.ReadingResumeEnabledUseCase
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import org.draken.usagi.tracker.domain.TrackingRepository
 import org.draken.usagi.settings.sources.manage.plugins.UpdatePluginsProvider
 import javax.inject.Inject

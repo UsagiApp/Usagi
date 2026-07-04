@@ -16,7 +16,7 @@ import org.draken.usagi.core.db.entity.toManga
 import org.draken.usagi.core.ui.util.ReversibleHandle
 import org.draken.usagi.core.util.ext.mapItems
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import javax.inject.Inject
 
 @Reusable

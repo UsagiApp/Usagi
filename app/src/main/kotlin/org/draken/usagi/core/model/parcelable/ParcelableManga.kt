@@ -9,7 +9,7 @@ import org.draken.usagi.core.util.ext.readParcelableCompat
 import org.draken.usagi.core.util.ext.readSerializableCompat
 import org.draken.usagi.core.util.ext.readStringSet
 import org.draken.usagi.core.util.ext.writeStringSet
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 @Parcelize
 data class ParcelableManga(

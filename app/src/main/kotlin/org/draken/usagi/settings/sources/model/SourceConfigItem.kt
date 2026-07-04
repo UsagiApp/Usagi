@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 sealed interface SourceConfigItem : ListModel {
 

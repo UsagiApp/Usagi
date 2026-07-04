@@ -45,8 +45,8 @@ import org.draken.usagi.history.data.HistoryRepository
 import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.local.domain.DeleteLocalMangaUseCase
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaState
+import tsuki.model.Manga
+import tsuki.model.MangaState
 import org.draken.usagi.reader.ui.ReaderActivity
 import org.draken.usagi.reader.ui.ReaderState
 import org.draken.usagi.reader.ui.ReaderViewModel

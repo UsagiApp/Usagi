@@ -18,12 +18,12 @@ import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.databinding.FragmentFilterHeaderBinding
 import org.draken.usagi.filter.data.PersistableFilter
 import org.draken.usagi.filter.ui.model.FilterHeaderModel
-import org.koitharu.kotatsu.parsers.model.ContentRating
-import org.koitharu.kotatsu.parsers.model.ContentType
-import org.koitharu.kotatsu.parsers.model.Demographic
-import org.koitharu.kotatsu.parsers.model.MangaState
-import org.koitharu.kotatsu.parsers.model.MangaTag
-import org.koitharu.kotatsu.parsers.model.YEAR_UNKNOWN
+import tsuki.model.ContentRating
+import tsuki.model.ContentType
+import tsuki.model.Demographic
+import tsuki.model.MangaState
+import tsuki.model.MangaTag
+import tsuki.model.YEAR_UNKNOWN
 import java.util.Locale
 import javax.inject.Inject
 

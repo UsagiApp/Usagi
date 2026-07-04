@@ -21,8 +21,8 @@ import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.util.ext.configureForParser
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.MangaSource
+import tsuki.util.runCatchingCancellable
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Provider

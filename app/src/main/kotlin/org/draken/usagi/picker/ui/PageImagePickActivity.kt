@@ -24,7 +24,7 @@ import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.databinding.ActivityPickerBinding
 import org.draken.usagi.main.ui.owners.AppBarOwner
 import org.draken.usagi.main.ui.owners.SnackbarOwner
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import org.draken.usagi.picker.ui.manga.MangaPickerFragment
 import org.draken.usagi.picker.ui.page.PagePickerFragment
 import org.draken.usagi.reader.ui.PageSaveHelper

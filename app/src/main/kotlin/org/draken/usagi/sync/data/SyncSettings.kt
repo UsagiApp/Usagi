@@ -7,7 +7,7 @@ import androidx.annotation.WorkerThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.draken.usagi.R
 import org.draken.usagi.core.util.ext.isHttpUrl
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
+import tsuki.util.ifNullOrEmpty
 import javax.inject.Inject
 
 class SyncSettings(

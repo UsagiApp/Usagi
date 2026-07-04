@@ -41,9 +41,9 @@ import org.draken.usagi.list.ui.model.LoadingState
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.mapToSet
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.mapToSet
+import tsuki.util.runCatchingCancellable
 import java.util.LinkedList
 import java.util.UUID
 import javax.inject.Inject

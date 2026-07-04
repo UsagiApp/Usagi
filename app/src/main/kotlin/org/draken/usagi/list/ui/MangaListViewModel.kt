@@ -23,7 +23,7 @@ import org.draken.usagi.core.ui.util.ReversibleAction
 import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.domain.model.LocalManga
 

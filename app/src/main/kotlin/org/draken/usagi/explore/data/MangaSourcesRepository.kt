@@ -34,11 +34,11 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.ui.util.ReversibleHandle
 import org.draken.usagi.core.util.ext.flattenLatest
-import org.koitharu.kotatsu.parsers.model.ContentType
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
-import org.koitharu.kotatsu.parsers.util.mapNotNullToSet
-import org.koitharu.kotatsu.parsers.util.mapToSet
+import tsuki.model.ContentType
+import tsuki.model.MangaSource
+import tsuki.network.CloudFlareHelper
+import tsuki.util.mapNotNullToSet
+import tsuki.util.mapToSet
 
 import javax.inject.Inject
 import javax.inject.Singleton

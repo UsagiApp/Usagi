@@ -28,11 +28,11 @@ import org.draken.usagi.details.data.MangaDetails
 import org.draken.usagi.explore.domain.RecoverMangaUseCase
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.exception.NotFoundException
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
-import org.koitharu.kotatsu.parsers.util.recoverNotNull
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.exception.NotFoundException
+import tsuki.model.Manga
+import tsuki.util.nullIfEmpty
+import tsuki.util.recoverNotNull
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
 class DetailsLoadUseCase @Inject constructor(

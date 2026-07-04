@@ -5,11 +5,11 @@ import org.draken.usagi.core.model.isLocal
 import org.draken.usagi.core.model.withOverride
 import org.draken.usagi.core.ui.model.MangaOverride
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.model.MangaState
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.model.MangaState
+import tsuki.util.ifNullOrEmpty
+import tsuki.util.nullIfEmpty
 import org.draken.usagi.reader.data.filterChapters
 import java.util.Locale
 

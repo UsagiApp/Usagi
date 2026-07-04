@@ -7,7 +7,7 @@ import androidx.core.graphics.ColorUtils
 import com.google.android.material.R
 import com.google.android.material.color.MaterialColors
 import org.draken.usagi.core.util.ext.getThemeColor
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import kotlin.math.absoluteValue
 
 object UsagiColors {

@@ -6,12 +6,12 @@ import androidx.core.content.edit
 import org.draken.usagi.core.util.ext.getEnumValue
 import org.draken.usagi.core.util.ext.putEnumValue
 import org.draken.usagi.core.util.ext.sanitizeHeaderValue
-import org.koitharu.kotatsu.parsers.config.ConfigKey
-import org.koitharu.kotatsu.parsers.config.MangaSourceConfig
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.SortOrder
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
+import tsuki.config.ConfigKey
+import tsuki.config.MangaSourceConfig
+import tsuki.model.MangaSource
+import tsuki.model.SortOrder
+import tsuki.util.ifNullOrEmpty
+import tsuki.util.nullIfEmpty
 import org.draken.usagi.settings.utils.validation.DomainValidator
 
 class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig {

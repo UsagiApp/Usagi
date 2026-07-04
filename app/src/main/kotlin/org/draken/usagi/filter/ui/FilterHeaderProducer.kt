@@ -8,11 +8,11 @@ import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.filter.data.PersistableFilter
 import org.draken.usagi.filter.ui.model.FilterHeaderModel
 import org.draken.usagi.filter.ui.model.FilterProperty
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaListFilterCapabilities
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaTag
-import org.koitharu.kotatsu.parsers.util.toTitleCase
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaListFilterCapabilities
+import tsuki.model.MangaSource
+import tsuki.model.MangaTag
+import tsuki.util.toTitleCase
 import org.draken.usagi.search.domain.MangaSearchRepository
 import javax.inject.Inject
 import androidx.appcompat.R as appcompatR

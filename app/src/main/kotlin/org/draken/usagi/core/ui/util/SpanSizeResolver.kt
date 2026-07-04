@@ -4,7 +4,7 @@ import android.view.View
 import androidx.annotation.Px
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import org.koitharu.kotatsu.parsers.util.toIntUp
+import tsuki.util.toIntUp
 import kotlin.math.abs
 
 class SpanSizeResolver(

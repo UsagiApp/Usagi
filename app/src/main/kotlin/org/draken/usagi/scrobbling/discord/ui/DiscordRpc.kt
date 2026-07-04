@@ -33,8 +33,8 @@ import org.draken.usagi.core.util.ext.lifecycleScope
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.reader.ui.pager.ReaderUiState
 import org.draken.usagi.scrobbling.discord.data.DiscordRepository
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.runCatchingCancellable
 import java.util.Collections
 import javax.inject.Inject
 

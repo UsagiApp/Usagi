@@ -46,9 +46,9 @@ import org.draken.usagi.list.ui.model.MangaListModel
 import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.domain.DeleteLocalMangaUseCase
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.findById
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.findById
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.reader.ui.ReaderState
 import org.draken.usagi.scrobbling.common.domain.Scrobbler
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblingInfo

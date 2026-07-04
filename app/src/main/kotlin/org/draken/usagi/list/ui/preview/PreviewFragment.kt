@@ -19,9 +19,9 @@ import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.textAndVisible
 import org.draken.usagi.databinding.FragmentPreviewBinding
 import org.draken.usagi.filter.ui.FilterCoordinator
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaTag
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
+import tsuki.model.Manga
+import tsuki.model.MangaTag
+import tsuki.util.ifNullOrEmpty
 import org.draken.usagi.search.ui.MangaListActivity
 
 @AndroidEntryPoint

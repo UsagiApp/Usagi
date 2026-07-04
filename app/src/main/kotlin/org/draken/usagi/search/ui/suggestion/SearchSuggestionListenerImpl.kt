@@ -7,9 +7,9 @@ import androidx.core.net.toUri
 import com.google.android.material.search.SearchView
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.parser.MangaLinkResolver
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.Manga
+import tsuki.model.MangaSource
+import tsuki.model.MangaTag
 import org.draken.usagi.search.domain.SearchKind
 
 class SearchSuggestionListenerImpl(

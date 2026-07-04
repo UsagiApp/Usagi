@@ -32,8 +32,8 @@ import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.list.ui.model.MangaListModel
 import org.draken.usagi.list.ui.size.DynamicItemSizeResolver
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.Manga
+import tsuki.model.MangaTag
 import org.draken.usagi.search.domain.SearchKind
 import org.draken.usagi.search.ui.multi.adapter.SearchAdapter
 import javax.inject.Inject

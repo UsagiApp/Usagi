@@ -4,8 +4,8 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import okio.IOException
 import org.draken.usagi.core.network.CommonHeaders
-import org.koitharu.kotatsu.parsers.util.mimeType
-import org.koitharu.kotatsu.parsers.util.parseHtml
+import tsuki.util.mimeType
+import tsuki.util.parseHtml
 import org.draken.usagi.scrobbling.common.data.ScrobblerStorage
 import org.draken.usagi.scrobbling.common.domain.ScrobblerAuthRequiredException
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblerService

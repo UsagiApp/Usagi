@@ -13,7 +13,7 @@ import okio.source
 import org.jetbrains.annotations.Blocking
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import java.io.File
 import javax.inject.Inject
 

@@ -4,8 +4,8 @@ import org.draken.usagi.core.model.withOverride
 import org.draken.usagi.core.ui.model.MangaOverride
 import org.draken.usagi.list.ui.ListModelDiffCallback
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
+import tsuki.model.Manga
+import tsuki.util.ifNullOrEmpty
 
 data class FeedItem(
 	val id: Long,

@@ -6,14 +6,14 @@ import kotlinx.coroutines.runInterruptible
 import org.draken.usagi.core.cache.MemoryContentCache
 import org.draken.usagi.core.parser.CachingMangaRepository
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaListFilterCapabilities
-import org.koitharu.kotatsu.parsers.model.MangaListFilterOptions
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.model.SortOrder
-import org.koitharu.kotatsu.parsers.util.suspendlazy.suspendLazy
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaListFilterCapabilities
+import tsuki.model.MangaListFilterOptions
+import tsuki.model.MangaPage
+import tsuki.model.SortOrder
+import tsuki.util.suspendlazy.suspendLazy
 import java.util.EnumSet
 
 class ExternalMangaRepository(

@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import org.draken.usagi.core.model.getLocalizedTitle
 import org.draken.usagi.core.ui.model.DateTimeAgo
-import org.koitharu.kotatsu.parsers.model.MangaChapter
+import tsuki.model.MangaChapter
 
 data class ListHeader private constructor(
 	private val textRaw: Any,

@@ -20,7 +20,7 @@ import org.draken.usagi.core.ui.util.ActivityRecreationHandle
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.main.ui.MainActivity
 import org.draken.usagi.main.ui.MainNavigationDelegate
-import org.koitharu.kotatsu.parsers.util.move
+import tsuki.util.move
 import org.draken.usagi.settings.nav.model.NavItemAddModel
 import org.draken.usagi.settings.nav.model.NavItemConfigModel
 import javax.inject.Inject

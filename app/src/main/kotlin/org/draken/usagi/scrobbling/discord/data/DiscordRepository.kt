@@ -21,8 +21,8 @@ import org.draken.usagi.core.network.BaseHttpClient
 import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.ensureSuccess
-import org.koitharu.kotatsu.parsers.util.await
-import org.koitharu.kotatsu.parsers.util.parseRaw
+import tsuki.util.await
+import tsuki.util.parseRaw
 import java.util.UUID
 import javax.inject.Inject
 

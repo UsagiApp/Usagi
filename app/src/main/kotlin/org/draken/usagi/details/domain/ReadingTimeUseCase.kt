@@ -4,7 +4,7 @@ import org.draken.usagi.core.model.MangaHistory
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.details.data.MangaDetails
 import org.draken.usagi.details.data.ReadingTime
-import org.koitharu.kotatsu.parsers.util.findById
+import tsuki.util.findById
 import org.draken.usagi.stats.data.StatsRepository
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject

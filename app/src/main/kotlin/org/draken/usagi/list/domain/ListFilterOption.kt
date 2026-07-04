@@ -9,8 +9,8 @@ import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.unwrap
 import org.draken.usagi.core.parser.external.ExternalMangaSource
 import org.draken.usagi.core.parser.favicon.faviconUri
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.MangaSource
+import tsuki.model.MangaTag
 
 sealed interface ListFilterOption {
 

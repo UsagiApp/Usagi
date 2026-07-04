@@ -16,8 +16,8 @@ import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
 import org.draken.usagi.settings.utils.MultiSummaryProvider
 import org.draken.usagi.settings.utils.SliderPreference
-import org.koitharu.kotatsu.parsers.util.mapToSet
-import org.koitharu.kotatsu.parsers.util.names
+import tsuki.util.mapToSet
+import tsuki.util.names
 
 @AndroidEntryPoint
 class ReaderPreviewSettingsFragment :

@@ -2,7 +2,7 @@ package org.draken.usagi.core.db.migrations
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import org.koitharu.kotatsu.parsers.model.SortOrder
+import tsuki.model.SortOrder
 
 class Migration8To9 : Migration(8, 9) {
 

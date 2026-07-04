@@ -15,7 +15,7 @@ import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
-import org.koitharu.kotatsu.parsers.util.names
+import tsuki.util.names
 import org.draken.usagi.settings.userdata.storage.StorageUsagePreference
 import java.net.Proxy
 

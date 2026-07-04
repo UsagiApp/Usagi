@@ -1,7 +1,7 @@
 package org.draken.usagi.list.ui.model
 
 import org.draken.usagi.core.ui.model.MangaOverride
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 data class MangaCompactListModel(
 	override val manga: Manga,

@@ -19,7 +19,7 @@ import org.draken.usagi.core.parser.PluginFileLoader
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.draken.usagi.settings.sources.manage.plugins.model.PluginManageItem
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import java.io.File
 import javax.inject.Inject
 

@@ -24,7 +24,7 @@ import org.draken.usagi.core.prefs.TrackerDownloadStrategy
 import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
-import org.koitharu.kotatsu.parsers.util.names
+import tsuki.util.names
 import org.draken.usagi.settings.utils.DozeHelper
 import org.draken.usagi.settings.utils.MultiSummaryProvider
 import org.draken.usagi.tracker.ui.debug.TrackerDebugActivity

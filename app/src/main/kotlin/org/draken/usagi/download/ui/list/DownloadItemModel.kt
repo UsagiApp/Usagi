@@ -12,7 +12,7 @@ import org.draken.usagi.core.util.ext.getThemeColor
 import org.draken.usagi.download.ui.list.chapters.DownloadChapter
 import org.draken.usagi.list.ui.ListModelDiffCallback
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import java.time.Instant
 import java.util.UUID
 import androidx.appcompat.R as appcompatR

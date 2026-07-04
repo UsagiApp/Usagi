@@ -26,10 +26,10 @@ import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.MangaSource
+import tsuki.network.CloudFlareHelper
+import tsuki.util.ifNullOrEmpty
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
 @AndroidEntryPoint

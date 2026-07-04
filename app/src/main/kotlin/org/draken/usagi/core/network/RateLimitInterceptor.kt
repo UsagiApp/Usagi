@@ -3,7 +3,7 @@ package org.draken.usagi.core.network
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
-import org.koitharu.kotatsu.parsers.exception.TooManyRequestExceptions
+import tsuki.exception.TooManyRequestExceptions
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit

@@ -20,8 +20,8 @@ import org.draken.usagi.tracker.data.toTrackingLogItem
 import org.draken.usagi.tracker.domain.model.MangaTracking
 import org.draken.usagi.tracker.domain.model.MangaUpdates
 import org.draken.usagi.tracker.domain.model.TrackingLogItem
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.ifZero
+import tsuki.model.Manga
+import tsuki.util.ifZero
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 

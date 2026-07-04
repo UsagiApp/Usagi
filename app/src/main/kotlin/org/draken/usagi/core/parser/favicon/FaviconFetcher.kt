@@ -39,7 +39,7 @@ import org.draken.usagi.core.util.ext.toMimeTypeOrNull
 import org.draken.usagi.local.data.FaviconCache
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.local.data.LocalStorageCache
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import java.io.File
 import javax.inject.Inject
 import coil3.Uri as CoilUri

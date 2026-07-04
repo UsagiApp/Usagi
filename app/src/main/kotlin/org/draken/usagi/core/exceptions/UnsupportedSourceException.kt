@@ -1,6 +1,6 @@
 package org.draken.usagi.core.exceptions
 
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 class UnsupportedSourceException(
 	message: String?,

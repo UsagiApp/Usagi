@@ -3,7 +3,7 @@ package org.draken.usagi.core.network.webview
 import android.graphics.Bitmap
 import android.webkit.WebView
 import org.draken.usagi.core.network.cookies.MutableCookieJar
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
+import tsuki.network.CloudFlareHelper
 import kotlin.coroutines.Continuation
 
 class CaptchaContinuationClient(

@@ -8,9 +8,9 @@ import okhttp3.Request
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.network.MangaHttpClient
 import org.draken.usagi.core.prefs.AppSettings
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.await
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.MangaSource
+import tsuki.util.await
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
 class MirrorSwitcher @Inject constructor(

@@ -10,7 +10,7 @@ import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.RetainedLifecycleCoroutineScope
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.reader.ui.ReaderState
 import org.draken.usagi.stats.data.StatsEntity
 import javax.inject.Inject

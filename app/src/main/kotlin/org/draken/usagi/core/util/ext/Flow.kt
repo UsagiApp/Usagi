@@ -21,8 +21,8 @@ import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.transformWhile
 import kotlinx.coroutines.flow.update
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
-import org.koitharu.kotatsu.parsers.util.suspendlazy.SuspendLazy
+import tsuki.util.runCatchingCancellable
+import tsuki.util.suspendlazy.SuspendLazy
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 

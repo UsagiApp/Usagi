@@ -16,12 +16,12 @@ import org.draken.usagi.core.db.entity.toMangaTag
 import org.draken.usagi.core.db.entity.toMangaTagsList
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.explore.data.MangaSourcesRepository
-import org.koitharu.kotatsu.parsers.model.ContentType
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaTag
-import org.koitharu.kotatsu.parsers.util.levenshteinDistance
-import org.koitharu.kotatsu.parsers.util.mapToSet
+import tsuki.model.ContentType
+import tsuki.model.Manga
+import tsuki.model.MangaSource
+import tsuki.model.MangaTag
+import tsuki.util.levenshteinDistance
+import tsuki.util.mapToSet
 import org.draken.usagi.search.ui.MangaSuggestionsProvider
 import javax.inject.Inject
 

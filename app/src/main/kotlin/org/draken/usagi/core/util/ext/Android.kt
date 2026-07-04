@@ -54,7 +54,7 @@ import org.jsoup.internal.StringUtil.StringJoiner
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.R
 import org.draken.usagi.main.ui.MainActivity
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.File

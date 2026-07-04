@@ -10,9 +10,9 @@ import org.draken.usagi.core.util.ext.MimeType
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.toFileNameSafe
 import org.draken.usagi.local.data.input.LocalMangaParser
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.util.runCatchingCancellable
 import java.io.File
 
 sealed class LocalMangaOutput(

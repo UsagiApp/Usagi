@@ -11,7 +11,7 @@ import org.draken.usagi.core.ui.list.decor.SpacingItemDecoration
 import org.draken.usagi.core.util.RecyclerViewScrollCallback
 import org.draken.usagi.core.util.ext.setTooltipCompat
 import org.draken.usagi.databinding.ItemSearchSuggestionMangaGridBinding
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionListener
 import org.draken.usagi.search.ui.suggestion.model.SearchSuggestionItem
 

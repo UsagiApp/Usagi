@@ -47,15 +47,15 @@ import org.draken.usagi.filter.data.PersistableFilter
 import org.draken.usagi.filter.data.PersistableFilter.Companion.MAX_TITLE_LENGTH
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.filter.ui.model.FilterProperty
-import org.koitharu.kotatsu.parsers.model.ContentRating
-import org.koitharu.kotatsu.parsers.model.ContentType
-import org.koitharu.kotatsu.parsers.model.Demographic
-import org.koitharu.kotatsu.parsers.model.MangaState
-import org.koitharu.kotatsu.parsers.model.MangaTag
-import org.koitharu.kotatsu.parsers.model.SortOrder
-import org.koitharu.kotatsu.parsers.model.YEAR_UNKNOWN
-import org.koitharu.kotatsu.parsers.util.mapToSet
-import org.koitharu.kotatsu.parsers.util.toIntUp
+import tsuki.model.ContentRating
+import tsuki.model.ContentType
+import tsuki.model.Demographic
+import tsuki.model.MangaState
+import tsuki.model.MangaTag
+import tsuki.model.SortOrder
+import tsuki.model.YEAR_UNKNOWN
+import tsuki.util.mapToSet
+import tsuki.util.toIntUp
 import java.util.Locale
 import java.util.TreeSet
 

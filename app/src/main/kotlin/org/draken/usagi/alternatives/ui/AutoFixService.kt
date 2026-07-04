@@ -30,8 +30,8 @@ import org.draken.usagi.core.util.ext.powerManager
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.toBitmapOrNull
 import org.draken.usagi.core.util.ext.withPartialWakeLock
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 import androidx.appcompat.R as appcompatR
 

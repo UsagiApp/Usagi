@@ -96,10 +96,10 @@ import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.MangaListModel
 import org.draken.usagi.list.ui.size.StaticItemSizeResolver
 import org.draken.usagi.main.ui.owners.BottomSheetOwner
-import org.koitharu.kotatsu.parsers.model.ContentRating
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaTag
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
+import tsuki.model.ContentRating
+import tsuki.model.Manga
+import tsuki.model.MangaTag
+import tsuki.util.ifNullOrEmpty
 import javax.inject.Inject
 import com.google.android.material.R as materialR
 

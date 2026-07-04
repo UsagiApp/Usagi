@@ -11,7 +11,7 @@ import org.draken.usagi.core.ui.util.ReversibleAction
 import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.list.ui.MangaListViewModel
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
+import tsuki.model.MangaListFilter
 
 class MangaSearchMenuProvider(
 	private val filter: FilterCoordinator,

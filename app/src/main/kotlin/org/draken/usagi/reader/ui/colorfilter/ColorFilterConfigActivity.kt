@@ -26,8 +26,8 @@ import org.draken.usagi.core.util.ext.setValueRounded
 import org.draken.usagi.core.util.ext.systemBarsInsets
 import org.draken.usagi.core.util.progress.ImageRequestIndicatorListener
 import org.draken.usagi.databinding.ActivityColorFilterBinding
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.util.format
+import tsuki.model.MangaPage
+import tsuki.util.format
 import org.draken.usagi.reader.domain.ReaderColorFilter
 import javax.inject.Inject
 

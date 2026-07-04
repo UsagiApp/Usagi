@@ -67,10 +67,10 @@ import org.draken.usagi.core.util.progress.ProgressDeferred
 import org.draken.usagi.download.ui.worker.DownloadSlowdownDispatcher
 import org.draken.usagi.local.data.LocalStorageCache
 import org.draken.usagi.local.data.PageCache
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.requireBody
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.MangaPage
+import tsuki.model.MangaSource
+import tsuki.util.requireBody
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.reader.ui.pager.ReaderPage
 import java.io.File
 import java.util.LinkedList

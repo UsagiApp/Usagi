@@ -1,8 +1,8 @@
 package org.draken.usagi.core.exceptions
 
 import org.draken.usagi.core.model.UnknownMangaSource
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
+import tsuki.model.MangaSource
+import tsuki.network.CloudFlareHelper
 
 class CloudFlareBlockedException(
 	override val url: String,

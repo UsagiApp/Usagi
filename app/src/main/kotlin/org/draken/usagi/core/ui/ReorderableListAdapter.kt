@@ -10,7 +10,7 @@ import kotlinx.coroutines.withContext
 import org.draken.usagi.list.ui.adapter.ListItemType
 import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.util.move
+import tsuki.util.move
 import java.util.LinkedList
 
 open class ReorderableListAdapter<T : ListModel> : ListDelegationAdapter<List<T>>(), FlowCollector<List<T>?> {

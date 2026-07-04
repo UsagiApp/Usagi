@@ -25,7 +25,7 @@ import org.draken.usagi.core.util.ext.isLowRamDevice
 import org.draken.usagi.core.util.ext.isSerializable
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.databinding.LayoutPageInfoBinding
-import org.koitharu.kotatsu.parsers.util.ifZero
+import tsuki.util.ifZero
 import org.draken.usagi.reader.domain.PageLoader
 import org.draken.usagi.reader.ui.config.ReaderSettings
 import org.draken.usagi.reader.ui.pager.vm.PageState

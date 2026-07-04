@@ -16,9 +16,9 @@ import org.draken.usagi.scrobbling.common.domain.Scrobbler
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblingStatus
 import org.draken.usagi.scrobbling.common.domain.tryScrobble
 import org.draken.usagi.tracker.data.TrackEntity
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
 class MigrateUseCase

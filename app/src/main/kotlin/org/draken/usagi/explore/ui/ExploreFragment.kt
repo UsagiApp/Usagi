@@ -46,7 +46,7 @@ import org.draken.usagi.explore.ui.adapter.ExploreListEventListener
 import org.draken.usagi.explore.ui.model.MangaSourceItem
 import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListHeader
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import javax.inject.Inject
 
 @AndroidEntryPoint

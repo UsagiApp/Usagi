@@ -13,8 +13,8 @@ import org.draken.usagi.core.ui.util.ReversibleAction
 import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.explore.data.MangaSourcesRepository
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.move
+import tsuki.model.MangaSource
+import tsuki.util.move
 import org.draken.usagi.settings.sources.model.SourceConfigItem
 import javax.inject.Inject
 

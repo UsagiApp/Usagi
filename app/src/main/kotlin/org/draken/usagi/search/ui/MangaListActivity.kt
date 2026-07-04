@@ -45,10 +45,10 @@ import org.draken.usagi.filter.ui.sheet.FilterSheetFragment
 import org.draken.usagi.list.ui.preview.PreviewFragment
 import org.draken.usagi.local.ui.LocalListFragment
 import org.draken.usagi.main.ui.owners.AppBarOwner
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.SortOrder
+import tsuki.model.Manga
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaSource
+import tsuki.model.SortOrder
 import org.draken.usagi.remotelist.ui.RemoteListFragment
 import kotlin.math.absoluteValue
 import com.google.android.material.R as materialR

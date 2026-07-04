@@ -31,7 +31,7 @@ import org.draken.usagi.core.util.ext.toLocale
 import org.draken.usagi.databinding.ActivitySourcesCatalogBinding
 import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.main.ui.owners.AppBarOwner
-import org.koitharu.kotatsu.parsers.model.ContentType
+import tsuki.model.ContentType
 
 @AndroidEntryPoint
 class SourcesCatalogActivity : BaseActivity<ActivitySourcesCatalogBinding>(),

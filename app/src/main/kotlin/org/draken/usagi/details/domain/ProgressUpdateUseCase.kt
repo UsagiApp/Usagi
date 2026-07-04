@@ -6,7 +6,7 @@ import org.draken.usagi.core.os.NetworkState
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.list.domain.ReadingProgress.Companion.PROGRESS_NONE
 import org.draken.usagi.local.data.LocalMangaRepository
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import javax.inject.Inject
 
 class ProgressUpdateUseCase @Inject constructor(

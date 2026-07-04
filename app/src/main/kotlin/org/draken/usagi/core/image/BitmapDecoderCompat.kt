@@ -20,7 +20,7 @@ import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.readByteBuffer
 import org.draken.usagi.core.util.ext.toByteBuffer
 import org.draken.usagi.core.util.ext.toMimeTypeOrNull
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import java.io.File
 import java.io.InputStream
 import java.nio.ByteBuffer

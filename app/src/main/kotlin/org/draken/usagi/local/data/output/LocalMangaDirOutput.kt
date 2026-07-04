@@ -16,9 +16,9 @@ import org.draken.usagi.core.util.ext.toFileNameSafe
 import org.draken.usagi.core.zip.ZipOutput
 import org.draken.usagi.local.data.MangaIndex
 import org.draken.usagi.local.data.input.LocalMangaParser
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.util.nullIfEmpty
 import java.io.File
 
 class LocalMangaDirOutput(

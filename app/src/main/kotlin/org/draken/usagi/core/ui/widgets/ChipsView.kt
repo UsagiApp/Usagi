@@ -34,7 +34,7 @@ import org.draken.usagi.core.ui.image.ChipIconTarget
 import org.draken.usagi.core.util.ext.enqueueWith
 import org.draken.usagi.core.util.ext.getThemeColor
 import org.draken.usagi.core.util.ext.setProgressIcon
-import org.koitharu.kotatsu.parsers.util.ifZero
+import tsuki.util.ifZero
 import javax.inject.Inject
 import com.google.android.material.R as materialR
 

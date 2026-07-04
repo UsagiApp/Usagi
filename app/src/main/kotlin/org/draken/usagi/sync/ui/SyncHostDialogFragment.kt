@@ -16,7 +16,7 @@ import org.draken.usagi.core.ui.AlertDialogFragment
 import org.draken.usagi.core.util.ext.isHttpUrl
 import org.draken.usagi.core.util.ext.withArgs
 import org.draken.usagi.databinding.PreferenceDialogAutocompletetextviewBinding
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
+import tsuki.util.ifNullOrEmpty
 import org.draken.usagi.settings.utils.validation.UrlValidator
 import org.draken.usagi.sync.data.SyncSettings
 import javax.inject.Inject

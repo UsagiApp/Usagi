@@ -28,9 +28,9 @@ import org.draken.usagi.core.util.ext.postDelayed
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
 import org.draken.usagi.core.util.ext.sortedWithSafe
 import org.draken.usagi.core.util.ext.toList
-import org.koitharu.kotatsu.parsers.util.mapToSet
-import org.koitharu.kotatsu.parsers.util.names
-import org.koitharu.kotatsu.parsers.util.toTitleCase
+import tsuki.util.mapToSet
+import tsuki.util.names
+import tsuki.util.toTitleCase
 import org.draken.usagi.settings.protect.ProtectSetupActivity
 import org.draken.usagi.settings.utils.ActivityListPreference
 import org.draken.usagi.settings.utils.MultiSummaryProvider

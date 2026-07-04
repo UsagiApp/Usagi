@@ -34,11 +34,11 @@ import org.draken.usagi.core.util.ext.toUriOrNull
 import org.draken.usagi.explore.data.SourcesSortOrder
 import org.draken.usagi.list.domain.ListSortOrder
 import org.draken.usagi.reader.domain.ReaderColorFilter
-import org.koitharu.kotatsu.parsers.model.SortOrder
-import org.koitharu.kotatsu.parsers.util.find
-import org.koitharu.kotatsu.parsers.util.mapNotNullToSet
-import org.koitharu.kotatsu.parsers.util.mapToSet
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
+import tsuki.model.SortOrder
+import tsuki.util.find
+import tsuki.util.mapNotNullToSet
+import tsuki.util.mapToSet
+import tsuki.util.nullIfEmpty
 import java.io.File
 import java.net.Proxy
 import java.util.EnumSet

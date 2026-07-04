@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.draken.usagi.core.model.toChipModel
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.list.ui.model.QuickFilter
-import org.koitharu.kotatsu.parsers.util.suspendlazy.getOrNull
-import org.koitharu.kotatsu.parsers.util.suspendlazy.suspendLazy
+import tsuki.util.suspendlazy.getOrNull
+import tsuki.util.suspendlazy.suspendLazy
 
 abstract class MangaListQuickFilter(
 	private val settings: AppSettings,

@@ -23,8 +23,8 @@ import org.draken.usagi.core.util.ext.openSource
 import org.draken.usagi.core.util.ext.require
 import org.draken.usagi.core.util.ext.toMimeTypeOrNull
 import org.draken.usagi.core.util.ext.toUriOrNull
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.md5
+import tsuki.model.Manga
+import tsuki.util.md5
 import java.io.File
 import javax.inject.Inject
 

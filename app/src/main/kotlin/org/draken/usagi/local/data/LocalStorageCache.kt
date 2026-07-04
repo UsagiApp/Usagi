@@ -21,9 +21,9 @@ import org.draken.usagi.core.util.ext.subdir
 import org.draken.usagi.core.util.ext.takeIfReadable
 import org.draken.usagi.core.util.ext.takeIfWriteable
 import org.draken.usagi.core.util.ext.writeAllCancellable
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
-import org.koitharu.kotatsu.parsers.util.suspendlazy.suspendLazy
+import tsuki.util.ifNullOrEmpty
+import tsuki.util.runCatchingCancellable
+import tsuki.util.suspendlazy.suspendLazy
 import java.io.File
 import java.util.UUID
 

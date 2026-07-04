@@ -8,7 +8,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.draken.usagi.R
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.isSerializable
-import org.koitharu.kotatsu.parsers.exception.ParseException
+import tsuki.exception.ParseException
 
 class DialogErrorObserver(
 	host: View,

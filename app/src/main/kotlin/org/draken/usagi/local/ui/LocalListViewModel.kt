@@ -32,7 +32,7 @@ import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.data.LocalStorageManager
 import org.draken.usagi.local.domain.DeleteLocalMangaUseCase
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import org.draken.usagi.remotelist.ui.RemoteListViewModel
 import javax.inject.Inject
 

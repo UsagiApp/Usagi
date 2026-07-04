@@ -2,7 +2,7 @@ package org.draken.usagi.details.ui.pager.pages
 
 import coil3.key.Keyer
 import coil3.request.Options
-import org.koitharu.kotatsu.parsers.model.MangaPage
+import tsuki.model.MangaPage
 
 class MangaPageKeyer : Keyer<MangaPage> {
 

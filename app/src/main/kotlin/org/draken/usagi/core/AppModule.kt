@@ -60,7 +60,7 @@ import org.draken.usagi.local.domain.model.LocalManga
 import org.draken.usagi.main.domain.CoverRestoreInterceptor
 import org.draken.usagi.main.ui.protect.AppProtectHelper
 import org.draken.usagi.main.ui.protect.ScreenshotPolicyHelper
-import org.koitharu.kotatsu.parsers.MangaLoaderContext
+import tsuki.MangaLoaderContext
 import org.draken.usagi.search.ui.MangaSuggestionsProvider
 import org.draken.usagi.sync.domain.SyncController
 import org.draken.usagi.widget.WidgetUpdater

@@ -1,7 +1,7 @@
 package org.draken.usagi.bookmarks.data
 
 import org.draken.usagi.bookmarks.domain.Bookmark
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import java.time.Instant
 
 fun BookmarkEntity.toBookmark(manga: Manga) = Bookmark(

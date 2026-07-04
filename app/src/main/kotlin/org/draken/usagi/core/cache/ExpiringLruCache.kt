@@ -1,7 +1,7 @@
 package org.draken.usagi.core.cache
 
 import org.draken.usagi.core.util.SynchronizedSieveCache
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 import java.util.concurrent.TimeUnit
 import org.draken.usagi.core.cache.MemoryContentCache.Key as CacheKey
 

@@ -3,7 +3,7 @@ package org.draken.usagi.local.data.output
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import org.draken.usagi.core.model.isLocal
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 class LocalMangaUtil(
 	private val manga: Manga,

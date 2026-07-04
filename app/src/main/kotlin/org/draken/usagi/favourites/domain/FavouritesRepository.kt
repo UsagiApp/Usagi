@@ -25,9 +25,9 @@ import org.draken.usagi.favourites.data.toMangaList
 import org.draken.usagi.favourites.domain.model.Cover
 import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.domain.ListSortOrder
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.levenshteinDistance
+import tsuki.model.Manga
+import tsuki.model.MangaSource
+import tsuki.util.levenshteinDistance
 import org.draken.usagi.search.domain.SearchKind
 import javax.inject.Inject
 

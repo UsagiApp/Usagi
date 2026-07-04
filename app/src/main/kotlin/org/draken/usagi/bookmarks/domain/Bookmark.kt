@@ -3,8 +3,8 @@ package org.draken.usagi.bookmarks.domain
 import org.draken.usagi.core.util.MimeTypes
 import org.draken.usagi.core.util.ext.isImage
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaPage
+import tsuki.model.Manga
+import tsuki.model.MangaPage
 import java.time.Instant
 
 data class Bookmark(

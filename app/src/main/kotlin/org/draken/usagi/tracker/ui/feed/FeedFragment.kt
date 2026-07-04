@@ -33,8 +33,8 @@ import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.list.ui.model.MangaListModel
 import org.draken.usagi.list.ui.size.StaticItemSizeResolver
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.Manga
+import tsuki.model.MangaTag
 import org.draken.usagi.tracker.ui.feed.adapter.FeedAdapter
 import javax.inject.Inject
 

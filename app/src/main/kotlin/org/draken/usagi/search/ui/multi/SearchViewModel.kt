@@ -37,9 +37,9 @@ import org.draken.usagi.list.ui.model.EmptyState
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingFooter
 import org.draken.usagi.list.ui.model.LoadingState
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaSource
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.search.domain.SearchKind
 import org.draken.usagi.search.domain.SearchV2Helper
 import java.util.Locale

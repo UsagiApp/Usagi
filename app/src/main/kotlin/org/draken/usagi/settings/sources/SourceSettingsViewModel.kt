@@ -20,8 +20,8 @@ import org.draken.usagi.core.ui.util.ReversibleAction
 import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.explore.data.MangaSourcesRepository
-import org.koitharu.kotatsu.parsers.MangaParserAuthProvider
-import org.koitharu.kotatsu.parsers.exception.AuthRequiredException
+import tsuki.MangaParserAuthProvider
+import tsuki.exception.AuthRequiredException
 import javax.inject.Inject
 
 @HiltViewModel

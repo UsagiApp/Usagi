@@ -4,8 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import org.draken.usagi.core.model.MangaSourceSerializer
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaSource
 
 @Serializable
 @JsonIgnoreUnknownKeys

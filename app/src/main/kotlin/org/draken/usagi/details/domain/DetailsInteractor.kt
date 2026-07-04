@@ -16,8 +16,8 @@ import org.draken.usagi.favourites.domain.FavouritesRepository
 import org.draken.usagi.history.data.HistoryRepository
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.scrobbling.common.domain.Scrobbler
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblingInfo
 import org.draken.usagi.tracker.domain.TrackingRepository

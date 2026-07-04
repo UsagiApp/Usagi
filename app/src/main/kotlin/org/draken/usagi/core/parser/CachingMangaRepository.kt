@@ -14,10 +14,10 @@ import org.draken.usagi.core.cache.MemoryContentCache
 import org.draken.usagi.core.cache.SafeDeferred
 import org.draken.usagi.core.util.MultiMutex
 import org.draken.usagi.core.util.ext.processLifecycleScope
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.model.MangaPage
+import tsuki.util.runCatchingCancellable
 
 abstract class CachingMangaRepository(
 	private val cache: MemoryContentCache,

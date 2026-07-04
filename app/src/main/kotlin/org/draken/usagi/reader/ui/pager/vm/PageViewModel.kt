@@ -24,7 +24,7 @@ import org.draken.usagi.core.exceptions.resolve.ExceptionResolver
 import org.draken.usagi.core.os.NetworkState
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.throttle
-import org.koitharu.kotatsu.parsers.model.MangaPage
+import tsuki.model.MangaPage
 import org.draken.usagi.reader.domain.PageLoader
 import org.draken.usagi.reader.ui.config.ReaderSettings
 

@@ -9,7 +9,7 @@ import org.draken.usagi.core.nav.AppRouter.Companion.KEY_ID
 import org.draken.usagi.core.nav.AppRouter.Companion.KEY_MANGA
 import org.draken.usagi.core.util.ext.getParcelableCompat
 import org.draken.usagi.core.util.ext.getParcelableExtraCompat
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 class MangaIntent private constructor(
 	@JvmField val manga: Manga?,

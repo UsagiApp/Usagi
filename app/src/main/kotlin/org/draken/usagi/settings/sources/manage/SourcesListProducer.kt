@@ -23,7 +23,7 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.lifecycleScope
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.explore.data.SourcesSortOrder
-import org.koitharu.kotatsu.parsers.util.mapToSet
+import tsuki.util.mapToSet
 import org.draken.usagi.settings.sources.model.SourceConfigItem
 import javax.inject.Inject
 

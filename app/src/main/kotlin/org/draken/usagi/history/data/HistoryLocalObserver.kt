@@ -9,7 +9,7 @@ import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.domain.ListSortOrder
 import org.draken.usagi.local.data.index.LocalMangaIndex
 import org.draken.usagi.local.domain.LocalObserveMapper
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import javax.inject.Inject
 
 @Reusable

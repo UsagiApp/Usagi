@@ -22,7 +22,7 @@ import org.draken.usagi.core.util.ext.withPartialWakeLock
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import javax.inject.Inject
 
 @AndroidEntryPoint

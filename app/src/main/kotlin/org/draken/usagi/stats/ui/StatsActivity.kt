@@ -37,7 +37,7 @@ import org.draken.usagi.core.util.ext.start
 import org.draken.usagi.databinding.ActivityStatsBinding
 import org.draken.usagi.databinding.ItemEmptyStateBinding
 import org.draken.usagi.list.ui.adapter.ListItemType
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import org.draken.usagi.stats.domain.StatsPeriod
 import org.draken.usagi.stats.domain.StatsRecord
 import org.draken.usagi.stats.ui.views.PieChartView

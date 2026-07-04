@@ -26,7 +26,7 @@ import coil3.size.Precision
 import org.draken.usagi.core.image.CoilImageView
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.mangaSourceExtra
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 class BackdropController(
 	private var backdrop: ImageView?,

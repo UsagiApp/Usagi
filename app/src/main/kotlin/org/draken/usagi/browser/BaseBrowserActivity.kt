@@ -17,8 +17,8 @@ import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.util.ext.configureForParser
 import org.draken.usagi.core.util.ext.consumeAll
 import org.draken.usagi.databinding.ActivityBrowserBinding
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
+import tsuki.model.MangaSource
+import tsuki.util.nullIfEmpty
 import javax.inject.Inject
 
 @AndroidEntryPoint

@@ -7,9 +7,9 @@ import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.model.withOverride
 import org.draken.usagi.core.ui.model.MangaOverride
 import org.draken.usagi.list.ui.ListModelDiffCallback.Companion.PAYLOAD_ANYTHING_CHANGED
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
+import tsuki.model.Manga
+import tsuki.model.MangaSource
+import tsuki.util.ifNullOrEmpty
 
 sealed class MangaListModel : ListModel {
 

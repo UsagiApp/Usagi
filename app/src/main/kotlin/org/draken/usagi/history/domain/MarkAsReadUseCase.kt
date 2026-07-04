@@ -6,7 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.history.data.HistoryRepository
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import javax.inject.Inject
 
 @Reusable

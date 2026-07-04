@@ -1,6 +1,6 @@
 package org.draken.usagi.core.github
 
-import org.koitharu.kotatsu.parsers.util.digits
+import tsuki.util.digits
 import java.util.Locale
 
 data class VersionId(

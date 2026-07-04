@@ -54,8 +54,8 @@ import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.MangaListModel
 import org.draken.usagi.list.ui.size.DynamicItemSizeResolver
 import org.draken.usagi.main.ui.owners.AppBarOwner
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.Manga
+import tsuki.model.MangaTag
 import org.draken.usagi.search.ui.MangaListActivity
 import javax.inject.Inject
 
