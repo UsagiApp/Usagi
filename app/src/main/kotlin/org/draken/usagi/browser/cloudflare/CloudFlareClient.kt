@@ -5,7 +5,7 @@ import android.webkit.WebView
 import org.draken.usagi.browser.BrowserClient
 import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.network.webview.adblock.AdBlock
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
+import tsuki.network.CloudFlareHelper
 
 private const val LOOP_COUNTER = 5
 

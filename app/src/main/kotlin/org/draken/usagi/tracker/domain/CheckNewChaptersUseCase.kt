@@ -13,9 +13,9 @@ import org.draken.usagi.history.data.HistoryRepository
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.tracker.domain.model.MangaTracking
 import org.draken.usagi.tracker.domain.model.MangaUpdates
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.findById
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.findById
+import tsuki.util.runCatchingCancellable
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton

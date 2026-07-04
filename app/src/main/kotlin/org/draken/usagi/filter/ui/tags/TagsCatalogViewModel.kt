@@ -23,7 +23,7 @@ import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingState
 import org.draken.usagi.list.ui.model.toErrorFooter
 import org.draken.usagi.list.ui.model.toErrorState
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.MangaTag
 
 @HiltViewModel(assistedFactory = TagsCatalogViewModel.Factory::class)
 class TagsCatalogViewModel @AssistedInject constructor(

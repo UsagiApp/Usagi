@@ -41,7 +41,7 @@ import org.draken.usagi.core.util.progress.Progress
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.filter.data.PersistableFilter
 import org.draken.usagi.filter.data.SavedFiltersRepository
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.reader.data.TapGridSettings
 import java.io.InputStream
 import java.io.OutputStream

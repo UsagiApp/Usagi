@@ -10,9 +10,9 @@ import org.draken.usagi.R
 import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
-import org.koitharu.kotatsu.parsers.config.ConfigKey
-import org.koitharu.kotatsu.parsers.network.UserAgents
-import org.koitharu.kotatsu.parsers.util.mapToArray
+import tsuki.config.ConfigKey
+import tsuki.network.UserAgents
+import tsuki.util.mapToArray
 import org.draken.usagi.settings.utils.AutoCompleteTextViewPreference
 import org.draken.usagi.settings.utils.EditTextBindListener
 import org.draken.usagi.settings.utils.EditTextDefaultSummaryProvider

@@ -5,7 +5,7 @@ import android.content.Intent
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.bookmarks.domain.Bookmark
 import org.draken.usagi.core.model.parcelable.ParcelableManga
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import org.draken.usagi.reader.ui.ReaderActivity
 import org.draken.usagi.reader.ui.ReaderState
 

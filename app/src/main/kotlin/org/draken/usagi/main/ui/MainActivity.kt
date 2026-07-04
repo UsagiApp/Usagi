@@ -80,7 +80,7 @@ import org.draken.usagi.search.ui.suggestion.SearchSuggestionListenerImpl
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionMenuProvider
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionViewModel
 import org.draken.usagi.search.ui.suggestion.adapter.SearchSuggestionAdapter
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import javax.inject.Inject
 import androidx.appcompat.R as appcompatR
 import com.google.android.material.R as materialR

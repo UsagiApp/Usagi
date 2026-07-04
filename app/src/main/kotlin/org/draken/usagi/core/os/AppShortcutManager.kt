@@ -34,11 +34,11 @@ import org.draken.usagi.core.util.ext.mangaSourceExtra
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.processLifecycleScope
 import org.draken.usagi.history.data.HistoryRepository
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
-import org.koitharu.kotatsu.parsers.util.mapNotNullToSet
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaSource
+import tsuki.util.ifNullOrEmpty
+import tsuki.util.mapNotNullToSet
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -14,7 +14,7 @@ import org.draken.usagi.R
 import org.draken.usagi.core.util.ext.getThemeColorStateList
 import org.draken.usagi.core.util.ext.measureDimension
 import org.draken.usagi.core.util.ext.resolveDp
-import org.koitharu.kotatsu.parsers.util.toIntUp
+import tsuki.util.toIntUp
 import com.google.android.material.R as materialR
 import androidx.core.view.isEmpty
 

@@ -2,7 +2,7 @@ package org.draken.usagi.core.model
 
 import androidx.annotation.StringRes
 import org.draken.usagi.R
-import org.koitharu.kotatsu.parsers.model.SortOrder
+import tsuki.model.SortOrder
 
 @Deprecated("")
 enum class GenericSortOrder(

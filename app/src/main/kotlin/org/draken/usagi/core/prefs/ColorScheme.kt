@@ -5,7 +5,7 @@ import androidx.annotation.StringRes
 import androidx.annotation.StyleRes
 import com.google.android.material.color.DynamicColors
 import org.draken.usagi.R
-import org.koitharu.kotatsu.parsers.util.find
+import tsuki.util.find
 
 @Keep
 enum class ColorScheme(

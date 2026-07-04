@@ -8,21 +8,21 @@ import org.draken.usagi.core.exceptions.CloudFlareProtectedException
 import org.draken.usagi.core.exceptions.InteractiveActionRequiredException
 import org.draken.usagi.core.exceptions.ProxyConfigException
 import org.draken.usagi.core.prefs.SourceSettings
-import org.koitharu.kotatsu.parsers.MangaParser
-import org.koitharu.kotatsu.parsers.MangaParserAuthProvider
-import org.koitharu.kotatsu.parsers.config.ConfigKey
-import org.koitharu.kotatsu.parsers.exception.AuthRequiredException
-import org.koitharu.kotatsu.parsers.model.Favicons
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaListFilterCapabilities
-import org.koitharu.kotatsu.parsers.model.MangaListFilterOptions
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.SortOrder
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
-import org.koitharu.kotatsu.parsers.util.suspendlazy.suspendLazy
+import tsuki.MangaParser
+import tsuki.MangaParserAuthProvider
+import tsuki.config.ConfigKey
+import tsuki.exception.AuthRequiredException
+import tsuki.model.Favicons
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaListFilterCapabilities
+import tsuki.model.MangaListFilterOptions
+import tsuki.model.MangaPage
+import tsuki.model.MangaSource
+import tsuki.model.SortOrder
+import tsuki.util.runCatchingCancellable
+import tsuki.util.suspendlazy.suspendLazy
 
 class MangaParserRepository(
 	private val compoundSource: MangaSource,

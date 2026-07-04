@@ -27,7 +27,7 @@ import org.draken.usagi.core.util.ext.isReadable
 import org.draken.usagi.core.util.ext.isWriteable
 import org.draken.usagi.core.util.ext.resolveFile
 import org.draken.usagi.core.util.ext.takeIfWriteable
-import org.koitharu.kotatsu.parsers.util.mapToSet
+import tsuki.util.mapToSet
 import java.io.File
 import javax.inject.Inject
 

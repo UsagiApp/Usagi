@@ -26,10 +26,10 @@ import org.draken.usagi.core.os.AppShortcutManager
 import org.draken.usagi.core.prefs.ReaderMode
 import org.draken.usagi.core.ui.model.MangaOverride
 import org.draken.usagi.core.util.ext.toFileOrNull
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaTag
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
+import tsuki.model.Manga
+import tsuki.model.MangaSource
+import tsuki.model.MangaTag
+import tsuki.util.nullIfEmpty
 import org.draken.usagi.reader.domain.ReaderColorFilter
 import javax.inject.Inject
 import javax.inject.Provider

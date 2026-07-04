@@ -5,9 +5,9 @@ import android.webkit.MimeTypeMap
 import org.jetbrains.annotations.Blocking
 import org.draken.usagi.core.util.ext.MimeType
 import org.draken.usagi.core.util.ext.toMimeTypeOrNull
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
-import org.koitharu.kotatsu.parsers.util.removeSuffix
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.nullIfEmpty
+import tsuki.util.removeSuffix
+import tsuki.util.runCatchingCancellable
 import java.io.File
 import java.nio.file.Files
 import coil3.util.MimeTypeMap as CoilMimeTypeMap

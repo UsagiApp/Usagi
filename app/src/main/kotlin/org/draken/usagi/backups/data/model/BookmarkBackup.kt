@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.draken.usagi.bookmarks.data.BookmarkEntity
 import org.draken.usagi.core.db.entity.MangaWithTags
-import org.koitharu.kotatsu.parsers.util.mapToSet
+import tsuki.util.mapToSet
 
 @Serializable
 class BookmarkBackup(

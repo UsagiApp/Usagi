@@ -6,9 +6,9 @@ import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.PluginLoadException
 import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.model.PluginMangaSource
-import org.koitharu.kotatsu.parsers.MangaLoaderContext
-import org.koitharu.kotatsu.parsers.MangaParser
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.MangaLoaderContext
+import tsuki.MangaParser
+import tsuki.model.MangaSource
 import java.io.File
 import java.io.IOException
 import java.lang.reflect.InvocationTargetException
@@ -54,12 +54,14 @@ class MangaDynamicRepository @Inject constructor(
 			val cl = PluginClassLoader(load.absolutePath, dir, null, parent)
 			try {
 				val (factory, enumC, ctxC) = try {
+					// New plugins use tsuki.* package
 					Triple(
-						cl.loadClass("kotatsuki.MangaParserFactoryKt"),
-						cl.loadClass("kotatsuki.model.MangaParserSource"),
-						cl.loadClass("kotatsuki.MangaLoaderContext")
+						cl.loadClass("tsuki.MangaParserFactoryKt"),
+						cl.loadClass("tsuki.model.MangaParserSource"),
+						cl.loadClass("tsuki.MangaLoaderContext")
 					)
 				} catch (_: ClassNotFoundException) {
+					// Oldest plugins use org.koitharu.kotatsu.parsers.*
 					Triple(
 						cl.loadClass("org.koitharu.kotatsu.parsers.MangaParserFactoryKt"),
 						cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource"),
@@ -115,7 +117,7 @@ class MangaDynamicRepository @Inject constructor(
 		val cl = cL[ps.jarName]
 		val factoryMethod = methodMap[ps.name]
 		if (cl == null || factoryMethod == null) throw IOException(context.getString(R.string.load_failed))
-		val enumC = runCatching { cl.loadClass("kotatsuki.model.MangaParserSource") }
+		val enumC = runCatching { cl.loadClass("tsuki.model.MangaParserSource") }
 			.getOrElse { cl.loadClass("org.koitharu.kotatsu.parsers.model.MangaParserSource") }
 		val constant = enumC.enumConstants?.firstOrNull { (it as MangaSource).name == ps.sourceName }
 			?: throw IOException(context.getString(R.string.unsupported_source))

@@ -12,7 +12,7 @@ import org.draken.usagi.core.util.ext.sortedByOrdinal
 import org.draken.usagi.favourites.domain.FavouritesRepository
 import org.draken.usagi.favourites.ui.list.FavouritesListFragment.Companion.NO_ID
 import org.draken.usagi.list.domain.ListSortOrder
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
 @HiltViewModel

@@ -16,8 +16,8 @@ import org.draken.usagi.core.model.parcelable.ParcelableManga
 import org.draken.usagi.core.parser.MangaDataRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.util.ext.concat
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.runCatchingCancellable
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException

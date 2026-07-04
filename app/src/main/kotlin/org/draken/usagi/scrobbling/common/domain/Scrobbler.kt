@@ -15,9 +15,9 @@ import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.util.ext.findKeyByValue
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.sanitize
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.findById
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.findById
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.scrobbling.common.data.ScrobblerRepository
 import org.draken.usagi.scrobbling.common.data.ScrobblingEntity
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblerManga

@@ -3,7 +3,7 @@ package org.draken.usagi.settings.sources.catalog
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 sealed interface SourceCatalogItem : ListModel {
 

@@ -3,8 +3,8 @@ package org.draken.usagi.core.util.ext
 import android.content.Context
 import androidx.collection.arraySetOf
 import org.draken.usagi.R
-import org.koitharu.kotatsu.parsers.util.ellipsize
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
+import tsuki.util.ellipsize
+import tsuki.util.nullIfEmpty
 import java.util.UUID
 
 fun String.toUUIDOrNull(): UUID? = try {

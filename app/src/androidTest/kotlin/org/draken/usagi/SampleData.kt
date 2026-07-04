@@ -12,8 +12,8 @@ import okio.buffer
 import okio.source
 import org.draken.usagi.core.model.FavouriteCategory
 import org.draken.usagi.core.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.Manga
+import tsuki.model.MangaSource
 import java.time.Instant
 import java.util.Date
 import kotlin.reflect.KClass

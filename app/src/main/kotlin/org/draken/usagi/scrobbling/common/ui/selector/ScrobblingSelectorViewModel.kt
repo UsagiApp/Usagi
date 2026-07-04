@@ -27,8 +27,8 @@ import org.draken.usagi.list.domain.ReadingProgress
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingFooter
 import org.draken.usagi.list.ui.model.LoadingState
-import org.koitharu.kotatsu.parsers.util.ifZero
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.ifZero
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.scrobbling.common.domain.Scrobbler
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblerManga
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblingStatus

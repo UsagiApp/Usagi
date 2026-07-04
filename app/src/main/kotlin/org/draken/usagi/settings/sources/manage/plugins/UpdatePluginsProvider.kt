@@ -20,8 +20,8 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.json.JSONArray
 import org.json.JSONObject
-import org.koitharu.kotatsu.parsers.util.await
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.await
+import tsuki.util.runCatchingCancellable
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject

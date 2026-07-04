@@ -26,10 +26,10 @@ import org.draken.usagi.core.util.ext.isNetworkUri
 import org.draken.usagi.core.util.ext.toMimeTypeOrNull
 import org.draken.usagi.local.data.LocalStorageCache
 import org.draken.usagi.local.data.PageCache
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.util.mimeType
-import org.koitharu.kotatsu.parsers.util.requireBody
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.MangaPage
+import tsuki.util.mimeType
+import tsuki.util.requireBody
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.reader.domain.PageLoader
 import javax.inject.Inject
 

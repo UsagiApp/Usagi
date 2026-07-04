@@ -3,7 +3,7 @@ package org.draken.usagi.search.ui.suggestion.adapter
 import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateViewBinding
 import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.databinding.ItemSearchSuggestionTagsBinding
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.MangaTag
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionListener
 import org.draken.usagi.search.ui.suggestion.model.SearchSuggestionItem
 

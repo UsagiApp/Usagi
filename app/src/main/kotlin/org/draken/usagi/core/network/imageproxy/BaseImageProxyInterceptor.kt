@@ -17,9 +17,9 @@ import org.jsoup.HttpStatusException
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.exceptions.CloudFlareBlockedException
 import org.draken.usagi.core.util.ext.ensureSuccess
-import org.koitharu.kotatsu.parsers.util.await
-import org.koitharu.kotatsu.parsers.util.isHttpOrHttps
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.await
+import tsuki.util.isHttpOrHttps
+import tsuki.util.runCatchingCancellable
 import java.net.HttpURLConnection
 import java.util.Collections
 

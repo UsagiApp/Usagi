@@ -40,12 +40,12 @@ import org.draken.usagi.core.util.ext.isNetworkError
 import org.draken.usagi.core.util.ext.mangaExtra
 import org.draken.usagi.core.util.ext.mangaSourceExtra
 import org.draken.usagi.favourites.domain.model.Cover
-import org.koitharu.kotatsu.parsers.exception.ContentUnavailableException
-import org.koitharu.kotatsu.parsers.exception.ParseException
-import org.koitharu.kotatsu.parsers.exception.TooManyRequestExceptions
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.exception.ContentUnavailableException
+import tsuki.exception.ParseException
+import tsuki.exception.TooManyRequestExceptions
+import tsuki.model.Manga
+import tsuki.model.MangaPage
+import tsuki.model.MangaSource
 import org.draken.usagi.reader.ui.pager.ReaderPage
 import kotlin.coroutines.resume
 import androidx.appcompat.R as appcompatR

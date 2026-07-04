@@ -6,9 +6,9 @@ import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.list.ui.ListModelDiffCallback
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.MangaListModel
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.SortOrder
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaSource
+import tsuki.model.SortOrder
 
 data class SearchResultsListModel(
 	@StringRes val titleResId: Int,

@@ -14,9 +14,9 @@ import org.draken.usagi.core.parser.external.ExternalMangaSource
 import org.draken.usagi.core.util.ext.getDisplayName
 import org.draken.usagi.core.util.ext.toLocale
 import org.draken.usagi.core.util.ext.toLocaleOrNull
-import org.koitharu.kotatsu.parsers.model.ContentType
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.splitTwoParts
+import tsuki.model.ContentType
+import tsuki.model.MangaSource
+import tsuki.util.splitTwoParts
 import java.util.Locale
 
 data class PluginMangaSource(val delegate: MangaSource, val jarName: String) : MangaSource {

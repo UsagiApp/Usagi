@@ -17,7 +17,7 @@ import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.ui.util.DefaultTextWatcher
 import org.draken.usagi.core.util.ext.consume
 import org.draken.usagi.databinding.ActivityKitsuAuthBinding
-import org.koitharu.kotatsu.parsers.util.urlEncoded
+import tsuki.util.urlEncoded
 
 class KitsuAuthActivity : BaseActivity<ActivityKitsuAuthBinding>(),
 	View.OnClickListener,

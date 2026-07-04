@@ -28,7 +28,7 @@ import org.draken.usagi.list.ui.model.LoadingState
 import org.draken.usagi.list.ui.model.toErrorState
 import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import javax.inject.Inject
 
 @HiltViewModel

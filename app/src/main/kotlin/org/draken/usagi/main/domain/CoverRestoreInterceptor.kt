@@ -12,10 +12,10 @@ import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.util.ext.bookmarkKey
 import org.draken.usagi.core.util.ext.mangaKey
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.findById
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.findById
+import tsuki.util.ifNullOrEmpty
+import tsuki.util.runCatchingCancellable
 import java.util.Collections
 import javax.inject.Inject
 

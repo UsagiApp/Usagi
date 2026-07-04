@@ -7,15 +7,15 @@ import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.model.UnknownMangaSource
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.util.ext.isHttpUrl
-import org.koitharu.kotatsu.parsers.MangaLoaderContext
-import org.koitharu.kotatsu.parsers.exception.NotFoundException
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.almostEquals
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
-import org.koitharu.kotatsu.parsers.util.levenshteinDistance
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.MangaLoaderContext
+import tsuki.exception.NotFoundException
+import tsuki.model.Manga
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaSource
+import tsuki.util.almostEquals
+import tsuki.util.ifNullOrEmpty
+import tsuki.util.levenshteinDistance
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
 @Reusable

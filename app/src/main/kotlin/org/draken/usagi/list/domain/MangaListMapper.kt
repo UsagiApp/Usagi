@@ -21,8 +21,8 @@ import org.draken.usagi.list.ui.model.MangaDetailedListModel
 import org.draken.usagi.list.ui.model.MangaGridModel
 import org.draken.usagi.list.ui.model.MangaListModel
 import org.draken.usagi.local.data.index.LocalMangaIndex
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.Manga
+import tsuki.model.MangaTag
 import org.draken.usagi.tracker.domain.TrackingRepository
 import org.draken.usagi.tracker.domain.model.TrackingLogItem
 import org.draken.usagi.tracker.ui.feed.model.FeedItem

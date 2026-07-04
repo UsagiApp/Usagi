@@ -11,7 +11,7 @@ import androidx.core.content.IntentCompat
 import androidx.core.os.BundleCompat
 import androidx.core.os.ParcelCompat
 import androidx.lifecycle.SavedStateHandle
-import org.koitharu.kotatsu.parsers.util.toArraySet
+import tsuki.util.toArraySet
 import java.io.Serializable
 import java.util.EnumSet
 

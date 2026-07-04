@@ -5,8 +5,8 @@ import okhttp3.Response
 import okio.IOException
 import org.draken.usagi.core.exceptions.CloudFlareBlockedException
 import org.draken.usagi.core.exceptions.CloudFlareProtectedException
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
+import tsuki.model.MangaSource
+import tsuki.network.CloudFlareHelper
 
 class CloudFlareInterceptor : Interceptor {
 

@@ -15,11 +15,11 @@ import org.draken.usagi.core.util.ext.getParcelableExtraCompat
 import org.draken.usagi.core.util.ext.isPowerSaveMode
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.history.data.HistoryRepository
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.findById
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.model.MangaSource
+import tsuki.util.findById
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
 @AndroidEntryPoint

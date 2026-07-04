@@ -8,8 +8,8 @@ import kotlinx.coroutines.withContext
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.processLifecycleScope
 import org.draken.usagi.history.data.HistoryRepository
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.reader.ui.ReaderState
 import javax.inject.Inject
 

@@ -16,7 +16,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import org.draken.usagi.core.util.ext.getAnimationDuration
 import org.draken.usagi.core.util.ext.isAnimationsEnabled
 import org.draken.usagi.core.util.ext.resolveDp
-import org.koitharu.kotatsu.parsers.util.replaceWith
+import tsuki.util.replaceWith
 
 class SegmentedBarView @JvmOverloads constructor(
 	context: Context,

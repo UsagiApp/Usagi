@@ -2,7 +2,7 @@ package org.draken.usagi.reader.ui.pager
 
 import android.content.res.Resources
 import org.draken.usagi.core.model.getLocalizedTitle
-import org.koitharu.kotatsu.parsers.model.MangaChapter
+import tsuki.model.MangaChapter
 
 data class ReaderUiState(
 	val mangaName: String?,

@@ -107,7 +107,7 @@ android {
 		kotlin {
             compilerOptions {
                 freeCompilerArgs.add(
-                    "-opt-in=org.koitharu.kotatsu.parsers.InternalParsersApi"
+                    "-opt-in=tsuki.InternalParsersApi"
                 )
             }
 		}
@@ -115,7 +115,7 @@ android {
 }
 dependencies {
 	implementation libs.jsoup
-	implementation libs.core.exts
+	implementation libs.tsuki
 	coreLibraryDesugaring libs.desugar.jdk.libs
 	implementation libs.kotlin.stdlib
 	implementation libs.kotlinx.coroutines.android

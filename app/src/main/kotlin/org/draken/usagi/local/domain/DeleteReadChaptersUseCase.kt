@@ -13,11 +13,11 @@ import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.history.data.HistoryRepository
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.util.findById
-import org.koitharu.kotatsu.parsers.util.recoverCatchingCancellable
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.util.findById
+import tsuki.util.recoverCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
 class DeleteReadChaptersUseCase @Inject constructor(

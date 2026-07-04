@@ -1,7 +1,7 @@
 package org.draken.usagi.reader.ui
 
 import org.draken.usagi.bookmarks.domain.Bookmark
-import org.koitharu.kotatsu.parsers.model.MangaChapter
+import tsuki.model.MangaChapter
 import org.draken.usagi.reader.ui.pager.ReaderPage
 
 interface ReaderNavigationCallback {

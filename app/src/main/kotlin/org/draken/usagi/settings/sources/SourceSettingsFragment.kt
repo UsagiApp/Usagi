@@ -24,7 +24,7 @@ import org.draken.usagi.core.ui.util.ReversibleActionObserver
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.withArgs
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 @AndroidEntryPoint
 class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenceChangeListener {

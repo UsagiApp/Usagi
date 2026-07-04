@@ -15,7 +15,7 @@ import org.draken.usagi.core.image.CoilImageView
 import org.draken.usagi.core.parser.favicon.faviconUri
 import org.draken.usagi.core.util.ext.isAnimationsEnabled
 import org.draken.usagi.core.util.ext.mangaSourceExtra
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 class FaviconView @JvmOverloads constructor(
 	context: Context,

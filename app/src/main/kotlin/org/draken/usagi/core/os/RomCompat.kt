@@ -2,7 +2,7 @@ package org.draken.usagi.core.os
 
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.annotations.Blocking
-import org.koitharu.kotatsu.parsers.util.suspendlazy.suspendLazy
+import tsuki.util.suspendlazy.suspendLazy
 import java.io.InputStreamReader
 
 object RomCompat {

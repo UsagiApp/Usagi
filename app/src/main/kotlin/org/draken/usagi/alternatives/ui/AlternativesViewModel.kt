@@ -32,9 +32,9 @@ import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingFooter
 import org.draken.usagi.list.ui.model.LoadingState
 import org.draken.usagi.list.ui.model.MangaGridModel
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.suspendlazy.getOrDefault
-import org.koitharu.kotatsu.parsers.util.suspendlazy.suspendLazy
+import tsuki.model.Manga
+import tsuki.util.suspendlazy.getOrDefault
+import tsuki.util.suspendlazy.suspendLazy
 import javax.inject.Inject
 
 @HiltViewModel

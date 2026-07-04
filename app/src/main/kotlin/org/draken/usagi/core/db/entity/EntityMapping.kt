@@ -1,17 +1,17 @@
 package org.draken.usagi.core.db.entity
 
 import org.draken.usagi.core.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.ContentRating
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.model.MangaState
-import org.koitharu.kotatsu.parsers.model.MangaTag
-import org.koitharu.kotatsu.parsers.model.SortOrder
-import org.koitharu.kotatsu.parsers.util.longHashCode
-import org.koitharu.kotatsu.parsers.util.mapToSet
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
-import org.koitharu.kotatsu.parsers.util.toArraySet
-import org.koitharu.kotatsu.parsers.util.toTitleCase
+import tsuki.model.ContentRating
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.model.MangaState
+import tsuki.model.MangaTag
+import tsuki.model.SortOrder
+import tsuki.util.longHashCode
+import tsuki.util.mapToSet
+import tsuki.util.nullIfEmpty
+import tsuki.util.toArraySet
+import tsuki.util.toTitleCase
 
 private const val VALUES_DIVIDER = '\n'
 

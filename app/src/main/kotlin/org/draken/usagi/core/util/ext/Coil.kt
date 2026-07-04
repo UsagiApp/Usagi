@@ -18,8 +18,8 @@ import coil3.toBitmap
 import okio.buffer
 import org.draken.usagi.bookmarks.domain.Bookmark
 import org.draken.usagi.core.image.RegionBitmapDecoder
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.Manga
+import tsuki.model.MangaSource
 
 fun ImageRequest.Builder.enqueueWith(loader: ImageLoader) = loader.enqueue(build())
 

@@ -6,7 +6,7 @@ import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
 import org.draken.usagi.core.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.MangaTag
 
 object MangaTagParceler : Parceler<MangaTag> {
 	override fun create(parcel: Parcel) = MangaTag(

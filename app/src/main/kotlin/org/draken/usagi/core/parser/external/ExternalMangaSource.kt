@@ -1,8 +1,8 @@
 package org.draken.usagi.core.parser.external
 
 import android.content.Context
-import org.koitharu.kotatsu.parsers.model.ContentType
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.ContentType
+import tsuki.model.MangaSource
 
 data class ExternalMangaSource(
 	val packageName: String,

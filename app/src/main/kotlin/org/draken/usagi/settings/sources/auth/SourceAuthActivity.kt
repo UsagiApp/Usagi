@@ -19,9 +19,9 @@ import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.util.ext.getDisplayMessage
-import org.koitharu.kotatsu.parsers.MangaParserAuthProvider
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.MangaParserAuthProvider
+import tsuki.model.MangaSource
+import tsuki.util.runCatchingCancellable
 
 @AndroidEntryPoint
 class SourceAuthActivity : BaseBrowserActivity(), BrowserCallback {

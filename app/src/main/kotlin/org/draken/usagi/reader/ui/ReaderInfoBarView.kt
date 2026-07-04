@@ -30,7 +30,7 @@ import org.draken.usagi.core.util.ext.isNightMode
 import org.draken.usagi.core.util.ext.measureDimension
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.reader.ui.pager.ReaderUiState
-import org.koitharu.kotatsu.parsers.util.format
+import tsuki.util.format
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle

@@ -19,8 +19,8 @@ import org.draken.usagi.core.ui.widgets.StackLayout
 import org.draken.usagi.core.util.ext.getThemeColor
 import org.draken.usagi.databinding.ViewCoverStackBinding
 import org.draken.usagi.favourites.domain.model.Cover
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.Manga
+import tsuki.model.MangaSource
 
 class CoverStackView @JvmOverloads constructor(
 	context: Context,

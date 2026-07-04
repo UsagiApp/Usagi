@@ -10,7 +10,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.draken.usagi.core.util.RetainedLifecycleCoroutineScope
-import org.koitharu.kotatsu.parsers.util.cancelAll
+import tsuki.util.cancelAll
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException

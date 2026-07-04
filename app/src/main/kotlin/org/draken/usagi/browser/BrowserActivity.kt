@@ -17,7 +17,7 @@ import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 @AndroidEntryPoint
 class BrowserActivity : BaseBrowserActivity() {

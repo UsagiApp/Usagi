@@ -9,13 +9,13 @@ import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.contains
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.SortOrder
-import org.koitharu.kotatsu.parsers.util.almostEquals
-import org.koitharu.kotatsu.parsers.util.levenshteinDistance
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaSource
+import tsuki.model.SortOrder
+import tsuki.util.almostEquals
+import tsuki.util.levenshteinDistance
+import tsuki.util.runCatchingCancellable
 
 private const val MATCH_THRESHOLD_DEFAULT = 0.2f
 

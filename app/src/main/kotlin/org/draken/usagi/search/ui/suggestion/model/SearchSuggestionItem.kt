@@ -5,8 +5,8 @@ import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.list.ui.ListModelDiffCallback
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.Manga
+import tsuki.model.MangaSource
 
 sealed interface SearchSuggestionItem : ListModel {
 

@@ -15,9 +15,9 @@ import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.isNotEmpty
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.util.await
-import org.koitharu.kotatsu.parsers.util.requireBody
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.await
+import tsuki.util.requireBody
+import tsuki.util.runCatchingCancellable
 import java.io.File
 import java.net.HttpURLConnection
 import java.text.SimpleDateFormat

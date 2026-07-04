@@ -6,7 +6,7 @@ import android.content.pm.PackageManager
 import androidx.core.content.pm.PackageInfoCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
-import org.koitharu.kotatsu.parsers.util.suspendlazy.suspendLazy
+import tsuki.util.suspendlazy.suspendLazy
 import javax.inject.Inject
 import javax.inject.Singleton
 

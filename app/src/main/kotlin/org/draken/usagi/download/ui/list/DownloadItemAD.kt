@@ -22,7 +22,7 @@ import org.draken.usagi.download.ui.list.chapters.downloadChapterAD
 import org.draken.usagi.list.ui.ListModelDiffCallback
 import org.draken.usagi.list.ui.adapter.ListItemType
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.util.format
+import tsuki.util.format
 
 fun downloadItemAD(
 	lifecycleOwner: LifecycleOwner,

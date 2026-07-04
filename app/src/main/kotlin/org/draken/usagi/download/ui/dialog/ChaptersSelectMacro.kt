@@ -2,8 +2,8 @@ package org.draken.usagi.download.ui.dialog
 
 import androidx.collection.ArraySet
 import androidx.collection.LongLongMap
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.util.mapNotNullToSet
+import tsuki.model.MangaChapter
+import tsuki.util.mapNotNullToSet
 
 interface ChaptersSelectMacro {
 

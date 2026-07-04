@@ -3,7 +3,7 @@ package org.draken.usagi.core.model.parcelable
 import android.os.Parcel
 import kotlinx.parcelize.Parceler
 import org.draken.usagi.core.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 class MangaSourceParceler : Parceler<MangaSource> {
 

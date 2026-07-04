@@ -2,8 +2,8 @@ package org.draken.usagi.core.parser
 
 import android.graphics.Canvas
 import androidx.core.graphics.createBitmap
-import org.koitharu.kotatsu.parsers.bitmap.Bitmap
-import org.koitharu.kotatsu.parsers.bitmap.Rect
+import tsuki.bitmap.Bitmap
+import tsuki.bitmap.Rect
 import java.io.OutputStream
 import android.graphics.Bitmap as AndroidBitmap
 import android.graphics.Rect as AndroidRect

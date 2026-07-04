@@ -5,7 +5,7 @@ import android.text.format.DateUtils
 import org.jsoup.internal.StringUtil.StringJoiner
 import org.draken.usagi.core.model.getLocalizedTitle
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.MangaChapter
+import tsuki.model.MangaChapter
 import kotlin.experimental.and
 
 data class ChapterListItem(

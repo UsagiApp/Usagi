@@ -3,7 +3,7 @@ package org.draken.usagi.reader.ui
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import org.draken.usagi.core.model.MangaHistory
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 @Parcelize
 data class ReaderState(

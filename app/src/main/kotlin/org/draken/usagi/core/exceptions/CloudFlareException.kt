@@ -1,7 +1,7 @@
 package org.draken.usagi.core.exceptions
 
 import okio.IOException
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 abstract class CloudFlareException(
 	message: String,

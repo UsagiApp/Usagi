@@ -22,10 +22,10 @@ import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.explore.data.MangaSourcesRepository
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaTag
-import org.koitharu.kotatsu.parsers.util.mapToSet
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.MangaSource
+import tsuki.model.MangaTag
+import tsuki.util.mapToSet
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.search.domain.MangaSearchRepository
 import org.draken.usagi.search.ui.suggestion.model.SearchSuggestionItem
 import javax.inject.Inject

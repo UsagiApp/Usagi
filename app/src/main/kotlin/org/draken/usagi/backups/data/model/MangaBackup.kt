@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 import org.draken.usagi.core.db.entity.MangaEntity
 import org.draken.usagi.core.db.entity.MangaWithTags
 import org.draken.usagi.core.model.toBackupSourceName
-import org.koitharu.kotatsu.parsers.model.RATING_UNKNOWN
-import org.koitharu.kotatsu.parsers.util.mapToSet
+import tsuki.model.RATING_UNKNOWN
+import tsuki.util.mapToSet
 
 @Serializable
 class MangaBackup(

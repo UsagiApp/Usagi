@@ -1,6 +1,6 @@
 package org.draken.usagi.filter.ui.tags
 
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.MangaTag
 import java.text.Collator
 import java.util.Locale
 

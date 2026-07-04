@@ -10,7 +10,7 @@ import okhttp3.Response
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsStateFlow
 import org.draken.usagi.core.util.ext.processLifecycleScope
-import org.koitharu.kotatsu.parsers.util.await
+import tsuki.util.await
 import javax.inject.Inject
 import javax.inject.Singleton
 

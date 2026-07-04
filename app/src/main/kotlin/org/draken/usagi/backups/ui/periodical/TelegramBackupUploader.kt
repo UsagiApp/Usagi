@@ -15,10 +15,10 @@ import org.draken.usagi.R
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.network.BaseHttpClient
 import org.draken.usagi.core.prefs.AppSettings
-import org.koitharu.kotatsu.parsers.util.await
-import org.koitharu.kotatsu.parsers.util.json.getBooleanOrDefault
-import org.koitharu.kotatsu.parsers.util.json.getStringOrNull
-import org.koitharu.kotatsu.parsers.util.parseJson
+import tsuki.util.await
+import tsuki.util.json.getBooleanOrDefault
+import tsuki.util.json.getStringOrNull
+import tsuki.util.parseJson
 import java.io.File
 import javax.inject.Inject
 

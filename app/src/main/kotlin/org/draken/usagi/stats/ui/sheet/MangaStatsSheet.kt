@@ -17,7 +17,7 @@ import org.draken.usagi.core.util.ext.consume
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.textAndVisible
 import org.draken.usagi.databinding.SheetStatsMangaBinding
-import org.koitharu.kotatsu.parsers.util.format
+import tsuki.util.format
 import org.draken.usagi.stats.ui.views.BarChartView
 
 @AndroidEntryPoint

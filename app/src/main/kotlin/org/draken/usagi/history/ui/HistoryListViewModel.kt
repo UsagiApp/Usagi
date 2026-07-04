@@ -39,7 +39,7 @@ import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingState
 import org.draken.usagi.list.ui.model.toErrorState
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject

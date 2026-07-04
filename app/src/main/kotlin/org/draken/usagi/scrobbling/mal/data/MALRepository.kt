@@ -10,10 +10,10 @@ import okhttp3.Request
 import org.json.JSONObject
 import org.draken.usagi.R
 import org.draken.usagi.core.db.MangaDatabase
-import org.koitharu.kotatsu.parsers.util.await
-import org.koitharu.kotatsu.parsers.util.json.getStringOrNull
-import org.koitharu.kotatsu.parsers.util.json.mapJSONNotNull
-import org.koitharu.kotatsu.parsers.util.parseJson
+import tsuki.util.await
+import tsuki.util.json.getStringOrNull
+import tsuki.util.json.mapJSONNotNull
+import tsuki.util.parseJson
 import org.draken.usagi.scrobbling.common.data.ScrobblerRepository
 import org.draken.usagi.scrobbling.common.data.ScrobblerStorage
 import org.draken.usagi.scrobbling.common.data.ScrobblingEntity

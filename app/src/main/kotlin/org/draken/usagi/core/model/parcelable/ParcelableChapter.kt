@@ -5,7 +5,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import org.draken.usagi.core.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaChapter
+import tsuki.model.MangaChapter
 
 @Parcelize
 data class ParcelableChapter(

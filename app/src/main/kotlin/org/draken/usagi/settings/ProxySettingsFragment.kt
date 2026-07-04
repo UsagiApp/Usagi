@@ -22,7 +22,7 @@ import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.viewLifecycleScope
-import org.koitharu.kotatsu.parsers.util.await
+import tsuki.util.await
 import org.draken.usagi.settings.utils.EditTextBindListener
 import org.draken.usagi.settings.utils.PasswordSummaryProvider
 import org.draken.usagi.settings.utils.validation.DomainValidator

@@ -13,9 +13,9 @@ import org.draken.usagi.core.parser.MangaLoaderContextImpl
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.mergeWith
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.MangaSource
+import tsuki.util.mergeWith
+import tsuki.util.runCatchingCancellable
 import java.net.IDN
 import javax.inject.Inject
 import javax.inject.Singleton

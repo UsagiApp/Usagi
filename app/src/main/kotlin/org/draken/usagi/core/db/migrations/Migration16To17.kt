@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.preference.PreferenceManager
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 class Migration16To17(context: Context) : Migration(16, 17) {
 

@@ -32,7 +32,7 @@ import org.draken.usagi.core.util.ext.parentView
 import org.draken.usagi.core.util.ext.showOrHide
 import org.draken.usagi.databinding.DialogDownloadBinding
 import org.draken.usagi.main.ui.owners.BottomNavOwner
-import org.koitharu.kotatsu.parsers.util.format
+import tsuki.util.format
 import org.draken.usagi.settings.storage.DirectoryModel
 
 @AndroidEntryPoint

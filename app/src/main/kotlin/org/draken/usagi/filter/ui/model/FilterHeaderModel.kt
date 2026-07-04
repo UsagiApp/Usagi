@@ -1,7 +1,7 @@
 package org.draken.usagi.filter.ui.model
 
 import org.draken.usagi.core.ui.widgets.ChipsView
-import org.koitharu.kotatsu.parsers.model.SortOrder
+import tsuki.model.SortOrder
 
 data class FilterHeaderModel(
 	val chips: Collection<ChipsView.ChipModel>,

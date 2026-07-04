@@ -7,11 +7,11 @@ import org.draken.usagi.core.util.ext.asArrayList
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.history.data.HistoryRepository
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.almostEquals
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaSource
+import tsuki.util.almostEquals
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.suggestions.domain.TagsBlacklist
 import javax.inject.Inject
 

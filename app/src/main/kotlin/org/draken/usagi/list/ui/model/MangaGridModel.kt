@@ -4,7 +4,7 @@ import org.draken.usagi.core.ui.model.MangaOverride
 import org.draken.usagi.list.domain.ReadingProgress
 import org.draken.usagi.list.ui.ListModelDiffCallback.Companion.PAYLOAD_ANYTHING_CHANGED
 import org.draken.usagi.list.ui.ListModelDiffCallback.Companion.PAYLOAD_PROGRESS_CHANGED
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 data class MangaGridModel(
 	override val manga: Manga,

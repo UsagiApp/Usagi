@@ -24,7 +24,7 @@ import org.draken.usagi.core.util.ext.withArgs
 import org.draken.usagi.databinding.FragmentListBinding
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.list.ui.MangaListFragment
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 import org.draken.usagi.search.domain.SearchKind
 
 @AndroidEntryPoint

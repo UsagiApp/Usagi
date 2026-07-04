@@ -16,8 +16,8 @@ import kotlinx.coroutines.isActive
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.db.entity.MangaSourceEntity
 import org.draken.usagi.explore.data.SourcesSortOrder
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper.PROTECTION_CAPTCHA
+import tsuki.network.CloudFlareHelper
+import tsuki.network.CloudFlareHelper.PROTECTION_CAPTCHA
 import kotlin.math.max
 import kotlin.math.min
 

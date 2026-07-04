@@ -10,9 +10,9 @@ import org.draken.usagi.core.db.entity.toMangaTagsList
 import org.draken.usagi.core.model.toMangaSources
 import org.draken.usagi.core.util.ext.mapItems
 import org.draken.usagi.list.domain.ListFilterOption
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.Manga
+import tsuki.model.MangaSource
+import tsuki.model.MangaTag
 import org.draken.usagi.suggestions.data.SuggestionEntity
 import org.draken.usagi.suggestions.data.SuggestionWithManga
 import javax.inject.Inject

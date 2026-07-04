@@ -3,8 +3,8 @@ package org.draken.usagi.core.util.ext
 import android.content.Context
 import androidx.core.os.LocaleListCompat
 import org.draken.usagi.R
-import org.koitharu.kotatsu.parsers.util.Set
-import org.koitharu.kotatsu.parsers.util.toTitleCase
+import tsuki.util.Set
+import tsuki.util.toTitleCase
 import java.util.Locale
 
 operator fun LocaleListCompat.iterator(): ListIterator<Locale> = LocaleListCompatIterator(this)

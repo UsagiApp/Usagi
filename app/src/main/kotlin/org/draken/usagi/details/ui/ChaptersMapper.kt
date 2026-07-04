@@ -8,7 +8,7 @@ import org.draken.usagi.details.ui.model.ChapterListItem
 import org.draken.usagi.details.ui.model.toListItem
 import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.util.mapToSet
+import tsuki.util.mapToSet
 
 fun MangaDetails.mapChapters(
 	currentChapterId: Long,

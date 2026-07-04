@@ -13,8 +13,8 @@ import org.draken.usagi.core.util.ext.deleteAwait
 import org.draken.usagi.core.util.ext.readText
 import org.draken.usagi.core.zip.ZipOutput
 import org.draken.usagi.local.data.MangaIndex
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
 import java.io.File
 import java.util.zip.ZipFile
 

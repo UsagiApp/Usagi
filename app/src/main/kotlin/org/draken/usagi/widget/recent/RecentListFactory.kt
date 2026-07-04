@@ -19,9 +19,9 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.getDrawableOrThrow
 import org.draken.usagi.core.util.ext.mangaExtra
 import org.draken.usagi.history.data.HistoryRepository
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.replaceWith
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.replaceWith
+import tsuki.util.runCatchingCancellable
 
 class RecentListFactory(
 	private val context: Context,

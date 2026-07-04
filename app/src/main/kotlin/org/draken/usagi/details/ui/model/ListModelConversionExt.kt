@@ -6,7 +6,7 @@ import org.draken.usagi.details.ui.model.ChapterListItem.Companion.FLAG_DOWNLOAD
 import org.draken.usagi.details.ui.model.ChapterListItem.Companion.FLAG_GRID
 import org.draken.usagi.details.ui.model.ChapterListItem.Companion.FLAG_NEW
 import org.draken.usagi.details.ui.model.ChapterListItem.Companion.FLAG_UNREAD
-import org.koitharu.kotatsu.parsers.model.MangaChapter
+import tsuki.model.MangaChapter
 import kotlin.experimental.or
 
 fun MangaChapter.toListItem(

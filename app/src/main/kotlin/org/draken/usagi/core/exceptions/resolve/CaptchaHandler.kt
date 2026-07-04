@@ -55,10 +55,10 @@ import org.draken.usagi.core.util.ext.mangaSourceExtra
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.processLifecycleScope
 import org.draken.usagi.core.util.ext.toBitmapOrNull
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
-import org.koitharu.kotatsu.parsers.util.mapToArray
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.MangaSource
+import tsuki.network.CloudFlareHelper
+import tsuki.util.mapToArray
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton

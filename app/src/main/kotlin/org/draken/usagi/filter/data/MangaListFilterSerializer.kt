@@ -14,12 +14,12 @@ import kotlinx.serialization.encoding.encodeStructure
 import kotlinx.serialization.serializer
 import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.util.ext.toLocaleOrNull
-import org.koitharu.kotatsu.parsers.model.ContentRating
-import org.koitharu.kotatsu.parsers.model.ContentType
-import org.koitharu.kotatsu.parsers.model.Demographic
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaState
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.ContentRating
+import tsuki.model.ContentType
+import tsuki.model.Demographic
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaState
+import tsuki.model.MangaTag
 import java.util.Locale
 
 object MangaListFilterSerializer : KSerializer<MangaListFilter> {

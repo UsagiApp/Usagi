@@ -43,8 +43,8 @@ import org.draken.usagi.list.ui.model.toErrorFooter
 import org.draken.usagi.list.ui.model.toErrorState
 import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.sizeOrZero
+import tsuki.model.Manga
+import tsuki.util.sizeOrZero
 import javax.inject.Inject
 
 private const val FILTER_MIN_INTERVAL = 250L

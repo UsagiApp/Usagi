@@ -1,7 +1,7 @@
 package org.draken.usagi.reader.ui
 
 import com.google.android.material.slider.LabelFormatter
-import org.koitharu.kotatsu.parsers.util.format
+import tsuki.util.format
 
 class PageLabelFormatter : LabelFormatter {
 

@@ -8,7 +8,7 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.DetailsUiMode
 import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
-import org.koitharu.kotatsu.parsers.util.names
+import tsuki.util.names
 import org.draken.usagi.settings.utils.PercentSummaryProvider
 import org.draken.usagi.settings.utils.SliderPreference
 

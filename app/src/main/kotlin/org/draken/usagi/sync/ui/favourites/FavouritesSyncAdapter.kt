@@ -9,7 +9,7 @@ import android.os.Bundle
 import dagger.hilt.android.EntryPointAccessors
 import org.draken.usagi.R
 import org.draken.usagi.core.util.ext.onError
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.sync.domain.SyncController
 import org.draken.usagi.sync.ui.SyncAdapterEntryPoint
 

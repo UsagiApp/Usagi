@@ -2,7 +2,7 @@ package org.draken.usagi.filter.ui.model
 
 import org.draken.usagi.list.ui.ListModelDiffCallback
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.MangaTag
 
 data class TagCatalogItem(
 	val tag: MangaTag,

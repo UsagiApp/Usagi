@@ -6,7 +6,7 @@ import org.draken.usagi.R
 import org.draken.usagi.core.ui.list.OnListItemClickListener
 import org.draken.usagi.core.util.UsagiColors
 import org.draken.usagi.databinding.ItemStatsBinding
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import org.draken.usagi.stats.domain.StatsRecord
 
 fun statsAD(

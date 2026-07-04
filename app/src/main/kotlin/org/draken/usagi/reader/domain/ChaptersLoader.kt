@@ -7,8 +7,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.details.data.MangaDetails
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.model.MangaPage
+import tsuki.model.MangaChapter
+import tsuki.model.MangaPage
 import org.draken.usagi.reader.ui.pager.ReaderPage
 import javax.inject.Inject
 

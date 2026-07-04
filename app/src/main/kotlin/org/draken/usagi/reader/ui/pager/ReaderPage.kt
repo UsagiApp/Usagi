@@ -4,8 +4,8 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
 import org.draken.usagi.core.model.parcelable.MangaSourceParceler
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaPage
+import tsuki.model.MangaSource
 
 @Parcelize
 @TypeParceler<MangaSource, MangaSourceParceler>

@@ -18,7 +18,7 @@ import org.draken.usagi.core.util.ext.getQuantityStringSafe
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
 import org.draken.usagi.explore.data.SourcesSortOrder
-import org.koitharu.kotatsu.parsers.util.names
+import tsuki.util.names
 import javax.inject.Inject
 
 @AndroidEntryPoint

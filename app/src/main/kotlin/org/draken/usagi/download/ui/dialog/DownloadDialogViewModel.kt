@@ -27,11 +27,11 @@ import org.draken.usagi.download.ui.worker.DownloadWorker
 import org.draken.usagi.history.data.HistoryRepository
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.local.data.LocalStorageManager
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.mapToSet
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
-import org.koitharu.kotatsu.parsers.util.sizeOrZero
-import org.koitharu.kotatsu.parsers.util.suspendlazy.suspendLazy
+import tsuki.model.Manga
+import tsuki.util.mapToSet
+import tsuki.util.runCatchingCancellable
+import tsuki.util.sizeOrZero
+import tsuki.util.suspendlazy.suspendLazy
 import org.draken.usagi.settings.storage.DirectoryModel
 import javax.inject.Inject
 

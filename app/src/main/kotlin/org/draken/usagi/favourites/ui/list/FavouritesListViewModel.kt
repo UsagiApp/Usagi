@@ -41,7 +41,7 @@ import org.draken.usagi.list.ui.model.MangaListModel
 import org.draken.usagi.list.ui.model.toErrorState
 import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 

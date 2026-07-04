@@ -2,8 +2,8 @@ package org.draken.usagi.core.exceptions
 
 import okhttp3.Headers
 import org.draken.usagi.core.model.UnknownMangaSource
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
+import tsuki.model.MangaSource
+import tsuki.network.CloudFlareHelper
 
 class CloudFlareProtectedException(
 	override val url: String,

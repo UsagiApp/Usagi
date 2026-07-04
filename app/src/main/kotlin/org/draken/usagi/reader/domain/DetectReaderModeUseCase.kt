@@ -16,9 +16,9 @@ import org.draken.usagi.core.prefs.ReaderMode
 import org.draken.usagi.core.util.ext.isFileUri
 import org.draken.usagi.core.util.ext.isZipUri
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaPage
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.reader.ui.ReaderState
 import java.io.InputStream
 import java.util.zip.ZipFile

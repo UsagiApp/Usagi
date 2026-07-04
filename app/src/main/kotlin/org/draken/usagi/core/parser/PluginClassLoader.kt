@@ -9,10 +9,12 @@ class PluginClassLoader(
 	parent: ClassLoader,
 ) : DexClassLoader(dexPath, optimizedDirectory, librarySearchPath, parent) {
 	override fun loadClass(name: String, resolve: Boolean): Class<*> {
-		val name = if (name.startsWith("kotatsuki.")) {
-			"org.koitharu.kotatsu.parsers." + name.substring("kotatsuki.".length)
-		} else { name }
+		// New tsuki.* classes — delegate to app's classloader (Tsuki AAR)
+		if (name.startsWith("tsuki.")) {
+			return super.loadClass(name, resolve)
+		}
 
+		// Old org.koitharu.kotatsu.parsers.* shared classes — delegate to app's Tsuki-provided classes
 		if (name == "org.koitharu.kotatsu.parsers.MangaLoaderContext" ||
 			name == "org.koitharu.kotatsu.parsers.MangaParserAuthProvider" ||
 			name.startsWith("org.koitharu.kotatsu.parsers.config.") ||
@@ -20,6 +22,8 @@ class PluginClassLoader(
 			(name.startsWith("org.koitharu.kotatsu.parsers.model.") &&
 				name != "org.koitharu.kotatsu.parsers.model.MangaParserSource")
 		) { return super.loadClass(name, resolve) }
+
+		// Old plugin-local classes — try plugin's own dex first, then fall back to parent
 		if (name.startsWith("org.koitharu.kotatsu.parsers.") ||
 			name.startsWith("org.koitharu.kotatsu.core.parser.") ||
 			name.startsWith("eu.kanade.tachiyomi.") ||

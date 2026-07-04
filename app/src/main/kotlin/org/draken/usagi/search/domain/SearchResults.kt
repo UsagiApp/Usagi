@@ -1,8 +1,8 @@
 package org.draken.usagi.search.domain
 
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.SortOrder
+import tsuki.model.Manga
+import tsuki.model.MangaListFilter
+import tsuki.model.SortOrder
 
 data class SearchResults(
 	val listFilter: MangaListFilter,

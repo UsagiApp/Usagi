@@ -24,11 +24,11 @@ import org.draken.usagi.history.domain.model.MangaWithHistory
 import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.domain.ListSortOrder
 import org.draken.usagi.list.domain.ReadingProgress
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaTag
-import org.koitharu.kotatsu.parsers.util.findById
-import org.koitharu.kotatsu.parsers.util.levenshteinDistance
+import tsuki.model.Manga
+import tsuki.model.MangaSource
+import tsuki.model.MangaTag
+import tsuki.util.findById
+import tsuki.util.levenshteinDistance
 import org.draken.usagi.scrobbling.common.domain.Scrobbler
 import org.draken.usagi.scrobbling.common.domain.tryScrobble
 import org.draken.usagi.search.domain.SearchKind

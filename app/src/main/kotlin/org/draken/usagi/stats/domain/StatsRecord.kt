@@ -2,7 +2,7 @@ package org.draken.usagi.stats.domain
 
 import org.draken.usagi.details.data.ReadingTime
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import java.util.concurrent.TimeUnit
 
 data class StatsRecord(

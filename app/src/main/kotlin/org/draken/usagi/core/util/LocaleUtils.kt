@@ -2,7 +2,7 @@ package org.draken.usagi.core.util
 
 import android.graphics.Paint
 import androidx.core.graphics.PaintCompat
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
+import tsuki.util.ifNullOrEmpty
 import java.util.Locale
 
 object LocaleUtils {

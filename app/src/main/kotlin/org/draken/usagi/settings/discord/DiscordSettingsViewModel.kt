@@ -13,7 +13,7 @@ import kotlinx.coroutines.plus
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.util.ext.isNetworkError
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.scrobbling.discord.data.DiscordRepository
 import javax.inject.Inject
 

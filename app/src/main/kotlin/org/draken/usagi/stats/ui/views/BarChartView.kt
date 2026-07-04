@@ -10,8 +10,8 @@ import android.view.View
 import androidx.annotation.ColorInt
 import org.draken.usagi.core.util.ext.getThemeColor
 import org.draken.usagi.core.util.ext.resolveDp
-import org.koitharu.kotatsu.parsers.util.replaceWith
-import org.koitharu.kotatsu.parsers.util.toIntUp
+import tsuki.util.replaceWith
+import tsuki.util.toIntUp
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import androidx.appcompat.R as appcompatR

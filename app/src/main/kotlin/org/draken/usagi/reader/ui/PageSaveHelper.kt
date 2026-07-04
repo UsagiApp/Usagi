@@ -34,8 +34,8 @@ import org.draken.usagi.core.util.ext.isZipUri
 import org.draken.usagi.core.util.ext.toFileNameSafe
 import org.draken.usagi.core.util.ext.toFileOrNull
 import org.draken.usagi.core.util.ext.writeAllCancellable
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaPage
+import tsuki.model.Manga
+import tsuki.model.MangaPage
 import org.draken.usagi.reader.domain.PageLoader
 import java.io.File
 import java.text.SimpleDateFormat

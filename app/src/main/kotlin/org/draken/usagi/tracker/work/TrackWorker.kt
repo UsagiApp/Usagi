@@ -64,8 +64,8 @@ import org.draken.usagi.tracker.domain.GetTracksUseCase
 import org.draken.usagi.tracker.domain.model.MangaTracking
 import org.draken.usagi.tracker.domain.model.MangaUpdates
 import org.draken.usagi.tracker.work.TrackerNotificationHelper.NotificationInfo
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
-import org.koitharu.kotatsu.parsers.util.toIntUp
+import tsuki.util.runCatchingCancellable
+import tsuki.util.toIntUp
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider

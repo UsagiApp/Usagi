@@ -3,7 +3,7 @@ package org.draken.usagi.settings.utils
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import org.draken.usagi.R
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
+import tsuki.util.ifNullOrEmpty
 
 class EditTextDefaultSummaryProvider(
 	private val defaultValue: String,

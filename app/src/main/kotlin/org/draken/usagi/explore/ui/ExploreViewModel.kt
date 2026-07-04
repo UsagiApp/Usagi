@@ -33,9 +33,9 @@ import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingState
 import org.draken.usagi.list.ui.model.MangaCompactListModel
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaSource
+import tsuki.util.runCatchingCancellable
 import org.draken.usagi.suggestions.domain.SuggestionRepository
 import org.draken.usagi.settings.sources.manage.plugins.UpdatePluginsProvider
 import javax.inject.Inject

@@ -9,11 +9,11 @@ import org.draken.usagi.core.util.ext.readEnumSet
 import org.draken.usagi.core.util.ext.readParcelableCompat
 import org.draken.usagi.core.util.ext.readSerializableCompat
 import org.draken.usagi.core.util.ext.writeEnumSet
-import org.koitharu.kotatsu.parsers.model.ContentRating
-import org.koitharu.kotatsu.parsers.model.ContentType
-import org.koitharu.kotatsu.parsers.model.Demographic
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaState
+import tsuki.model.ContentRating
+import tsuki.model.ContentType
+import tsuki.model.Demographic
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaState
 
 object MangaListFilterParceler : Parceler<MangaListFilter> {
 

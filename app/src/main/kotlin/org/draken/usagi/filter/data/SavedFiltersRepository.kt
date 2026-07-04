@@ -17,8 +17,8 @@ import kotlinx.serialization.json.Json
 import org.draken.usagi.core.model.mangaSourceFromStoredKey
 import org.draken.usagi.core.util.ext.observeChanges
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaSource
 import java.io.File
 import javax.inject.Inject
 

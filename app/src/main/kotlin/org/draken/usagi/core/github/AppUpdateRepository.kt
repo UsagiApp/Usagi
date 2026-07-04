@@ -17,11 +17,11 @@ import org.draken.usagi.core.os.AppValidator
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.asArrayList
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.util.await
-import org.koitharu.kotatsu.parsers.util.json.mapJSONNotNull
-import org.koitharu.kotatsu.parsers.util.parseJsonArray
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
-import org.koitharu.kotatsu.parsers.util.suspendlazy.getOrNull
+import tsuki.util.await
+import tsuki.util.json.mapJSONNotNull
+import tsuki.util.parseJsonArray
+import tsuki.util.runCatchingCancellable
+import tsuki.util.suspendlazy.getOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
 

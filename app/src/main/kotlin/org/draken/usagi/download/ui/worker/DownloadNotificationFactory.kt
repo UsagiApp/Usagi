@@ -33,9 +33,9 @@ import org.draken.usagi.core.util.ext.mangaSourceExtra
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.download.domain.DownloadState
 import org.draken.usagi.download.ui.list.DownloadsActivity
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.format
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.format
+import tsuki.util.runCatchingCancellable
 import java.util.UUID
 import androidx.appcompat.R as appcompatR
 

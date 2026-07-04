@@ -15,7 +15,7 @@ import androidx.core.view.PointerIconCompat
 import androidx.core.view.ViewCompat
 import org.draken.usagi.core.util.ext.getThemeColor
 import org.draken.usagi.core.util.ext.resolveDp
-import org.koitharu.kotatsu.parsers.util.replaceWith
+import tsuki.util.replaceWith
 import kotlin.math.atan2
 import kotlin.math.sqrt
 

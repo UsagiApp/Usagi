@@ -2,7 +2,7 @@ package org.draken.usagi.list.domain
 
 import androidx.annotation.StringRes
 import org.draken.usagi.R
-import org.koitharu.kotatsu.parsers.util.find
+import tsuki.util.find
 import java.util.EnumSet
 
 enum class ListSortOrder(

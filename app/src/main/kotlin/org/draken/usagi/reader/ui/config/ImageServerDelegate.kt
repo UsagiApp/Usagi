@@ -8,11 +8,11 @@ import kotlinx.coroutines.withContext
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
-import org.koitharu.kotatsu.parsers.config.ConfigKey
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.mapToArray
-import org.koitharu.kotatsu.parsers.util.suspendlazy.getOrNull
-import org.koitharu.kotatsu.parsers.util.suspendlazy.suspendLazy
+import tsuki.config.ConfigKey
+import tsuki.model.MangaSource
+import tsuki.util.mapToArray
+import tsuki.util.suspendlazy.getOrNull
+import tsuki.util.suspendlazy.suspendLazy
 import kotlin.coroutines.resume
 
 class ImageServerDelegate(

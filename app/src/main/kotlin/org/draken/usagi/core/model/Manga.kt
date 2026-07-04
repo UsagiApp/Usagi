@@ -14,15 +14,15 @@ import org.draken.usagi.R
 import org.draken.usagi.core.ui.model.MangaOverride
 import org.draken.usagi.core.util.ext.iterator
 import org.draken.usagi.details.ui.model.ChapterListItem
-import org.koitharu.kotatsu.parsers.model.ContentRating
-import org.koitharu.kotatsu.parsers.model.Demographic
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaState
-import org.koitharu.kotatsu.parsers.util.findById
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
-import org.koitharu.kotatsu.parsers.util.mapToSet
+import tsuki.model.ContentRating
+import tsuki.model.Demographic
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaState
+import tsuki.util.findById
+import tsuki.util.ifNullOrEmpty
+import tsuki.util.mapToSet
 import com.google.android.material.R as materialR
 
 @JvmName("mangaIds")

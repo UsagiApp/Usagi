@@ -32,12 +32,12 @@ import org.draken.usagi.local.data.hasZipExtension
 import org.draken.usagi.local.data.isZipArchive
 import org.draken.usagi.local.data.output.LocalMangaOutput.Companion.ENTRY_NAME_INDEX
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.util.longHashCode
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
-import org.koitharu.kotatsu.parsers.util.toTitleCase
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.model.MangaPage
+import tsuki.util.longHashCode
+import tsuki.util.runCatchingCancellable
+import tsuki.util.toTitleCase
 import java.io.File
 
 /**

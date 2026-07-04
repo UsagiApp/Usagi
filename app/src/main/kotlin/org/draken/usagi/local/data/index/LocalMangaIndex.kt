@@ -13,7 +13,7 @@ import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.local.data.input.LocalMangaParser
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Provider

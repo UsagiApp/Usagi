@@ -8,7 +8,7 @@ import androidx.core.content.FileProvider
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.R
 import org.draken.usagi.core.model.appUrl
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import java.io.File
 
 private const val TYPE_TEXT = "text/plain"

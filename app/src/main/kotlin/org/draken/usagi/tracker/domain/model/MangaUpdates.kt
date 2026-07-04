@@ -1,9 +1,9 @@
 package org.draken.usagi.tracker.domain.model
 
-import org.koitharu.kotatsu.parsers.exception.TooManyRequestExceptions
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.util.ifZero
+import tsuki.exception.TooManyRequestExceptions
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.util.ifZero
 
 sealed interface MangaUpdates {
 

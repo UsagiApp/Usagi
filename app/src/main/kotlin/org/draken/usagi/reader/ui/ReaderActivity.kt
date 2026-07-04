@@ -73,7 +73,7 @@ import org.draken.usagi.reader.ui.config.ReaderConfigSheet
 import org.draken.usagi.reader.ui.pager.ReaderPage
 import org.draken.usagi.reader.ui.pager.ReaderUiState
 import org.draken.usagi.reader.ui.tapgrid.TapGridDispatcher
-import org.koitharu.kotatsu.parsers.model.MangaChapter
+import tsuki.model.MangaChapter
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import androidx.appcompat.R as appcompatR

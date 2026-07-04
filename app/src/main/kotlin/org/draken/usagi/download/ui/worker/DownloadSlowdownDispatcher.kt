@@ -5,7 +5,7 @@ import androidx.collection.MutableObjectLongMap
 import kotlinx.coroutines.delay
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 import javax.inject.Inject
 import javax.inject.Singleton
 

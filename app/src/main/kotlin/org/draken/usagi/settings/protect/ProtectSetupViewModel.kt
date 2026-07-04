@@ -12,8 +12,8 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.core.util.ext.call
-import org.koitharu.kotatsu.parsers.util.isNumeric
-import org.koitharu.kotatsu.parsers.util.md5
+import tsuki.util.isNumeric
+import tsuki.util.md5
 import javax.inject.Inject
 
 @HiltViewModel

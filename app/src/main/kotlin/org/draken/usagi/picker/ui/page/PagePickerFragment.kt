@@ -30,7 +30,7 @@ import org.draken.usagi.list.ui.GridSpanResolver
 import org.draken.usagi.list.ui.adapter.ListItemType
 import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
+import tsuki.util.ifNullOrEmpty
 import org.draken.usagi.picker.ui.PageImagePickActivity
 import javax.inject.Inject
 

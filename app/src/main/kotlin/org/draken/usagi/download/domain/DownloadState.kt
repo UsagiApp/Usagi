@@ -3,7 +3,7 @@ package org.draken.usagi.download.domain
 import androidx.work.Data
 import org.draken.usagi.list.domain.ReadingProgress.Companion.PROGRESS_NONE
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import java.time.Instant
 
 data class DownloadState(

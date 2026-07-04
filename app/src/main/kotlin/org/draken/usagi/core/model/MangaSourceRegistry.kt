@@ -2,7 +2,7 @@ package org.draken.usagi.core.model
 
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 object MangaSourceRegistry {
 

@@ -3,7 +3,7 @@ package org.draken.usagi.alternatives.ui
 import org.draken.usagi.core.model.chaptersCount
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.MangaGridModel
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 data class MangaAlternativeModel(
 	val mangaModel: MangaGridModel,

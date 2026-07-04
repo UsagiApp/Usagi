@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.ExceptionResolver
 import org.draken.usagi.core.util.ext.getDisplayIcon
-import org.koitharu.kotatsu.parsers.util.ifZero
+import tsuki.util.ifZero
 
 fun Throwable.toErrorState(canRetry: Boolean = true, @StringRes secondaryAction: Int = 0) = ErrorState(
 	exception = this,

@@ -1,7 +1,7 @@
 package org.draken.usagi.tracker.ui.debug
 
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import java.time.Instant
 
 data class TrackDebugItem(

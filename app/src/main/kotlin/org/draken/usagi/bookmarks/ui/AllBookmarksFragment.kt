@@ -38,7 +38,7 @@ import org.draken.usagi.list.ui.adapter.ListStateHolderListener
 import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.main.ui.owners.AppBarOwner
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import org.draken.usagi.reader.ui.PageSaveHelper
 import javax.inject.Inject
 

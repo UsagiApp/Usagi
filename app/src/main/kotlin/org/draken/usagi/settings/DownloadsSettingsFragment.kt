@@ -28,7 +28,7 @@ import org.draken.usagi.core.util.ext.tryLaunch
 import org.draken.usagi.core.util.ext.viewLifecycleScope
 import org.draken.usagi.download.ui.worker.DownloadWorker
 import org.draken.usagi.local.data.LocalStorageManager
-import org.koitharu.kotatsu.parsers.util.names
+import tsuki.util.names
 import org.draken.usagi.settings.utils.DozeHelper
 import javax.inject.Inject
 
