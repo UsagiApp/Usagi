@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:fitsSystemWindows="true"
+	android:background="?android:colorBackground">
+
+	<ImageView
+		android:id="@+id/star_view"
+		android:layout_width="256dp"
+		android:layout_height="256dp"
+		android:layout_gravity="top|end"
+		android:translationX="64dp"
+		android:translationY="-64dp"
+		app:srcCompat="@drawable/ic_flower"
+		tools:ignore="ContentDescription" />
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			android:orientation="vertical"
+			android:paddingHorizontal="16dp"
+			android:paddingTop="32dp">
+
+			<ImageView
+				android:id="@+id/icon"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:layout_gravity="start"
+				android:layout_marginBottom="8dp"
+				android:contentDescription="@string/crash_oops"
+				app:srcCompat="@drawable/ic_bug"
+				app:tint="?colorPrimary" />
+
+			<TextView
+				android:id="@+id/heading"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="start"
+				android:text="@string/crash_oops"
+				android:textAppearance="?textAppearanceHeadlineLarge"
+				android:textColor="?colorPrimary"
+				android:textStyle="bold" />
+
+			<TextView
+				android:id="@+id/subtitle"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:layout_marginBottom="16dp"
+				android:gravity="start"
+				android:text="@string/crash_text"
+				android:textAppearance="?textAppearanceTitleSmall"
+				android:textColor="?android:textColorSecondary"
+				android:alpha="0.7" />
+
+			<FrameLayout
+				android:layout_width="match_parent"
+				android:layout_height="0dp"
+				android:layout_weight="1"
+				android:background="?colorSurfaceVariant"
+				android:padding="8dp"
+				tools:ignore="NestedWeights">
+
+				<ScrollView
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					tools:ignore="UselessParent">
+
+					<TextView
+						android:id="@+id/crash_text_view"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:typeface="monospace"
+						android:textColor="?colorOnSurfaceVariant"
+						android:textSize="12sp"
+						tools:text="java.lang.RuntimeException: Test Crash" />
+
+				</ScrollView>
+			</FrameLayout>
+
+		</LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:paddingHorizontal="16dp"
+			android:paddingVertical="8dp">
+
+			<Button
+				android:id="@+id/button_copy"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/copy" />
+
+			<Button
+				android:id="@+id/button_restart"
+				style="?materialButtonOutlinedStyle"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:text="@string/restart_app" />
+
+		</LinearLayout>
+
+	</LinearLayout>
+
+</FrameLayout>

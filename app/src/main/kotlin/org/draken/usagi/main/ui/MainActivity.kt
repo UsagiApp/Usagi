@@ -57,6 +57,7 @@ import org.draken.usagi.core.os.VoiceInputContract
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.NavItem
 import org.draken.usagi.core.ui.BaseActivity
+import org.draken.usagi.core.ui.BaseCrashActivity
 import org.draken.usagi.core.ui.dialog.BigButtonsAlertDialog
 import org.draken.usagi.core.ui.util.FadingAppbarMediator
 import org.draken.usagi.core.ui.util.MenuInvalidator
@@ -113,6 +114,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		get() = viewBinding.bottomNav
 
 	override fun onCreate(savedInstanceState: Bundle?) {
+		sendBroadcast(Intent(BaseCrashActivity.ACTION_FINISH_CRASH).setPackage(packageName))
 		super.onCreate(savedInstanceState)
 		setContentView(ActivityMainBinding.inflate(layoutInflater))
 		setSupportActionBar(viewBinding.searchBar)

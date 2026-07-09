@@ -78,7 +78,7 @@ open class BaseApp : Application(), Configuration.Provider {
 		super.onCreate()
 		PlatformRegistry.applicationContext = this // TODO replace with OkHttp.initialize
 		Thread.setDefaultUncaughtExceptionHandler(
-			GlobalExceptionHandler(this, Thread.getDefaultUncaughtExceptionHandler())
+			GlobalExceptionHandler(this, settings, Thread.getDefaultUncaughtExceptionHandler())
 		)
 		AppCompatDelegate.setDefaultNightMode(settings.theme)
 		// TLS 1.3 support for Android < 10
