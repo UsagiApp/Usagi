@@ -27,7 +27,7 @@ import org.draken.usagi.R
 import org.draken.usagi.databinding.ActivityCrashBinding
 import org.draken.usagi.main.ui.MainActivity
 
-class BaseCrashActivity : BaseActivity<ActivityCrashBinding>() {
+class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 
 	private var headingRunnable: Runnable? = null
 	private val handler = Handler(Looper.getMainLooper())

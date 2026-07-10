@@ -24,11 +24,11 @@ class GlobalExceptionHandler(
     }
 
     private fun buildCrashIntent(stackTrace: String) =
-        Intent(context, BaseCrashActivity::class.java).apply {
-            putExtra(BaseCrashActivity.EXTRA_STACK_TRACE, stackTrace)
-            putExtra(BaseCrashActivity.EXTRA_THEME_STYLE, settings.colorScheme.styleResId)
-            putExtra(BaseCrashActivity.EXTRA_THEME_AMOLED, settings.isAmoledTheme)
-            putExtra(BaseCrashActivity.EXTRA_THEME_NIGHT_MODE, settings.theme)
+        Intent(context, AppCrashActivity::class.java).apply {
+            putExtra(AppCrashActivity.EXTRA_STACK_TRACE, stackTrace)
+            putExtra(AppCrashActivity.EXTRA_THEME_STYLE, settings.colorScheme.styleResId)
+            putExtra(AppCrashActivity.EXTRA_THEME_AMOLED, settings.isAmoledTheme)
+            putExtra(AppCrashActivity.EXTRA_THEME_NIGHT_MODE, settings.theme)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
 }

@@ -84,7 +84,7 @@
 				android:value="org.draken.usagi.search.ui.multi.MultiSearchActivity" />
 		</activity>
 		<activity
-			android:name="org.draken.usagi.core.ui.BaseCrashActivity"
+			android:name="org.draken.usagi.core.ui.AppCrashActivity"
 			android:process=":crash"
 			android:theme="@style/Theme.Usagi"
 			android:launchMode="singleTask"
