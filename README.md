@@ -10,6 +10,31 @@
 
 ![Android 5.0](https://img.shields.io/badge/android-5.0+-brightgreen) ![Downloads count](https://img.shields.io/github/downloads/UsagiApp/Usagi/total?color=1976d2) [![weblate](https://hosted.weblate.org/widgets/usagi/-/strings/svg-badge.svg)](https://hosted.weblate.org/engage/usagi/) [![Discord](https://img.shields.io/discord/1484655684879519885?color=5865f2&label=discord)](https://discord.gg/4AHskjwtj4) [![Telegram](https://img.shields.io/badge/chat-telegram-60ACFF?)](https://t.me/usagiapp)
 
+### Download
+
+<table>
+  <thead>
+    <tr>
+      <th align="center">GitHub</th>
+      <th align="center">F-Droid</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center">
+        <a href="https://github.com/UsagiApp/Usagi/releases/latest/">
+          <img src="./.github/assets/badge_github.png" height="70" alt="Usagi on GitHub">
+        </a>
+      </td>
+      <td align="center">
+        <a href="https://f-droid.org/en/packages/org.draken.usagi/">
+          <img src="./.github/assets/badge_fdroid.png" height="70" alt="Usagi on F-Droid">
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 ### Features
 
 <details>
