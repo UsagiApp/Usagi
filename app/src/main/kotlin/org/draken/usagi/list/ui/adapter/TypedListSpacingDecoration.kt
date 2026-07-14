@@ -33,6 +33,16 @@ class TypedListSpacingDecoration(
 			ListItemType.FILTER_STATE,
 			ListItemType.FILTER_LANGUAGE,
 			ListItemType.QUICK_FILTER,
+			ListItemType.T_HEADER,
+			ListItemType.SEPARATOR,
+			ListItemType.CHECKBOX,
+			ListItemType.CHIPS,
+			ListItemType.TRISTATE,
+			ListItemType.TEXT,
+			ListItemType.SELECT,
+			ListItemType.EXPANDABLE,
+			ListItemType.OPTION,
+			ListItemType.SORT_OPTION,
 				-> outRect.set(0)
 
 			ListItemType.HEADER,

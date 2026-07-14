@@ -31,6 +31,8 @@ import org.draken.usagi.core.ui.BaseActivityEntryPoint
 import org.draken.usagi.core.ui.util.ActionModeDelegate
 import com.google.android.material.R as materialR
 
+private const val HALF_EXPANDED_RATIO = 0.62f
+
 abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 	OnApplyWindowInsetsListener {
 
@@ -131,6 +133,7 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 
 	protected open fun onViewBindingCreated(binding: B, savedInstanceState: Bundle?) = Unit
 
+	@Suppress("unused")
 	fun startSupportActionMode(callback: ActionMode.Callback): ActionMode? {
 		val delegate =
 			(dialog as? AppCompatDialog)?.delegate ?: (activity as? AppCompatActivity)?.delegate ?: return null
@@ -166,6 +169,22 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 		b.isFitToContents = false
 		dialog?.findViewById<View>(materialR.id.design_bottom_sheet)?.updateLayoutParams {
 			height = LayoutParams.MATCH_PARENT
+		}
+	}
+
+	protected fun setHalfExpanded() {
+		val sheetDialog = dialog as? BottomSheetDialog ?: return
+		view?.updateLayoutParams { height = LayoutParams.MATCH_PARENT }
+		dialog?.findViewById<View>(materialR.id.design_bottom_sheet)?.updateLayoutParams {
+			height = LayoutParams.MATCH_PARENT
+		}
+		sheetDialog.behavior.apply {
+			isFitToContents = false
+			isHideable = true
+			isDraggableOnNestedScroll = false
+			skipCollapsed = true
+			halfExpandedRatio = HALF_EXPANDED_RATIO
+			state = BottomSheetBehavior.STATE_HALF_EXPANDED
 		}
 	}
 

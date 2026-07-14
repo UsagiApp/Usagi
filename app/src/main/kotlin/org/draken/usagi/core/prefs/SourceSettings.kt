@@ -25,6 +25,14 @@ class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig 
 		get() = prefs.getEnumValue(KEY_SORT_ORDER, SortOrder::class.java)
 		set(value) = prefs.edit(true) { putEnumValue(KEY_SORT_ORDER, value) }
 
+	var lastSortTagKey: String?
+		get() = prefs.getString(KEY_LAST_SORT_KEY, null)
+		set(value) = prefs.edit(true) { putString(KEY_LAST_SORT_KEY, value) }
+
+	var lastSortTagTitle: String?
+		get() = prefs.getString(KEY_LAST_SORT_TITLE, null)
+		set(value) = prefs.edit(true) { putString(KEY_LAST_SORT_TITLE, value) }
+
 	val isSlowdownEnabled: Boolean
 		get() = prefs.getBoolean(KEY_SLOWDOWN, false)
 
@@ -73,6 +81,8 @@ class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig 
 		const val KEY_NO_CAPTCHA = "no_captcha"
 		const val KEY_SLOWDOWN = "slowdown"
 		const val KEY_SORT_ORDER = "sort_order"
+		const val KEY_LAST_SORT_KEY = "last_sort_key"
+		const val KEY_LAST_SORT_TITLE = "last_sort_title"
 		private val SOURCE_REGEX = "[^a-zA-Z0-9]".toRegex()
 
 		fun prefsName(source: MangaSource): String {

@@ -74,6 +74,10 @@ class FilterFieldLayout @JvmOverloads constructor(
 		binding.textViewTitle.setText(titleResId)
 	}
 
+	fun setText(title: CharSequence) {
+		binding.textViewTitle.text = title
+	}
+
 	fun setError(errorMessage: String?) {
 		if (errorMessage == null && errorView == null) {
 			return

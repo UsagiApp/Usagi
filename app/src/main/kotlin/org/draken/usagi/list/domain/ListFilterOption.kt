@@ -8,6 +8,7 @@ import org.draken.usagi.core.model.FavouriteCategory
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.unwrap
 import org.draken.usagi.core.parser.external.ExternalMangaSource
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource
 import org.draken.usagi.core.parser.favicon.faviconUri
 import tsuki.model.MangaSource
 import tsuki.model.MangaTag
@@ -115,7 +116,7 @@ sealed interface ListFilterOption {
 	) : ListFilterOption {
 		override val titleResId: Int
 			get() = when (mangaSource.unwrap()) {
-				is ExternalMangaSource -> R.string.external_source
+				is ExternalMangaSource, is TachiyomiMangaSource -> R.string.external_source
 				LocalMangaSource -> R.string.local_storage
 				else -> 0
 			}
@@ -125,7 +126,7 @@ sealed interface ListFilterOption {
 
 		override val titleText: CharSequence?
 			get() = when (val source = mangaSource.unwrap()) {
-				is ExternalMangaSource, LocalMangaSource,
+				is ExternalMangaSource, is TachiyomiMangaSource, LocalMangaSource,
 					org.draken.usagi.core.model.TestMangaSource,
 					org.draken.usagi.core.model.UnknownMangaSource -> null
 				else -> source.title

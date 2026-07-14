@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.divider.MaterialDivider
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/divider"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_marginHorizontal="@dimen/margin_normal"
+	android:layout_marginVertical="@dimen/margin_small" />

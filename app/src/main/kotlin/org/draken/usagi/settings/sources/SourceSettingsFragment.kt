@@ -17,6 +17,7 @@ import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
+import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.core.ui.BasePreferenceFragment
@@ -46,7 +47,7 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 		val isValidSource = viewModel.repository !is EmptyMangaRepository
 
 		findPreference<SwitchPreferenceCompat>(KEY_ENABLE)?.run {
-			isVisible = isValidSource && !settings.isAllSourcesEnabled
+			isVisible = isValidSource && !settings.isAllSourcesEnabled && viewModel.repository !is ExternalMangaRepository
 			onPreferenceChangeListener = this@SourceSettingsFragment
 		}
 		findPreference<Preference>(KEY_AUTH)?.run {
@@ -115,7 +116,7 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 	}
 
 	override fun onDisplayPreferenceDialog(preference: Preference) {
-		if (preference.key == SourceSettings.KEY_DOMAIN) {
+		if (preference is EditTextPreference && preference.key == SourceSettings.KEY_DOMAIN) {
 			if (parentFragmentManager.findFragmentByTag(DomainDialogFragment.DIALOG_FRAGMENT_TAG) != null) {
 				return
 			}

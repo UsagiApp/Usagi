@@ -14,18 +14,15 @@ import android.view.ViewGroup
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.SnackbarErrorObserver
 import org.draken.usagi.core.model.LocalMangaSource
+import org.draken.usagi.core.model.externalPackageName
 import org.draken.usagi.core.nav.router
-import org.draken.usagi.core.parser.external.ExternalMangaSource
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseFragment
 import org.draken.usagi.core.ui.dialog.BigButtonsAlertDialog
@@ -182,12 +179,12 @@ class ExploreFragment :
 		menu.findItem(R.id.action_pin).isVisible = selectedSources.all { !it.isPinned }
 		menu.findItem(R.id.action_unpin).isVisible = selectedSources.all { it.isPinned }
 		menu.findItem(R.id.action_disable)?.isVisible = !viewModel.isAllSourcesEnabled.value &&
-			selectedSources.all { it.mangaSource !is ExternalMangaSource
+			selectedSources.all { it.mangaSource.externalPackageName() == null
 				&& it.mangaSource !is LocalMangaSource
 				&& it.mangaSource !is org.draken.usagi.core.model.TestMangaSource
 				&& it.mangaSource !is org.draken.usagi.core.model.UnknownMangaSource
 			}
-		menu.findItem(R.id.action_delete)?.isVisible = selectedSources.all { it.mangaSource is ExternalMangaSource }
+		menu.findItem(R.id.action_delete)?.isVisible = selectedSources.all { it.mangaSource.externalPackageName() != null }
 		return super.onPrepareActionMode(controller, mode, menu)
 	}
 
@@ -209,9 +206,8 @@ class ExploreFragment :
 			}
 
 			R.id.action_delete -> {
-				selectedSources.forEach {
-					(it.mangaSource as? ExternalMangaSource)?.let { e -> uninstallExternalSource(e) }
-				}
+				selectedSources.mapNotNullTo(LinkedHashSet()) { it.mangaSource.externalPackageName() }
+					.forEach(::uninstallExternalPackage)
 				mode?.finish()
 			}
 
@@ -263,8 +259,8 @@ class ExploreFragment :
 			.show()
 	}
 
-	private fun uninstallExternalSource(source: ExternalMangaSource) {
-		val uri = Uri.fromParts("package", source.packageName, null)
+	private fun uninstallExternalPackage(packageName: String) {
+		val uri = Uri.fromParts("package", packageName, null)
 		val action = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 			Intent.ACTION_DELETE
 		} else {

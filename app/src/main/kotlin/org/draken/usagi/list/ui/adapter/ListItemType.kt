@@ -34,4 +34,15 @@ enum class ListItemType {
 	NAV_ITEM,
 	CHAPTER_LIST,
 	CHAPTER_GRID,
+	// For some special external sources
+	CHECKBOX,
+	CHIPS,
+	EXPANDABLE,
+	OPTION,
+	SELECT,
+	SEPARATOR,
+	SORT_OPTION,
+	TEXT,
+	TRISTATE,
+	T_HEADER,
 }

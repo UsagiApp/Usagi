@@ -32,12 +32,10 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okio.use
 import org.jetbrains.annotations.Blocking
 import org.draken.usagi.core.LocalizedAppContext
 import org.draken.usagi.core.image.BitmapDecoderCompat
-import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.network.MangaHttpClient
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor
 import org.draken.usagi.core.parser.CachingMangaRepository
@@ -298,8 +296,7 @@ class PageLoader @Inject constructor(
 				if (isPrefetch) {
 					downloadSlowdownDispatcher.delay(page.source)
 				}
-				val request = createPageRequest(pageUrl, page.source)
-				imageProxyInterceptor.interceptPageRequest(request, okHttp).ensureSuccess().use { response ->
+				getRepository(page.source).getPageResponse(page, okHttp, imageProxyInterceptor).ensureSuccess().use { response ->
 					response.requireBody().withProgress(progress).use {
 						cache.set(pageUrl, it.source(), it.contentType()?.toMimeType())
 					}
@@ -337,15 +334,6 @@ class PageLoader @Inject constructor(
 		private const val PROGRESS_UNDEFINED = -1f
 		private const val PREFETCH_LIMIT_DEFAULT = 6
 		private const val PREFETCH_MIN_RAM_MB = 80L
-
-		fun createPageRequest(pageUrl: String, mangaSource: MangaSource) = Request.Builder()
-			.url(pageUrl)
-			.get()
-			.header(CommonHeaders.ACCEPT, "image/webp,image/png;q=0.9,image/jpeg,*/*;q=0.8")
-			.cacheControl(CommonHeaders.CACHE_CONTROL_NO_STORE)
-			.tag(MangaSource::class.java, mangaSource)
-			.build()
-
 
 		@Blocking
 		private fun Uri.exists(): Boolean = when {

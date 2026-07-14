@@ -73,6 +73,15 @@
 
             </org.draken.usagi.filter.ui.FilterFieldLayout>
 
+            <LinearLayout
+                android:id="@+id/layout_dynamic_filters"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_small"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
             <org.draken.usagi.filter.ui.FilterFieldLayout
                 android:id="@+id/layout_locale"
                 android:layout_width="match_parent"

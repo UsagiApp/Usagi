@@ -952,4 +952,5 @@
 	<string name="check_app_update_summary">Check for app updates automatically at startup</string>
 	<string name="auto_update_plugins">Auto update plugins</string>
 	<string name="auto_update_plugins_summary">Automatically refresh and update all installed plugins at startup</string>
+	<string name="no_filters_available">This source has no filters</string>
 </resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.draken.usagi.core.ui.widgets.ChipsView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/chipsView"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:layout_marginHorizontal="@dimen/margin_normal"
+	android:layout_marginVertical="@dimen/margin_small"
+	app:chipStyle="@style/Widget.Usagi.Chip.Filter" />
