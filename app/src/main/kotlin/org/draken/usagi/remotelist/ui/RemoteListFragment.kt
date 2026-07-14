@@ -130,6 +130,11 @@ class RemoteListFragment : MangaListFragment(), FilterCoordinator.Owner, View.On
                 true
             }
 
+            R.id.action_web -> {
+                openInBrowser(viewModel.getBrowserUrl())
+                true
+            }
+
             R.id.action_filter -> {
                 onFilterClick(null)
                 true

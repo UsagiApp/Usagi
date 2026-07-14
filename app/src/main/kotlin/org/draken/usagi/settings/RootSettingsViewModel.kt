@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
 import org.draken.usagi.core.ui.BaseViewModel
+import org.draken.usagi.core.model.isExternalSource
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import javax.inject.Inject
 
@@ -16,7 +17,7 @@ class RootSettingsViewModel @Inject constructor(
 ) : BaseViewModel() {
 
 	val totalSourcesCount: Int
-		get() = sourcesRepository.allMangaSources.size
+		get() = sourcesRepository.allMangaSources.count { !it.isExternalSource() }
 
 	val enabledSourcesCount = sourcesRepository.observeEnabledSourcesCount()
 		.withErrorHandling()

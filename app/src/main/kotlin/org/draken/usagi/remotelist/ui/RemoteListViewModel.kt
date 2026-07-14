@@ -23,6 +23,8 @@ import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.model.distinctById
 import org.draken.usagi.core.parser.MangaDataRepository
 import org.draken.usagi.core.parser.MangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
+import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.ListMode
 import org.draken.usagi.core.util.ext.MutableEventFlow
@@ -212,5 +214,11 @@ open class RemoteListViewModel @Inject constructor(
 			onOpenManga.call(manga)
 			isRandomLoading.value = false
 		}
+	}
+
+	fun getBrowserUrl(): String? = when (val repo = repository) {
+		is MangaParserRepository -> "https://${repo.domain}"
+		is ExternalMangaRepository -> repo.getBrowserUrl()
+		else -> null
 	}
 }

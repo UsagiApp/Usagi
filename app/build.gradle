@@ -62,7 +62,12 @@ android {
 				'META-INF/NOTICE.md',
 				'META-INF/LICENSE',
 				'META-INF/LICENSE.md',
-				'DebugProbesKt.bin'
+				'META-INF/DEPENDENCIES',
+				'META-INF/*.kotlin_module',
+				'META-INF/*.version',
+				'DebugProbesKt.bin',
+				'kotlin-tooling-metadata.json',
+				'**/*.kotlin_builtins'
 			]
 		}
 	}
@@ -90,7 +95,11 @@ android {
                 "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
                 "-Xjspecify-annotations=strict",
                 "-Xannotation-default-target=first-only",
-                "-Xtype-enhancement-improvements-strict-mode"
+                "-Xcontext-parameters",
+                "-Xtype-enhancement-improvements-strict-mode",
+                "-Xno-param-assertions",
+                "-Xno-call-assertions",
+                "-Xno-receiver-assertions"
             )
         }
     }
@@ -116,6 +125,7 @@ android {
 dependencies {
 	implementation libs.jsoup
 	implementation libs.tsuki
+	implementation libs.tsukimix
 	coreLibraryDesugaring libs.desugar.jdk.libs
 	implementation libs.kotlin.stdlib
 	implementation libs.kotlinx.coroutines.android
@@ -155,7 +165,10 @@ dependencies {
 	implementation libs.okhttp.tls
 	implementation libs.okhttp.dnsoverhttps
 	implementation libs.okio
+	implementation libs.rxjava
+	implementation libs.injekt.core
 	implementation libs.kotlinx.serialization.json
+	implementation libs.kotlinx.serialization.json.okio
 
 	implementation libs.adapterdelegates
 	implementation libs.adapterdelegates.viewbinding

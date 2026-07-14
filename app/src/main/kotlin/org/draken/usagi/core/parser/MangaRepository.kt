@@ -4,13 +4,20 @@ import android.content.Context
 import androidx.annotation.AnyThread
 import androidx.collection.ArrayMap
 import dagger.hilt.android.qualifiers.ApplicationContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import org.draken.usagi.core.cache.MemoryContentCache
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.MangaSourceInfo
 import org.draken.usagi.core.model.TestMangaSource
 import org.draken.usagi.core.model.UnknownMangaSource
-import org.draken.usagi.core.parser.external.ExternalMangaRepository
+import org.draken.usagi.core.network.CommonHeaders
+import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor
 import org.draken.usagi.core.parser.external.ExternalMangaSource
+import org.draken.usagi.core.parser.external.ExternalMangaRepository
+import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as TachiyomiMangaRepository
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource
 import org.draken.usagi.local.data.LocalMangaRepository
 import tsuki.MangaLoaderContext
 import tsuki.model.Manga
@@ -44,7 +51,17 @@ interface MangaRepository {
 
 	suspend fun getPageUrl(page: MangaPage): String
 
+	suspend fun getPageRequest(page: MangaPage): Request {
+		return createPageRequest(getPageUrl(page), page.source)
+	}
+
+	suspend fun getPageResponse(page: MangaPage, okHttp: OkHttpClient, imageProxyInterceptor: ImageProxyInterceptor): Response {
+		return imageProxyInterceptor.interceptPageRequest(getPageRequest(page), okHttp)
+	}
+
 	suspend fun getFilterOptions(): MangaListFilterOptions
+
+	suspend fun getExternalFilters(): Any? = null
 
 	suspend fun getRelated(seed: Manga): List<Manga>
 
@@ -111,6 +128,16 @@ interface MangaRepository {
 				EmptyMangaRepository(source)
 			}
 
+			is TachiyomiMangaSource -> try {
+				TachiyomiMangaRepository(
+					context = context,
+					source = source,
+					cache = contentCache,
+				)
+			} catch (_: Throwable) {
+				EmptyMangaRepository(source)
+			}
+
 			else -> try {
 				MangaParserRepository(
 					compoundSource = source,
@@ -118,9 +145,20 @@ interface MangaRepository {
 					cache = contentCache,
 					mirrorSwitcher = mirrorSwitcher,
 				)
-			} catch (_: Exception) {
+			} catch (_: Throwable) {
 				EmptyMangaRepository(source)
 			}
 		}
+	}
+
+	companion object {
+
+		fun createPageRequest(pageUrl: String, mangaSource: MangaSource) = Request.Builder()
+			.url(pageUrl)
+			.get()
+			.header(CommonHeaders.ACCEPT, "image/webp,image/png;q=0.9,image/jpeg,*/*;q=0.8")
+			.cacheControl(CommonHeaders.CACHE_CONTROL_NO_STORE)
+			.tag(MangaSource::class.java, mangaSource)
+			.build()
 	}
 }
