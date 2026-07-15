@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import org.draken.usagi.core.model.ZoomMode
 import org.draken.usagi.core.parser.MangaDataRepository
 import org.draken.usagi.core.prefs.AppSettings
+import org.draken.usagi.core.prefs.DownscaleMode
 import org.draken.usagi.core.prefs.ReaderBackground
 import org.draken.usagi.core.prefs.ReaderMode
 import org.draken.usagi.core.util.MediatorStateFlow
@@ -38,6 +39,7 @@ data class ReaderSettings(
 	val isPagesNumbersEnabled: Boolean,
 	val isPagesCropEnabledStandard: Boolean,
 	val isPagesCropEnabledWebtoon: Boolean,
+	val downscale: DownscaleMode,
 ) {
 
 	private constructor(settings: AppSettings, colorFilterOverride: ReaderColorFilter?) : this(
@@ -53,6 +55,7 @@ data class ReaderSettings(
 		isPagesNumbersEnabled = settings.isPagesNumbersEnabled,
 		isPagesCropEnabledStandard = settings.isPagesCropEnabled(ReaderMode.STANDARD),
 		isPagesCropEnabledWebtoon = settings.isPagesCropEnabled(ReaderMode.WEBTOON),
+		downscale = settings.defaultDownscaleMode,
 	)
 
 	fun applyBackground(view: View) {
@@ -103,6 +106,7 @@ data class ReaderSettings(
 			AppSettings.KEY_CF_INVERTED,
 			AppSettings.KEY_CF_GRAYSCALE,
 			AppSettings.KEY_READER_CROP,
+			AppSettings.KEY_READER_DOWNSCALE_MODE,
 		)
 		private var job: Job? = null
 

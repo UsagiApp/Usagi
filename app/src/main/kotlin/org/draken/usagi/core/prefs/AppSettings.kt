@@ -232,6 +232,10 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	val defaultReaderMode: ReaderMode
 		get() = prefs.getEnumValue(KEY_READER_MODE, ReaderMode.STANDARD)
 
+	var defaultDownscaleMode: DownscaleMode
+		get() = prefs.getEnumValue(KEY_READER_DOWNSCALE_MODE, DownscaleMode.OFF)
+		set(value) = prefs.edit { putEnumValue(KEY_READER_DOWNSCALE_MODE, value) }
+
 	val isReaderModeDetectionEnabled: Boolean
 		get() = prefs.getBoolean(KEY_READER_MODE_DETECT, true)
 
@@ -782,6 +786,7 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_READER_ANIMATION = "reader_animation2"
 		const val KEY_READER_CONTROLS = "reader_controls"
 		const val KEY_READER_MODE = "reader_mode"
+		const val KEY_READER_DOWNSCALE_MODE = "reader_downscale_mode"
 		const val KEY_READER_MODE_DETECT = "reader_mode_detect"
 		const val KEY_READER_CROP = "reader_crop"
 		const val KEY_APP_PASSWORD = "app_password"
