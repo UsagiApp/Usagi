@@ -13,11 +13,11 @@ import org.draken.usagi.core.model.MangaSourceInfo
 import org.draken.usagi.core.model.TestMangaSource
 import org.draken.usagi.core.model.UnknownMangaSource
 import org.draken.usagi.core.network.CommonHeaders
-import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor
+import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
 import org.draken.usagi.core.parser.external.ExternalMangaSource
 import org.draken.usagi.core.parser.external.ExternalMangaRepository
-import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as TachiyomiMangaRepository
-import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource
+import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as ExternalRepository
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 import org.draken.usagi.local.data.LocalMangaRepository
 import tsuki.MangaLoaderContext
 import tsuki.model.Manga
@@ -55,8 +55,8 @@ interface MangaRepository {
 		return createPageRequest(getPageUrl(page), page.source)
 	}
 
-	suspend fun getPageResponse(page: MangaPage, okHttp: OkHttpClient, imageProxyInterceptor: ImageProxyInterceptor): Response {
-		return imageProxyInterceptor.interceptPageRequest(getPageRequest(page), okHttp)
+	suspend fun getPageResponse(page: MangaPage, okHttp: OkHttpClient, interceptor: Interceptor): Response {
+		return interceptor.interceptPageRequest(getPageRequest(page), okHttp)
 	}
 
 	suspend fun getFilterOptions(): MangaListFilterOptions
@@ -128,8 +128,8 @@ interface MangaRepository {
 				EmptyMangaRepository(source)
 			}
 
-			is TachiyomiMangaSource -> try {
-				TachiyomiMangaRepository(
+			is ExternalSource -> try {
+				ExternalRepository(
 					context = context,
 					source = source,
 					cache = contentCache,

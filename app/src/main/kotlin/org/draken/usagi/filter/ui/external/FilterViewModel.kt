@@ -49,7 +49,7 @@ class FilterViewModel @AssistedInject constructor(
 		sortPath = FilterMapper.findSortFilter(working)?.path
 		if (resetExpanded) {
 			expandedPaths.clear()
-			collectInitiallyExpanded(working.toList(), prefix = "")
+			collectInit(working.toList(), prefix = "")
 		}
 		rebuild()
 		loadedFlow.value = true
@@ -63,13 +63,13 @@ class FilterViewModel @AssistedInject constructor(
 	override fun onCheckBoxClick(item: FilterItem.CheckBox) {
 		val f = pathMap[item.path] as? Filter.CheckBox ?: return
 		f.state = !f.state
-		applyAndRebuild()
+		apply()
 	}
 
 	override fun onCheckBoxChipClick(checkBoxPath: String) {
 		val f = pathMap[checkBoxPath] as? Filter.CheckBox ?: return
 		f.state = !f.state
-		applyAndRebuild()
+		apply()
 	}
 
 	override fun onTriStateClick(item: FilterItem.TriState) {
@@ -79,47 +79,39 @@ class FilterViewModel @AssistedInject constructor(
 			Filter.TriState.STATE_INCLUDE -> Filter.TriState.STATE_EXCLUDE
 			else -> Filter.TriState.STATE_IGNORE
 		}
-		applyAndRebuild()
+		apply()
 	}
 
 	override fun onTextChanged(item: FilterItem.Text, value: String) {
 		val f = pathMap[item.path] as? Filter.Text ?: return
-		if (f.state == value) {
-			return
-		}
+		if (f.state == value) return
 		f.state = value
-		applyAndRebuild()
+		apply()
 	}
 
 	override fun onSelectChanged(item: FilterItem.Select, index: Int) {
 		val f = pathMap[item.path] as? Filter.Select<*> ?: return
-		if (index !in f.values.indices || f.state == index) {
-			return
-		}
+		if (index !in f.values.indices || f.state == index) return
 		f.state = index
-		applyAndRebuild()
+		apply()
 	}
 
 	override fun onExpandClick(item: FilterItem.ExpandableHeader) {
-		if (!expandedPaths.add(item.path)) {
-			expandedPaths.remove(item.path)
-		}
+		if (!expandedPaths.add(item.path)) expandedPaths.remove(item.path)
 		rebuild()
 	}
 
 	override fun onSortOptionClick(item: FilterItem.SortOption) {
 		val f = pathMap[item.path] as? Filter.Sort ?: return
 		val current = f.state
-		val ascending = if (current?.index == item.optionIndex) {
-			!current.ascending
-		} else {
+		val ascending = if (current?.index == item.optionIndex) { !current.ascending } else {
 			current?.ascending ?: true
 		}
 		f.state = Filter.Sort.Selection(item.optionIndex, ascending)
-		applyAndRebuild()
+		apply()
 	}
 
-	private fun applyAndRebuild() {
+	private fun apply() {
 		filter.applyDynamicFilters(working, defaults)
 		rebuild()
 	}
@@ -128,30 +120,21 @@ class FilterViewModel @AssistedInject constructor(
 		pathMap.clear()
 		val result = ArrayList<FilterItem>()
 		build(working.toList(), prefix = "", depth = 0, out = result)
-		result.removeLeadingSeparators()
+		result.removeSeparators()
 		itemsFlow.value = result
 	}
 
 	private fun build(filters: List<Filter<*>>, prefix: String, depth: Int, out: MutableList<FilterItem>) {
-		filters.forEachIndexed { index, f ->
-			val path = if (prefix.isEmpty()) index.toString() else "$prefix.$index"
-			if (shouldHideFilter(f, path)) {
-				return@forEachIndexed
-			}
+		filters.forEachIndexed { i, f ->
+			val path = if (prefix.isEmpty()) i.toString() else "$prefix.$i"
+			if (isHidden(f, path)) return@forEachIndexed
 			pathMap[path] = f
 			when (f) {
-				is Filter.Header -> if (f.name.isNotEmpty()) {
-					out += FilterItem.Header(path, depth, f.name)
-				}
-
+				is Filter.Header -> if (f.name.isNotEmpty()) out += FilterItem.Header(path, depth, f.name)
 				is Filter.Separator -> out += FilterItem.Separator(path, depth)
-
 				is Filter.CheckBox -> out += FilterItem.CheckBox(path, depth, f.name, f.state)
-
 				is Filter.TriState -> out += FilterItem.TriState(path, depth, f.name, f.state)
-
 				is Filter.Text -> out += FilterItem.Text(path, depth, f.name, f.state)
-
 				is Filter.Select<*> -> out += FilterItem.Select(
 					path = path,
 					depth = depth,
@@ -162,9 +145,7 @@ class FilterViewModel @AssistedInject constructor(
 
 				is Filter.Sort -> {
 					val selection = f.state
-					val summary = selection?.let {
-						"${f.values.getOrNull(it.index)} ${if (it.ascending) "↑" else "↓"}"
-					}
+					val summary = selection?.let { "${f.values.getOrNull(it.index)} ${if (it.ascending) "↑" else "↓"}" }
 					val expanded = path in expandedPaths
 					out += FilterItem.ExpandableHeader(path, depth, f.name, expanded, summary)
 					if (expanded) {
@@ -177,9 +158,7 @@ class FilterViewModel @AssistedInject constructor(
 
 				is Filter.Group<*> -> {
 					val children = f.state.filterIsInstance<Filter<*>>()
-					if (!hasVisibleControls(children, path)) {
-						return@forEachIndexed
-					}
+					if (!hasControls(children, path)) return@forEachIndexed
 					val active = activeCount(children, path)
 					val expanded = path in expandedPaths
 					out += FilterItem.ExpandableHeader(
@@ -204,31 +183,24 @@ class FilterViewModel @AssistedInject constructor(
 								FilterItem.CheckBoxChips.Chip(childPath, checkBox.name, checkBox.state)
 							}
 							out += FilterItem.CheckBoxChips(path, depth + 1, chips)
-						} else {
-							build(children, path, depth + 1, out)
-						}
+						} else { build(children, path, depth + 1, out) }
 					}
 				}
 			}
 		}
 	}
 
-	private fun collectInitiallyExpanded(filters: List<Filter<*>>, prefix: String) {
-		filters.forEachIndexed { index, f ->
-			val path = if (prefix.isEmpty()) index.toString() else "$prefix.$index"
-			if (shouldHideFilter(f, path)) {
-				return@forEachIndexed
-			}
+	private fun collectInit(filters: List<Filter<*>>, prefix: String) {
+		filters.forEachIndexed { i, f ->
+			val path = if (prefix.isEmpty()) i.toString() else "$prefix.$i"
+			if (isHidden(f, path)) return@forEachIndexed
 			when (f) {
 				is Filter.Sort -> if (f.state != null) expandedPaths.add(path)
 				is Filter.Group<*> -> {
 					val children = f.state.filterIsInstance<Filter<*>>()
-					if (activeCount(children, path) > 0) {
-						expandedPaths.add(path)
-					}
-					collectInitiallyExpanded(children, path)
+					if (activeCount(children, path) > 0) expandedPaths.add(path)
+					collectInit(children, path)
 				}
-
 				else -> Unit
 			}
 		}
@@ -236,9 +208,7 @@ class FilterViewModel @AssistedInject constructor(
 
 	private fun activeCount(filters: List<Filter<*>>, prefix: String): Int = filters.withIndex().count { (index, f) ->
 		val path = "$prefix.$index"
-		if (shouldHideFilter(f, path)) {
-			false
-		} else {
+		if (isHidden(f, path)) { false } else {
 			when (f) {
 				is Filter.CheckBox -> f.state
 				is Filter.TriState -> f.state != Filter.TriState.STATE_IGNORE
@@ -249,30 +219,27 @@ class FilterViewModel @AssistedInject constructor(
 		}
 	}
 
-	private fun hasVisibleControls(filters: List<Filter<*>>, prefix: String): Boolean {
+	private fun hasControls(filters: List<Filter<*>>, prefix: String): Boolean {
 		filters.forEachIndexed { index, f ->
 			val path = "$prefix.$index"
-			if (shouldHideFilter(f, path)) {
-				return@forEachIndexed
-			}
+			if (isHidden(f, path)) return@forEachIndexed
 			when (f) {
 				is Filter.Header, is Filter.Separator -> Unit
 				is Filter.Group<*> -> {
-					if (hasVisibleControls(f.state.filterIsInstance<Filter<*>>(), path)) {
+					if (hasControls(f.state.filterIsInstance<Filter<*>>(), path)) {
 						return true
 					}
 				}
-
 				else -> return true
 			}
 		}
 		return false
 	}
 
-	private fun shouldHideFilter(filter: Filter<*>, path: String): Boolean =
+	private fun isHidden(filter: Filter<*>, path: String): Boolean =
 		if (!isEmbed) { filter is Filter.Sort || path == sortPath } else false
 
-	private fun MutableList<FilterItem>.removeLeadingSeparators() {
+	private fun MutableList<FilterItem>.removeSeparators() {
 		while (firstOrNull() is FilterItem.Separator) {
 			removeAt(0)
 		}

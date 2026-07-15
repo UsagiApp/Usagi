@@ -51,26 +51,18 @@ class FilterSheetFragment : BaseAdaptiveSheet<SheetOptionsBinding>(), AdaptiveSh
 
 	override fun onViewBindingCreated(binding: SheetOptionsBinding, savedInstanceState: Bundle?) {
 		super.onViewBindingCreated(binding, savedInstanceState)
-		if (dialog == null) {
-			binding.adjustForEmbeddedLayout()
-		}
+		if (dialog == null) binding.adjustForEmbeddedLayout()
 		val adapter = FilterAdapter(viewModel)
 		binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 		binding.recyclerView.adapter = adapter
 		binding.buttonReset.setOnClickListener { viewModel.reset() }
 		binding.buttonDone.setOnClickListener { dismiss() }
 		viewModel.items.observe(viewLifecycleOwner, adapter)
-		viewModel.isLoading.observe(viewLifecycleOwner) {
-			binding.progressBar.isVisible = it
-		}
-		viewModel.isEmptyState.observe(viewLifecycleOwner) {
-			binding.textViewHolder.isVisible = it
-		}
+		viewModel.isLoading.observe(viewLifecycleOwner) { binding.progressBar.isVisible = it }
+		viewModel.isEmptyState.observe(viewLifecycleOwner) { binding.textViewHolder.isVisible = it }
 		addSheetCallback(this, viewLifecycleOwner)
 		binding.layoutBottom.doOnLayout {
-			dialog?.findViewById<View>(materialR.id.design_bottom_sheet)?.let { sheet ->
-				updateLayoutForOffset(sheet)
-			}
+			dialog?.findViewById<View>(materialR.id.design_bottom_sheet)?.let { s -> updateLayout(s) }
 		}
 	}
 
@@ -80,16 +72,14 @@ class FilterSheetFragment : BaseAdaptiveSheet<SheetOptionsBinding>(), AdaptiveSh
 	}
 
 	override fun onStateChanged(sheet: View, newState: Int) {
-		updateLayoutForOffset(sheet)
-		if (newState == STATE_DRAGGING || newState == STATE_SETTLING) {
-			return
-		}
+		updateLayout(sheet)
+		if (newState == STATE_DRAGGING || newState == STATE_SETTLING) return
 		// Snap the drag handle to its resting state for programmatic moves; manual drags drive it via onSlide.
 		viewBinding?.headerBar?.setProgress(if (newState == STATE_EXPANDED) 1f else 0f)
 	}
 
 	override fun onSlide(sheet: View, slideOffset: Float) {
-		updateLayoutForOffset(sheet)
+		updateLayout(sheet)
 		// Melt the drag handle away over the top stretch of the drag so reaching full screen is one
 		// seamless motion rather than the handle snapping out once expanded.
 		val binding = viewBinding ?: return
@@ -97,19 +87,15 @@ class FilterSheetFragment : BaseAdaptiveSheet<SheetOptionsBinding>(), AdaptiveSh
 		binding.headerBar.setProgress(progress)
 	}
 
-	private fun updateLayoutForOffset(sheet: View) {
+	private fun updateLayout(sheet: View) {
 		val binding = viewBinding ?: return
 		val top = sheet.top
 		binding.layoutBottom.translationY = -top.toFloat()
-
 		val surfaceColor = getSheetSurfaceColor(sheet)
 		binding.layoutBottom.setBackgroundColor(surfaceColor)
-
 		val basePadding = resources.getDimensionPixelOffset(R.dimen.margin_small)
 		val buttonsHeight = binding.layoutBottom.height
-		binding.recyclerView.updatePadding(
-			bottom = basePadding + systemBarsBottom + buttonsHeight + top
-		)
+		binding.recyclerView.updatePadding(bottom = basePadding + systemBarsBottom + buttonsHeight + top)
 	}
 
 	private fun getSheetSurfaceColor(sheet: View): Int {
@@ -143,9 +129,7 @@ class FilterSheetFragment : BaseAdaptiveSheet<SheetOptionsBinding>(), AdaptiveSh
 		// Preserve the layout's own vertical breathing room on top of the system inset.
 		val basePadding = resources.getDimensionPixelOffset(R.dimen.margin_small)
 		viewBinding?.layoutBottom?.updatePadding(bottom = basePadding + barsInsets.bottom)
-		dialog?.findViewById<View>(materialR.id.design_bottom_sheet)?.let { sheet ->
-			updateLayoutForOffset(sheet)
-		} ?: run {
+		dialog?.findViewById<View>(materialR.id.design_bottom_sheet)?.let { s -> updateLayout(s) } ?: run {
 			// Embedded layout fallback
 			viewBinding?.run {
 				val surfaceColor = requireContext().getThemeColor(android.R.attr.colorBackground)

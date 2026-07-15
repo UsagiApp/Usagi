@@ -11,8 +11,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.inSpans
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.external.ExternalMangaSource
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager
-import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 import org.draken.usagi.core.util.ext.getDisplayName
 import org.draken.usagi.core.util.ext.toLocale
 import org.draken.usagi.core.util.ext.toLocaleOrNull
@@ -69,10 +69,7 @@ fun MangaSource(name: String?): MangaSource {
 	if (name.startsWith("content:")) {
 		val parts = name.substringAfter(':').splitTwoParts('/') ?: return UnknownMangaSource
 		return ExternalMangaSource(packageName = parts.first, authority = parts.second)
-	}
-	if (name.startsWith("TACHI_")) {
-		TachiyomiExtensionManager.getByName(name)?.let { return it }
-	}
+	} else if (name.startsWith("EXTERNAL_")) ExternalManager.getByName(name)?.let { return it } // tachi
 	MangaSourceRegistry.resolveByName(name)?.let { return it }
 	// Backward compatibility for loaded database items saved as '1.jar:MANGADEX'
 	if (name.contains(':')) {
@@ -114,20 +111,20 @@ val ContentType.titleResId
 tailrec fun MangaSource.unwrap(): MangaSource = when (this) {
     is MangaSourceInfo -> mangaSource.unwrap()
     is PluginMangaSource -> delegate.unwrap()
-	is TachiyomiMangaSource -> this
+	is ExternalSource -> this
     else -> this
 }
 
 fun MangaSource.getLocale(): Locale? = locale.toLocaleOrNull()
 
 fun MangaSource.isExternalSource(): Boolean = when (val source = unwrap()) {
-	is ExternalMangaSource, is TachiyomiMangaSource -> true
+	is ExternalMangaSource, is ExternalSource -> true
 	else -> false
 }
 
 fun MangaSource.externalPackageName(): String? = when (val source = unwrap()) {
 	is ExternalMangaSource -> source.packageName
-	is TachiyomiMangaSource -> source.pkgName
+	is ExternalSource -> source.pkgName
 	else -> null
 }
 
@@ -156,7 +153,7 @@ fun MangaSource.getTitle(context: Context): String = when {
 	this === TestMangaSource -> context.getString(R.string.test_parser)
 	this is ExternalMangaSource -> this.resolveName(context)
 	this is MangaSourceInfo && mangaSource is ExternalMangaSource -> mangaSource.resolveName(context)
-	this is TachiyomiMangaSource -> this.displayName
+	this is ExternalSource -> this.displayName
 	this === UnknownMangaSource -> context.getString(R.string.unknown)
 	else -> title
 }

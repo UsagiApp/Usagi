@@ -25,12 +25,7 @@ sealed class FilterItem(
 		override fun hashCode() = path.hashCode()
 	}
 
-	class CheckBox(
-		path: String,
-		depth: Int,
-		val title: String,
-		val isChecked: Boolean,
-	) : FilterItem(path, depth) {
+	class CheckBox(path: String, depth: Int, val title: String, val isChecked: Boolean) : FilterItem(path, depth) {
 		override fun areItemsTheSame(other: ListModel) = other is CheckBox && other.path == path
 		override fun equals(other: Any?) =
 			other is CheckBox && other.path == path && other.title == title && other.isChecked == isChecked && other.depth == depth
@@ -40,12 +35,7 @@ sealed class FilterItem(
 	}
 
 	/** [state] uses `Filter.TriState.STATE_*` (0 ignore, 1 include, 2 exclude). */
-	class TriState(
-		path: String,
-		depth: Int,
-		val title: String,
-		val state: Int,
-	) : FilterItem(path, depth) {
+	class TriState(path: String, depth: Int, val title: String, val state: Int) : FilterItem(path, depth) {
 		override fun areItemsTheSame(other: ListModel) = other is TriState && other.path == path
 		override fun equals(other: Any?) =
 			other is TriState && other.path == path && other.title == title && other.state == state && other.depth == depth
@@ -54,12 +44,7 @@ sealed class FilterItem(
 			if (previousState is TriState && previousState.state != state) PAYLOAD_CHECKED_CHANGED else null
 	}
 
-	class Text(
-		path: String,
-		depth: Int,
-		val title: String,
-		val value: String,
-	) : FilterItem(path, depth) {
+	class Text(path: String, depth: Int, val title: String, val value: String) : FilterItem(path, depth) {
 		override fun areItemsTheSame(other: ListModel) = other is Text && other.path == path
 		override fun equals(other: Any?) =
 			other is Text && other.path == path && other.title == title && other.value == value && other.depth == depth
@@ -67,11 +52,8 @@ sealed class FilterItem(
 	}
 
 	class Select(
-		path: String,
-		depth: Int,
-		val title: String,
-		val options: List<String>,
-		val selectedIndex: Int,
+		path: String, depth: Int, val title: String,
+		val options: List<String>, val selectedIndex: Int,
 	) : FilterItem(path, depth) {
 		override fun areItemsTheSame(other: ListModel) = other is Select && other.path == path
 		override fun equals(other: Any?) =
@@ -81,12 +63,7 @@ sealed class FilterItem(
 	}
 
 	/** A run of [eu.kanade.tachiyomi.source.model.Filter.CheckBox]es rendered as a wrapping chip row. */
-	class CheckBoxChips(
-		path: String,
-		depth: Int,
-		val chips: List<Chip>,
-	) : FilterItem(path, depth) {
-
+	class CheckBoxChips(path: String, depth: Int, val chips: List<Chip>) : FilterItem(path, depth) {
 		/** [path] is the backing checkbox's index path; [checked] its current state. */
 		class Chip(val path: String, val title: String, val checked: Boolean) {
 			override fun equals(other: Any?) =
@@ -102,11 +79,8 @@ sealed class FilterItem(
 
 	/** Expandable header for a [eu.kanade.tachiyomi.source.model.Filter.Group] or `Filter.Sort`. */
 	class ExpandableHeader(
-		path: String,
-		depth: Int,
-		val title: String,
-		val isExpanded: Boolean,
-		val activeSummary: String?,
+		path: String, depth: Int, val title: String,
+		val isExpanded: Boolean, val activeSummary: String?,
 	) : FilterItem(path, depth) {
 		override fun areItemsTheSame(other: ListModel) = other is ExpandableHeader && other.path == path
 		override fun equals(other: Any?) =
@@ -117,11 +91,8 @@ sealed class FilterItem(
 
 	/** A single option row of a `Filter.Sort`. [isAscending] is null when this option isn't selected. */
 	class SortOption(
-		path: String,
-		depth: Int,
-		val optionIndex: Int,
-		val title: String,
-		val isAscending: Boolean?,
+		path: String, depth: Int, val optionIndex: Int,
+		val title: String, val isAscending: Boolean?,
 	) : FilterItem(path, depth) {
 		override fun areItemsTheSame(other: ListModel) =
 			other is SortOption && other.path == path && other.optionIndex == optionIndex

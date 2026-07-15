@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import okhttp3.OkHttpClient
 import org.draken.usagi.core.network.MangaHttpClient
-import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor
+import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
 import org.draken.usagi.core.parser.MangaDataRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.prefs.AppSettings
@@ -30,7 +30,7 @@ class DetectReaderModeUseCase @Inject constructor(
 	private val settings: AppSettings,
 	private val mangaRepositoryFactory: MangaRepository.Factory,
 	@MangaHttpClient private val okHttpClient: OkHttpClient,
-	private val imageProxyInterceptor: ImageProxyInterceptor,
+	private val interceptor: Interceptor,
 ) {
 
 	suspend operator fun invoke(manga: Manga, state: ReaderState?): ReaderMode {
@@ -81,7 +81,7 @@ class DetectReaderModeUseCase @Inject constructor(
 			}
 
 			else -> {
-				repository.getPageResponse(page, okHttpClient, imageProxyInterceptor).use {
+				repository.getPageResponse(page, okHttpClient, interceptor).use {
 					runInterruptible(Dispatchers.IO) {
 						getBitmapSize(it.body.byteStream())
 					}

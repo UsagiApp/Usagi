@@ -53,12 +53,8 @@ object FilterMapper {
 	}
 
 	private fun encodeInto(
-		working: List<Filter<*>>,
-		defaults: List<Filter<*>>,
-		prefix: String,
-		sortPath: String?,
-		source: MangaSource,
-		out: MutableSet<MangaTag>,
+		working: List<Filter<*>>, defaults: List<Filter<*>>, prefix: String,
+		sortPath: String?, source: MangaSource, out: MutableSet<MangaTag>,
 	) {
 		working.forEachIndexed { index, filter ->
 			val path = if (prefix.isEmpty()) index.toString() else "$prefix.$index"
@@ -148,24 +144,14 @@ object FilterMapper {
 	 * Applies the encoded state from [filter] back onto [target] (a freshly built default filter list).
 	 */
 	fun decode(target: FilterList, filter: MangaListFilter) {
-		if (filter.tags.isEmpty()) {
-			return
-		}
+		if (filter.tags.isEmpty()) return
 		val byPath = HashMap<String, Encoded>(filter.tags.size)
-		for (tag in filter.tags) {
-			parseKey(tag.key)?.let { byPath[it.path] = it }
-		}
-		if (byPath.isEmpty()) {
-			return
-		}
+		for (tag in filter.tags) { parseKey(tag.key)?.let { byPath[it.path] = it } }
+		if (byPath.isEmpty()) return
 		decodeInto(target.toList(), prefix = "", byPath = byPath)
 	}
 
-	private fun decodeInto(
-		filters: List<Filter<*>>,
-		prefix: String,
-		byPath: Map<String, Encoded>,
-	) {
+	private fun decodeInto(filters: List<Filter<*>>, prefix: String, byPath: Map<String, Encoded>) {
 		filters.forEachIndexed { index, filter ->
 			val path = if (prefix.isEmpty()) index.toString() else "$prefix.$index"
 			if (filter is Filter.Group<*>) {
@@ -190,9 +176,7 @@ object FilterMapper {
 			is Filter.Select<*> -> if (encoded.type == TYPE_SELECT || encoded.type == TYPE_SORT) {
 				// A sort Select is stored as "sort", a regular one as "select"; both decode to an index.
 				val idx = encoded.value.substringBefore(':').toIntOrNull() ?: return
-				if (idx in filter.values.indices) {
-					filter.state = idx
-				}
+				if (idx in filter.values.indices) filter.state = idx
 			}
 
 			is Filter.Sort -> if (encoded.type == TYPE_SORT) {
@@ -203,9 +187,7 @@ object FilterMapper {
 				val parts = encoded.value.split(':')
 				val idx = parts.getOrNull(0)?.toIntOrNull() ?: return
 				val ascending = parts.getOrNull(1) == "a"
-				if (idx in filter.values.indices) {
-					filter.state = Filter.Sort.Selection(idx, ascending)
-				}
+				if (idx in filter.values.indices) filter.state = Filter.Sort.Selection(idx, ascending)
 			}
 
 			is Filter.Text -> if (encoded.type == TYPE_TEXT) {
@@ -260,22 +242,17 @@ object FilterMapper {
 
 	private fun parseKey(key: String): Encoded? {
 		val atIndex = key.indexOf('@')
-		if (atIndex <= 0) {
-			return null
-		}
+		if (atIndex <= 0) return null
 		val type = key.substring(0, atIndex)
 		val rest = key.substring(atIndex + 1)
 		val eqIndex = rest.indexOf('=')
-		if (eqIndex < 0) {
-			return null
-		}
+		if (eqIndex < 0) return null
 		val path = rest.substring(0, eqIndex)
 		val value = rest.substring(eqIndex + 1)
 		return Encoded(type = type, path = path, value = value)
 	}
 
-	private fun tag(source: MangaSource, key: String, title: String) =
-		MangaTag(title = title, key = key, source = source)
+	private fun tag(source: MangaSource, key: String, title: String) = MangaTag(title, key, source)
 
 	private data class Encoded(val type: String, val path: String, val value: String)
 

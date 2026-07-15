@@ -62,12 +62,12 @@ class SortViewModel @AssistedInject constructor(
 
 	private fun rebuild() {
 		contentFlow.value = when (val state = sortState) {
-			is SortState.Source -> state.options.mapIndexed { index, label ->
+			is SortState.Source -> state.options.mapIndexed { i, label ->
 				SortOption(
-					id = index,
+					id = i,
 					title = label,
 					indicator = when {
-						index != state.selectedIndex -> SortOption.Indicator.NONE
+						i != state.selectedIndex -> SortOption.Indicator.NONE
 						!state.supportsDirection -> SortOption.Indicator.SELECTED
 						state.isAscending -> SortOption.Indicator.ASCENDING
 						else -> SortOption.Indicator.DESCENDING

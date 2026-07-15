@@ -402,7 +402,7 @@ class DownloadWorker @AssistedInject constructor(
 			.use { response ->
 				var file: File? = null
 				try {
-					response.requireBody().use { body ->
+					response.body.use { body ->
 						file = destination.createTempFile(ext = MimeTypes.getExtension(body.contentType()?.toMimeType()))
 						file.sink(append = false).buffer().use { it.writeAllCancellable(body.source()) }
 					}
@@ -416,7 +416,7 @@ class DownloadWorker @AssistedInject constructor(
 
 	private suspend fun downloadPageFile(page: MangaPage, destination: File, repo: MangaRepository): File {
 		val url = repo.getPageUrl(page)
-		if (url.startsWith("content:", ignoreCase = true) || url.startsWith("file:", ignoreCase = true)) {
+		if (url.startsWith("content:", true) || url.startsWith("file:", true)) {
 			return downloadFile(url, destination, repo.source)
 		}
 		slowdownDispatcher.delay(repo.source)
@@ -424,7 +424,7 @@ class DownloadWorker @AssistedInject constructor(
 			.use { response ->
 				var file: File? = null
 				try {
-					response.requireBody().use { body ->
+					response.body.use { body ->
 						file = destination.createTempFile(
 							ext = MimeTypes.getExtension(body.contentType()?.toMimeType())
 						)

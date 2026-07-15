@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Blocking
 import org.draken.usagi.core.LocalizedAppContext
 import org.draken.usagi.core.image.BitmapDecoderCompat
 import org.draken.usagi.core.network.MangaHttpClient
-import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor
+import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
 import org.draken.usagi.core.parser.CachingMangaRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.prefs.AppSettings
@@ -67,7 +67,6 @@ import org.draken.usagi.local.data.LocalStorageCache
 import org.draken.usagi.local.data.PageCache
 import tsuki.model.MangaPage
 import tsuki.model.MangaSource
-import tsuki.util.requireBody
 import tsuki.util.runCatchingCancellable
 import org.draken.usagi.reader.ui.pager.ReaderPage
 import java.io.File
@@ -87,7 +86,7 @@ class PageLoader @Inject constructor(
 	private val coil: ImageLoader,
 	private val settings: AppSettings,
 	private val mangaRepositoryFactory: MangaRepository.Factory,
-	private val imageProxyInterceptor: ImageProxyInterceptor,
+	private val interceptor: Interceptor,
 	private val downloadSlowdownDispatcher: DownloadSlowdownDispatcher,
 ) {
 
@@ -281,7 +280,7 @@ class PageLoader @Inject constructor(
 		val pageUrl = getPageUrl(page)
 		check(pageUrl.isNotBlank()) { "Cannot obtain full image url for $page" }
 		if (!skipCache) {
-			cache.get(pageUrl)?.let { return it.toUri() }
+			cache[pageUrl]?.let { return it.toUri() }
 		}
 		val uri = pageUrl.toUri()
 		return when {
@@ -296,8 +295,8 @@ class PageLoader @Inject constructor(
 				if (isPrefetch) {
 					downloadSlowdownDispatcher.delay(page.source)
 				}
-				getRepository(page.source).getPageResponse(page, okHttp, imageProxyInterceptor).ensureSuccess().use { response ->
-					response.requireBody().withProgress(progress).use {
+				getRepository(page.source).getPageResponse(page, okHttp, interceptor).ensureSuccess().use { response ->
+					response.body.withProgress(progress).use {
 						cache.set(pageUrl, it.source(), it.contentType()?.toMimeType())
 					}
 				}.toUri()
