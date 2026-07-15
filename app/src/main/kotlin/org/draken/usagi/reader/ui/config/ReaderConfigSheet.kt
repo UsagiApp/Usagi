@@ -113,6 +113,7 @@ class ReaderConfigSheet :
             DownscaleMode.OFF -> binding.buttonOff
             DownscaleMode.X2 -> binding.button2x
             DownscaleMode.X4 -> binding.button4x
+            DownscaleMode.X6 -> binding.button6x
             DownscaleMode.X8 -> binding.button8x
         }
         downscale.isChecked = true
@@ -219,6 +220,7 @@ class ReaderConfigSheet :
                 R.id.button_off -> DownscaleMode.OFF
                 R.id.button_2x -> DownscaleMode.X2
                 R.id.button_4x -> DownscaleMode.X4
+                R.id.button_6x -> DownscaleMode.X6
                 R.id.button_8x -> DownscaleMode.X8
                 else -> return
             }
