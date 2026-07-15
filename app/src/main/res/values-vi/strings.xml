@@ -925,4 +925,9 @@
     <string name="update_available_message">Đã có phiên bản mới của Usagi. Bạn có muốn cập nhật ngay bây giờ?</string>
     <string name="auto_update_plugins">Tự động cập nhật các tiện ích</string>
     <string name="auto_update_plugins_summary">Tự động làm mới và cập nhật toàn bộ phần tiện ích đang có sẵn khi khởi động ứng dụng</string>
+    <string name="restart_app">Khởi động lại ứng dụng</string>
+    <string name="crash_oops">Tày!</string>
+    <string name="proxy_webview_unavailable">Hiện không hỗ trợ Proxy cho WebView</string>
+    <string name="check_app_update">Tự động kiểm tra bản cập nhật mới</string>
+    <string name="check_app_update_summary">Tự động kiểm tra bản cập nhật mới có sẵn cho ứng dụng khi khởi động</string>
 </resources>
