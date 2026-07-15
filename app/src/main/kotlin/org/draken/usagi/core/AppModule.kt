@@ -68,9 +68,10 @@ import tsuki.MangaLoaderContext
 import org.draken.usagi.search.ui.MangaSuggestionsProvider
 import org.draken.usagi.sync.domain.SyncController
 import org.draken.usagi.widget.WidgetUpdater
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionLoader
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiInjektBridge
+import tsuki.network.UserAgents
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionLoader as Loader
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as Manager
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiInjektBridge as Bridge
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -234,34 +235,27 @@ interface AppModule {
 			@ApplicationContext context: Context,
 			@MangaHttpClient httpClient: OkHttpClient,
 			webViewExecutor: WebViewExecutor,
-		): TachiyomiInjektBridge {
-			return TachiyomiInjektBridge(
+		): Bridge {
+			return Bridge(
 				context = context,
 				httpClient = httpClient,
 				defaultUserAgentProvider = {
 					webViewExecutor.defaultUserAgent
-						?.replace(Regex("; Android .*?\\)"), "; Android 10; K)")
+						?.replace(Regex("; Android .*?\\)"), "; Android 16; K)")
 						?.replace(Regex("Version/.* Chrome/"), "Chrome/")
-						?: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+						?: UserAgents.CHROME_MOBILE
 				}
 			)
 		}
 
 		@Provides
 		@Singleton
-		fun provideExternalLoader(
-			injektBridge: Provider<TachiyomiInjektBridge>,
-		): TachiyomiExtensionLoader {
-			return TachiyomiExtensionLoader { injektBridge.get() }
-		}
+		fun provideExternalLoader(injektBridge: Provider<Bridge>):
+			Loader { return Loader { injektBridge.get() } }
 
 		@Provides
 		@Singleton
-		fun provideExternalManager(
-			@ApplicationContext context: Context,
-			loader: TachiyomiExtensionLoader,
-		): TachiyomiExtensionManager {
-			return TachiyomiExtensionManager(context, loader)
-		}
+		fun provideExternalManager(@ApplicationContext context: Context, loader: Loader):
+			Manager { return Manager(context, loader) }
 	}
 }

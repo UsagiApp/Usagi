@@ -32,7 +32,7 @@ import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.external.ExternalMangaRepository
-import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as TachiyomiMangaRepository
+import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as ExternalRepository
 import org.draken.usagi.core.util.MimeTypes
 import org.draken.usagi.core.util.ext.fetch
 import org.draken.usagi.core.util.ext.printStackTraceDebug
@@ -59,7 +59,7 @@ class FaviconFetcher(
 		return when (val repo = mangaRepositoryFactory.create(mangaSource)) {
 			is MangaParserRepository -> fetchParserFavicon(repo)
 			is ExternalMangaRepository -> fetchPluginIcon(repo)
-			is TachiyomiMangaRepository -> fetchPackageIcon(repo.source.pkgName)
+			is ExternalRepository -> fetchPackageIcon(repo.source.pkgName)
 			is EmptyMangaRepository -> ImageFetchResult(
 				image = ColorImage(Color.WHITE),
 				isSampled = false,

@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.Request
 import org.draken.usagi.core.model.unwrap
 import org.draken.usagi.core.util.ext.mangaSourceKey
-import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as External
 import coil3.Uri as CoilUri
 
 class ExternalSourceFetcher(
@@ -43,7 +43,7 @@ class ExternalSourceFetcher(
 
 		override fun create(data: CoilUri, options: Options, imageLoader: ImageLoader): Fetcher? {
 			if (data.scheme != "http" && data.scheme != "https") return null
-			val source = options.extras[mangaSourceKey]?.unwrap() as? TachiyomiMangaSource ?: return null
+			val source = options.extras[mangaSourceKey]?.unwrap() as? External ?: return null
 			val httpSource = source.catalogueSource as? HttpSource ?: return null
 			return ExternalSourceFetcher(httpSource, data.toString(), options)
 		}

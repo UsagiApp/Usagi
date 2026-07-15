@@ -18,7 +18,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
 import org.draken.usagi.core.util.ext.processLifecycleScope
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.LocalizedAppContext
@@ -50,7 +51,7 @@ class MangaSourcesRepository @Inject constructor(
 	@LocalizedAppContext private val context: Context,
 	private val db: MangaDatabase,
 	private val settings: AppSettings,
-	private val tachiyomiExtensionManager: dagger.Lazy<TachiyomiExtensionManager>? = null,
+	private val tachiyomiExtensionManager: dagger.Lazy<ExternalManager>? = null,
 ) {
 
 	private var assimilatedVersion = -1
@@ -77,7 +78,7 @@ class MangaSourcesRepository @Inject constructor(
 			sortOrder = order,
 			hideBrokenSources = settings.isBrokenSourcesHidden,
 		).let { enabled ->
-			val external = getSpecialSources()
+			val external = getAllExtSources()
 			val list = ArrayList<MangaSourceInfo>(enabled.size + external.size)
 			external.mapTo(list) { MangaSourceInfo(it, isEnabled = true, isPinned = true) }
 			list.addAll(enabled)
@@ -225,7 +226,7 @@ class MangaSourcesRepository @Inject constructor(
 			it.toSources(skipNsfw, order, hideBroken)
 		}
 	}.flattenLatest().combine(observeExternalSources()) { enabled, external ->
-		val external = external + getTachiyomiSources()
+		val external = external + getSpecialSources()
 		val list = ArrayList<MangaSourceInfo>(enabled.size + external.size)
 		external.mapTo(list) { MangaSourceInfo(it, isEnabled = true, isPinned = true) }
 		list.addAll(enabled)
@@ -421,13 +422,9 @@ class MangaSourcesRepository @Inject constructor(
 		)
 	}
 
-	private fun getTachiyomiSources(): List<org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource> {
-		return allMangaSources.filterIsInstance<org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource>()
-	}
+	private fun getSpecialSources(): List<ExternalSource> = allMangaSources.filterIsInstance<ExternalSource>()
 
-	private fun getSpecialSources(): List<MangaSource> {
-		return getExternalSources() + getTachiyomiSources()
-	}
+	private fun getAllExtSources(): List<MangaSource> = getExternalSources() + getSpecialSources()
 
 	private fun List<MangaSourceEntity>.toSources(
 		skipNsfwSources: Boolean,

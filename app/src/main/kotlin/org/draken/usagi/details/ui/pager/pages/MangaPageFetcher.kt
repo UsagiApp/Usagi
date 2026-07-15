@@ -28,7 +28,6 @@ import org.draken.usagi.local.data.LocalStorageCache
 import org.draken.usagi.local.data.PageCache
 import tsuki.model.MangaPage
 import tsuki.util.mimeType
-import tsuki.util.requireBody
 import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
@@ -76,7 +75,7 @@ class MangaPageFetcher(
 				throw HttpException(response.toNetworkResponse())
 			}
 			val mimeType = response.mimeType?.toMimeTypeOrNull()
-			val file = response.requireBody().use {
+			val file = response.body.use {
 				pagesCache.set(pageUrl, it.source(), mimeType)
 			}
 			SourceFetchResult(
@@ -92,7 +91,7 @@ class MangaPageFetcher(
 		requestMillis = sentRequestAtMillis,
 		responseMillis = receivedResponseAtMillis,
 		headers = headers.toNetworkHeaders(),
-		body = body?.source()?.let(::NetworkResponseBody),
+		body = body.source().let(::NetworkResponseBody),
 		delegate = this,
 	)
 

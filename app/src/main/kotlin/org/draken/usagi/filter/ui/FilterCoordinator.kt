@@ -294,7 +294,7 @@ class FilterCoordinator @Inject constructor(
 
     /** True when the source exposes a dynamic [FilterList] that should use the dynamic filter UI. */
     val isDynamicFilter: Boolean
-        get() = filterHost?.supportsDynamicFilters == true
+        get() = filterHost?.isDynamicFiltersSupported == true
 
     init {
         // Persist the active source sort (the "srt@…" tag) per source so it survives app restarts.
@@ -311,7 +311,7 @@ class FilterCoordinator @Inject constructor(
             // generic "Popular" fallback when no explicit sort has been chosen yet.
             coroutineScope.launch {
                 val host = filterHost ?: return@launch
-                val defaults = host.loadDefaultFilterList()
+                val defaults = host.loadFilterList()
                 sortLabel.value = when (val ref = FilterMapper.findSortFilter(defaults)) {
                     is FilterMapper.SortRef.OfSort -> {
                         val idx = ref.filter.state?.index ?: 0
@@ -355,8 +355,8 @@ class FilterCoordinator @Inject constructor(
      */
     suspend fun loadWorkingFilters(): WorkingFilters {
         val host = filterHost ?: return WorkingFilters(FilterList(), FilterList())
-        val defaults = host.loadDefaultFilterList()
-        val working = host.loadDefaultFilterList()
+        val defaults = host.loadFilterList()
+        val working = host.loadFilterList()
         FilterMapper.decode(working, listFilter.value)
         return WorkingFilters(working = working, defaults = defaults)
     }
@@ -371,8 +371,8 @@ class FilterCoordinator @Inject constructor(
     /** Loads the current sort state for the compact sort picker (the source's own sort, or the built-in orders). */
     suspend fun loadSortState(): SortState {
         val host = filterHost
-        if (host?.supportsDynamicFilters == true) {
-            val working = host.loadDefaultFilterList()
+        if (host?.isDynamicFiltersSupported == true) {
+            val working = host.loadFilterList()
             FilterMapper.decode(working, listFilter.value)
             when (val ref = FilterMapper.findSortFilter(working)) {
                 is FilterMapper.SortRef.OfSort -> {
@@ -408,8 +408,8 @@ class FilterCoordinator @Inject constructor(
     /** Applies a source sort selection ([Filter.Sort] or sort [Filter.Select]), preserving other filters. */
     fun applySourceSort(index: Int, isAscending: Boolean) = coroutineScope.launch {
         val host = filterHost ?: return@launch
-        val defaults = host.loadDefaultFilterList()
-        val working = host.loadDefaultFilterList()
+        val defaults = host.loadFilterList()
+        val working = host.loadFilterList()
         FilterMapper.decode(working, listFilter.value)
         when (val ref = FilterMapper.findSortFilter(working)) {
             is FilterMapper.SortRef.OfSort -> ref.filter.state = Filter.Sort.Selection(index, isAscending)
@@ -472,9 +472,7 @@ class FilterCoordinator @Inject constructor(
         listFilter.update { oldValue ->
             if (capabilities.isSearchWithFiltersSupported || newQuery == null) {
                 oldValue.copy(query = newQuery)
-            } else {
-                MangaListFilter(query = newQuery)
-            }
+            } else MangaListFilter(query = newQuery)
         }
     }
 
@@ -564,9 +562,7 @@ class FilterCoordinator @Inject constructor(
         listFilter.update { oldValue ->
             val newTags = if (capabilities.isMultipleTagsSupported) {
                 if (isSelected) oldValue.tags + value else oldValue.tags - value
-            } else {
-                if (isSelected) setOf(value) else emptySet()
-            }
+            } else if (isSelected) setOf(value) else emptySet()
             oldValue.copy(
                 tags = newTags,
                 tagsExclude = oldValue.tagsExclude - newTags,
@@ -579,9 +575,7 @@ class FilterCoordinator @Inject constructor(
         listFilter.update { oldValue ->
             val newTagsExclude = if (capabilities.isMultipleTagsSupported) {
                 if (isSelected) oldValue.tagsExclude + value else oldValue.tagsExclude - value
-            } else {
-                if (isSelected) setOf(value) else emptySet()
-            }
+            } else if (isSelected) setOf(value) else emptySet()
             oldValue.copy(
                 tags = oldValue.tags - newTagsExclude,
                 tagsExclude = newTagsExclude,
@@ -602,50 +596,30 @@ class FilterCoordinator @Inject constructor(
     }
 
     private fun getTopTags(limit: Int): Flow<Result<List<MangaTag>>> = combine(
-        flow { emit(searchRepository.getTopTags(repository.source, limit)) },
-        filterOptions.asFlow(),
+        flow { emit(searchRepository.getTopTags(repository.source, limit)) }, filterOptions.asFlow(),
     ) { suggested, options ->
         val all = options.getOrNull()?.availableTags.orEmpty()
         val result = ArrayList<MangaTag>(limit)
         result.addAll(suggested.take(limit))
-        if (result.size < limit) {
-            result.addAll(all.shuffled().take(limit - result.size))
-        }
-        if (result.isNotEmpty()) {
-            Result.success(result)
-        } else {
-            options.map { result }
-        }
-    }.catch {
-        emit(Result.failure(it))
-    }
+        if (result.size < limit) result.addAll(all.shuffled().take(limit - result.size))
+        if (result.isNotEmpty()) Result.success(result) else { options.map { result } }
+    }.catch { emit(Result.failure(it)) }
 
     private fun getBottomTags(limit: Int): Flow<Result<List<MangaTag>>> = combine(
-        flow { emit(searchRepository.getRareTags(repository.source, limit)) },
-        filterOptions.asFlow(),
+        flow { emit(searchRepository.getRareTags(repository.source, limit)) }, filterOptions.asFlow(),
     ) { suggested, options ->
         val all = options.getOrNull()?.availableTags.orEmpty()
         val result = ArrayList<MangaTag>(limit)
         result.addAll(suggested.take(limit))
-        if (result.size < limit) {
-            result.addAll(all.shuffled().take(limit - result.size))
-        }
-        if (result.isNotEmpty()) {
-            Result.success(result)
-        } else {
-            options.map { result }
-        }
-    }.catch {
-        emit(Result.failure(it))
-    }
+        if (result.size < limit) result.addAll(all.shuffled().take(limit - result.size))
+        if (result.isNotEmpty()) Result.success(result) else { options.map { result } }
+    }.catch { emit(Result.failure(it)) }
 
     private fun <T> List<T>.addFirstDistinct(other: Collection<T>): List<T> {
         val result = ArrayDeque<T>(this.size + other.size)
         result.addAll(this)
         for (item in other) {
-            if (item !in result) {
-                result.addFirst(item)
-            }
+            if (item !in result) { result.addFirst(item) }
         }
         return result
     }
@@ -653,9 +627,7 @@ class FilterCoordinator @Inject constructor(
     private fun <T> List<T>.addFirstDistinct(item: T): List<T> {
         val result = ArrayDeque<T>(this.size + 1)
         result.addAll(this)
-        if (item !in result) {
-            result.addFirst(item)
-        }
+        if (item !in result) result.addFirst(item)
         return result
     }
 

@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.internal.platform.PlatformRegistry
 import org.conscrypt.Conscrypt
-import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as External
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.model.MangaSourceRegistry
@@ -101,7 +101,7 @@ open class BaseApp : Application(), Configuration.Provider {
 		}
 		processLifecycleScope.launch(Dispatchers.Default) {
 			externalManager.sources.collect { wrapped ->
-				val exist = MangaSourceRegistry.sources.filterNot { it is TachiyomiMangaSource }
+				val exist = MangaSourceRegistry.sources.filterNot { it is External }
 				MangaSourceRegistry.publish(exist + wrapped)
 			}
 		}

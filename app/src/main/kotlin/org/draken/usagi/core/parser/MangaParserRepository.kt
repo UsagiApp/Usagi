@@ -23,7 +23,6 @@ import tsuki.model.MangaSource
 import tsuki.model.SortOrder
 import tsuki.util.runCatchingCancellable
 import tsuki.util.suspendlazy.suspendLazy
-import java.io.IOException
 
 class MangaParserRepository(
 	private val compoundSource: MangaSource,

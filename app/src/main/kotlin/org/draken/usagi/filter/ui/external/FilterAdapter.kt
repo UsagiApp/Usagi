@@ -47,9 +47,7 @@ class FilterAdapter(listener: FilterListener) : BaseListAdapter<FilterItem>() {
 	private fun View.applyMarginIndent(depth: Int) {
 		val step = (INDENT_DP * resources.displayMetrics.density).toInt()
 		val base = resources.getDimensionPixelOffset(R.dimen.margin_normal)
-		updateLayoutParams<android.view.ViewGroup.MarginLayoutParams> {
-			marginStart = base + depth * step
-		}
+		updateLayoutParams<android.view.ViewGroup.MarginLayoutParams> { marginStart = base + depth * step }
 	}
 
 	private fun View.applyInputPaddingIndent(depth: Int) {
@@ -128,28 +126,18 @@ class FilterAdapter(listener: FilterListener) : BaseListAdapter<FilterItem>() {
 		adapterDelegateViewBinding<FilterItem.Text, FilterItem, ItemTextBinding>(
 			{ inflater, parent -> ItemTextBinding.inflate(inflater, parent, false) },
 		) {
-			fun commit() {
-				listener.onTextChanged(item, binding.editText.text?.toString().orEmpty())
-			}
+			fun commit() { listener.onTextChanged(item, binding.editText.text?.toString().orEmpty()) }
 			binding.editText.setOnEditorActionListener { _, actionId, _ ->
 				if (actionId == EditorInfo.IME_ACTION_DONE) {
 					commit()
 					binding.editText.clearFocus()
 					true
-				} else {
-					false
-				}
+				} else false
 			}
-			binding.editText.setOnFocusChangeListener { _, hasFocus ->
-				if (!hasFocus) {
-					commit()
-				}
-			}
+			binding.editText.setOnFocusChangeListener { _, hasFocus -> if (!hasFocus) commit() }
 			bind {
 				binding.layoutInput.hint = item.title
-				if (binding.editText.text?.toString() != item.value) {
-					binding.editText.setText(item.value)
-				}
+				if (binding.editText.text?.toString() != item.value) binding.editText.setText(item.value)
 				binding.root.applyInputPaddingIndent(item.depth)
 			}
 		}
@@ -158,14 +146,10 @@ class FilterAdapter(listener: FilterListener) : BaseListAdapter<FilterItem>() {
 		adapterDelegateViewBinding<FilterItem.Select, FilterItem, ItemSelectBinding>(
 			{ inflater, parent -> ItemSelectBinding.inflate(inflater, parent, false) },
 		) {
-			binding.editSelect.setOnItemClickListener { _, _, position, _ ->
-				listener.onSelectChanged(item, position)
-			}
+			binding.editSelect.setOnItemClickListener { _, _, p, _ -> listener.onSelectChanged(item, p) }
 			bind {
 				binding.layoutInput.hint = item.title
-				binding.editSelect.setAdapter(
-					ArrayAdapter(context, android.R.layout.simple_list_item_1, item.options),
-				)
+				binding.editSelect.setAdapter(ArrayAdapter(context, android.R.layout.simple_list_item_1, item.options))
 				val selected = item.options.getOrNull(item.selectedIndex).orEmpty()
 				binding.editSelect.setText(selected, false)
 				binding.root.applyInputPaddingIndent(item.depth)
@@ -180,9 +164,7 @@ class FilterAdapter(listener: FilterListener) : BaseListAdapter<FilterItem>() {
 			bind {
 				binding.textViewTitle.text = item.title
 				val summary = item.activeSummary
-				if (summary.isNullOrEmpty()) {
-					binding.textViewSummary.visibility = View.GONE
-				} else {
+				if (summary.isNullOrEmpty()) { binding.textViewSummary.visibility = View.GONE } else {
 					binding.textViewSummary.visibility = View.VISIBLE
 					binding.textViewSummary.text = summary
 				}

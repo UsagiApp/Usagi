@@ -479,14 +479,14 @@ class AppRouter private constructor(
     }
 
     fun showFilterSheet(): Boolean {
-        val coordinator = currentFilterCoordinator() ?: return false
+        val coordinator = getFilterCoordinator() ?: return false
         return if (coordinator.isDynamicFilter) {
             ExternalSheetFragment().showDistinct()
         } else FilterSheetFragment().showDistinct()
     }
 
     fun showSortSheet(): Boolean {
-        val coordinator = currentFilterCoordinator() ?: return false
+        val coordinator = getFilterCoordinator() ?: return false
         return if (coordinator.isDynamicFilter) {
 			SortSheet().showDistinct()
         } else false
@@ -607,9 +607,9 @@ class AppRouter private constructor(
 
     /** Public utils **/
 
-    fun isFilterSupported(): Boolean = currentFilterCoordinator() != null
+    fun isFilterSupported(): Boolean = getFilterCoordinator() != null
 
-    private fun currentFilterCoordinator(): FilterCoordinator? = when {
+    private fun getFilterCoordinator(): FilterCoordinator? = when {
         fragment != null -> FilterCoordinator.find(fragment)
         activity is FilterCoordinator.Owner -> (activity as FilterCoordinator.Owner).filterCoordinator
         else -> null

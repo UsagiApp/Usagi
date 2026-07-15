@@ -32,7 +32,7 @@ fun PreferenceFragmentCompat.addPreferencesFromRepository(repository: MangaRepos
 }
 
 private fun PreferenceFragmentCompat.addPreferences(repository: ExternalMangaRepository) {
-	val configurableSource = repository.tachiyomiSource as? ConfigurableSource
+	val configurableSource = repository.external as? ConfigurableSource
 	if (configurableSource != null) {
 		preferenceManager.sharedPreferencesName = configurableSource.preferenceKey()
 	}
@@ -47,7 +47,7 @@ private fun PreferenceFragmentCompat.addPreferences(repository: ExternalMangaRep
 }
 
 private fun PreferenceFragmentCompat.addDomainPreferences(repository: ExternalMangaRepository) {
-	val httpSource = repository.tachiyomiSource as? HttpSource ?: return
+	val httpSource = repository.external as? HttpSource ?: return
 	val baseDomain = httpSource.baseUrl.removePrefix("https://").removePrefix("http://").substringBefore('/')
 	EditTextPreference(preferenceScreen.context).apply {
 		key = SourceSettings.KEY_DOMAIN
