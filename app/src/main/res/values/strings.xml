@@ -75,7 +75,6 @@
     <string name="downscale_off">Off</string>
 	<string name="downscale_2x" translatable="false">2x</string>
 	<string name="downscale_4x" translatable="false">4x</string>
-	<string name="downscale_6x" translatable="false">6x</string>
 	<string name="downscale_8x" translatable="false">8x</string>
     <string name="grid_size">Grid size</string>
     <string name="search_on_s">Search on %s</string>
