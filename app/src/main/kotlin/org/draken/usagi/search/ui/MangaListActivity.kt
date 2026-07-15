@@ -42,8 +42,9 @@ import org.draken.usagi.core.util.ext.start
 import org.draken.usagi.databinding.ActivityMangaListBinding
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.filter.ui.FilterHeaderFragment
-import org.draken.usagi.filter.ui.external.sheet.FilterSheetFragment
+import org.draken.usagi.filter.ui.external.sheet.FilterSheetFragment as ExternalSheetFragment
 import org.draken.usagi.filter.ui.external.FilterMapper
+import org.draken.usagi.filter.ui.sheet.FilterSheetFragment
 import org.draken.usagi.list.ui.preview.PreviewFragment
 import org.draken.usagi.local.ui.LocalListFragment
 import org.draken.usagi.main.ui.owners.AppBarOwner
@@ -136,7 +137,7 @@ class MangaListActivity :
 
 	private fun filterSheetClass(owner: FilterCoordinator.Owner?): Class<out Fragment> =
 		if (owner?.filterCoordinator?.isDynamicFilter == true) {
-			FilterSheetFragment::class.java
+			ExternalSheetFragment::class.java
 		} else {
 			FilterSheetFragment::class.java
 		}
@@ -165,9 +166,7 @@ class MangaListActivity :
 
 	private fun initFilter(filterOwner: FilterCoordinator.Owner) {
 		if (viewBinding.containerSide != null) {
-			if (supportFragmentManager.findFragmentById(R.id.container_side) == null) {
-				setSideFragment(filterSheetClass(filterOwner), null)
-			}
+			setSideFragment(filterSheetClass(filterOwner), null)
 		} else if (viewBinding.containerFilterHeader != null) {
 			if (supportFragmentManager.findFragmentById(R.id.container_filter_header) == null) {
 				supportFragmentManager.commit {

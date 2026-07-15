@@ -34,9 +34,7 @@ class MangaParserRepository(
 
 	private val filterOptionsLazy = suspendLazy(Dispatchers.Default) {
 		withMirrors {
-			try {
-				parser.getFilterOptions()
-			} catch (e: LinkageError) { throw IOException("Parser linkage error", e) }
+			parser.getFilterOptions()
 		}
 	}
 
@@ -44,14 +42,10 @@ class MangaParserRepository(
 		get() = compoundSource
 
 	override val sortOrders: Set<SortOrder>
-		get() = try {
-			parser.availableSortOrders
-		} catch (_: LinkageError) { emptySet() }
+		get() = parser.availableSortOrders
 
 	override val filterCapabilities: MangaListFilterCapabilities
-		get() = try {
-			parser.filterCapabilities
-		} catch (_: LinkageError) { MangaListFilterCapabilities() }
+		get() = parser.filterCapabilities
 
 	override var defaultSortOrder: SortOrder
 		get() = getConfig().defaultSortOrder ?: sortOrders.first()
@@ -60,84 +54,65 @@ class MangaParserRepository(
 		}
 
 	var domain: String
-		get() = try { parser.domain } catch (_: LinkageError) { "" }
+		get() = parser.domain
 		set(value) {
-			try {
-				getConfig()[parser.configKeyDomain] = value
-			} catch (_: LinkageError) {}
+			getConfig()[parser.configKeyDomain] = value
 		}
 
 	val domains: Array<out String>
-		get() = try {
-			parser.configKeyDomain.presetValues
-		} catch (_: LinkageError) { emptyArray() }
+		get() = parser.configKeyDomain.presetValues
 
-	override fun intercept(chain: Interceptor.Chain): Response = try {
-		parser.intercept(chain)
-	} catch (e: LinkageError) {
-		throw IOException("Parser linkage error", e)
-	}
+	override fun intercept(chain: Interceptor.Chain): Response = parser.intercept(chain)
 
 	override suspend fun getList(offset: Int, order: SortOrder?, filter: MangaListFilter?): List<Manga> {
-		return try {
-			withMirrors { parser.getList(offset, order ?: defaultSortOrder, filter ?: MangaListFilter.EMPTY) }
-		} catch (e: LinkageError) { throw IOException("Parser linkage error", e) }.map { it.copy(source = compoundSource) }
+		return withMirrors {
+			parser.getList(offset, order ?: defaultSortOrder, filter ?: MangaListFilter.EMPTY)
+		}.map { it.copy(source = compoundSource) }
 	}
 
 	override suspend fun getPagesImpl(
 		chapter: MangaChapter
-	): List<MangaPage> = try {
-		withMirrors { parser.getPages(chapter) }
-	} catch (e: LinkageError) { throw IOException("Parser linkage error", e) }
+	): List<MangaPage> = withMirrors {
+		parser.getPages(chapter)
+	}
 
-	override suspend fun getPageUrl(page: MangaPage): String = try {
-		withMirrors {
-			parser.getPageUrl(page).also { result -> check(result.isNotEmpty()) { "Page url is empty" } }
+	override suspend fun getPageUrl(page: MangaPage): String = withMirrors {
+		parser.getPageUrl(page).also { result ->
+			check(result.isNotEmpty()) { "Page url is empty" }
 		}
-	} catch (e: LinkageError) { throw IOException("Parser linkage error", e) }
+	}
 
-	override suspend fun getFilterOptions(): MangaListFilterOptions = try {
-		filterOptionsLazy.get()
-	} catch (e: LinkageError) { throw IOException("Parser linkage error", e) }
+	override suspend fun getFilterOptions(): MangaListFilterOptions = filterOptionsLazy.get()
 
-	suspend fun getFavicons(): Favicons = try {
-		withMirrors { parser.getFavicons() }
-	} catch (e: LinkageError) { throw IOException("Parser linkage error", e) }
+	suspend fun getFavicons(): Favicons = withMirrors {
+		parser.getFavicons()
+	}
 
-	override suspend fun getRelatedMangaImpl(seed: Manga): List<Manga> = try {
+	override suspend fun getRelatedMangaImpl(seed: Manga): List<Manga> =
 		parser.getRelatedManga(seed).map { it.copy(source = compoundSource) }
-	} catch (e: LinkageError) { throw IOException("Parser linkage error", e) }
 
-	override suspend fun getDetailsImpl(manga: Manga): Manga = try {
-		withMirrors {
-			parser.getDetails(manga).let { details ->
-				details.copy(
-					source = compoundSource,
-					chapters = details.chapters?.map { it.copy(source = compoundSource) }
-				)
-			}
+	override suspend fun getDetailsImpl(manga: Manga): Manga = withMirrors {
+		parser.getDetails(manga).let { details ->
+			details.copy(
+				source = compoundSource,
+				chapters = details.chapters?.map { it.copy(source = compoundSource) }
+			)
 		}
-	} catch (e: LinkageError) { throw IOException("Parser linkage error", e) }
+	}
 
-	fun getAuthProvider(): MangaParserAuthProvider? = try {
-		parser.authorizationProvider
-	} catch (_: LinkageError) { null }
+	fun getAuthProvider(): MangaParserAuthProvider? = parser.authorizationProvider
 
-	fun getRequestHeaders() = try {
-		parser.getRequestHeaders()
-	} catch (_: LinkageError) { okhttp3.Headers.headersOf() }
+	fun getRequestHeaders() = parser.getRequestHeaders()
 
-	fun getConfigKeys(): List<ConfigKey<*>> = try {
-		ArrayList<ConfigKey<*>>().also { parser.onCreateConfig(it) }
-	} catch (_: LinkageError) { emptyList() }
+	fun getConfigKeys(): List<ConfigKey<*>> = ArrayList<ConfigKey<*>>().also {
+		parser.onCreateConfig(it)
+	}
 
-	fun isSlowdownEnabled(): Boolean = try {
-		getConfig().isSlowdownEnabled
-	} catch (_: Throwable) { false }
+	fun isSlowdownEnabled(): Boolean {
+		return getConfig().isSlowdownEnabled
+	}
 
-	fun getConfig(): SourceSettings = try {
-		parser.config as SourceSettings
-	} catch (e: LinkageError) { throw RuntimeException("Parser config linkage error", e) }
+	fun getConfig() = parser.config as SourceSettings
 
 	private suspend fun <T : Any> withMirrors(block: suspend () -> T): T {
 		if (!mirrorSwitcher.isEnabled) {

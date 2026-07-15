@@ -20,6 +20,7 @@ import org.draken.usagi.filter.ui.external.model.FilterItem
 @HiltViewModel(assistedFactory = FilterViewModel.Factory::class)
 class FilterViewModel @AssistedInject constructor(
 	@Assisted private val filter: FilterCoordinator,
+	@Assisted private val isEmbed: Boolean,
 ) : BaseViewModel(), FilterListener {
 
 	private var working: FilterList = FilterList()
@@ -269,7 +270,7 @@ class FilterViewModel @AssistedInject constructor(
 	}
 
 	private fun shouldHideFilter(filter: Filter<*>, path: String): Boolean =
-		filter is Filter.Sort || path == sortPath
+		if (!isEmbed) { filter is Filter.Sort || path == sortPath } else false
 
 	private fun MutableList<FilterItem>.removeLeadingSeparators() {
 		while (firstOrNull() is FilterItem.Separator) {
@@ -279,7 +280,7 @@ class FilterViewModel @AssistedInject constructor(
 
 	@AssistedFactory
 	interface Factory {
-		fun create(filter: FilterCoordinator): FilterViewModel
+		fun create(filter: FilterCoordinator, isEmbed: Boolean): FilterViewModel
 	}
 
 	private companion object {
