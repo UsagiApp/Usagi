@@ -63,7 +63,10 @@ class RemoteListFragment : MangaListFragment(), FilterCoordinator.Owner, View.On
     }
 
     override fun onFilterClick(view: View?) {
-        router.showFilterSheet()
+		val tablet = activity?.findViewById<View>(R.id.container_side) != null
+		if (tablet && filterCoordinator.isDynamicFilter) {
+			router.showSortSheet()
+		} else { router.showFilterSheet() }
     }
 
     override fun onEmptyActionClick() {

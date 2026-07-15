@@ -26,9 +26,12 @@
 -keep class org.draken.usagi.backups.ui.periodical.PeriodicalBackupSettingsFragment { *; }
 
 # General (for plugins / exts)
+-keep class androidx.collection.Scatter* { public protected *; }
 -keep class kotlinx.coroutines.** { public protected *; }
--keep class kotlinx.serialization.** { *; }
+-keep class kotlinx.serialization.** { public protected *; }
 -keep class kotlin.** { public protected *; }
+-keep class org.json.** { public protected *; }
+-keep class org.json.JSONArray { public protected *; }
 -keep class org.jsoup.Jsoup { public *; }
 -keep class org.jsoup.nodes.** { public protected *; }
 -keep class org.jsoup.select.** { public protected *; }
@@ -40,15 +43,11 @@
 -keep class okhttp3.** { public protected *; }
 
 # For Tsuki dependency and Kotatsu parsers
--keep class tsuki.** { *; }
--keep interface tsuki.** { *; }
--keep class org.koitharu.kotatsu.parsers.** { *; }
--keep interface org.koitharu.kotatsu.parsers.** { *; }
--keep class * implements tsuki.model.MangaSource { *; }
--keep class * implements tsuki.MangaParser { *; }
--keep class * extends tsuki.MangaLoaderContext { *; }
--keep class keiyoushi.** { *; }
--keep class androidx.collection.Scatter* { *; }
+-keep class tsuki.** { public protected *; }
+-keep class org.koitharu.kotatsu.parsers.** { public protected *; }
+-keep class * implements tsuki.model.MangaSource { public protected *; }
+-keep class * implements tsuki.MangaParser { public protected *; }
+-keep class * extends tsuki.MangaLoaderContext { public protected *; }
 
 # For TsukiMix dependency, optimization is needed if possible
 -keep class androidx.preference.PreferenceCategory { public protected *; }
@@ -64,6 +63,7 @@
 -keep class androidx.preference.MultiSelectListPreference { public protected *; }
 -keep class androidx.preference.TwoStatePreference { public protected *; }
 -keep class eu.kanade.tachiyomi.** { public protected *; }
+-keep class keiyoushi.** { public protected *; }
 -keep class rx.Observable { public protected *; }
 -keep class rx.Single { public protected *; }
 -keep class rx.Completable { public protected *; }

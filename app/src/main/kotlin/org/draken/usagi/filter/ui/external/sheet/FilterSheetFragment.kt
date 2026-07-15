@@ -38,7 +38,7 @@ class FilterSheetFragment : BaseAdaptiveSheet<SheetOptionsBinding>(), AdaptiveSh
 	private val viewModel by viewModels<FilterViewModel>(
 		extrasProducer = {
 			defaultViewModelCreationExtras.withCreationCallback<FilterViewModel.Factory> { factory ->
-				factory.create(FilterCoordinator.require(this))
+				factory.create(FilterCoordinator.require(this), dialog == null)
 			}
 		},
 	)
