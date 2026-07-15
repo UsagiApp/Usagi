@@ -20,6 +20,7 @@ import org.draken.usagi.databinding.FragmentListBinding
 import org.draken.usagi.list.domain.ListSortOrder
 import org.draken.usagi.list.ui.MangaListFragment
 import org.draken.usagi.list.ui.adapter.MangaListAdapter
+import org.draken.usagi.list.ui.model.MangaListModel
 
 @AndroidEntryPoint
 class FavouritesListFragment : MangaListFragment(), PopupMenu.OnMenuItemClickListener {
@@ -46,14 +47,14 @@ class FavouritesListFragment : MangaListFragment(), PopupMenu.OnMenuItemClickLis
 				getSelectedItemsIds = { selectedItemsIds },
 				saveMangaOrder = { viewModel.saveMangaOrder(it) },
 				onDragStateChanged = { isDrag -> recyclerView?.isNestedScrollingEnabled = !isDrag },
-				canDrag = viewModel.categoryId != NO_ID,
+				canDrag = { viewModel.categoryId != NO_ID && selectedItemsIds.isNotEmpty() },
 			)
 		).also { it.attachToRecyclerView(binding.recyclerView) }
 		binding.recyclerView.addOnItemTouchListener(
 			FavouritesTouchListener(
 				sortOrder = { viewModel.sortOrder.value },
 				reorderHelper = { reorderHelper },
-				canDrag = { viewModel.categoryId != NO_ID },
+				canDrag = { viewModel.categoryId != NO_ID && selectedItemsIds.isNotEmpty() },
 			)
 		)
 	}
@@ -110,6 +111,17 @@ class FavouritesListFragment : MangaListFragment(), PopupMenu.OnMenuItemClickLis
 
 			else -> super.onActionItemClicked(controller, mode, item)
 		}
+	}
+
+	override fun onItemLongClick(item: MangaListModel, view: View): Boolean {
+		if (viewModel.sortOrder.value == ListSortOrder.NEWEST && selectedItemsIds.isNotEmpty()) {
+			val holder = recyclerView?.findContainingViewHolder(view)
+			if (holder != null) {
+				reorderHelper?.startDrag(holder)
+				return true
+			}
+		}
+		return super.onItemLongClick(item, view)
 	}
 
 	companion object {

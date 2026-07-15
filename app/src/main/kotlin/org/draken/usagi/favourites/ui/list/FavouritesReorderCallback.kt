@@ -16,13 +16,13 @@ class FavouritesReorderCallback(
 	private val getSelectedItemsIds: () -> Set<Long>,
 	private val saveMangaOrder: (List<ListModel>) -> Unit,
 	private val onDragStateChanged: (isDragging: Boolean) -> Unit,
-	private val canDrag: Boolean = true
+	private val canDrag: () -> Boolean = { true }
 ) : ItemTouchHelper.SimpleCallback(ARS, 0) {
 
 	private val listSelect = mutableListOf<ListModel>()
 
 	override fun getDragDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-		if (sortOrder() != ListSortOrder.NEWEST || !canDrag) return 0
+		if (sortOrder() != ListSortOrder.NEWEST || !canDrag()) return 0
 		val p = viewHolder.bindingAdapterPosition
 		return if (p != RecyclerView.NO_POSITION && getAdapter()?.items?.getOrNull(p) is MangaListModel) ARS else 0
 	}
