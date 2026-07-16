@@ -84,12 +84,13 @@ abstract class BasePageHolder<B : ViewBinding>(
 	@CallSuper
 	protected open fun onConfigChanged(settings: ReaderSettings) {
 		settings.applyBackground(itemView)
-		if (settings.applyBitmapConfig(ssiv)) {
+		val downSampling = ssiv.downSampling
+		ssiv.applyDownSampling(isResumed())
+		if (settings.applyBitmapConfig(ssiv) || ssiv.downSampling != downSampling) {
 			reloadImage()
 		} else if (viewModel.state.value is PageState.Shown) {
 			onReady()
 		}
-		ssiv.applyDownSampling(isResumed())
 	}
 
 	fun reloadImage() {
@@ -197,10 +198,16 @@ abstract class BasePageHolder<B : ViewBinding>(
 
 	protected fun SubsamplingScaleImageView.applyDownSampling(isForeground: Boolean) {
 		downSampling = when {
-			isForeground || !settings.isReaderOptimizationEnabled -> 1
-			BuildConfig.DEBUG -> 32
-			context.isLowRamDevice() -> 8
-			else -> 4
+			isForeground -> settings.downscale.value
+			!settings.isReaderOptimizationEnabled -> 1
+			else -> {
+				val base = when {
+					BuildConfig.DEBUG -> 32
+					context.isLowRamDevice() -> 8
+					else -> 4
+				}
+				maxOf(settings.downscale.value, base)
+			}
 		}
 	}
 }

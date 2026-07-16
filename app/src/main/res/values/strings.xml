@@ -71,6 +71,11 @@
     <string name="standard">Standard</string>
     <string name="webtoon">Webtoon</string>
     <string name="read_mode">Read mode</string>
+    <string name="downscale_image">Downscale image</string>
+    <string name="downscale_off">Off</string>
+	<string name="downscale_2x" translatable="false">2x</string>
+	<string name="downscale_4x" translatable="false">4x</string>
+	<string name="downscale_8x" translatable="false">8x</string>
     <string name="grid_size">Grid size</string>
     <string name="search_on_s">Search on %s</string>
     <string name="delete_manga">Delete manga</string>

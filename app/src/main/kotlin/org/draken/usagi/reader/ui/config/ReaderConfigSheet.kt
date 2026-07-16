@@ -22,6 +22,7 @@ import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.prefs.AppSettings
+import org.draken.usagi.core.prefs.DownscaleMode
 import org.draken.usagi.core.prefs.ReaderMode
 import org.draken.usagi.core.ui.sheet.BaseAdaptiveSheet
 import org.draken.usagi.core.util.ext.consume
@@ -108,7 +109,14 @@ class ReaderConfigSheet :
         binding.switchDoubleReader.setOnCheckedChangeListener(this)
         binding.switchDoubleFoldable.setOnCheckedChangeListener(this)
         binding.sliderDoubleSensitivity.addOnChangeListener(this)
-
+        val downscale = when (settings.defaultDownscaleMode) {
+            DownscaleMode.OFF -> binding.buttonOff
+            DownscaleMode.X2 -> binding.button2x
+            DownscaleMode.X4 -> binding.button4x
+            DownscaleMode.X8 -> binding.button8x
+        }
+        downscale.isChecked = true
+        binding.downscale.addOnButtonCheckedListener(this)
         viewModel.isBookmarkAdded.observe(viewLifecycleOwner) {
             binding.buttonBookmark.setText(if (it) R.string.bookmark_remove else R.string.bookmark_add)
             binding.buttonBookmark.setCompoundDrawablesRelativeWithIntrinsicBounds(
@@ -204,6 +212,17 @@ class ReaderConfigSheet :
         isChecked: Boolean,
     ) {
         if (!isChecked) {
+            return
+        }
+        if (group?.id == R.id.downscale) {
+            val down = when (checkedId) {
+                R.id.button_off -> DownscaleMode.OFF
+                R.id.button_2x -> DownscaleMode.X2
+                R.id.button_4x -> DownscaleMode.X4
+                R.id.button_8x -> DownscaleMode.X8
+                else -> return
+            }
+            if (down != settings.defaultDownscaleMode) settings.defaultDownscaleMode = down
             return
         }
         val newMode = when (checkedId) {
