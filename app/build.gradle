@@ -67,7 +67,16 @@ android {
 				'META-INF/*.version',
 				'DebugProbesKt.bin',
 				'kotlin-tooling-metadata.json',
-				'**/*.kotlin_builtins'
+				'**/*.kotlin_builtins',
+				'META-INF/ASL2.0',
+				'META-INF/AL2.0',
+				'META-INF/LGPL2.1',
+				'META-INF/proguard/**',
+				'META-INF/compiler_release',
+				'META-INF/**/*.txt',
+				'META-INF/**/*.md',
+				'**/*.kotlin_metadata',
+				'**/*.kotlin_module'
 			]
 		}
 	}
