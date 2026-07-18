@@ -47,7 +47,15 @@ class RootSettingsFragment : BasePreferenceFragment(0) {
 				}
 			}
 		}
-		addMenuProvider(SettingsSearchMenuProvider(activityViewModel))
+		addMenuProvider(
+			SettingsSearchMenuProvider(
+				viewModel = activityViewModel,
+				isSubFragmentActive = {
+					val act = activity as? SettingsActivity
+					act != null && act.supportFragmentManager.findFragmentById(R.id.container) != null
+				}
+			)
+		)
 	}
 
 	override fun setTitle(title: CharSequence?) {
