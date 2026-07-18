@@ -59,6 +59,12 @@ class MainViewModel @Inject constructor(
 		isNavBarPinned
 	}.flowOn(Dispatchers.Default)
 
+	val isFloatingNav = settings.observeAsFlow(
+		AppSettings.KEY_NAV_FLOATING,
+	) {
+		isFloatingNav
+	}.flowOn(Dispatchers.Default)
+
 	val isIncognitoModeEnabled = settings.observeAsStateFlow(
 		scope = viewModelScope + Dispatchers.Default,
 		key = AppSettings.KEY_INCOGNITO_MODE,
