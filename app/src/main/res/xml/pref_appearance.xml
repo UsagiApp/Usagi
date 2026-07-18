@@ -123,6 +123,12 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
+            android:key="nav_floating"
+            android:summary="@string/floating_navigation_bar_summary"
+            android:title="@string/floating_navigation_bar" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
             android:key="exit_confirm"
             android:summary="@string/exit_confirmation_summary"
             android:title="@string/exit_confirmation" />

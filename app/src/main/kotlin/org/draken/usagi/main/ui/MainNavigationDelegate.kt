@@ -6,8 +6,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.IdRes
+import androidx.annotation.OptIn
 import androidx.core.view.isEmpty
 import androidx.core.view.isVisible
 import androidx.core.view.iterator
@@ -17,6 +19,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.navigationrail.NavigationRailView
 import com.google.android.material.transition.MaterialFadeThrough
@@ -43,6 +46,7 @@ import org.draken.usagi.favourites.ui.container.FavouritesContainerFragment
 import org.draken.usagi.history.ui.HistoryListFragment
 import org.draken.usagi.list.ui.config.ListConfigSection
 import org.draken.usagi.local.ui.LocalListFragment
+import org.draken.usagi.main.ui.nav.NavController
 import org.draken.usagi.suggestions.ui.SuggestionsFragment
 import org.draken.usagi.tracker.ui.feed.FeedFragment
 import org.draken.usagi.tracker.ui.updates.UpdatesFragment
@@ -51,6 +55,7 @@ import com.google.android.material.R as materialR
 
 private const val TAG_PRIMARY = "primary"
 
+@OptIn(ExperimentalBadgeUtils::class)
 class MainNavigationDelegate(
 	private val navBar: NavigationBarView,
 	private val fragmentManager: FragmentManager,
@@ -66,6 +71,17 @@ class MainNavigationDelegate(
 
 	val primaryFragment: Fragment?
 		get() = fragmentManager.findFragmentByTag(TAG_PRIMARY)
+
+	private val navController = NavController(
+		settings = settings,
+		onItemSelected = { itemId ->
+			if (onNavigationItemSelected(itemId)) {
+				if (navBar.selectedItemId != itemId) navBar.selectedItemId = itemId
+				true
+			} else false
+		},
+		onItemReselected = { onNavigationItemReselected() },
+	)
 
 	init {
 		navBar.setOnItemSelectedListener(this)
@@ -122,6 +138,7 @@ class MainNavigationDelegate(
 			if (navBar.selectedItemId != itemId) {
 				navBar.selectedItemId = itemId
 			}
+			navController.setItem(itemId)
 		} else {
 			val itemId = if (savedInstanceState == null) {
 				firstItem()?.itemId ?: navBar.selectedItemId
@@ -129,6 +146,7 @@ class MainNavigationDelegate(
 				navBar.selectedItemId
 			}
 			onNavigationItemSelected(itemId)
+			navController.setItem(itemId)
 		}
 	}
 
@@ -153,9 +171,11 @@ class MainNavigationDelegate(
 		if (navBar.selectedItemId != itemId) {
 			navBar.selectedItemId = itemId
 		}
+		navController.setItem(itemId)
 	}
 
 	private fun setCounter(@IdRes id: Int, counter: Int) {
+		counters[id] = counter
 		if (counter == 0) {
 			navBar.getBadge(id)?.isVisible = false
 		} else {
@@ -167,6 +187,7 @@ class MainNavigationDelegate(
 			}
 			badge.isVisible = true
 		}
+		navController.setCounter(id, counter)
 	}
 
 	fun setItemVisibility(@IdRes itemId: Int, isVisible: Boolean) {
@@ -175,6 +196,15 @@ class MainNavigationDelegate(
 		if (item.isChecked && !isVisible) {
 			navBar.selectedItemId = firstItem()?.itemId ?: return
 		}
+		navController.setItemVisibility(itemId, isVisible)
+	}
+
+	fun attach(container: LinearLayout) {
+		navController.attach(container)
+	}
+
+	fun detach() {
+		navController.detach()
 	}
 
 	fun addOnFragmentChangedListener(listener: OnFragmentChangedListener) {
@@ -185,7 +215,7 @@ class MainNavigationDelegate(
 		listeners.remove(listener)
 	}
 
-	private fun onNavigationItemSelected(@IdRes itemId: Int): Boolean {
+	internal fun onNavigationItemSelected(@IdRes itemId: Int): Boolean {
 		val newFragment = when (itemId) {
 			R.id.nav_history -> HistoryListFragment::class.java
 			R.id.nav_favorites -> FavouritesContainerFragment::class.java
@@ -233,7 +263,7 @@ class MainNavigationDelegate(
 		return true
 	}
 
-	private fun onNavigationItemReselected() {
+	internal fun onNavigationItemReselected() {
 		val fragment = primaryFragment ?: return
 		when (fragment) {
 			is HistoryListFragment -> fragment.router.showListConfigSheet(ListConfigSection.History)
@@ -270,6 +300,7 @@ class MainNavigationDelegate(
 				setItemVisibility(R.id.nav_suggestions, settings.isSuggestionsEnabled)
 				setItemVisibility(R.id.nav_feed, settings.isTrackerEnabled)
 				setNavbarIsLabeled(settings.isNavLabelsVisible)
+				navController.setLabel()
 			}.launchIn(lifecycleOwner.lifecycleScope)
 	}
 
@@ -341,5 +372,7 @@ class MainNavigationDelegate(
 	companion object {
 
 		const val MAX_ITEM_COUNT = 6
+		const val MAX_FLOAT_ITEM_COUNT = 3
+		private val counters = mutableMapOf<Int, Int>()
 	}
 }
