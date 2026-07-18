@@ -30,6 +30,7 @@ import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.settings.nav.adapter.navAddAD
 import org.draken.usagi.settings.nav.adapter.navAvailableAD
 import org.draken.usagi.settings.nav.adapter.navConfigAD
+import org.draken.usagi.settings.SettingsActivity
 
 @AndroidEntryPoint
 class NavConfigFragment : BaseFragment<FragmentSettingsSourcesBinding>(), RecyclerViewOwner,
@@ -53,6 +54,7 @@ class NavConfigFragment : BaseFragment<FragmentSettingsSourcesBinding>(), Recycl
 		savedInstanceState: Bundle?,
 	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
+		binding.fabImport.visibility = View.GONE
 		val navConfigAdapter = BaseListAdapter<ListModel>()
 			.addDelegate(ListItemType.NAV_ITEM, navConfigAD(this))
 			.addDelegate(ListItemType.FOOTER_LOADING, navAddAD(this))
@@ -81,7 +83,7 @@ class NavConfigFragment : BaseFragment<FragmentSettingsSourcesBinding>(), Recycl
 
 	override fun onResume() {
 		super.onResume()
-		activity?.setTitle(R.string.main_screen_sections)
+		(activity as? SettingsActivity)?.setSectionTitle(getString(R.string.main_screen_sections))
 	}
 
 	override fun onDestroyView() {
