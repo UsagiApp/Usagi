@@ -109,7 +109,8 @@ class ReaderConfigSheet :
         binding.switchDoubleReader.setOnCheckedChangeListener(this)
         binding.switchDoubleFoldable.setOnCheckedChangeListener(this)
         binding.sliderDoubleSensitivity.addOnChangeListener(this)
-        val downscale = when (settings.defaultDownscaleMode) {
+        val mode = viewModel.readerSettingsProducer.value.downscale
+        val downscale = when (mode) {
             DownscaleMode.OFF -> binding.buttonOff
             DownscaleMode.X2 -> binding.button2x
             DownscaleMode.X4 -> binding.button4x
@@ -222,7 +223,7 @@ class ReaderConfigSheet :
                 R.id.button_8x -> DownscaleMode.X8
                 else -> return
             }
-            if (down != settings.defaultDownscaleMode) settings.defaultDownscaleMode = down
+            viewModel.saveDownscaleMode(down)
             return
         }
         val newMode = when (checkedId) {

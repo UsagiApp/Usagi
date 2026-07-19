@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import org.draken.usagi.core.model.ZoomMode
 import org.draken.usagi.core.parser.MangaDataRepository
+import org.draken.usagi.core.parser.MangaPrefs
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.DownscaleMode
 import org.draken.usagi.core.prefs.ReaderBackground
@@ -42,10 +43,10 @@ data class ReaderSettings(
 	val downscale: DownscaleMode,
 ) {
 
-	private constructor(settings: AppSettings, colorFilterOverride: ReaderColorFilter?) : this(
+	private constructor(settings: AppSettings, prefs: MangaPrefs) : this(
 		zoomMode = settings.zoomMode,
 		background = settings.readerBackground,
-		colorFilter = colorFilterOverride?.takeUnless { it.isEmpty } ?: settings.readerColorFilter,
+		colorFilter = prefs.colorFilter ?: settings.readerColorFilter,
 		isReaderOptimizationEnabled = settings.isReaderOptimizationEnabled,
 		bitmapConfig = if (settings.is32BitColorsEnabled) {
 			Bitmap.Config.ARGB_8888
@@ -55,7 +56,7 @@ data class ReaderSettings(
 		isPagesNumbersEnabled = settings.isPagesNumbersEnabled,
 		isPagesCropEnabledStandard = settings.isPagesCropEnabled(ReaderMode.STANDARD),
 		isPagesCropEnabledWebtoon = settings.isPagesCropEnabled(ReaderMode.WEBTOON),
-		downscale = settings.defaultDownscaleMode,
+		downscale = prefs.downscaleMode ?: settings.defaultDownscaleMode,
 	)
 
 	fun applyBackground(view: View) {
@@ -93,7 +94,7 @@ data class ReaderSettings(
 		@Assisted private val mangaId: Flow<Long>,
 		private val settings: AppSettings,
 		private val mangaDataRepository: MangaDataRepository,
-	) : MediatorStateFlow<ReaderSettings>(ReaderSettings(settings, null)) {
+	) : MediatorStateFlow<ReaderSettings>(ReaderSettings(settings, MangaPrefs.DEFAULT)) {
 
 		private val settingsKeys = scatterSetOf(
 			AppSettings.KEY_ZOOM_MODE,
@@ -125,10 +126,10 @@ data class ReaderSettings(
 
 		private suspend fun observeImpl() {
 			combine(
-				mangaId.flatMapLatest { mangaDataRepository.observeColorFilter(it) },
+				mangaId.flatMapLatest { mangaDataRepository.observeReaderPrefs(it) },
 				settings.observeChanges().filter { x -> x == null || x in settingsKeys }.onStart { emit(null) },
-			) { mangaCf, settingsKey ->
-				ReaderSettings(settings, mangaCf)
+			) { prefs, _ ->
+				ReaderSettings(settings, prefs)
 			}.collect {
 				publishValue(it)
 			}

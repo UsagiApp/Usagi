@@ -37,6 +37,7 @@ import org.draken.usagi.core.os.AppShortcutManager
 import org.draken.usagi.core.parser.MangaDataRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.ReaderMode
+import org.draken.usagi.core.prefs.DownscaleMode
 import org.draken.usagi.core.prefs.TriStateOption
 import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.prefs.observeAsStateFlow
@@ -240,6 +241,13 @@ class ReaderViewModel @Inject constructor(
             content.update {
                 it.copy(state = getCurrentState())
             }
+        }
+    }
+
+    fun saveDownscaleMode(mode: DownscaleMode) {
+        launchJob {
+            val manga = checkNotNull(getMangaOrNull())
+            dataRepository.saveDownscaleMode(manga, mode)
         }
     }
 

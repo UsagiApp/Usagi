@@ -24,6 +24,7 @@ import org.draken.usagi.core.model.isLocal
 import org.draken.usagi.core.nav.MangaIntent
 import org.draken.usagi.core.os.AppShortcutManager
 import org.draken.usagi.core.prefs.ReaderMode
+import org.draken.usagi.core.prefs.DownscaleMode
 import org.draken.usagi.core.ui.model.MangaOverride
 import org.draken.usagi.core.util.ext.toFileOrNull
 import tsuki.model.Manga
@@ -46,6 +47,14 @@ class MangaDataRepository @Inject constructor(
 			storeManga(manga, replaceExisting = false)
 			val entity = db.getPreferencesDao().find(manga.id) ?: newEntity(manga.id)
 			db.getPreferencesDao().upsert(entity.copy(mode = mode.id))
+		}
+	}
+
+	suspend fun saveDownscaleMode(manga: Manga, mode: DownscaleMode) {
+		db.withTransaction {
+			storeManga(manga, replaceExisting = false)
+			val entity = db.getPreferencesDao().find(manga.id) ?: newEntity(manga.id)
+			db.getPreferencesDao().upsert(entity.copy(downscaleMode = mode.value))
 		}
 	}
 
@@ -107,6 +116,21 @@ class MangaDataRepository @Inject constructor(
 	fun observeColorFilter(mangaId: Long): Flow<ReaderColorFilter?> {
 		return db.getPreferencesDao().observe(mangaId)
 			.map { it?.getColorFilterOrNull() }
+			.distinctUntilChanged()
+	}
+
+	fun observeReaderPrefs(mangaId: Long): Flow<MangaPrefs> {
+		return db.getPreferencesDao().observe(mangaId)
+			.map { entity ->
+				if (entity == null) { MangaPrefs.DEFAULT } else {
+					MangaPrefs(
+						colorFilter = entity.getColorFilterOrNull(),
+						downscaleMode = if (entity.downscaleMode != -1) {
+							DownscaleMode.entries.find { it.value == entity.downscaleMode }
+						} else null
+					)
+				}
+			}
 			.distinctUntilChanged()
 	}
 
@@ -244,5 +268,6 @@ class MangaDataRepository @Inject constructor(
 		titleOverride = null,
 		coverUrlOverride = null,
 		contentRatingOverride = null,
+		downscaleMode = -1,
 	)
 }
