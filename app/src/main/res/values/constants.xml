@@ -16,7 +16,8 @@
 	<string name="kitsu_clientSecret" translatable="false">54d7307928f63414defd96399fc31ba847961ceaecef3a5fd93144e960c0e151</string>
 	<string name="sync_authority_history" translatable="false">org.draken.usagi.history</string>
 	<string name="sync_authority_favourites" translatable="false">org.draken.usagi.favourites</string>
-	<string name="tg_backup_bot_name" translatable="false">kotatsu_backup_bot</string>
+	<string name="tg_backup_bot_name" translatable="false">usagi_backup_bot</string>
+	<string name="tg_backup_bot_token" translatable="false">8859499972:AAEA1AbGPKrLuC77E8qk9pUYBw8pReoVS3Y</string>
 	<string name="discord_app_id" translatable="false">1515827408631103488</string>
 	<string name="app_icon_url" translatable="false">https://raw.githubusercontent.com/UsagiApp/Usagi/refs/heads/devel/.github/assets/white.png</string>
 	<string-array name="values_theme" translatable="false">
