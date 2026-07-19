@@ -674,7 +674,9 @@
     <string name="new_chapters_pattern" translatable="false">%1$s: %2$d</string>
     <string name="pin_navigation_ui">Pin navigation UI</string>
     <string name="pin_navigation_ui_summary">Do not hide navigation bar and search view on scroll</string>
-    <string name="search_suggestions">Search suggestions</string>
+	<string name="floating_navigation_bar">Floating navigation bar</string>
+	<string name="floating_navigation_bar_summary">Display main screen navigation as a floating bar (like Google Photos, beta)</string>
+	<string name="search_suggestions">Search suggestions</string>
     <string name="recent_queries">Recent queries</string>
     <string name="suggested_queries">Suggested queries</string>
     <string name="authors">Authors</string>

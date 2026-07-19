@@ -39,7 +39,8 @@ class NavConfigViewModel @Inject constructor(
 				NavItemConfigModel(it, getUnavailabilityHint(it))
 			}
 			if (size < NavItem.entries.size) {
-				add(NavItemAddModel(size < MainNavigationDelegate.MAX_ITEM_COUNT))
+				val maxItemCount = if (settings.isFloatingNav) MainNavigationDelegate.MAX_FLOAT_ITEM_COUNT else MainNavigationDelegate.MAX_ITEM_COUNT
+				add(NavItemAddModel(size < maxItemCount))
 			}
 		}
 	}.stateIn(
