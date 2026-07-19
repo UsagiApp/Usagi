@@ -929,4 +929,6 @@
     <string name="check_app_update_summary">Verificar automaticamente se há atualizações do aplicativo ao iniciar</string>
     <string name="auto_update_plugins">Atualização automática de plugins</string>
     <string name="auto_update_plugins_summary">Atualizar automaticamente todos os plugins instalados na inicialização</string>
+    <string name="downscale_image">Reduzir a imagem</string>
+    <string name="downscale_off">Desligado</string>
 </resources>
