@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
 import org.draken.usagi.core.util.ext.processLifecycleScope
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.LocalizedAppContext
@@ -28,6 +30,7 @@ import org.draken.usagi.core.model.MangaSourceInfo
 import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.model.PluginMangaSource
 import org.draken.usagi.core.model.getTitle
+import org.draken.usagi.core.model.isExternalSource
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.parser.external.ExternalMangaSource
 import org.draken.usagi.core.prefs.AppSettings
@@ -48,6 +51,7 @@ class MangaSourcesRepository @Inject constructor(
 	@LocalizedAppContext private val context: Context,
 	private val db: MangaDatabase,
 	private val settings: AppSettings,
+	private val tachiyomiExtensionManager: dagger.Lazy<ExternalManager>? = null,
 ) {
 
 	private var assimilatedVersion = -1
@@ -74,7 +78,7 @@ class MangaSourcesRepository @Inject constructor(
 			sortOrder = order,
 			hideBrokenSources = settings.isBrokenSourcesHidden,
 		).let { enabled ->
-			val external = getExternalSources()
+			val external = getAllExtSources()
 			val list = ArrayList<MangaSourceInfo>(enabled.size + external.size)
 			external.mapTo(list) { MangaSourceInfo(it, isEnabled = true, isPinned = true) }
 			list.addAll(enabled)
@@ -107,7 +111,7 @@ class MangaSourcesRepository @Inject constructor(
 		if (settings.isAllSourcesEnabled) {
 			return emptySet()
 		}
-		val result = allMangaSources.toMutableSet()
+		val result = allMangaSources.filterNot { it.isExternalSource() }.toMutableSet()
 		if (settings.isNsfwContentDisabled) {
 			result.removeAll { it.isNsfw() }
 		}
@@ -189,7 +193,7 @@ class MangaSourcesRepository @Inject constructor(
 		) { skipNsfw, hideBroken, sources, _ ->
 			sources.count {
 				it.source.toMangaSourceOrNull()?.let { s ->
-					(!skipNsfw || !s.isNsfw()) && (!hideBroken || !s.isBroken)
+					!s.isExternalSource() && (!skipNsfw || !s.isNsfw()) && (!hideBroken || !s.isBroken)
 				} == true
 			}
 		}.distinctUntilChanged()
@@ -206,7 +210,7 @@ class MangaSourcesRepository @Inject constructor(
 		) { skipNsfw, hideBroken, enabledSources, _ ->
 			val enabled = enabledSources.mapToSet { it.source }
 			allMangaSources.count { x ->
-				x.name !in enabled && (!skipNsfw || !x.isNsfw()) && (!hideBroken || !x.isBroken)
+				!x.isExternalSource() && x.name !in enabled && (!skipNsfw || !x.isNsfw()) && (!hideBroken || !x.isBroken)
 			}
 		}.distinctUntilChanged()
 	}
@@ -222,6 +226,7 @@ class MangaSourcesRepository @Inject constructor(
 			it.toSources(skipNsfw, order, hideBroken)
 		}
 	}.flattenLatest().combine(observeExternalSources()) { enabled, external ->
+		val external = external + getSpecialSources()
 		val list = ArrayList<MangaSourceInfo>(enabled.size + external.size)
 		external.mapTo(list) { MangaSourceInfo(it, isEnabled = true, isPinned = true) }
 		list.addAll(enabled)
@@ -355,7 +360,7 @@ class MangaSourcesRepository @Inject constructor(
 
 	private suspend fun getNewSources(): MutableSet<out MangaSource> {
 		val entities = dao.findAll()
-		val result = allMangaSources.toMutableSet()
+		val result = allMangaSources.filterNot { it.isExternalSource() }.toMutableSet()
 		for (e in entities) {
 			result.remove(e.source.toMangaSourceOrNull() ?: continue)
 		}
@@ -378,6 +383,11 @@ class MangaSourcesRepository @Inject constructor(
 		return callbackFlow {
 			val receiver = object : BroadcastReceiver() {
 				override fun onReceive(context: Context?, intent: Intent?) {
+					launch(Dispatchers.Default) {
+						try {
+							tachiyomiExtensionManager?.get()?.ensureReady(forceRefresh = true)
+						} catch (_: Throwable) {}
+					}
 					trySendBlocking(intent)
 				}
 			}
@@ -412,6 +422,10 @@ class MangaSourcesRepository @Inject constructor(
 		)
 	}
 
+	private fun getSpecialSources(): List<ExternalSource> = allMangaSources.filterIsInstance<ExternalSource>()
+
+	private fun getAllExtSources(): List<MangaSource> = getExternalSources() + getSpecialSources()
+
 	private fun List<MangaSourceEntity>.toSources(
 		skipNsfwSources: Boolean,
 		sortOrder: SourcesSortOrder?,
@@ -421,6 +435,9 @@ class MangaSourcesRepository @Inject constructor(
 		val result = ArrayList<MangaSourceInfo>(size)
 		for (entity in this) {
 			val source = entity.source.toMangaSourceOrNull() ?: continue
+			if (source.isExternalSource()) {
+				continue
+			}
 			if (skipNsfwSources && source.isNsfw()) {
 				continue
 			}

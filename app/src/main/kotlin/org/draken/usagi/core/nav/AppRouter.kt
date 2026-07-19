@@ -69,6 +69,8 @@ import org.draken.usagi.favourites.ui.categories.FavouriteCategoriesActivity
 import org.draken.usagi.favourites.ui.categories.edit.FavouritesCategoryEditActivity
 import org.draken.usagi.favourites.ui.categories.select.FavoriteDialog
 import org.draken.usagi.filter.ui.FilterCoordinator
+import org.draken.usagi.filter.ui.external.sheet.SortSheet
+import org.draken.usagi.filter.ui.external.sheet.FilterSheetFragment as ExternalSheetFragment
 import org.draken.usagi.filter.ui.sheet.FilterSheetFragment
 import org.draken.usagi.filter.ui.tags.TagsCatalogSheet
 import org.draken.usagi.history.ui.HistoryActivity
@@ -476,10 +478,18 @@ class AppRouter private constructor(
         ImportDialogFragment().showDistinct()
     }
 
-    fun showFilterSheet(): Boolean = if (isFilterSupported()) {
-        FilterSheetFragment().showDistinct()
-    } else {
-        false
+    fun showFilterSheet(): Boolean {
+        val coordinator = getFilterCoordinator() ?: return false
+        return if (coordinator.isDynamicFilter) {
+            ExternalSheetFragment().showDistinct()
+        } else FilterSheetFragment().showDistinct()
+    }
+
+    fun showSortSheet(): Boolean {
+        val coordinator = getFilterCoordinator() ?: return false
+        return if (coordinator.isDynamicFilter) {
+			SortSheet().showDistinct()
+        } else false
     }
 
     fun showTagsCatalogSheet(excludeMode: Boolean) {
@@ -597,10 +607,12 @@ class AppRouter private constructor(
 
     /** Public utils **/
 
-    fun isFilterSupported(): Boolean = when {
-        fragment != null -> FilterCoordinator.find(fragment) != null
-        activity != null -> activity is FilterCoordinator.Owner
-        else -> false
+    fun isFilterSupported(): Boolean = getFilterCoordinator() != null
+
+    private fun getFilterCoordinator(): FilterCoordinator? = when {
+        fragment != null -> FilterCoordinator.find(fragment)
+        activity is FilterCoordinator.Owner -> (activity as FilterCoordinator.Owner).filterCoordinator
+        else -> null
     }
 
     fun isChapterPagesSheetShown(): Boolean {

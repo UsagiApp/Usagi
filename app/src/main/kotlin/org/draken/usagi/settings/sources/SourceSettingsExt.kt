@@ -1,6 +1,9 @@
 package org.draken.usagi.settings.sources
 
 import android.view.inputmethod.EditorInfo
+import eu.kanade.tachiyomi.source.ConfigurableSource
+import eu.kanade.tachiyomi.source.preferenceKey
+import eu.kanade.tachiyomi.source.online.HttpSource
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -10,6 +13,8 @@ import org.draken.usagi.R
 import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
+import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
+import org.draken.usagi.core.prefs.SourceSettings
 import tsuki.config.ConfigKey
 import tsuki.network.UserAgents
 import tsuki.util.mapToArray
@@ -21,8 +26,45 @@ import org.draken.usagi.settings.utils.validation.HeaderValidator
 
 fun PreferenceFragmentCompat.addPreferencesFromRepository(repository: MangaRepository) = when (repository) {
 	is MangaParserRepository -> addPreferencesFromParserRepository(repository)
+	is ExternalMangaRepository -> addPreferences(repository)
 	is EmptyMangaRepository -> addPreferencesFromEmptyRepository()
 	else -> Unit
+}
+
+private fun PreferenceFragmentCompat.addPreferences(repository: ExternalMangaRepository) {
+	val configurableSource = repository.external as? ConfigurableSource
+	if (configurableSource != null) {
+		preferenceManager.sharedPreferencesName = configurableSource.preferenceKey()
+	}
+	// Let extension add its preferences first
+	configurableSource?.setupPreferenceScreen(preferenceScreen)
+	// Remove extension's domain preference if it added one — Usagi replaces it
+	preferenceScreen.findPreference<Preference>(SourceSettings.KEY_DOMAIN)?.let {
+		preferenceScreen.removePreference(it)
+	}
+	// Add Usagi's EditTextPreference last so key lookup always returns it
+	addDomainPreferences(repository)
+}
+
+private fun PreferenceFragmentCompat.addDomainPreferences(repository: ExternalMangaRepository) {
+	val httpSource = repository.external as? HttpSource ?: return
+	val baseDomain = httpSource.baseUrl.removePrefix("https://").removePrefix("http://").substringBefore('/')
+	EditTextPreference(preferenceScreen.context).apply {
+		key = SourceSettings.KEY_DOMAIN
+		order = 5
+		isIconSpaceReserved = false
+		summaryProvider = EditTextDefaultSummaryProvider(baseDomain)
+		setOnBindEditTextListener(
+			EditTextBindListener(
+				inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_URI,
+				hint = baseDomain,
+				validator = DomainValidator(),
+			),
+		)
+		setTitle(R.string.domain)
+		setDialogTitle(R.string.domain)
+		preferenceScreen.addPreference(this)
+	}
 }
 
 private fun PreferenceFragmentCompat.addPreferencesFromParserRepository(repository: MangaParserRepository) {

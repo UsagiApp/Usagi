@@ -87,12 +87,12 @@ import org.draken.usagi.local.domain.model.LocalManga
 import tsuki.exception.TooManyRequestExceptions
 import tsuki.model.Manga
 import tsuki.model.MangaChapter
+import tsuki.model.MangaPage
 import tsuki.model.MangaSource
 import tsuki.util.ifNullOrEmpty
 import tsuki.util.mapToSet
 import tsuki.util.requireBody
 import tsuki.util.runCatchingCancellable
-import org.draken.usagi.reader.domain.PageLoader
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -235,7 +235,7 @@ class DownloadWorker @AssistedInject constructor(
 									runFailsafe {
 										val url = repo.getPageUrl(page)
 										val file = cache[url]
-											?: downloadFile(url, destination, repo.source)
+											?: downloadPageFile(page, destination, repo)
 										output.addPage(
 											chapter = chapter,
 											file = file,
@@ -395,14 +395,36 @@ class DownloadWorker @AssistedInject constructor(
 			}
 			return file
 		}
-		val request = PageLoader.createPageRequest(url, source)
+		val request = MangaRepository.createPageRequest(url, source)
 		slowdownDispatcher.delay(source)
 		return imageProxyInterceptor.interceptPageRequest(request, okHttp)
 			.ensureSuccess()
 			.use { response ->
 				var file: File? = null
 				try {
-					response.requireBody().use { body ->
+					response.body.use { body ->
+						file = destination.createTempFile(ext = MimeTypes.getExtension(body.contentType()?.toMimeType()))
+						file.sink(append = false).buffer().use { it.writeAllCancellable(body.source()) }
+					}
+				} catch (e: Exception) {
+					file?.delete()
+					throw e
+				}
+				checkNotNull(file)
+			}
+	}
+
+	private suspend fun downloadPageFile(page: MangaPage, destination: File, repo: MangaRepository): File {
+		val url = repo.getPageUrl(page)
+		if (url.startsWith("content:", true) || url.startsWith("file:", true)) {
+			return downloadFile(url, destination, repo.source)
+		}
+		slowdownDispatcher.delay(repo.source)
+		return repo.getPageResponse(page, okHttp, imageProxyInterceptor).ensureSuccess()
+			.use { response ->
+				var file: File? = null
+				try {
+					response.body.use { body ->
 						file = destination.createTempFile(
 							ext = MimeTypes.getExtension(body.contentType()?.toMimeType())
 						)

@@ -72,6 +72,9 @@ class SettingsActivity :
 		}
 		viewModel.isSearchActive.observe(this, ::toggleSearchMode)
 		viewModel.onNavigateToPreference.observeEvent(this, ::navigateToPreference)
+		supportFragmentManager.addOnBackStackChangedListener {
+			invalidateOptionsMenu()
+		}
 	}
 
 	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {

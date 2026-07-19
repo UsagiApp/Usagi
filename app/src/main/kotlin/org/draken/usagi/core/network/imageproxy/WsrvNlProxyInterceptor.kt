@@ -22,7 +22,7 @@ class WsrvNlProxyInterceptor : BaseImageProxyInterceptor() {
 		}
 
 		return request.newBuilder()
-			.data(newUrl.build())
+			.data(newUrl.build().toString())
 			.build()
 	}
 

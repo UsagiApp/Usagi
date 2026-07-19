@@ -7,10 +7,12 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.view.ActionMode
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
+import org.draken.usagi.settings.SettingsActivity
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -44,8 +46,6 @@ class PluginsManageFragment :
 	RecyclerViewOwner {
 	private val viewModel by viewModels<PluginsManageViewModel>()
 	private var pluginsAdapter: PluginManageAdapter? = null
-	private var selectionDecoration: PluginsSelectionDecoration? = null
-	private var actionMode: ActionMode? = null
 
 	private val launcher = registerForActivityResult(
 		ActivityResultContracts.OpenDocument()
@@ -81,13 +81,21 @@ class PluginsManageFragment :
 			onClick = ::onClick,
 			isSelected = { item -> viewModel.isSelected(item.name) }
 		)
-		selectionDecoration = PluginsSelectionDecoration(requireContext()).also {
-			binding.recyclerView.addItemDecoration(it)
-		}
 		with(binding.recyclerView) {
 			setHasFixedSize(true)
 			layoutManager = LinearLayoutManager(context)
 			adapter = pluginsAdapter
+		}
+
+		val onBackPressedCallback = object : OnBackPressedCallback(false) {
+			override fun handleOnBackPressed() {
+				viewModel.clearSelection()
+			}
+		}
+		requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
+
+		binding.fabImport.setOnClickListener {
+			showImportDialog()
 		}
 
 		viewLifecycleOwner.lifecycleScope.launch {
@@ -96,11 +104,19 @@ class PluginsManageFragment :
 
 		viewLifecycleOwner.lifecycleScope.launch {
 			viewModel.selectedPlugins.collect { selected ->
-				selectionDecoration?.clearSelection()
-				selected.forEach { jarName ->
-					selectionDecoration?.setItemIsChecked(jarName.hashCode().toLong(), true)
+				val isSelectionMode = selected.isNotEmpty()
+				onBackPressedCallback.isEnabled = isSelectionMode
+
+				val actionBar = (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar
+				if (isSelectionMode) {
+					(activity as? SettingsActivity)?.setSectionTitle(selected.size.toString())
+					actionBar?.setHomeAsUpIndicator(androidx.appcompat.R.drawable.abc_ic_clear_material)
+				} else {
+					(activity as? SettingsActivity)?.setSectionTitle(getString(R.string.manage_plugins))
+					actionBar?.setHomeAsUpIndicator(null)
 				}
-				updateActionModeTitle()
+
+				activity?.invalidateOptionsMenu()
 				pluginsAdapter?.notifyDataSetChanged()
 			}
 		}
@@ -108,7 +124,9 @@ class PluginsManageFragment :
 		addMenuProvider(
 			PluginsMenuProvider(
 				appBarOwner = activity as? AppBarOwner,
-				onImportClick = ::showImportDialog,
+				isSelectionMode = { viewModel.selectedPlugins.value.isNotEmpty() },
+				onClearSelection = { viewModel.clearSelection() },
+				onDeleteClick = ::showDeleteSelectedConfirm,
 				onSearchQueryChanged = viewModel::setQuery,
 			),
 		)
@@ -131,15 +149,15 @@ class PluginsManageFragment :
 
 	override fun onResume() {
 		super.onResume()
-		activity?.setTitle(R.string.manage_plugins)
+		(activity as? SettingsActivity)?.setSectionTitle(getString(R.string.manage_plugins))
 		viewModel.runAutoUpdate()
 		viewModel.refresh()
 	}
 
 	override fun onDestroyView() {
+		val actionBar = (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar
+		actionBar?.setHomeAsUpIndicator(null)
 		pluginsAdapter = null
-		selectionDecoration = null
-		actionMode?.finish()
 		super.onDestroyView()
 	}
 
@@ -188,29 +206,13 @@ class PluginsManageFragment :
 	}
 
 	private fun onClick(item: PluginManageItem.Plugin) {
-		if (actionMode != null) {
+		if (viewModel.selectedPlugins.value.isNotEmpty()) {
 			viewModel.toggleSelection(item.name)
 		}
 	}
 
 	private fun onLongClick(item: PluginManageItem.Plugin) {
-		startSelection(item)
-	}
-
-	private fun startSelection(item: PluginManageItem.Plugin) {
-		if (actionMode == null) {
-			actionMode = (activity as? androidx.appcompat.app.AppCompatActivity)?.startSupportActionMode(ActionModeCallback())
-		}
 		viewModel.toggleSelection(item.name)
-	}
-
-	private fun updateActionModeTitle() {
-		val count = viewModel.selectedPlugins.value.size
-		if (count == 0) {
-			actionMode?.finish()
-		} else {
-			actionMode?.title = count.toString()
-		}
 	}
 
 	private fun showDeleteSelectedConfirm() {
@@ -229,7 +231,6 @@ class PluginsManageFragment :
 						if (success) R.string.removal_completed else R.string.load_failed,
 						Snackbar.LENGTH_SHORT,
 					).show()
-					actionMode?.finish()
 				}
 			}
 		}.show()
@@ -316,34 +317,7 @@ class PluginsManageFragment :
 		).show()
 	}
 
-	private inner class ActionModeCallback : ActionMode.Callback {
-		override fun onCreateActionMode(mode: ActionMode, menu: android.view.Menu): Boolean {
-			menu.add(0, R.id.action_remove, 0, R.string.delete).apply {
-				setIcon(R.drawable.ic_delete)
-				setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
-			}
-			return true
-		}
 
-		override fun onPrepareActionMode(mode: ActionMode, menu: android.view.Menu): Boolean = false
-
-		override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-			return when (item.itemId) {
-				R.id.action_remove -> {
-					showDeleteSelectedConfirm()
-					true
-				}
-				else -> false
-			}
-		}
-
-		@SuppressLint("NotifyDataSetChanged")
-		override fun onDestroyActionMode(mode: ActionMode) {
-			viewModel.clearSelection()
-			actionMode = null
-			pluginsAdapter?.notifyDataSetChanged()
-		}
-	}
 
 	private companion object {
 		val SUPPORTED_MIME_TYPES = PluginFileLoader.SUPPORTED_MIME_TYPES

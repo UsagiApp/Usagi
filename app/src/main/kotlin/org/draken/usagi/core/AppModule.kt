@@ -25,6 +25,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.ElementsIntoSet
+import javax.inject.Provider
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -36,9 +38,11 @@ import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.exceptions.resolve.CaptchaHandler
 import org.draken.usagi.core.image.AvifImageDecoder
 import org.draken.usagi.core.image.CbzFetcher
+import org.draken.usagi.core.image.ExternalSourceFetcher
 import org.draken.usagi.core.image.MangaSourceHeaderInterceptor
 import org.draken.usagi.core.network.MangaHttpClient
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor
+import org.draken.usagi.core.network.webview.WebViewExecutor
 import org.draken.usagi.core.os.AppShortcutManager
 import org.draken.usagi.core.os.NetworkState
 import org.draken.usagi.core.parser.MangaLoaderContextImpl
@@ -64,17 +68,21 @@ import tsuki.MangaLoaderContext
 import org.draken.usagi.search.ui.MangaSuggestionsProvider
 import org.draken.usagi.sync.domain.SyncController
 import org.draken.usagi.widget.WidgetUpdater
-import javax.inject.Provider
-import javax.inject.Singleton
+import tsuki.network.UserAgents
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionLoader as Loader
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as Manager
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiInjektBridge as Bridge
 
 @Module
 @InstallIn(SingletonComponent::class)
 interface AppModule {
 
 	@Binds
+	@Suppress("unused")
 	fun bindMangaLoaderContext(mangaLoaderContextImpl: MangaLoaderContextImpl): MangaLoaderContext
 
 	@Binds
+	@Suppress("unused")
 	fun bindImageGetter(coilImageGetter: CoilImageGetter): Html.ImageGetter
 
 	companion object {
@@ -126,6 +134,7 @@ interface AppModule {
 				.allowRgb565(context.isLowRamDevice())
 				.eventListener(captchaHandler)
 				.components {
+					add(ExternalSourceFetcher.Factory())
 					add(
 						OkHttpNetworkFetcherFactory(
 							callFactory = okHttpClientLazy::value,
@@ -219,5 +228,34 @@ interface AppModule {
 			defaultSize = FileSize.MEGABYTES.convert(8, FileSize.BYTES),
 			minSize = FileSize.MEGABYTES.convert(2, FileSize.BYTES),
 		)
+
+		@Provides
+		@Singleton
+		fun provideInjektBridge(
+			@ApplicationContext context: Context,
+			@MangaHttpClient httpClient: OkHttpClient,
+			webViewExecutor: WebViewExecutor,
+		): Bridge {
+			return Bridge(
+				context = context,
+				httpClient = httpClient,
+				defaultUserAgentProvider = {
+					webViewExecutor.defaultUserAgent
+						?.replace(Regex("; Android .*?\\)"), "; Android 16; K)")
+						?.replace(Regex("Version/.* Chrome/"), "Chrome/")
+						?: UserAgents.CHROME_MOBILE
+				}
+			)
+		}
+
+		@Provides
+		@Singleton
+		fun provideExternalLoader(injektBridge: Provider<Bridge>):
+			Loader { return Loader { injektBridge.get() } }
+
+		@Provides
+		@Singleton
+		fun provideExternalManager(@ApplicationContext context: Context, loader: Loader):
+			Manager { return Manager(context, loader) }
 	}
 }

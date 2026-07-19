@@ -32,6 +32,7 @@ import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.external.ExternalMangaRepository
+import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as ExternalRepository
 import org.draken.usagi.core.util.MimeTypes
 import org.draken.usagi.core.util.ext.fetch
 import org.draken.usagi.core.util.ext.printStackTraceDebug
@@ -58,6 +59,7 @@ class FaviconFetcher(
 		return when (val repo = mangaRepositoryFactory.create(mangaSource)) {
 			is MangaParserRepository -> fetchParserFavicon(repo)
 			is ExternalMangaRepository -> fetchPluginIcon(repo)
+			is ExternalRepository -> fetchPackageIcon(repo.source.pkgName)
 			is EmptyMangaRepository -> ImageFetchResult(
 				image = ColorImage(Color.WHITE),
 				isSampled = false,
@@ -113,10 +115,14 @@ class FaviconFetcher(
 
 	private suspend fun fetchPluginIcon(repository: ExternalMangaRepository): FetchResult {
 		val source = repository.source
+		return fetchPackageIcon(source.packageName, source.authority)
+	}
+
+	private suspend fun fetchPackageIcon(packageName: String, authority: String? = null): FetchResult {
 		val pm = options.context.packageManager
 		val icon = runInterruptible {
-			val provider = pm.resolveContentProvider(source.authority, 0)
-			provider?.loadIcon(pm) ?: pm.getApplicationIcon(source.packageName)
+			val provider = authority?.let { pm.resolveContentProvider(it, 0) }
+			provider?.loadIcon(pm) ?: pm.getApplicationIcon(packageName)
 		}
 		return ImageFetchResult(
 			image = icon.nonAdaptive().asImage(),

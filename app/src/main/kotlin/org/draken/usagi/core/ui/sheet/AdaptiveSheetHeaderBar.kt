@@ -14,8 +14,10 @@ import androidx.core.content.withStyledAttributes
 import androidx.core.view.ancestors
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import org.draken.usagi.R
 import org.draken.usagi.databinding.LayoutSheetHeaderAdaptiveBinding
+import kotlin.math.roundToInt
 
 class AdaptiveSheetHeaderBar @JvmOverloads constructor(
 	context: Context,
@@ -26,6 +28,7 @@ class AdaptiveSheetHeaderBar @JvmOverloads constructor(
 	private val binding =
 		LayoutSheetHeaderAdaptiveBinding.inflate(LayoutInflater.from(context), this)
 	private var sheetBehavior: AdaptiveSheetBehavior? = null
+	private var dragHandleFullHeight = 0
 
 	var title: CharSequence?
 		get() = binding.shTextViewTitle.text
@@ -91,6 +94,18 @@ class AdaptiveSheetHeaderBar @JvmOverloads constructor(
 
 	fun setTitle(@StringRes resId: Int) {
 		binding.shTextViewTitle.setText(resId)
+	}
+
+	fun setProgress(progress: Float) {
+		if (sheetBehavior !is AdaptiveSheetBehavior.Bottom) return
+		val handle = binding.shDragHandle
+		val h = dragHandleFullHeight.takeIf { it > 0 }
+			?: handle.height.takeIf { it > 0 }?.also { dragHandleFullHeight = it }
+			?: return
+		val clamped = progress.coerceIn(0f, 1f)
+		val t = (h * (1f - clamped)).roundToInt()
+		if (handle.layoutParams.height != t) handle.updateLayoutParams { height = t }
+		handle.alpha = 1f - clamped
 	}
 
 	private fun setBottomSheetBehavior(behavior: AdaptiveSheetBehavior?) {

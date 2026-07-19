@@ -8,13 +8,17 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.room.InvalidationTracker
 import androidx.work.Configuration
+import eu.kanade.tachiyomi.AppInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.internal.platform.PlatformRegistry
 import org.conscrypt.Conscrypt
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as External
+import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.db.MangaDatabase
+import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.os.AppValidator
 import org.draken.usagi.core.model.PluginKeyResolver
 import org.draken.usagi.core.parser.MangaDynamicRepository
@@ -26,6 +30,7 @@ import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.data.index.LocalMangaIndex
 import org.draken.usagi.local.domain.model.LocalManga
 import org.draken.usagi.settings.work.WorkScheduleManager
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
 import java.security.Security
 import javax.inject.Inject
 import javax.inject.Provider
@@ -66,6 +71,9 @@ open class BaseApp : Application(), Configuration.Provider {
 	lateinit var pluginKeyResolver: PluginKeyResolver
 
 	@Inject
+	lateinit var externalManager: ExternalManager
+
+	@Inject
 	@LocalStorageChanges
 	lateinit var localStorageChanges: MutableSharedFlow<LocalManga?>
 
@@ -76,6 +84,7 @@ open class BaseApp : Application(), Configuration.Provider {
 
 	override fun onCreate() {
 		super.onCreate()
+		AppInfo.initialize(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
 		PlatformRegistry.applicationContext = this // TODO replace with OkHttp.initialize
 		Thread.setDefaultUncaughtExceptionHandler(
 			GlobalExceptionHandler(this, settings, Thread.getDefaultUncaughtExceptionHandler())
@@ -90,9 +99,16 @@ open class BaseApp : Application(), Configuration.Provider {
 			setupDatabaseObservers()
 			localStorageChanges.collect(localMangaIndexProvider.get())
 		}
+		processLifecycleScope.launch(Dispatchers.Default) {
+			externalManager.sources.collect { wrapped ->
+				val exist = MangaSourceRegistry.sources.filterNot { it is External }
+				MangaSourceRegistry.publish(exist + wrapped)
+			}
+		}
 
 		processLifecycleScope.launch(Dispatchers.IO) {
 			mangaDynamicRepository.load(mangaDynamicRepository.getDir())
+			externalManager.ensureReady()
 			withContext(Dispatchers.Default) {
 				pluginKeyResolver.normalize(database.get(), savedFiltersRepository)
 			}

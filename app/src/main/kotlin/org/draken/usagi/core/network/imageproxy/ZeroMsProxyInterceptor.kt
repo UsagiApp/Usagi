@@ -13,7 +13,7 @@ class ZeroMsProxyInterceptor : BaseImageProxyInterceptor() {
 		}
 		val newUrl = ("https://v.recipes/i/$url").toHttpUrl()
 		return request.newBuilder()
-			.data(newUrl)
+			.data(newUrl.toString())
 			.build()
 	}
 

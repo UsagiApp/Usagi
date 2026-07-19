@@ -10,26 +10,41 @@ import org.draken.usagi.main.ui.owners.AppBarOwner
 
 class PluginsMenuProvider(
 	private val appBarOwner: AppBarOwner?,
-	private val onImportClick: () -> Unit,
+	private val isSelectionMode: () -> Boolean,
+	private val onClearSelection: () -> Unit,
+	private val onDeleteClick: () -> Unit,
 	private val onSearchQueryChanged: (String?) -> Unit,
 ) : MenuProvider, MenuItem.OnActionExpandListener, SearchView.OnQueryTextListener {
 
 	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-		menuInflater.inflate(R.menu.opt_sources, menu)
-		menu.findItem(R.id.action_catalog)?.setTitle(R.string._import)
-		menu.findItem(R.id.action_no_nsfw)?.isVisible = false
-		menu.findItem(R.id.action_disable_all)?.isVisible = false
-		val searchMenuItem = menu.findItem(R.id.action_search)
-		searchMenuItem.setOnActionExpandListener(this)
-		val searchView = searchMenuItem.actionView as SearchView
-		searchView.setOnQueryTextListener(this)
-		searchView.setIconifiedByDefault(false)
-		searchView.queryHint = searchMenuItem.title
+		if (isSelectionMode()) {
+			menu.add(0, R.id.action_remove, 0, R.string.delete).apply {
+				setIcon(R.drawable.ic_delete)
+				setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+			}
+		} else {
+			menuInflater.inflate(R.menu.opt_sources, menu)
+			menu.findItem(R.id.action_catalog)?.isVisible = false
+			menu.findItem(R.id.action_no_nsfw)?.isVisible = false
+			menu.findItem(R.id.action_disable_all)?.isVisible = false
+			val searchMenuItem = menu.findItem(R.id.action_search) ?: return
+			searchMenuItem.setOnActionExpandListener(this)
+			val searchView = searchMenuItem.actionView as SearchView
+			searchView.setOnQueryTextListener(this)
+			searchView.setIconifiedByDefault(false)
+			searchView.queryHint = searchMenuItem.title
+		}
 	}
 
 	override fun onMenuItemSelected(menuItem: MenuItem): Boolean = when (menuItem.itemId) {
-		R.id.action_catalog -> {
-			onImportClick()
+		android.R.id.home -> {
+			if (isSelectionMode()) {
+				onClearSelection()
+				true
+			} else false
+		}
+		R.id.action_remove -> {
+			onDeleteClick()
 			true
 		}
 		else -> false

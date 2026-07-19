@@ -23,6 +23,7 @@ import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.showOrHide
 import org.draken.usagi.core.util.ext.start
 import org.draken.usagi.databinding.FragmentChangelogBinding
+import org.draken.usagi.settings.SettingsActivity
 
 @AndroidEntryPoint
 class ChangelogFragment : BaseFragment<FragmentChangelogBinding>() {
@@ -51,7 +52,7 @@ class ChangelogFragment : BaseFragment<FragmentChangelogBinding>() {
 
 	override fun onResume() {
 		super.onResume()
-		activity?.setTitle(R.string.changelog)
+		(activity as? SettingsActivity)?.setSectionTitle(getString(R.string.changelog))
 	}
 
 	override fun onApplyWindowInsets(

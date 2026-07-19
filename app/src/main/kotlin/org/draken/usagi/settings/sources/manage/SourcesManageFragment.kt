@@ -72,6 +72,7 @@ class SourcesManageFragment :
 	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		sourcesAdapter = SourceConfigAdapter(this)
+		binding.fabImport.visibility = View.GONE
 		with(binding.recyclerView) {
 			setHasFixedSize(true)
 			adapter = sourcesAdapter
@@ -102,7 +103,7 @@ class SourcesManageFragment :
 
 	override fun onResume() {
 		super.onResume()
-		activity?.setTitle(R.string.manage_sources)
+		(activity as? SettingsActivity)?.setSectionTitle(getString(R.string.manage_sources))
 	}
 
 	override fun onDestroyView() {

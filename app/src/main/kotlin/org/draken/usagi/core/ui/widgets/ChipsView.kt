@@ -1,5 +1,6 @@
 package org.draken.usagi.core.ui.widgets
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.text.style.ForegroundColorSpan
@@ -8,6 +9,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.StyleRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
@@ -38,11 +40,13 @@ import tsuki.util.ifZero
 import javax.inject.Inject
 import com.google.android.material.R as materialR
 
+@SuppressLint("UseKtx")
 @AndroidEntryPoint
 class ChipsView @JvmOverloads constructor(
 	context: Context,
 	attrs: AttributeSet? = null,
 	defStyleAttr: Int = materialR.attr.chipGroupStyle,
+	@StyleRes private val chipStyleOverride: Int = 0,
 ) : ChipGroup(context, attrs, defStyleAttr) {
 
 	@Inject
@@ -61,6 +65,7 @@ class ChipsView @JvmOverloads constructor(
 		val data = it.tag
 		onChipLongClickListener?.onChipLongClick(chip, data) ?: false
 	}
+	@StyleRes
 	private val chipStyle: Int
 	private val iconsVisible: Boolean
 	var onChipClickListener: OnChipClickListener? = null
@@ -75,7 +80,8 @@ class ChipsView @JvmOverloads constructor(
 
 	init {
 		val ta = context.obtainStyledAttributes(attrs, R.styleable.ChipsView, defStyleAttr, 0)
-		chipStyle = ta.getResourceId(R.styleable.ChipsView_chipStyle, R.style.Widget_Usagi_Chip)
+		chipStyle = chipStyleOverride.takeIf { it != 0 }
+			?: ta.getResourceId(R.styleable.ChipsView_chipStyle, R.style.Widget_Usagi_Chip)
 		iconsVisible = ta.getBoolean(R.styleable.ChipsView_chipIconVisible, true)
 		ta.recycle()
 

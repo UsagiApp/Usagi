@@ -6,6 +6,7 @@ import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.PluginLoadException
 import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.model.PluginMangaSource
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as External
 import tsuki.MangaLoaderContext
 import tsuki.MangaParser
 import tsuki.model.MangaSource
@@ -86,7 +87,7 @@ class MangaDynamicRepository @Inject constructor(
 		cL.clear()
 		methodMap.putAll(methods)
 		cL.putAll(loaders)
-		MangaSourceRegistry.publish(sources)
+		MangaSourceRegistry.publish(MangaSourceRegistry.sources.filterIsInstance<External>() + sources)
 		return e
 	}
 
