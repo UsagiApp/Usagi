@@ -102,6 +102,7 @@ class MainNavigationDelegate(
 	override fun onNavigationItemSelected(item: MenuItem): Boolean {
 		return if (onNavigationItemSelected(item.itemId)) {
 			item.isChecked = true
+			navController.setItem(item.itemId)
 			true
 		} else {
 			false

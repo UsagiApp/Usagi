@@ -17,6 +17,7 @@ import org.draken.usagi.R
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.main.ui.owners.BottomNavOwner
+import kotlin.time.Duration.Companion.milliseconds
 
 class ExitCallback(
 	private val activity: MainActivity,
@@ -59,9 +60,11 @@ class ExitCallback(
 	private suspend fun resetExitConfirmation() {
 		isDisabledByTimeout.value = true
 		val snackbar = Snackbar.make(snackbarHost, R.string.confirm_exit, Snackbar.LENGTH_INDEFINITE)
-		snackbar.anchorView = (activity as? BottomNavOwner)?.bottomNav
+		snackbar.anchorView = if (activity.settings.isFloatingNav) {
+			activity.viewBinding.floatingNavContainer
+		} else (activity as? BottomNavOwner)?.bottomNav
 		snackbar.show()
-		delay(2000)
+		delay(2000.milliseconds)
 		snackbar.dismiss()
 		isDisabledByTimeout.value = false
 	}
