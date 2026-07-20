@@ -1,8 +1,5 @@
 package org.draken.usagi.main.ui
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.view.animation.DecelerateInterpolator
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -78,7 +75,7 @@ import org.draken.usagi.favourites.ui.container.FavouritesContainerFragment
 import org.draken.usagi.history.ui.HistoryListFragment
 import org.draken.usagi.local.ui.LocalIndexUpdateService
 import org.draken.usagi.local.ui.LocalStorageCleanupWorker
-import org.draken.usagi.main.ui.nav.NavScrollBehavior
+import org.draken.usagi.main.ui.nav.ScrollListener
 import org.draken.usagi.main.ui.owners.AppBarOwner
 import org.draken.usagi.main.ui.owners.BottomNavOwner
 import org.draken.usagi.remotelist.ui.MangaSearchMenuProvider
@@ -114,14 +111,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 	private lateinit var fadingAppbarMediator: FadingAppbarMediator
 	private var isFloatNav = false
 
-	private val fabListener = object : AnimatorListenerAdapter() {
-		override fun onAnimationEnd(animation: Animator) {
-			val fab = viewBinding.fabFloating ?: return
-			fab.visibility = View.GONE
-			fab.translationX = 0f
-		}
-	}
-
 	override val appBar: AppBarLayout
 		get() = viewBinding.appbar
 
@@ -150,6 +139,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		isFloatNav = settings.isFloatingNav
 		viewBinding.bottomNav?.isVisible = !isFloatNav
 		viewBinding.floatingNavContainer?.isVisible = isFloatNav
+		viewBinding.floatingNavContainer?.layoutTransition?.let { transition ->
+			transition.setAnimator(android.animation.LayoutTransition.APPEARING, null)
+			transition.setAnimator(android.animation.LayoutTransition.DISAPPEARING, null)
+		}
 		val floatingContent = viewBinding.floatingNavContent
 		if (isFloatNav && floatingContent != null) navigationDelegate.attach(floatingContent)
 		navigationDelegate.onCreate(this, savedInstanceState)
@@ -186,6 +179,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		viewModel.isFloatingNav.observe(this, ::setFloatNav)
 		searchSuggestionViewModel.isIncognitoModeEnabled.observe(this, this::onIncognitoModeChanged)
 		viewBinding.bottomNav?.addOnLayoutChangeListener(this)
+		viewBinding.floatingNavContainer?.addOnLayoutChangeListener(this)
 		if (isDarkAmoledTheme()) {
 			viewBinding.bottomNav?.apply {
 				val primary = MaterialColors.getColor(this, appcompatR.attr.colorPrimary, Color.WHITE)
@@ -271,8 +265,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		oldRight: Int,
 		oldBottom: Int,
 	) {
-		if (top != oldTop || bottom != oldBottom) {
-			updateMargin()
+		if (left != oldLeft || right != oldRight || top != oldTop || bottom != oldBottom) {
+			if (v === viewBinding.bottomNav) updateMargin()
+			adjustFabVisibility()
 		}
 	}
 
@@ -394,41 +389,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		}
 	}
 
-	private fun animate(fab: View, show: Boolean) {
-		val density = resources.displayMetrics.density
-		val fabWidth = if (fab.width > 0) fab.width.toFloat() else (48 * density)
-		val translationDistance = -(fabWidth + (8 * density))
-		if (show) {
-			if (fab.visibility != View.VISIBLE || fab.alpha < 1f) {
-				fab.animate().cancel()
-				fab.visibility = View.VISIBLE
-				fab.translationX = translationDistance
-				fab.alpha = 0f
-				fab.animate()
-					.translationX(0f)
-					.alpha(1f)
-					.setDuration(200)
-					.setInterpolator(DecelerateInterpolator())
-					.setListener(null)
-					.start()
-			}
-		} else {
-			if (fab.isVisible && fab.alpha > 0f) {
-				fab.animate().cancel()
-				fab.animate()
-					.translationX(translationDistance)
-					.alpha(0f)
-					.setDuration(200)
-					.setInterpolator(DecelerateInterpolator())
-					.setListener(fabListener)
-					.start()
-			} else {
-				fab.visibility = View.GONE
-				fab.translationX = 0f
-			}
-		}
-	}
-
 	private fun adjustFabVisibility(
 		isResumeEnabled: Boolean = viewModel.isResumeEnabled.value,
 		topFragment: Fragment? = navigationDelegate.primaryFragment,
@@ -439,16 +399,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		if (isFloatNav) {
 			viewBinding.fab?.isVisible = false
 			val fab = viewBinding.fabFloating
-			if (fab != null) animate(fab, shouldShow)
 			val container = viewBinding.floatingNavContainer
-			if (container != null && !shouldShow) {
+			if (container != null && fab != null) {
+				fab.tag = shouldShow
 				val lp = container.layoutParams as? CoordinatorLayout.LayoutParams
-				val behavior = lp?.behavior as? NavScrollBehavior
-				behavior?.reset(container)
+				val behavior = lp?.behavior as? ScrollListener
+				behavior?.update(container)
+				if (!shouldShow) behavior?.reset(container)
 			}
 		} else {
 			val fab = viewBinding.fabFloating
-			if (fab != null) animate(fab, false)
+			if (fab != null) {
+				fab.tag = false
+				fab.visibility = View.GONE
+				fab.translationX = 0f
+			}
 			viewBinding.fab?.isVisible = shouldShow
 		}
 	}
@@ -522,7 +487,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		val container = viewBinding.floatingNavContainer
 		if (container != null) {
 			val lp = container.layoutParams as? CoordinatorLayout.LayoutParams
-			val behavior = lp?.behavior as? NavScrollBehavior
+			val behavior = lp?.behavior as? ScrollListener
 			behavior?.isPinned = isPinned
 			if (isPinned) behavior?.slideUp(container)
 		}

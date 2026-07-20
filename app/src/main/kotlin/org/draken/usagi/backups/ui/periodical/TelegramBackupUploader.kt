@@ -21,6 +21,7 @@ import tsuki.util.json.getStringOrNull
 import tsuki.util.parseJson
 import java.io.File
 import javax.inject.Inject
+import kotlin.io.encoding.Base64
 
 class TelegramBackupUploader @Inject constructor(
 	private val settings: AppSettings,
@@ -28,7 +29,7 @@ class TelegramBackupUploader @Inject constructor(
 	@ApplicationContext private val context: Context,
 ) {
 
-	private val botToken = context.getString(R.string.tg_backup_bot_token)
+	private val botToken = Base64.decode(context.getString(R.string.tg_backup_bot_token))
 
 	val isAvailable: Boolean
 		get() = botToken.isNotEmpty()

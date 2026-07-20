@@ -98,7 +98,7 @@
 		android:gravity="center_vertical"
 		android:orientation="horizontal"
 		android:visibility="gone"
-		app:layout_behavior="org.draken.usagi.main.ui.nav.NavScrollBehavior"
+		app:layout_behavior="org.draken.usagi.main.ui.nav.ScrollListener"
 		tools:visibility="visible">
 
 		<com.google.android.material.card.MaterialCardView
