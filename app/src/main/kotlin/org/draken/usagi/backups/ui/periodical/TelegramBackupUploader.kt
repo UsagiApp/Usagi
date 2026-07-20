@@ -29,7 +29,7 @@ class TelegramBackupUploader @Inject constructor(
 	@ApplicationContext private val context: Context,
 ) {
 
-	private val botToken = Base64.decode(context.getString(R.string.tg_backup_bot_token))
+	private val botToken = Base64.decode(context.getString(R.string.tg_backup_bot_token)).decodeToString()
 
 	val isAvailable: Boolean
 		get() = botToken.isNotEmpty()
