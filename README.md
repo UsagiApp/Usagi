@@ -12,6 +12,10 @@
 
 ### Download
 
+<div align="center">
+	<i><b>"Usagi: Just a manga reader"</b></i>
+</div><br>
+
 <table>
   <thead>
     <tr>
