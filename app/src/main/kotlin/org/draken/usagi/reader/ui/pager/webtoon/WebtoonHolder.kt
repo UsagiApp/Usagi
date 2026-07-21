@@ -30,7 +30,9 @@ class WebtoonHolder(
 	private var scrollToRestore = 0
 
 	init {
-		bindingInfo.progressBar.setVisibilityAfterHide(View.GONE)
+		binding.root.post {
+			bindingInfo.progressBar.setVisibilityAfterHide(View.GONE)
+		}
 	}
 
 	override fun onReady() {
