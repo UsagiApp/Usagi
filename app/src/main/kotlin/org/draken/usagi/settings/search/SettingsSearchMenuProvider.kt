@@ -9,11 +9,9 @@ import org.draken.usagi.R
 
 class SettingsSearchMenuProvider(
 	private val viewModel: SettingsSearchViewModel,
-	private val isSubFragmentActive: () -> Boolean = { false },
 ) : MenuProvider, MenuItem.OnActionExpandListener, SearchView.OnQueryTextListener {
 
 	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-		if (isSubFragmentActive()) return
 		menuInflater.inflate(R.menu.opt_search, menu)
 		val menuItem = menu.findItem(R.id.action_search) ?: return
 		menuItem.setOnActionExpandListener(this)
@@ -24,10 +22,6 @@ class SettingsSearchMenuProvider(
 
 	override fun onPrepareMenu(menu: Menu) {
 		super.onPrepareMenu(menu)
-		if (isSubFragmentActive()) {
-			menu.findItem(R.id.action_search)?.isVisible = false
-			return
-		}
 		if (viewModel.isSearchActive.value) {
 			val menuItem = menu.findItem(R.id.action_search) ?: return
 			menuItem.expandActionView()
