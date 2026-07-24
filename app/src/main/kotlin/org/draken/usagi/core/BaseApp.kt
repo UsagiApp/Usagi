@@ -95,18 +95,17 @@ open class BaseApp : Application(), Configuration.Provider {
 			Security.insertProviderAt(Conscrypt.newProvider(), 1)
 		}
 		setupActivityLifecycleCallbacks()
-		processLifecycleScope.launch(Dispatchers.Default) {
-			setupDatabaseObservers()
-			localStorageChanges.collect(localMangaIndexProvider.get())
-		}
-		processLifecycleScope.launch(Dispatchers.Default) {
-			externalManager.sources.collect { wrapped ->
-				val exist = MangaSourceRegistry.sources.filterNot { it is External }
-				MangaSourceRegistry.publish(exist + wrapped)
-			}
-		}
-
 		processLifecycleScope.launch(Dispatchers.IO) {
+			setupDatabaseObservers()
+			launch {
+				localStorageChanges.collect(localMangaIndexProvider.get())
+			}
+			launch {
+				externalManager.sources.collect { w ->
+					val e = MangaSourceRegistry.sources.filterNot { it is External }
+					MangaSourceRegistry.publish(e + w)
+				}
+			}
 			mangaDynamicRepository.load(mangaDynamicRepository.getDir())
 			externalManager.ensureReady()
 			withContext(Dispatchers.Default) {
