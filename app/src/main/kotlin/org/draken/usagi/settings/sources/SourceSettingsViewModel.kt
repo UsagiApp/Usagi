@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.HttpUrl
 import org.draken.usagi.R
 import org.draken.usagi.core.model.MangaSource
+import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.parser.CachingMangaRepository
@@ -21,6 +22,8 @@ import org.draken.usagi.core.ui.util.ReversibleAction
 import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.explore.data.MangaSourcesRepository
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 import tsuki.MangaParserAuthProvider
 import tsuki.exception.AuthRequiredException
 import javax.inject.Inject
@@ -31,6 +34,7 @@ class SourceSettingsViewModel @Inject constructor(
 	mangaRepositoryFactory: MangaRepository.Factory,
 	private val cookieJar: MutableCookieJar,
 	private val mangaSourcesRepository: MangaSourcesRepository,
+	private val externalManager: ExternalManager,
 ) : BaseViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
 
 	val source = MangaSource(savedStateHandle.get<String>(AppRouter.KEY_SOURCE))
@@ -111,6 +115,11 @@ class SourceSettingsViewModel @Inject constructor(
 		launchJob(Dispatchers.Default) {
 			mangaSourcesRepository.setSourcesEnabled(setOf(source), value)
 		}
+	}
+
+	fun publish() {
+		val e = MangaSourceRegistry.sources.filterNot { it is ExternalSource }
+		MangaSourceRegistry.publish(e + externalManager.getActiveSources())
 	}
 
 	private fun loadUsername(authProvider: MangaParserAuthProvider?) {

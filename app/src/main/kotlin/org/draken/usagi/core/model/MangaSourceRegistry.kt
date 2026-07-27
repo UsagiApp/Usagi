@@ -25,16 +25,17 @@ object MangaSourceRegistry {
 	)
 
 	fun publish(newSources: List<MangaSource>) {
-		val name = HashMap<String, MangaSource>(newSources.size * 2)
-		val shortName = HashMap<String, MangaSource>(newSources.size)
-		for (source in newSources) {
+		val sources = newSources.distinctBy { it.name }
+		val name = HashMap<String, MangaSource>(sources.size * 2)
+		val shortName = HashMap<String, MangaSource>(sources.size)
+		for (source in sources) {
 			name.putIfAbsent(source.name, source)
 			if (source is PluginMangaSource) {
 				shortName.putIfAbsent(source.sourceName, source)
 			}
 		}
 		snapshot = SourceSnapshot(
-			sources = newSources,
+			sources = sources,
 			version = snapshot.version + 1,
 			byName = name,
 			byShortName = shortName,

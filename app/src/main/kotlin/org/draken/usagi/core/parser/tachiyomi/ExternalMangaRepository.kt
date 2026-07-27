@@ -10,6 +10,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import org.draken.usagi.core.cache.MemoryContentCache
+import org.draken.usagi.core.exceptions.CloudFlareProtectedException
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
 import org.draken.usagi.core.parser.CachingMangaRepository
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiSourceSettings as externalSettings
@@ -102,22 +103,12 @@ class ExternalMangaRepository(
 				hasFilters -> {
 					val mihonFilters = try { external.getFilterList() } catch (_: Throwable) { FilterList() }
 					FilterMapper.decode(mihonFilters, filter)
-					try { external.getSearchManga(page, query, mihonFilters) } catch (e: Throwable) {
-						throw e as? IOException ?: IOException(e.message ?: e.toString(), e)
-					}
+					external.getSearchManga(page, query, mihonFilters)
 				}
-				(order ?: defaultSortOrder).isLatest() && source.supportsLatest -> {
-					try { external.getLatestUpdates(page) } catch (e: Throwable) {
-						throw e as? IOException ?: IOException(e.message ?: e.toString(), e)
-					}
-				}
-				else -> {
-					try { external.getPopularManga(page) } catch (e: Throwable) {
-						throw e as? IOException ?: IOException(e.message ?: e.toString(), e)
-					}
-				}
+				(order ?: defaultSortOrder).isLatest() && source.supportsLatest -> external.getLatestUpdates(page)
+				else -> external.getPopularManga(page)
 			}
-		} catch (e: Throwable) { throw e as? IOException ?: IOException(e.message ?: e.toString(), e) }
+		} catch (e: Throwable) { throw mapException(e) }
 		hasMorePages = mangasPage.hasNextPage
 		val httpSource = external as? HttpSource
 		mangasPage.mangas.map { sManga ->
@@ -133,7 +124,7 @@ class ExternalMangaRepository(
 			val original = manga.toSManga()
 			val update = try {
 				external.getMangaUpdate(original, emptyList(), fetchDetails = true, fetchChapters = true)
-			} catch (e: Throwable) { throw e as? IOException ?: IOException(e.message ?: e.toString(), e) }
+			} catch (e: Throwable) { throw mapException(e) }
 			val details = update.manga.toManga(source, fallbackUrl = manga.url, fallbackTitle = manga.title)
 			details.copy(
 				chapters = update.chapters.asReversed().mapIndexed { index, chapter ->
@@ -147,7 +138,7 @@ class ExternalMangaRepository(
 	override suspend fun getPagesImpl(chapter: MangaChapter): List<MangaPage> {
 		return withContext(Dispatchers.IO) {
 			val pageList = try { external.getPageList(chapter.toSChapter()) } catch (e: Throwable) {
-				throw e as? IOException ?: IOException(e.message ?: e.toString(), e)
+				throw mapException(e)
 			}
 			pageList.map { page ->
 				val resolved = page.imageUrl
@@ -160,7 +151,10 @@ class ExternalMangaRepository(
 		}
 	}
 
-	override suspend fun getPageUrl(page: MangaPage): String = page.url
+	override suspend fun getPageUrl(page: MangaPage): String {
+		if (external !is HttpSource) return page.url
+		return getPageRequest(page).url.toString()
+	}
 
 	override suspend fun getPageRequest(page: MangaPage): Request {
 		val httpSource = external as? HttpSource ?: return super.getPageRequest(page)
@@ -168,7 +162,7 @@ class ExternalMangaRepository(
 			?: Page(index = 0, url = page.url, imageUrl = page.url)
 		return withContext(Dispatchers.IO) {
 			val imageRequest = try { httpSource.getImageRequest(tachiyomiPage) } catch (e: Throwable) {
-				throw e as? IOException ?: IOException(e.message ?: e.toString(), e)
+				throw mapException(e)
 			}
 			imageRequest.newBuilder()
 				.tag(tsuki.model.MangaSource::class.java, source)
@@ -182,7 +176,7 @@ class ExternalMangaRepository(
 			?: Page(index = 0, url = page.url, imageUrl = page.url)
 		return withContext(Dispatchers.IO) {
 			try { httpSource.getImage(tachiyomiPage) } catch (e: Throwable) {
-				throw e as? IOException ?: IOException(e.message ?: e.toString(), e)
+				throw mapException(e)
 			}
 		}
 	}
@@ -214,7 +208,28 @@ class ExternalMangaRepository(
 		}
 	}
 
+	private fun mapException(error: Throwable): IOException {
+		val httpSource = external as? HttpSource
+		if (httpSource != null && error.hasMessage("cloudflare bypass failed")) {
+			return CloudFlareProtectedException(
+				url = externalSettings.browserUrl(context, source) ?: httpSource.getHomeUrl(),
+				source = source,
+				headers = httpSource.headers,
+			)
+		}
+		return error as? IOException ?: IOException(error.message ?: error.toString(), error)
+	}
+
 	private fun SortOrder.isLatest(): Boolean = this == SortOrder.NEWEST || this == SortOrder.UPDATED
+
+	private fun Throwable.hasMessage(value: String): Boolean {
+		var current: Throwable? = this
+		while (current != null) {
+			if (current.message?.contains(value, true) == true) return true
+			current = current.cause
+		}
+		return false
+	}
 
 	private companion object {
 		val pageCache = ConcurrentHashMap<String, Page>()

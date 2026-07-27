@@ -23,6 +23,7 @@ import org.draken.usagi.settings.utils.EditTextBindListener
 import org.draken.usagi.settings.utils.EditTextDefaultSummaryProvider
 import org.draken.usagi.settings.utils.validation.DomainValidator
 import org.draken.usagi.settings.utils.validation.HeaderValidator
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiSourceSettings
 
 fun PreferenceFragmentCompat.addPreferencesFromRepository(repository: MangaRepository) = when (repository) {
 	is MangaParserRepository -> addPreferencesFromParserRepository(repository)
@@ -39,8 +40,9 @@ private fun PreferenceFragmentCompat.addPreferences(repository: ExternalMangaRep
 	// Let extension add its preferences first
 	configurableSource?.setupPreferenceScreen(preferenceScreen)
 	// Remove extension's domain preference if it added one — Usagi replaces it
-	preferenceScreen.findPreference<Preference>(SourceSettings.KEY_DOMAIN)?.let {
-		preferenceScreen.removePreference(it)
+	TachiyomiSourceSettings.mergeDomainPreference(requireContext(), repository.source)
+	for (key in arrayOf(TachiyomiSourceSettings.KEY_DOMAIN, TachiyomiSourceSettings.KEY_OVERRIDE_BASE_URL)) {
+		preferenceScreen.findPreference<Preference>(key)?.let { it.parent?.removePreference(it) }
 	}
 	// Add Usagi's EditTextPreference last so key lookup always returns it
 	addDomainPreferences(repository)

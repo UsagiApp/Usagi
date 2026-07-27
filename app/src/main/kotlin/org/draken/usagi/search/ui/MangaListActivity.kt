@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 import org.draken.usagi.R
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.MangaSource
@@ -53,6 +55,7 @@ import tsuki.model.MangaListFilter
 import tsuki.model.MangaSource
 import tsuki.model.SortOrder
 import org.draken.usagi.remotelist.ui.RemoteListFragment
+import javax.inject.Inject
 import kotlin.math.absoluteValue
 import com.google.android.material.R as materialR
 
@@ -73,12 +76,15 @@ class MangaListActivity :
 
 	private lateinit var source: MangaSource
 
+	@Inject
+	lateinit var externalManager: ExternalManager
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(ActivityMangaListBinding.inflate(layoutInflater))
 		val filter = intent.getParcelableExtraCompat<ParcelableMangaListFilter>(AppRouter.KEY_FILTER)?.filter
 		val sortOrder = intent.getSerializableExtraCompat<SortOrder>(AppRouter.KEY_SORT_ORDER)
-		source = MangaSource(intent.getStringExtra(AppRouter.KEY_SOURCE))
+		source = resolve(MangaSource(intent.getStringExtra(AppRouter.KEY_SOURCE)))
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
 		if (viewBinding.containerFilterHeader != null) {
 			viewBinding.appbar.addOnOffsetChangedListener(this)
@@ -86,6 +92,15 @@ class MangaListActivity :
 		viewBinding.buttonOrder?.setOnClickListener(this)
 		title = source.getTitle(this)
 		initList(source, filter, sortOrder)
+	}
+
+	override fun onResume() {
+		super.onResume()
+		val activeSource = resolve(source)
+		if (activeSource.name != source.name) {
+			source = activeSource; title = source.getTitle(this)
+			reload(source)
+		}
 	}
 
 	override fun isNsfwContent(): Flow<Boolean> = flowOf(source.isNsfw())
@@ -162,6 +177,24 @@ class MangaListActivity :
 				}
 			}
 		}
+	}
+
+	private fun reload(source: MangaSource) {
+		supportFragmentManager.commit {
+			setReorderingAllowed(true)
+			replace(R.id.container, RemoteListFragment.newInstance(source))
+			if (viewBinding.containerFilterHeader != null) {
+				replace(R.id.container_filter_header, FilterHeaderFragment::class.java, null)
+			}
+			if (viewBinding.containerSide != null) {
+				replace(R.id.container_side, ExternalSheetFragment::class.java, null)
+			}
+			runOnCommit { findFilterOwner()?.let { initFilter(it) } }
+		}
+	}
+
+	private fun resolve(source: MangaSource): MangaSource {
+		return (source as? ExternalSource)?.let(externalManager::resolve) ?: source
 	}
 
 	private fun initFilter(filterOwner: FilterCoordinator.Owner) {

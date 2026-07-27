@@ -126,6 +126,8 @@ android {
 	}
 }
 dependencies {
+	implementation libs.usagi.serialization.library
+	ksp libs.usagi.serialization.library
 	implementation libs.jsoup
 	implementation libs.tsuki
 	implementation libs.tsukimix
@@ -170,6 +172,7 @@ dependencies {
 	implementation libs.okio
 	implementation libs.rxjava
 	implementation libs.injekt.core
+	implementation libs.kotlinx.serialization.core
 	implementation libs.kotlinx.serialization.json
 	implementation libs.kotlinx.serialization.json.okio
 

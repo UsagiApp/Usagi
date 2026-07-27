@@ -25,12 +25,18 @@ import org.draken.usagi.core.ui.util.ReversibleActionObserver
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.withArgs
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
+import org.draken.tsukimix.core.parser.tachiyomi.addLangToPref
 import tsuki.model.MangaSource
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenceChangeListener {
 
 	private val viewModel: SourceSettingsViewModel by viewModels()
+
+	@Inject
+	lateinit var externalManager: ExternalManager
 
 	override fun onResume() {
 		super.onResume()
@@ -44,6 +50,9 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 		preferenceManager.sharedPreferencesName = SourceSettings.prefsName(viewModel.source)
 		addPreferencesFromResource(R.xml.pref_source)
 		addPreferencesFromRepository(viewModel.repository)
+		(viewModel.repository as? ExternalMangaRepository)?.source?.let {
+			externalManager.addLangToPref(preferenceScreen, it, getString(R.string.language), viewModel::publish)
+		}
 		val isValidSource = viewModel.repository !is EmptyMangaRepository
 
 		findPreference<SwitchPreferenceCompat>(KEY_ENABLE)?.run {

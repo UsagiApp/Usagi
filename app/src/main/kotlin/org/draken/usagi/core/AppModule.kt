@@ -244,7 +244,8 @@ interface AppModule {
 						?.replace(Regex("; Android .*?\\)"), "; Android 16; K)")
 						?.replace(Regex("Version/.* Chrome/"), "Chrome/")
 						?: UserAgents.CHROME_MOBILE
-				}
+				},
+				javaScriptEvaluator = { script -> webViewExecutor.evaluateJs(null, script) },
 			)
 		}
 

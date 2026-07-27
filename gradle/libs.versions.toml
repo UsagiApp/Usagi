@@ -43,16 +43,17 @@ preference = "1.2.1"
 recyclerview = "1.4.0"
 room = "2.7.2"
 rxjava = "1.3.8"
-serialization = "1.9.0"
+serialization = "1.11.0"
 injekt = "4135455a2a"
 ssiv = "376930523c"
 swiperefreshlayout = "1.1.0"
 testRules = "1.7.0"
 testRunner = "1.7.0"
 transition = "1.6.0"
-tsuki = "1.0.2"
-tsukimix = "1.0.3"
+tsuki = "1.0.5"
+tsukimix = "1.0.5"
 usagiRpc = "1.0.2"
+usagiSerialization = "ae2bb90a3b"
 viewpager2 = "1.1.0"
 #noinspection GradleDependency
 webkit = "1.14.0"
@@ -110,6 +111,7 @@ kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm", version.ref = "serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm", version.ref = "serialization" }
 kotlinx-serialization-json-okio = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-okio", version.ref = "serialization" }
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
@@ -131,9 +133,12 @@ tsuki = { module = "com.github.UsagiApp:Tsuki", version.ref = "tsuki" }
 tsukimix = { module = "com.github.UsagiApp:TsukiMix", version.ref = "tsukimix" }
 workinspector = { module = "com.github.UsagiApp:WorkInspector", version.ref = "workinspector" }
 androidx-window = { module = "androidx.window:window", version.ref = "window" }
+usagi-serialization-library = { module = "com.github.UsagiApp.serialization:library", version.ref = "usagiSerialization" }
+usagi-serialization-plugin = { module = "com.github.UsagiApp.serialization:plugin", version.ref = "usagiSerialization" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "gradle" }
+android-library = { id = "com.android.library", version.ref = "gradle" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinx-serizliation = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

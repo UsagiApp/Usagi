@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.internal.platform.PlatformRegistry
 import org.conscrypt.Conscrypt
-import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as External
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.model.MangaSourceRegistry
@@ -31,6 +30,7 @@ import org.draken.usagi.local.data.index.LocalMangaIndex
 import org.draken.usagi.local.domain.model.LocalManga
 import org.draken.usagi.settings.work.WorkScheduleManager
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as External
 import java.security.Security
 import javax.inject.Inject
 import javax.inject.Provider
@@ -101,9 +101,9 @@ open class BaseApp : Application(), Configuration.Provider {
 				localStorageChanges.collect(localMangaIndexProvider.get())
 			}
 			launch {
-				externalManager.sources.collect { w ->
+				externalManager.sources.collect {
 					val e = MangaSourceRegistry.sources.filterNot { it is External }
-					MangaSourceRegistry.publish(e + w)
+					MangaSourceRegistry.publish(e + externalManager.getActiveSources())
 				}
 			}
 			mangaDynamicRepository.load(mangaDynamicRepository.getDir())
