@@ -2,9 +2,7 @@ package org.draken.usagi.local.data
 
 import java.io.File
 
-private fun isZipExtension(ext: String?): Boolean {
-	return ext.equals("cbz", ignoreCase = true) || ext.equals("zip", ignoreCase = true)
-}
+private fun isZipExtension(ext: String?): Boolean = ext.equals("cbz", ignoreCase = true) || ext.equals("zip", ignoreCase = true)
 
 fun hasZipExtension(string: String): Boolean {
 	val ext = string.substringAfterLast('.', "")

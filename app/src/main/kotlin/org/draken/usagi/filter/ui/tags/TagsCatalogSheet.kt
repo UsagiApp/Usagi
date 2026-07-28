@@ -25,13 +25,13 @@ import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.filter.ui.model.TagCatalogItem
 
 @AndroidEntryPoint
-class TagsCatalogSheet : BaseAdaptiveSheet<SheetTagsBinding>(),
+class TagsCatalogSheet :
+	BaseAdaptiveSheet<SheetTagsBinding>(),
 	OnListItemClickListener<TagCatalogItem>,
 	DefaultTextWatcher,
 	AdaptiveSheetCallback,
 	View.OnFocusChangeListener,
 	TextView.OnEditorActionListener {
-
 	private val viewModel by viewModels<TagsCatalogViewModel>(
 		extrasProducer = {
 			defaultViewModelCreationExtras.withCreationCallback<TagsCatalogViewModel.Factory> { factory ->
@@ -43,11 +43,15 @@ class TagsCatalogSheet : BaseAdaptiveSheet<SheetTagsBinding>(),
 		},
 	)
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): SheetTagsBinding {
-		return SheetTagsBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): SheetTagsBinding = SheetTagsBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: SheetTagsBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: SheetTagsBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		val adapter = TagsCatalogAdapter(this)
 		binding.recyclerView.adapter = adapter
@@ -61,7 +65,10 @@ class TagsCatalogSheet : BaseAdaptiveSheet<SheetTagsBinding>(),
 		disableFitToContents()
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeBask = WindowInsetsCompat.Type.systemBars()
 		val barsInsets = insets.getInsets(typeBask)
 		viewBinding?.recyclerView?.setPadding(
@@ -73,32 +80,44 @@ class TagsCatalogSheet : BaseAdaptiveSheet<SheetTagsBinding>(),
 		return insets.consumeAll(typeBask)
 	}
 
-	override fun onItemClick(item: TagCatalogItem, view: View) {
+	override fun onItemClick(
+		item: TagCatalogItem,
+		view: View,
+	) {
 		viewModel.handleTagClick(item.tag, item.isChecked)
 	}
 
-	override fun onFocusChange(v: View?, hasFocus: Boolean) {
+	override fun onFocusChange(
+		v: View?,
+		hasFocus: Boolean,
+	) {
 		setExpanded(
 			isExpanded = hasFocus || isExpanded,
 			isLocked = hasFocus,
 		)
 	}
 
-	override fun onEditorAction(v: TextView, actionId: Int, event: KeyEvent?): Boolean {
-		return if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+	override fun onEditorAction(
+		v: TextView,
+		actionId: Int,
+		event: KeyEvent?,
+	): Boolean =
+		if (actionId == EditorInfo.IME_ACTION_SEARCH) {
 			v.clearFocus()
 			true
 		} else {
 			false
 		}
-	}
 
 	override fun afterTextChanged(s: Editable?) {
 		val q = s?.toString().orEmpty()
 		viewModel.searchQuery.value = q
 	}
 
-	override fun onStateChanged(sheet: View, newState: Int) {
+	override fun onStateChanged(
+		sheet: View,
+		newState: Int,
+	) {
 		viewBinding?.recyclerView?.isFastScrollerEnabled = newState == AdaptiveSheetBehavior.STATE_EXPANDED
 	}
 }

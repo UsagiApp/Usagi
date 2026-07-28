@@ -8,16 +8,19 @@ import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.util.ext.mangaSourceKey
 
 class MangaSourceHeaderInterceptor : Interceptor {
-
 	override suspend fun intercept(chain: Interceptor.Chain): ImageResult {
 		val mangaSource = chain.request.extras[mangaSourceKey]?.unwrap() ?: return chain.proceed()
 		val request = chain.request
-		val newHeaders = request.httpHeaders.newBuilder()
-			.set(CommonHeaders.MANGA_SOURCE, mangaSource.name)
-			.build()
-		val newRequest = request.newBuilder()
-			.httpHeaders(newHeaders)
-			.build()
+		val newHeaders =
+			request.httpHeaders
+				.newBuilder()
+				.set(CommonHeaders.MANGA_SOURCE, mangaSource.name)
+				.build()
+		val newRequest =
+			request
+				.newBuilder()
+				.httpHeaders(newHeaders)
+				.build()
 		return chain.withRequest(newRequest).proceed()
 	}
 }

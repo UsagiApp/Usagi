@@ -11,7 +11,6 @@ import org.draken.usagi.main.ui.owners.BottomNavOwner
 class DownloadStartedObserver(
 	private val snackbarHost: View,
 ) : FlowCollector<Unit> {
-
 	override suspend fun emit(value: Unit) {
 		val snackbar = Snackbar.make(snackbarHost, R.string.download_started, Snackbar.LENGTH_LONG)
 		(snackbarHost.context.findActivity() as? BottomNavOwner)?.let {

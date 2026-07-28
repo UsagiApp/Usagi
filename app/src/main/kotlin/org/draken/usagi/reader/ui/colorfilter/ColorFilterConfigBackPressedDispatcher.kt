@@ -9,8 +9,8 @@ import org.draken.usagi.core.util.ext.call
 class ColorFilterConfigBackPressedDispatcher(
 	private val activity: ColorFilterConfigActivity,
 	private val viewModel: ColorFilterConfigViewModel,
-) : OnBackPressedCallback(true), DialogInterface.OnClickListener {
-
+) : OnBackPressedCallback(true),
+	DialogInterface.OnClickListener {
 	override fun handleOnBackPressed() {
 		if (viewModel.isChanged) {
 			showConfirmation()
@@ -19,7 +19,10 @@ class ColorFilterConfigBackPressedDispatcher(
 		}
 	}
 
-	override fun onClick(dialog: DialogInterface, which: Int) {
+	override fun onClick(
+		dialog: DialogInterface,
+		which: Int,
+	) {
 		when (which) {
 			DialogInterface.BUTTON_NEGATIVE -> viewModel.onDismiss.call(Unit)
 			DialogInterface.BUTTON_NEUTRAL -> dialog.dismiss()

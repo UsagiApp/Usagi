@@ -6,10 +6,9 @@ import androidx.annotation.Px
 import androidx.recyclerview.widget.RecyclerView
 
 class SpacingItemDecoration(
-    @Px private val spacing: Int,
-    private val withBottomPadding: Boolean,
+	@Px private val spacing: Int,
+	private val withBottomPadding: Boolean,
 ) : RecyclerView.ItemDecoration() {
-
 	override fun getItemOffsets(
 		outRect: Rect,
 		view: View,

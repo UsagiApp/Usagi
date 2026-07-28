@@ -9,7 +9,7 @@ data class MangaWithTags(
 	@Relation(
 		parentColumn = "manga_id",
 		entityColumn = "tag_id",
-		associateBy = Junction(MangaTagsEntity::class)
+		associateBy = Junction(MangaTagsEntity::class),
 	)
 	val tags: List<TagEntity>,
 )

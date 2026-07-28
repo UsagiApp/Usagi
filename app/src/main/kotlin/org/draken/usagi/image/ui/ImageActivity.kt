@@ -47,10 +47,10 @@ import javax.inject.Inject
 import androidx.appcompat.R as appcompatR
 
 @AndroidEntryPoint
-class ImageActivity : BaseActivity<ActivityImageBinding>(),
+class ImageActivity :
+	BaseActivity<ActivityImageBinding>(),
 	ImageRequest.Listener,
 	View.OnClickListener {
-
 	@Inject
 	lateinit var coil: ImageLoader
 
@@ -64,11 +64,12 @@ class ImageActivity : BaseActivity<ActivityImageBinding>(),
 		viewBinding.buttonBack.setOnClickListener(this)
 		viewBinding.buttonMenu.setOnClickListener(this)
 
-		val menuProvider = ImageMenuProvider(
-			activity = this,
-			snackbarHost = viewBinding.root,
-			viewModel = viewModel,
-		)
+		val menuProvider =
+			ImageMenuProvider(
+				activity = this,
+				snackbarHost = viewBinding.root,
+				viewModel = viewModel,
+			)
 		menuMediator = PopupMenuMediator(menuProvider)
 		viewModel.isLoading.observe(this, ::onLoadingStateChanged)
 		viewModel.onError.observeEvent(this, SnackbarErrorObserver(viewBinding.root, null))
@@ -84,7 +85,10 @@ class ImageActivity : BaseActivity<ActivityImageBinding>(),
 		}
 	}
 
-	override fun onError(request: ImageRequest, result: ErrorResult) {
+	override fun onError(
+		request: ImageRequest,
+		result: ErrorResult,
+	) {
 		viewBinding.progressBar.hide()
 		with(errorBinding ?: ItemErrorStateBinding.bind(viewBinding.stubError.inflate())) {
 			errorBinding = this
@@ -101,12 +105,18 @@ class ImageActivity : BaseActivity<ActivityImageBinding>(),
 		(errorBinding?.root ?: viewBinding.stubError).isVisible = false
 	}
 
-	override fun onSuccess(request: ImageRequest, result: SuccessResult) {
+	override fun onSuccess(
+		request: ImageRequest,
+		result: SuccessResult,
+	) {
 		viewBinding.progressBar.hide()
 		(errorBinding?.root ?: viewBinding.stubError).isVisible = false
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		val barsInsets = insets.getInsets(typeMask)
 		val baseMargin = v.resources.getDimensionPixelOffset(R.dimen.screen_padding)
@@ -122,7 +132,8 @@ class ImageActivity : BaseActivity<ActivityImageBinding>(),
 	}
 
 	private fun loadImage() {
-		ImageRequest.Builder(this)
+		ImageRequest
+			.Builder(this)
 			.data(intent.data)
 			.memoryCacheKey(intent.getParcelableExtraCompat<CoilMemoryCacheKey>(AppRouter.KEY_PREVIEW)?.data)
 			.memoryCachePolicy(CachePolicy.READ_ONLY)
@@ -134,7 +145,8 @@ class ImageActivity : BaseActivity<ActivityImageBinding>(),
 	}
 
 	private fun onImageSaved(uri: Uri) {
-		Snackbar.make(viewBinding.root, R.string.page_saved, Snackbar.LENGTH_LONG)
+		Snackbar
+			.make(viewBinding.root, R.string.page_saved, Snackbar.LENGTH_LONG)
 			.setAction(R.string.share) {
 				ShareHelper(this).shareImage(uri)
 			}.show()
@@ -159,16 +171,13 @@ class ImageActivity : BaseActivity<ActivityImageBinding>(),
 	private class SsivTarget(
 		override val view: SubsamplingScaleImageView,
 	) : GenericViewTarget<SubsamplingScaleImageView>() {
-
 		override var drawable: Drawable? = null
 			set(value) {
 				field = value
 				setImageDrawable(value)
 			}
 
-		override fun equals(other: Any?): Boolean {
-			return (this === other) || (other is SsivTarget && view == other.view)
-		}
+		override fun equals(other: Any?): Boolean = (this === other) || (other is SsivTarget && view == other.view)
 
 		override fun hashCode() = view.hashCode()
 

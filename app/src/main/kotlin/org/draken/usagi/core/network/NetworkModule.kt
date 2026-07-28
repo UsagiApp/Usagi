@@ -29,7 +29,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 interface NetworkModule {
-
 	@Binds
 	@Suppress("unused")
 	fun bindCookieJar(androidCookieJar: MutableCookieJar): CookieJar
@@ -39,24 +38,22 @@ interface NetworkModule {
 	fun bindImageProxyInterceptor(impl: RealImageProxyInterceptor): ImageProxyInterceptor
 
 	companion object {
-
 		@Provides
 		@Singleton
 		fun provideCookieJar(
-			@ApplicationContext context: Context
-		): MutableCookieJar = runCatching {
-			AndroidCookieJar()
-		}.getOrElse { e ->
-			e.printStackTraceDebug()
-			// WebView is not available
-			PreferencesCookieJar(context)
-		}
+			@ApplicationContext context: Context,
+		): MutableCookieJar =
+			runCatching {
+				AndroidCookieJar()
+			}.getOrElse { e ->
+				e.printStackTraceDebug()
+				// WebView is not available
+				PreferencesCookieJar(context)
+			}
 
 		@Provides
 		@Singleton
-		fun provideHttpCache(
-			localStorageManager: LocalStorageManager,
-		): Cache = localStorageManager.createHttpCache()
+		fun provideHttpCache(localStorageManager: LocalStorageManager): Cache = localStorageManager.createHttpCache()
 
 		@Provides
 		@Singleton
@@ -68,29 +65,32 @@ interface NetworkModule {
 			settings: AppSettings,
 			proxyProvider: ProxyProvider,
 			bypassTunnelFactory: BypassTunnelFactory,
-		): OkHttpClient = OkHttpClient.Builder().apply {
-			assertNotInMainThread()
-			connectTimeout(20, TimeUnit.SECONDS)
-			readTimeout(60, TimeUnit.SECONDS)
-			writeTimeout(20, TimeUnit.SECONDS)
-			cookieJar(cookieJar)
-			socketFactory(bypassTunnelFactory)
-			proxySelector(proxyProvider.selector)
-			proxyAuthenticator(proxyProvider.authenticator)
-			dns(DoHManager(cache, settings))
-			if (settings.isSSLBypassEnabled) {
-				disableCertificateVerification()
-			} else {
-				installExtraCertificates(contextProvider.get())
-			}
-			cache(cache)
-			addInterceptor(GZipInterceptor())
-			addInterceptor(CloudFlareInterceptor())
-			addInterceptor(RateLimitInterceptor())
-			if (BuildConfig.DEBUG) {
-				addInterceptor(CurlLoggingInterceptor())
-			}
-		}.build()
+		): OkHttpClient =
+			OkHttpClient
+				.Builder()
+				.apply {
+					assertNotInMainThread()
+					connectTimeout(20, TimeUnit.SECONDS)
+					readTimeout(60, TimeUnit.SECONDS)
+					writeTimeout(20, TimeUnit.SECONDS)
+					cookieJar(cookieJar)
+					socketFactory(bypassTunnelFactory)
+					proxySelector(proxyProvider.selector)
+					proxyAuthenticator(proxyProvider.authenticator)
+					dns(DoHManager(cache, settings))
+					if (settings.isSSLBypassEnabled) {
+						disableCertificateVerification()
+					} else {
+						installExtraCertificates(contextProvider.get())
+					}
+					cache(cache)
+					addInterceptor(GZipInterceptor())
+					addInterceptor(CloudFlareInterceptor())
+					addInterceptor(RateLimitInterceptor())
+					if (BuildConfig.DEBUG) {
+						addInterceptor(CurlLoggingInterceptor())
+					}
+				}.build()
 
 		@Provides
 		@Singleton
@@ -98,10 +98,12 @@ interface NetworkModule {
 		fun provideMangaHttpClient(
 			@BaseHttpClient baseClient: OkHttpClient,
 			commonHeadersInterceptor: CommonHeadersInterceptor,
-		): OkHttpClient = baseClient.newBuilder().apply {
-			addNetworkInterceptor(CacheLimitInterceptor())
-			addInterceptor(commonHeadersInterceptor)
-		}.build()
-
+		): OkHttpClient =
+			baseClient
+				.newBuilder()
+				.apply {
+					addNetworkInterceptor(CacheLimitInterceptor())
+					addInterceptor(commonHeadersInterceptor)
+				}.build()
 	}
 }

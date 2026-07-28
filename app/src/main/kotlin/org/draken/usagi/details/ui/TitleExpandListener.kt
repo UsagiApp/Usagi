@@ -14,13 +14,16 @@ import org.draken.usagi.core.util.ext.isAnimationsEnabled
 @SuppressLint("ClickableViewAccessibility")
 class TitleExpandListener(
 	private val textView: SelectableTextView,
-) : GestureDetector.SimpleOnGestureListener(), OnTouchListener {
-
+) : GestureDetector.SimpleOnGestureListener(),
+	OnTouchListener {
 	private val gestureDetector = GestureDetector(textView.context, this)
 	private val linesExpanded = textView.resources.getInteger(R.integer.details_description_lines)
 	private val linesCollapsed = textView.resources.getInteger(R.integer.details_title_lines)
 
-	override fun onTouch(v: View?, event: MotionEvent) = gestureDetector.onTouchEvent(event)
+	override fun onTouch(
+		v: View?,
+		event: MotionEvent,
+	) = gestureDetector.onTouchEvent(event)
 
 	override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
 		if (textView.context.isAnimationsEnabled) {
@@ -43,4 +46,3 @@ class TitleExpandListener(
 		textView.setOnTouchListener(this)
 	}
 }
-

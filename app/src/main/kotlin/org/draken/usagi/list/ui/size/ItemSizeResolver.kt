@@ -5,7 +5,6 @@ import android.widget.TextView
 import org.draken.usagi.history.ui.util.ReadingProgressView
 
 interface ItemSizeResolver {
-
 	val cellWidth: Int
 
 	fun attachToView(

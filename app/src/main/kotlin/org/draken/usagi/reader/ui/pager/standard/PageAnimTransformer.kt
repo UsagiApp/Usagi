@@ -4,8 +4,10 @@ import android.view.View
 import androidx.viewpager2.widget.ViewPager2
 
 class PageAnimTransformer : ViewPager2.PageTransformer {
-
-	override fun transformPage(page: View, position: Float) = with(page) {
+	override fun transformPage(
+		page: View,
+		position: Float,
+	) = with(page) {
 		translationX = -position * width
 		pivotX = 0f
 		pivotY = height / 2f
@@ -16,11 +18,13 @@ class PageAnimTransformer : ViewPager2.PageTransformer {
 				rotationY = 0f
 				translationZ = -1f
 			}
+
 			position > 0f -> {
 				alpha = 1f
 				rotationY = 0f
 				translationZ = 0f
 			}
+
 			position <= 0f -> {
 				alpha = 1f
 				rotationY = 120 * position

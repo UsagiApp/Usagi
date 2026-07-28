@@ -4,6 +4,8 @@ import android.view.View
 import org.draken.usagi.list.ui.model.ListHeader
 
 interface ListHeaderClickListener {
-
-	fun onListHeaderClick(item: ListHeader, view: View)
+	fun onListHeaderClick(
+		item: ListHeader,
+		view: View,
+	)
 }

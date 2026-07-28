@@ -21,23 +21,30 @@ import org.draken.usagi.core.util.ext.tryLaunch
 import org.draken.usagi.databinding.SheetWelcomeBinding
 
 @AndroidEntryPoint
-class WelcomeSheet : BaseAdaptiveSheet<SheetWelcomeBinding>(), View.OnClickListener,
+class WelcomeSheet :
+	BaseAdaptiveSheet<SheetWelcomeBinding>(),
+	View.OnClickListener,
 	ActivityResultCallback<Uri?> {
+	private val backupSelectCall =
+		registerForActivityResult(
+			ActivityResultContracts.OpenDocument(),
+			this,
+		)
 
-	private val backupSelectCall = registerForActivityResult(
-		ActivityResultContracts.OpenDocument(),
-		this,
-	)
+	private val notificationPermissionCall =
+		registerForActivityResult(
+			ActivityResultContracts.RequestPermission(),
+		) { /* result handled silently — user can change later in system settings */ }
 
-	private val notificationPermissionCall = registerForActivityResult(
-		ActivityResultContracts.RequestPermission(),
-	) { /* result handled silently — user can change later in system settings */ }
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): SheetWelcomeBinding = SheetWelcomeBinding.inflate(inflater, container, false)
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): SheetWelcomeBinding {
-		return SheetWelcomeBinding.inflate(inflater, container, false)
-	}
-
-	override fun onViewBindingCreated(binding: SheetWelcomeBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: SheetWelcomeBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		binding.chipBackup.setOnClickListener(this)
 		binding.chipSync.setOnClickListener(this)
@@ -46,7 +53,10 @@ class WelcomeSheet : BaseAdaptiveSheet<SheetWelcomeBinding>(), View.OnClickListe
 		requestNotificationPermission()
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		viewBinding?.scrollView?.updatePadding(
 			bottom = insets.getInsets(typeMask).bottom,

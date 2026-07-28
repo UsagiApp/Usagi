@@ -11,8 +11,5 @@ data class TipModel(
 	@StringRes val primaryButtonText: Int,
 	@StringRes val secondaryButtonText: Int,
 ) : ListModel {
-
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is TipModel && other.key == key
-	}
+	override fun areItemsTheSame(other: ListModel): Boolean = other is TipModel && other.key == key
 }

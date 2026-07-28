@@ -12,19 +12,16 @@ class AdapterDelegateClickListenerAdapter<I, O>(
 	private val adapterDelegate: AdapterDelegateViewBindingViewHolder<out I, *>,
 	private val clickListener: OnListItemClickListener<O>,
 	private val itemMapper: Function<I, O>,
-) : OnClickListener, OnLongClickListener, OnContextClickListenerCompat {
-
+) : OnClickListener,
+	OnLongClickListener,
+	OnContextClickListenerCompat {
 	override fun onClick(v: View) {
 		clickListener.onItemClick(mappedItem(), v)
 	}
 
-	override fun onLongClick(v: View): Boolean {
-		return clickListener.onItemLongClick(mappedItem(), v)
-	}
+	override fun onLongClick(v: View): Boolean = clickListener.onItemLongClick(mappedItem(), v)
 
-	override fun onContextClick(v: View): Boolean {
-		return clickListener.onItemContextClick(mappedItem(), v)
-	}
+	override fun onContextClick(v: View): Boolean = clickListener.onItemContextClick(mappedItem(), v)
 
 	private fun mappedItem(): O = itemMapper.apply(adapterDelegate.item)
 
@@ -37,14 +34,14 @@ class AdapterDelegateClickListenerAdapter<I, O>(
 	}
 
 	companion object {
-
 		operator fun <T> invoke(
 			adapterDelegate: AdapterDelegateViewBindingViewHolder<out T, *>,
-			clickListener: OnListItemClickListener<T>
-		): AdapterDelegateClickListenerAdapter<T, T> = AdapterDelegateClickListenerAdapter(
-			adapterDelegate = adapterDelegate,
-			clickListener = clickListener,
-			itemMapper = { x -> x },
-		)
+			clickListener: OnListItemClickListener<T>,
+		): AdapterDelegateClickListenerAdapter<T, T> =
+			AdapterDelegateClickListenerAdapter(
+				adapterDelegate = adapterDelegate,
+				clickListener = clickListener,
+				itemMapper = { x -> x },
+			)
 	}
 }

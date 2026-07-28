@@ -5,8 +5,8 @@ import androidx.activity.OnBackPressedCallback
 
 class WebViewBackPressedCallback(
 	private val webView: WebView,
-) : OnBackPressedCallback(false), OnHistoryChangedListener {
-
+) : OnBackPressedCallback(false),
+	OnHistoryChangedListener {
 	init {
 		onHistoryChanged()
 	}

@@ -38,8 +38,8 @@ import org.draken.usagi.list.ui.adapter.ListStateHolderListener
 import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.main.ui.owners.AppBarOwner
-import tsuki.model.Manga
 import org.draken.usagi.reader.ui.PageSaveHelper
+import tsuki.model.Manga
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -48,8 +48,8 @@ class AllBookmarksFragment :
 	ListStateHolderListener,
 	OnListItemClickListener<Bookmark>,
 	ListSelectionController.Callback,
-	FastScroller.FastScrollListener, ListHeaderClickListener {
-
+	FastScroller.FastScrollListener,
+	ListHeaderClickListener {
 	@Inject
 	lateinit var settings: AppSettings
 
@@ -69,25 +69,25 @@ class AllBookmarksFragment :
 	override fun onCreateViewBinding(
 		inflater: LayoutInflater,
 		container: ViewGroup?,
-	): FragmentListSimpleBinding {
-		return FragmentListSimpleBinding.inflate(inflater, container, false)
-	}
+	): FragmentListSimpleBinding = FragmentListSimpleBinding.inflate(inflater, container, false)
 
 	override fun onViewBindingCreated(
 		binding: FragmentListSimpleBinding,
 		savedInstanceState: Bundle?,
 	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
-		selectionController = ListSelectionController(
-			appCompatDelegate = checkNotNull(findAppCompatDelegate()),
-			decoration = BookmarksSelectionDecoration(binding.root.context),
-			registryOwner = this,
-			callback = this,
-		)
-		bookmarksAdapter = BookmarksAdapter(
-			clickListener = this,
-			headerClickListener = this,
-		)
+		selectionController =
+			ListSelectionController(
+				appCompatDelegate = checkNotNull(findAppCompatDelegate()),
+				decoration = BookmarksSelectionDecoration(binding.root.context),
+				registryOwner = this,
+				callback = this,
+			)
+		bookmarksAdapter =
+			BookmarksAdapter(
+				clickListener = this,
+				headerClickListener = this,
+			)
 		val spanSizeLookup = SpanSizeLookup()
 		with(binding.recyclerView) {
 			setHasFixedSize(true)
@@ -111,7 +111,10 @@ class AllBookmarksFragment :
 		viewModel.onActionDone.observeEvent(viewLifecycleOwner, ReversibleActionObserver(binding.recyclerView))
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		val basePadding = resources.getDimensionPixelOffset(R.dimen.list_spacing_normal)
 		viewBinding?.recyclerView?.setPadding(
@@ -129,29 +132,39 @@ class AllBookmarksFragment :
 		selectionController = null
 	}
 
-	override fun onItemClick(item: Bookmark, view: View) {
+	override fun onItemClick(
+		item: Bookmark,
+		view: View,
+	) {
 		if (selectionController?.onItemClick(item.pageId) != true) {
-			val intent = ReaderIntent.Builder(view.context)
-				.bookmark(item)
-				.incognito()
-				.build()
+			val intent =
+				ReaderIntent
+					.Builder(view.context)
+					.bookmark(item)
+					.incognito()
+					.build()
 			router.openReader(intent)
 			Toast.makeText(view.context, R.string.incognito_mode, Toast.LENGTH_SHORT).show()
 		}
 	}
 
-	override fun onListHeaderClick(item: ListHeader, view: View) {
+	override fun onListHeaderClick(
+		item: ListHeader,
+		view: View,
+	) {
 		val manga = item.payload as? Manga ?: return
 		router.openDetails(manga)
 	}
 
-	override fun onItemLongClick(item: Bookmark, view: View): Boolean {
-		return selectionController?.onItemLongClick(view, item.pageId) == true
-	}
+	override fun onItemLongClick(
+		item: Bookmark,
+		view: View,
+	): Boolean = selectionController?.onItemLongClick(view, item.pageId) == true
 
-	override fun onItemContextClick(item: Bookmark, view: View): Boolean {
-		return selectionController?.onItemContextClick(view, item.pageId) == true
-	}
+	override fun onItemContextClick(
+		item: Bookmark,
+		view: View,
+	): Boolean = selectionController?.onItemContextClick(view, item.pageId) == true
 
 	override fun onRetryClick(error: Throwable) = Unit
 
@@ -163,7 +176,10 @@ class AllBookmarksFragment :
 
 	override fun onFastScrollStop(fastScroller: FastScroller) = Unit
 
-	override fun onSelectionChanged(controller: ListSelectionController, count: Int) {
+	override fun onSelectionChanged(
+		controller: ListSelectionController,
+		count: Int,
+	) {
 		requireViewBinding().recyclerView.invalidateItemDecorations()
 	}
 
@@ -195,20 +211,24 @@ class AllBookmarksFragment :
 				true
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
 	}
 
-	private inner class SpanSizeLookup : GridLayoutManager.SpanSizeLookup(), Runnable {
-
+	private inner class SpanSizeLookup :
+		GridLayoutManager.SpanSizeLookup(),
+		Runnable {
 		init {
 			isSpanIndexCacheEnabled = true
 			isSpanGroupIndexCacheEnabled = true
 		}
 
 		override fun getSpanSize(position: Int): Int {
-			val total = (viewBinding?.recyclerView?.layoutManager as? GridLayoutManager)?.spanCount
-				?: return 1
+			val total =
+				(viewBinding?.recyclerView?.layoutManager as? GridLayoutManager)?.spanCount
+					?: return 1
 			return when (bookmarksAdapter?.getItemViewType(position)) {
 				ListItemType.PAGE_THUMB.ordinal -> 1
 				else -> total

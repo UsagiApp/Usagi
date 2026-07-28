@@ -8,27 +8,24 @@ data class ExternalMangaSource(
 	val packageName: String,
 	val authority: String,
 ) : MangaSource {
-
 	override val name: String
 		get() = "content:$packageName/$authority"
 
-    override val title: String
-        get() = name
+	override val title: String
+		get() = name
 
-    override val locale: String
-        get() = ""
+	override val locale: String
+		get() = ""
 
-    override val contentType: ContentType
-        get() = ContentType.OTHER
+	override val contentType: ContentType
+		get() = ContentType.OTHER
 
-    override val isBroken: Boolean
-        get() = false
+	override val isBroken: Boolean
+		get() = false
 
 	private var cachedName: String? = null
 
-	fun isAvailable(context: Context): Boolean {
-		return context.packageManager.resolveContentProvider(authority, 0)?.isEnabled == true
-	}
+	fun isAvailable(context: Context): Boolean = context.packageManager.resolveContentProvider(authority, 0)?.isEnabled == true
 
 	fun resolveName(context: Context): String {
 		cachedName?.let {

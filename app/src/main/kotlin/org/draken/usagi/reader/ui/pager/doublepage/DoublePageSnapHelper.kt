@@ -18,8 +18,9 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
-class DoublePageSnapHelper(private val settings: AppSettings) : SnapHelper() {
-
+class DoublePageSnapHelper(
+	private val settings: AppSettings,
+) : SnapHelper() {
 	private lateinit var recyclerView: RecyclerView
 
 	// Total number of items in a block of view in the RecyclerView
@@ -46,11 +47,12 @@ class DoublePageSnapHelper(private val settings: AppSettings) : SnapHelper() {
 	// LTR/RTL helper
 	private lateinit var layoutDirectionHelper: LayoutDirectionHelper
 
-	private val snapInterpolator = Interpolator { input ->
-		var t = input
-		t -= 1.0f
-		t * t * t + 1.0f
-	}
+	private val snapInterpolator =
+		Interpolator { input ->
+			var t = input
+			t -= 1.0f
+			t * t * t + 1.0f
+		}
 
 	@Throws(IllegalStateException::class)
 	override fun attachToRecyclerView(target: RecyclerView?) {
@@ -68,7 +70,7 @@ class DoublePageSnapHelper(private val settings: AppSettings) : SnapHelper() {
 
 	override fun calculateDistanceToFinalSnap(
 		layoutManager: RecyclerView.LayoutManager,
-		targetView: View
+		targetView: View,
 	): IntArray {
 		val out = IntArray(2)
 		if (layoutManager.canScrollHorizontally()) {
@@ -83,7 +85,8 @@ class DoublePageSnapHelper(private val settings: AppSettings) : SnapHelper() {
 	// We are flinging and need to know where we are heading.
 	override fun findTargetSnapPosition(
 		layoutManager: RecyclerView.LayoutManager,
-		velocityX: Int, velocityY: Int
+		velocityX: Int,
+		velocityY: Int,
 	): Int {
 		val lm = layoutManager as LinearLayoutManager
 		initItemDimensionIfNeeded(layoutManager)
@@ -95,7 +98,9 @@ class DoublePageSnapHelper(private val settings: AppSettings) : SnapHelper() {
 		return if (velocityY != 0) {
 			layoutDirectionHelper
 				.getPositionsToMove(lm, scroller!!.finalY, itemDimension)
-		} else RecyclerView.NO_POSITION
+		} else {
+			RecyclerView.NO_POSITION
+		}
 	}
 
 	// We have scrolled to the neighborhood where we will snap. Determine the snap position.
@@ -117,13 +122,14 @@ class DoublePageSnapHelper(private val settings: AppSettings) : SnapHelper() {
 		if (firstVisiblePos >= priorFirstPosition) {
 			// Scrolling toward bottom of data
 			val firstCompletePosition = layoutManager.findFirstCompletelyVisibleItemPosition()
-			snapPos = if (firstCompletePosition != RecyclerView.NO_POSITION
-				&& firstCompletePosition % blockSize == 0
-			) {
-				firstCompletePosition
-			} else {
-				roundDownToBlockSize(firstVisiblePos + blockSize)
-			}
+			snapPos =
+				if (firstCompletePosition != RecyclerView.NO_POSITION &&
+					firstCompletePosition % blockSize == 0
+				) {
+					firstCompletePosition
+				} else {
+					roundDownToBlockSize(firstVisiblePos + blockSize)
+				}
 		} else {
 			// Scrolling toward top of data
 			snapPos = roundDownToBlockSize(firstVisiblePos)
@@ -155,62 +161,61 @@ class DoublePageSnapHelper(private val settings: AppSettings) : SnapHelper() {
 		maxPositionsToMove = blockSize * maxFlingBlocks
 	}
 
-	private fun getSpanCount(layoutManager: RecyclerView.LayoutManager): Int {
-		return if (layoutManager is GridLayoutManager) layoutManager.spanCount else 1
-	}
+	private fun getSpanCount(layoutManager: RecyclerView.LayoutManager): Int = if (layoutManager is GridLayoutManager) layoutManager.spanCount else 1
 
-	private fun roundDownToBlockSize(trialPosition: Int): Int {
-		return trialPosition and 1.inv()
-	}
+	private fun roundDownToBlockSize(trialPosition: Int): Int = trialPosition and 1.inv()
 
-	private fun roundUpToBlockSize(trialPosition: Int): Int {
-		return roundDownToBlockSize(trialPosition + blockSize - 1)
-	}
+	private fun roundUpToBlockSize(trialPosition: Int): Int = roundDownToBlockSize(trialPosition + blockSize - 1)
 
-	override fun createScroller(layoutManager: RecyclerView.LayoutManager): RecyclerView.SmoothScroller? {
-		return if (layoutManager !is ScrollVectorProvider) {
+	override fun createScroller(layoutManager: RecyclerView.LayoutManager): RecyclerView.SmoothScroller? =
+		if (layoutManager !is ScrollVectorProvider) {
 			null
-		} else object : LinearSmoothScroller(recyclerView.context) {
-			override fun onTargetFound(targetView: View, state: RecyclerView.State, action: Action) {
-				val snapDistances = calculateDistanceToFinalSnap(
-					recyclerView.layoutManager!!,
-					targetView,
-				)
-				val dx = snapDistances[0]
-				val dy = snapDistances[1]
-				val time = calculateTimeForDeceleration(
-					max(abs(dx.toDouble()), abs(dy.toDouble()))
-						.toInt(),
-				)
-				if (time > 0) {
-					action.update(dx, dy, time, snapInterpolator)
+		} else {
+			object : LinearSmoothScroller(recyclerView.context) {
+				override fun onTargetFound(
+					targetView: View,
+					state: RecyclerView.State,
+					action: Action,
+				) {
+					val snapDistances =
+						calculateDistanceToFinalSnap(
+							recyclerView.layoutManager!!,
+							targetView,
+						)
+					val dx = snapDistances[0]
+					val dy = snapDistances[1]
+					val time =
+						calculateTimeForDeceleration(
+							max(abs(dx.toDouble()), abs(dy.toDouble()))
+								.toInt(),
+						)
+					if (time > 0) {
+						action.update(dx, dy, time, snapInterpolator)
+					}
 				}
-			}
 
-			override fun calculateSpeedPerPixel(displayMetrics: DisplayMetrics): Float {
-				return 40f / displayMetrics.densityDpi
+				override fun calculateSpeedPerPixel(displayMetrics: DisplayMetrics): Float = 40f / displayMetrics.densityDpi
 			}
 		}
-	}
 
 	/*
 		Helper class that handles calculations for LTR and RTL layouts.
 	 */
-	private inner class LayoutDirectionHelper(direction: Int) {
-
+	private inner class LayoutDirectionHelper(
+		direction: Int,
+	) {
 		// Is the layout an RTL one?
 		private val isRTL = direction == View.LAYOUT_DIRECTION_RTL
 
 		/*
 			Calculate the amount of scroll needed to align the target view with the layout edge.
 		 */
-		fun getScrollToAlignView(targetView: View?): Int {
-			return if (isRTL) {
+		fun getScrollToAlignView(targetView: View?): Int =
+			if (isRTL) {
 				orientationHelper.getDecoratedEnd(targetView) - recyclerView.width
 			} else {
 				orientationHelper.getDecoratedStart(targetView)
 			}
-		}
 
 		/**
 		 * Calculate the distance to final snap position when the view corresponding to the snap
@@ -220,19 +225,26 @@ class DoublePageSnapHelper(private val settings: AppSettings) : SnapHelper() {
 		 * @param targetPos     - Adapter position to snap to
 		 * @return int[2] {x-distance in pixels, y-distance in pixels}
 		 */
-		fun calculateDistanceToScroll(layoutManager: LinearLayoutManager, targetPos: Int): IntArray {
+		fun calculateDistanceToScroll(
+			layoutManager: LinearLayoutManager,
+			targetPos: Int,
+		): IntArray {
 			val out = IntArray(2)
 			val firstVisiblePos = layoutManager.findFirstVisibleItemPosition()
 			if (layoutManager.canScrollHorizontally()) {
 				if (targetPos <= firstVisiblePos) { // scrolling toward top of data
 					if (isRTL) {
 						val lastView = layoutManager.findViewByPosition(layoutManager.findLastVisibleItemPosition())
-						out[0] = (orientationHelper.getDecoratedEnd(lastView)
-							+ (firstVisiblePos - targetPos) * itemDimension)
+						out[0] = (
+							orientationHelper.getDecoratedEnd(lastView) +
+								(firstVisiblePos - targetPos) * itemDimension
+						)
 					} else {
 						val firstView = layoutManager.findViewByPosition(firstVisiblePos)
-						out[0] = (orientationHelper.getDecoratedStart(firstView)
-							- (firstVisiblePos - targetPos) * itemDimension)
+						out[0] = (
+							orientationHelper.getDecoratedStart(firstView) -
+								(firstVisiblePos - targetPos) * itemDimension
+						)
 					}
 				}
 			}
@@ -250,7 +262,11 @@ class DoublePageSnapHelper(private val settings: AppSettings) : SnapHelper() {
 			and the size of the items to be scrolled. Return integral multiple of mBlockSize not
 			equal to zero.
 		 */
-		fun getPositionsToMove(llm: LinearLayoutManager, scroll: Int, itemSize: Int): Int {
+		fun getPositionsToMove(
+			llm: LinearLayoutManager,
+			scroll: Int,
+			itemSize: Int,
+		): Int {
 			val sensitivity = settings.readerDoublePagesSensitivity.coerceIn(0f, 1f) * 2.5
 			var positionsToMove = (scroll.toDouble() / (itemSize * (2.5 - sensitivity))).roundToInt()
 
@@ -265,17 +281,16 @@ class DoublePageSnapHelper(private val settings: AppSettings) : SnapHelper() {
 				positionsToMove = 1 * scroll.sign
 			}
 
-			val currentPosition = if (layoutDirectionHelper.isDirectionToBottom(scroll < 0)) {
-				llm.findFirstVisibleItemPosition()
-			} else {
-				llm.findLastVisibleItemPosition()
-			}
+			val currentPosition =
+				if (layoutDirectionHelper.isDirectionToBottom(scroll < 0)) {
+					llm.findFirstVisibleItemPosition()
+				} else {
+					llm.findLastVisibleItemPosition()
+				}
 			val targetPos = currentPosition + positionsToMove * 2
 			return roundDownToBlockSize(targetPos)
 		}
 
-		fun isDirectionToBottom(velocityNegative: Boolean): Boolean {
-			return if (isRTL) velocityNegative else !velocityNegative
-		}
+		fun isDirectionToBottom(velocityNegative: Boolean): Boolean = if (isRTL) velocityNegative else !velocityNegative
 	}
 }

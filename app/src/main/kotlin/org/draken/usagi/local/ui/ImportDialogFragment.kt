@@ -18,41 +18,49 @@ import org.draken.usagi.local.data.LocalStorageManager
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ImportDialogFragment : AlertDialogFragment<DialogImportBinding>(), View.OnClickListener {
-
+class ImportDialogFragment :
+	AlertDialogFragment<DialogImportBinding>(),
+	View.OnClickListener {
 	@Inject
 	lateinit var storageManager: LocalStorageManager
 
-	private val importFileCall = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
-		startImport(it)
-	}
-	private val importDirCall = OpenDocumentTreeHelper(this) {
-		startImport(listOfNotNull(it))
-	}
+	private val importFileCall =
+		registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
+			startImport(it)
+		}
+	private val importDirCall =
+		OpenDocumentTreeHelper(this) {
+			startImport(listOfNotNull(it))
+		}
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): DialogImportBinding {
-		return DialogImportBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): DialogImportBinding = DialogImportBinding.inflate(inflater, container, false)
 
-	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder {
-		return super.onBuildDialog(builder)
+	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder =
+		super
+			.onBuildDialog(builder)
 			.setTitle(R.string._import)
 			.setNegativeButton(android.R.string.cancel, null)
 			.setCancelable(true)
-	}
 
-	override fun onViewBindingCreated(binding: DialogImportBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: DialogImportBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		binding.buttonDir.setOnClickListener(this)
 		binding.buttonFile.setOnClickListener(this)
 	}
 
 	override fun onClick(v: View) {
-		val res = when (v.id) {
-			R.id.button_file -> importFileCall.tryLaunch(arrayOf("*/*"))
-			R.id.button_dir -> importDirCall.tryLaunch(null)
-			else -> true
-		}
+		val res =
+			when (v.id) {
+				R.id.button_file -> importFileCall.tryLaunch(arrayOf("*/*"))
+				R.id.button_dir -> importDirCall.tryLaunch(null)
+				else -> true
+			}
 		if (!res) {
 			Toast.makeText(v.context, R.string.operation_not_supported, Toast.LENGTH_SHORT).show()
 		}
@@ -66,11 +74,12 @@ class ImportDialogFragment : AlertDialogFragment<DialogImportBinding>(), View.On
 			storageManager.takePermissions(it)
 		}
 		val ctx = requireContext()
-		val msg = if (ImportService.start(ctx, uris)) {
-			R.string.import_will_start_soon
-		} else {
-			R.string.error_occurred
-		}
+		val msg =
+			if (ImportService.start(ctx, uris)) {
+				R.string.import_will_start_soon
+			} else {
+				R.string.error_occurred
+			}
 		Toast.makeText(ctx, msg, Toast.LENGTH_LONG).show()
 		dismiss()
 	}

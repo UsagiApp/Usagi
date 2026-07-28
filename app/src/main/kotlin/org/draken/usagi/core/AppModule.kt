@@ -25,8 +25,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.ElementsIntoSet
-import javax.inject.Provider
-import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -64,11 +62,13 @@ import org.draken.usagi.local.domain.model.LocalManga
 import org.draken.usagi.main.domain.CoverRestoreInterceptor
 import org.draken.usagi.main.ui.protect.AppProtectHelper
 import org.draken.usagi.main.ui.protect.ScreenshotPolicyHelper
-import tsuki.MangaLoaderContext
 import org.draken.usagi.search.ui.MangaSuggestionsProvider
 import org.draken.usagi.sync.domain.SyncController
 import org.draken.usagi.widget.WidgetUpdater
+import tsuki.MangaLoaderContext
 import tsuki.network.UserAgents
+import javax.inject.Provider
+import javax.inject.Singleton
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionLoader as Loader
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as Manager
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiInjektBridge as Bridge
@@ -76,7 +76,6 @@ import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiInjektBridge as Bridge
 @Module
 @InstallIn(SingletonComponent::class)
 interface AppModule {
-
 	@Binds
 	@Suppress("unused")
 	fun bindMangaLoaderContext(mangaLoaderContextImpl: MangaLoaderContextImpl): MangaLoaderContext
@@ -86,7 +85,6 @@ interface AppModule {
 	fun bindImageGetter(coilImageGetter: CoilImageGetter): Html.ImageGetter
 
 	companion object {
-
 		@Provides
 		@LocalizedAppContext
 		fun provideLocalizedContext(
@@ -120,14 +118,21 @@ interface AppModule {
 		): ImageLoader {
 			val diskCacheFactory = {
 				val rootDir = context.externalCacheDir ?: context.cacheDir
-				DiskCache.Builder()
+				DiskCache
+					.Builder()
 					.directory(rootDir.resolve(CacheDir.THUMBS.dir))
 					.build()
 			}
-			val okHttpClientLazy = lazy {
-				okHttpClientProvider.get().newBuilder().cache(null).build()
-			}
-			return ImageLoader.Builder(context)
+			val okHttpClientLazy =
+				lazy {
+					okHttpClientProvider
+						.get()
+						.newBuilder()
+						.cache(null)
+						.build()
+				}
+			return ImageLoader
+				.Builder(context)
 				.interceptorCoroutineContext(Dispatchers.Default)
 				.diskCache(diskCacheFactory)
 				.logger(if (BuildConfig.DEBUG) DebugLogger() else null)
@@ -170,12 +175,13 @@ interface AppModule {
 			appShortcutManager: AppShortcutManager,
 			backupObserver: BackupObserver,
 			syncController: SyncController,
-		): Set<@JvmSuppressWildcards InvalidationTracker.Observer> = arraySetOf(
-			widgetUpdater,
-			appShortcutManager,
-			backupObserver,
-			syncController,
-		)
+		): Set<@JvmSuppressWildcards InvalidationTracker.Observer> =
+			arraySetOf(
+				widgetUpdater,
+				appShortcutManager,
+				backupObserver,
+				syncController,
+			)
 
 		@Provides
 		@ElementsIntoSet
@@ -183,11 +189,12 @@ interface AppModule {
 			appProtectHelper: AppProtectHelper,
 			activityRecreationHandle: ActivityRecreationHandle,
 			screenshotPolicyHelper: ScreenshotPolicyHelper,
-		): Set<@JvmSuppressWildcards Application.ActivityLifecycleCallbacks> = arraySetOf(
-			appProtectHelper,
-			activityRecreationHandle,
-			screenshotPolicyHelper,
-		)
+		): Set<@JvmSuppressWildcards Application.ActivityLifecycleCallbacks> =
+			arraySetOf(
+				appProtectHelper,
+				activityRecreationHandle,
+				screenshotPolicyHelper,
+			)
 
 		@Provides
 		@Singleton
@@ -235,8 +242,8 @@ interface AppModule {
 			@ApplicationContext context: Context,
 			@MangaHttpClient httpClient: OkHttpClient,
 			webViewExecutor: WebViewExecutor,
-		): Bridge {
-			return Bridge(
+		): Bridge =
+			Bridge(
 				context = context,
 				httpClient = httpClient,
 				defaultUserAgentProvider = {
@@ -247,16 +254,16 @@ interface AppModule {
 				},
 				javaScriptEvaluator = { script -> webViewExecutor.evaluateJs(null, script) },
 			)
-		}
 
 		@Provides
 		@Singleton
-		fun provideExternalLoader(injektBridge: Provider<Bridge>):
-			Loader { return Loader { injektBridge.get() } }
+		fun provideExternalLoader(injektBridge: Provider<Bridge>): Loader = Loader { injektBridge.get() }
 
 		@Provides
 		@Singleton
-		fun provideExternalManager(@ApplicationContext context: Context, loader: Loader):
-			Manager { return Manager(context, loader) }
+		fun provideExternalManager(
+			@ApplicationContext context: Context,
+			loader: Loader,
+		): Manager = Manager(context, loader)
 	}
 }

@@ -11,7 +11,6 @@ import org.draken.usagi.list.ui.model.ListModel
 class MangaCategoriesAdapter(
 	clickListener: OnListItemClickListener<MangaCategoryItem>,
 ) : BaseListAdapter<ListModel>() {
-
 	init {
 		addDelegate(ListItemType.NAV_ITEM, mangaCategoryAD(clickListener))
 		addDelegate(ListItemType.STATE_LOADING, loadingStateAD())

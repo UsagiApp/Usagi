@@ -49,44 +49,48 @@ fun Collection<ChapterListItem>.countChaptersByBranch(): Int {
 
 @get:StringRes
 val MangaState.titleResId: Int
-	get() = when (this) {
-		MangaState.ONGOING -> R.string.state_ongoing
-		MangaState.FINISHED -> R.string.state_finished
-		MangaState.ABANDONED -> R.string.state_abandoned
-		MangaState.PAUSED -> R.string.state_paused
-		MangaState.UPCOMING -> R.string.state_upcoming
-		MangaState.RESTRICTED -> R.string.unavailable
-	}
+	get() =
+		when (this) {
+			MangaState.ONGOING -> R.string.state_ongoing
+			MangaState.FINISHED -> R.string.state_finished
+			MangaState.ABANDONED -> R.string.state_abandoned
+			MangaState.PAUSED -> R.string.state_paused
+			MangaState.UPCOMING -> R.string.state_upcoming
+			MangaState.RESTRICTED -> R.string.unavailable
+		}
 
 @get:DrawableRes
 val MangaState.iconResId: Int
-	get() = when (this) {
-		MangaState.ONGOING -> R.drawable.ic_play
-		MangaState.FINISHED -> R.drawable.ic_state_finished
-		MangaState.ABANDONED -> R.drawable.ic_state_abandoned
-		MangaState.PAUSED -> R.drawable.ic_action_pause
-		MangaState.UPCOMING -> materialR.drawable.ic_clock_black_24dp
-		MangaState.RESTRICTED -> R.drawable.ic_disable
-	}
+	get() =
+		when (this) {
+			MangaState.ONGOING -> R.drawable.ic_play
+			MangaState.FINISHED -> R.drawable.ic_state_finished
+			MangaState.ABANDONED -> R.drawable.ic_state_abandoned
+			MangaState.PAUSED -> R.drawable.ic_action_pause
+			MangaState.UPCOMING -> materialR.drawable.ic_clock_black_24dp
+			MangaState.RESTRICTED -> R.drawable.ic_disable
+		}
 
 @get:StringRes
 val ContentRating.titleResId: Int
-	get() = when (this) {
-		ContentRating.SAFE -> R.string.rating_safe
-		ContentRating.SUGGESTIVE -> R.string.rating_suggestive
-		ContentRating.ADULT -> R.string.rating_adult
-	}
+	get() =
+		when (this) {
+			ContentRating.SAFE -> R.string.rating_safe
+			ContentRating.SUGGESTIVE -> R.string.rating_suggestive
+			ContentRating.ADULT -> R.string.rating_adult
+		}
 
 @get:StringRes
 val Demographic.titleResId: Int
-	get() = when (this) {
-		Demographic.SHOUNEN -> R.string.demographic_shounen
-		Demographic.SHOUJO -> R.string.demographic_shoujo
-		Demographic.SEINEN -> R.string.demographic_seinen
-		Demographic.JOSEI -> R.string.demographic_josei
-		Demographic.KODOMO -> R.string.demographic_kodomo
-		Demographic.NONE -> R.string.none
-	}
+	get() =
+		when (this) {
+			Demographic.SHOUNEN -> R.string.demographic_shounen
+			Demographic.SHOUJO -> R.string.demographic_shoujo
+			Demographic.SEINEN -> R.string.demographic_seinen
+			Demographic.JOSEI -> R.string.demographic_josei
+			Demographic.KODOMO -> R.string.demographic_kodomo
+			Demographic.NONE -> R.string.none
+		}
 
 fun Manga.getPreferredBranch(history: MangaHistory?): String? {
 	val ch = chapters
@@ -111,7 +115,7 @@ fun Manga.getPreferredBranch(history: MangaHistory?): String? {
 			if (branch != null && (
 					branch.contains(displayLanguage, ignoreCase = true) ||
 						branch.contains(displayName, ignoreCase = true)
-					)
+				)
 			) {
 				candidates[branch] = groups[branch] ?: continue
 			}
@@ -130,12 +134,14 @@ val Manga.isBroken: Boolean
 	get() = source == UnknownMangaSource
 
 val Manga.appUrl: Uri
-	get() = "https://yumemi.moe/manga".toUri()
-		.buildUpon()
-		.appendQueryParameter("source", source.name)
-		.appendQueryParameter("name", title)
-		.appendQueryParameter("url", url)
-		.build()
+	get() =
+		"https://yumemi.moe/manga"
+			.toUri()
+			.buildUpon()
+			.appendQueryParameter("source", source.name)
+			.appendQueryParameter("name", title)
+			.appendQueryParameter("url", url)
+			.build()
 
 fun Manga.chaptersCount(): Int {
 	if (chapters.isNullOrEmpty()) {
@@ -155,19 +161,20 @@ fun Manga.chaptersCount(): Int {
 
 fun Manga.isNsfw(): Boolean = contentRating == ContentRating.ADULT || source.isNsfw()
 
-fun MangaListFilter.getSummary() = buildSpannedString {
-	if (!query.isNullOrEmpty()) {
-		append(query)
-		if (tags.isNotEmpty() || tagsExclude.isNotEmpty()) {
-			append(' ')
-			append('(')
+fun MangaListFilter.getSummary() =
+	buildSpannedString {
+		if (!query.isNullOrEmpty()) {
+			append(query)
+			if (tags.isNotEmpty() || tagsExclude.isNotEmpty()) {
+				append(' ')
+				append('(')
+				appendTagsSummary(this@getSummary)
+				append(')')
+			}
+		} else {
 			appendTagsSummary(this@getSummary)
-			append(')')
 		}
-	} else {
-		appendTagsSummary(this@getSummary)
 	}
-}
 
 private fun SpannableStringBuilder.appendTagsSummary(filter: MangaListFilter) {
 	var isFirst = true
@@ -192,7 +199,10 @@ private fun SpannableStringBuilder.appendTagsSummary(filter: MangaListFilter) {
 	}
 }
 
-fun MangaChapter.getLocalizedTitle(resources: Resources, index: Int = -1): String {
+fun MangaChapter.getLocalizedTitle(
+	resources: Resources,
+	index: Int = -1,
+): String {
 	title?.let {
 		if (it.isNotBlank()) {
 			return it
@@ -201,25 +211,36 @@ fun MangaChapter.getLocalizedTitle(resources: Resources, index: Int = -1): Strin
 	val num = numberString()
 	val vol = volumeString()
 	return when {
-		num != null && vol != null -> resources.getString(R.string.chapter_volume_number, vol, num)
-		num != null -> resources.getString(R.string.chapter_number, num)
-		index > 0 -> resources.getString(
-			R.string.chapters_time_pattern,
-			resources.getString(R.string.unnamed_chapter),
-			index.toString(),
-		)
+		num != null && vol != null -> {
+			resources.getString(R.string.chapter_volume_number, vol, num)
+		}
 
-		else -> resources.getString(R.string.unnamed_chapter)
+		num != null -> {
+			resources.getString(R.string.chapter_number, num)
+		}
+
+		index > 0 -> {
+			resources.getString(
+				R.string.chapters_time_pattern,
+				resources.getString(R.string.unnamed_chapter),
+				index.toString(),
+			)
+		}
+
+		else -> {
+			resources.getString(R.string.unnamed_chapter)
+		}
 	}
 }
 
-fun Manga.withOverride(override: MangaOverride?) = if (override != null) {
-	copy(
-		title = override.title.ifNullOrEmpty { title },
-		coverUrl = override.coverUrl.ifNullOrEmpty { coverUrl },
-		largeCoverUrl = override.coverUrl.ifNullOrEmpty { largeCoverUrl },
-		contentRating = override.contentRating ?: contentRating,
-	)
-} else {
-	this
-}
+fun Manga.withOverride(override: MangaOverride?) =
+	if (override != null) {
+		copy(
+			title = override.title.ifNullOrEmpty { title },
+			coverUrl = override.coverUrl.ifNullOrEmpty { coverUrl },
+			largeCoverUrl = override.coverUrl.ifNullOrEmpty { largeCoverUrl },
+			contentRating = override.contentRating ?: contentRating,
+		)
+	} else {
+		this
+	}

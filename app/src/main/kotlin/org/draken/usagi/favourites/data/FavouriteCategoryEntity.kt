@@ -17,7 +17,6 @@ data class FavouriteCategoryEntity(
 	@ColumnInfo(name = "show_in_lib") val isVisibleInLibrary: Boolean,
 	@ColumnInfo(name = "deleted_at") val deletedAt: Long,
 ) {
-
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
 		if (javaClass != other?.javaClass) return false

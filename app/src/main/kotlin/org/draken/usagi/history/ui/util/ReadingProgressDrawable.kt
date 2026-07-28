@@ -21,7 +21,6 @@ class ReadingProgressDrawable(
 	context: Context,
 	@StyleRes styleResId: Int,
 ) : PaintDrawable() {
-
 	override val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG)
 	private val checkDrawable = AppCompatResources.getDrawable(context, R.drawable.ic_check)
 	private val lineColor: ColorStateList
@@ -41,7 +40,6 @@ class ReadingProgressDrawable(
 	private var hasBackground: Boolean = false
 	private var hasOutline: Boolean = false
 	private var hasText: Boolean = false
-
 
 	var percent: Float = PROGRESS_NONE
 		set(value) {
@@ -137,18 +135,20 @@ class ReadingProgressDrawable(
 
 	override fun getIntrinsicWidth() = desiredWidth
 
-	override fun isStateful(): Boolean = lineColor.isStateful ||
-		outlineColor.isStateful ||
-		backgroundColor.isStateful ||
-		textColor.isStateful ||
-		checkDrawable?.isStateful == true
+	override fun isStateful(): Boolean =
+		lineColor.isStateful ||
+			outlineColor.isStateful ||
+			backgroundColor.isStateful ||
+			textColor.isStateful ||
+			checkDrawable?.isStateful == true
 
 	@RequiresApi(Build.VERSION_CODES.S)
-	override fun hasFocusStateSpecified(): Boolean = lineColor.hasFocusStateSpecified() ||
-		outlineColor.hasFocusStateSpecified() ||
-		backgroundColor.hasFocusStateSpecified() ||
-		textColor.hasFocusStateSpecified() ||
-		checkDrawable?.hasFocusStateSpecified() == true
+	override fun hasFocusStateSpecified(): Boolean =
+		lineColor.hasFocusStateSpecified() ||
+			outlineColor.hasFocusStateSpecified() ||
+			backgroundColor.hasFocusStateSpecified() ||
+			textColor.hasFocusStateSpecified() ||
+			checkDrawable?.hasFocusStateSpecified() == true
 
 	override fun onStateChange(state: IntArray): Boolean {
 		val prevLineColor = currentLineColor
@@ -169,7 +169,10 @@ class ReadingProgressDrawable(
 			prevTextColor != currentTextColor
 	}
 
-	private fun getTextSizeForWidth(width: Float, text: String): Float {
+	private fun getTextSizeForWidth(
+		width: Float,
+		text: String,
+	): Float {
 		val testTextSize = 48f
 		paint.textSize = testTextSize
 		paint.getTextBounds(text, 0, text.length, tempRect)

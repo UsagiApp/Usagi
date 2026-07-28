@@ -10,7 +10,6 @@ class RecyclerViewScrollCallback(
 	private val position: Int,
 	@Px private val offset: Int,
 ) : Runnable {
-
 	private val recyclerViewRef = WeakReference(recyclerView)
 
 	override fun run() {

@@ -9,19 +9,17 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.draken.usagi.core.cache.MemoryContentCache
-import org.draken.usagi.core.exceptions.CloudFlareProtectedException
-import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
-import org.draken.usagi.core.parser.CachingMangaRepository
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiSourceSettings as externalSettings
 import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource
 import org.draken.tsukimix.core.parser.tachiyomi.model.toManga
 import org.draken.tsukimix.core.parser.tachiyomi.model.toMangaChapter
 import org.draken.tsukimix.core.parser.tachiyomi.model.toMangaPage
 import org.draken.tsukimix.core.parser.tachiyomi.model.toSChapter
 import org.draken.tsukimix.core.parser.tachiyomi.model.toSManga
-import tsuki.util.runCatchingCancellable
-import tsuki.util.suspendlazy.suspendLazy
+import org.draken.usagi.core.cache.MemoryContentCache
+import org.draken.usagi.core.exceptions.CloudFlareProtectedException
+import org.draken.usagi.core.parser.CachingMangaRepository
+import org.draken.usagi.filter.ui.external.FilterHost
+import org.draken.usagi.filter.ui.external.FilterMapper
 import tsuki.model.Manga
 import tsuki.model.MangaChapter
 import tsuki.model.MangaListFilter
@@ -29,127 +27,172 @@ import tsuki.model.MangaListFilterCapabilities
 import tsuki.model.MangaListFilterOptions
 import tsuki.model.MangaPage
 import tsuki.model.SortOrder
+import tsuki.util.runCatchingCancellable
+import tsuki.util.suspendlazy.suspendLazy
+import java.io.IOException
 import java.util.EnumSet
 import java.util.concurrent.ConcurrentHashMap
-import org.draken.usagi.filter.ui.external.FilterHost
-import org.draken.usagi.filter.ui.external.FilterMapper
-import java.io.IOException
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiSourceSettings as externalSettings
+import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
 
 class ExternalMangaRepository(
 	private val context: Context,
 	override val source: TachiyomiMangaSource,
 	cache: MemoryContentCache,
-) : CachingMangaRepository(cache), FilterHost {
+) : CachingMangaRepository(cache),
+	FilterHost {
 	val external = source.catalogueSource
-	private val filterListLazy = suspendLazy(Dispatchers.Default) {
-		withContext(Dispatchers.IO) {
-			try { external.getFilterList() } catch (_: Throwable) { FilterList() }
+	private val filterListLazy =
+		suspendLazy(Dispatchers.Default) {
+			withContext(Dispatchers.IO) {
+				try {
+					external.getFilterList()
+				} catch (_: Throwable) {
+					FilterList()
+				}
+			}
 		}
-	}
 
 	private var lastOffset = -1
 	private var currentPage = 1
 	private val paginationLock = Any()
+
 	@Volatile private var hasMorePages = true
 
 	override val isDynamicFiltersSupported: Boolean
 		get() = true
 
-	override suspend fun loadFilterList(): FilterList = withContext(Dispatchers.IO) {
-		try { external.getFilterList() } catch (_: Throwable) { FilterList() }
-	}
+	override suspend fun loadFilterList(): FilterList =
+		withContext(Dispatchers.IO) {
+			try {
+				external.getFilterList()
+			} catch (_: Throwable) {
+				FilterList()
+			}
+		}
 
 	init {
 		refreshDomainOverride()
 	}
 
 	override val sortOrders: Set<SortOrder>
-		get() = if (source.supportsLatest) {
-			EnumSet.of(SortOrder.POPULARITY, SortOrder.NEWEST, SortOrder.RELEVANCE)
-		} else { EnumSet.of(SortOrder.POPULARITY, SortOrder.RELEVANCE) }
+		get() =
+			if (source.supportsLatest) {
+				EnumSet.of(SortOrder.POPULARITY, SortOrder.NEWEST, SortOrder.RELEVANCE)
+			} else {
+				EnumSet.of(SortOrder.POPULARITY, SortOrder.RELEVANCE)
+			}
 
 	override var defaultSortOrder: SortOrder
 		get() = SortOrder.POPULARITY
 		set(value) = Unit
 
 	override val filterCapabilities: MangaListFilterCapabilities
-		get() = MangaListFilterCapabilities(
-			isSearchSupported = true,
-			isMultipleTagsSupported = true,
-			isSearchWithFiltersSupported = true,
-		)
-
-	override suspend fun getList(offset: Int, order: SortOrder?, filter: MangaListFilter?): List<Manga> = withContext(Dispatchers.IO) {
-		val page = synchronized(paginationLock) {
-			if (offset == 0) {
-				currentPage = 1
-				lastOffset = 0
-				hasMorePages = true
-			} else if (offset > lastOffset) {
-				lastOffset = offset
-				currentPage += 1
-			}
-			currentPage
-		}
-
-		if (offset > 0 && !hasMorePages) return@withContext emptyList()
-		val query = filter?.query?.trim().orEmpty()
-		val hasFilters = filter?.let {
-			it.query?.isNotBlank() == true || it.tags.isNotEmpty() || it.tagsExclude.isNotEmpty()
-		} ?: false
-
-		val mangasPage = try {
-			when {
-				hasFilters -> {
-					val mihonFilters = try { external.getFilterList() } catch (_: Throwable) { FilterList() }
-					FilterMapper.decode(mihonFilters, filter)
-					external.getSearchManga(page, query, mihonFilters)
-				}
-				(order ?: defaultSortOrder).isLatest() && source.supportsLatest -> external.getLatestUpdates(page)
-				else -> external.getPopularManga(page)
-			}
-		} catch (e: Throwable) { throw mapException(e) }
-		hasMorePages = mangasPage.hasNextPage
-		val httpSource = external as? HttpSource
-		mangasPage.mangas.map { sManga ->
-			sManga.toManga(
-				source = source,
-				fallbackUrl = httpSource?.getMangaUrl(sManga).orEmpty(),
+		get() =
+			MangaListFilterCapabilities(
+				isSearchSupported = true,
+				isMultipleTagsSupported = true,
+				isSearchWithFiltersSupported = true,
 			)
-		}
-	}
 
-	override suspend fun getDetailsImpl(manga: Manga): Manga {
-		return withContext(Dispatchers.IO) {
+	override suspend fun getList(
+		offset: Int,
+		order: SortOrder?,
+		filter: MangaListFilter?,
+	): List<Manga> =
+		withContext(Dispatchers.IO) {
+			val page =
+				synchronized(paginationLock) {
+					if (offset == 0) {
+						currentPage = 1
+						lastOffset = 0
+						hasMorePages = true
+					} else if (offset > lastOffset) {
+						lastOffset = offset
+						currentPage += 1
+					}
+					currentPage
+				}
+
+			if (offset > 0 && !hasMorePages) return@withContext emptyList()
+			val query = filter?.query?.trim().orEmpty()
+			val hasFilters =
+				filter?.let {
+					it.query?.isNotBlank() == true || it.tags.isNotEmpty() || it.tagsExclude.isNotEmpty()
+				} ?: false
+
+			val mangasPage =
+				try {
+					when {
+						hasFilters -> {
+							val mihonFilters =
+								try {
+									external.getFilterList()
+								} catch (_: Throwable) {
+									FilterList()
+								}
+							FilterMapper.decode(mihonFilters, filter)
+							external.getSearchManga(page, query, mihonFilters)
+						}
+
+						(order ?: defaultSortOrder).isLatest() && source.supportsLatest -> {
+							external.getLatestUpdates(page)
+						}
+
+						else -> {
+							external.getPopularManga(page)
+						}
+					}
+				} catch (e: Throwable) {
+					throw mapException(e)
+				}
+			hasMorePages = mangasPage.hasNextPage
+			val httpSource = external as? HttpSource
+			mangasPage.mangas.map { sManga ->
+				sManga.toManga(
+					source = source,
+					fallbackUrl = httpSource?.getMangaUrl(sManga).orEmpty(),
+				)
+			}
+		}
+
+	override suspend fun getDetailsImpl(manga: Manga): Manga =
+		withContext(Dispatchers.IO) {
 			val original = manga.toSManga()
-			val update = try {
-				external.getMangaUpdate(original, emptyList(), fetchDetails = true, fetchChapters = true)
-			} catch (e: Throwable) { throw mapException(e) }
+			val update =
+				try {
+					external.getMangaUpdate(original, emptyList(), fetchDetails = true, fetchChapters = true)
+				} catch (e: Throwable) {
+					throw mapException(e)
+				}
 			val details = update.manga.toManga(source, fallbackUrl = manga.url, fallbackTitle = manga.title)
 			details.copy(
-				chapters = update.chapters.asReversed().mapIndexed { index, chapter ->
-					chapter.toMangaChapter(source, details.title, index)
-				},
+				chapters =
+					update.chapters.asReversed().mapIndexed { index, chapter ->
+						chapter.toMangaChapter(source, details.title, index)
+					},
 				source = source,
 			)
 		}
-	}
 
-	override suspend fun getPagesImpl(chapter: MangaChapter): List<MangaPage> {
-		return withContext(Dispatchers.IO) {
-			val pageList = try { external.getPageList(chapter.toSChapter()) } catch (e: Throwable) {
-				throw mapException(e)
-			}
+	override suspend fun getPagesImpl(chapter: MangaChapter): List<MangaPage> =
+		withContext(Dispatchers.IO) {
+			val pageList =
+				try {
+					external.getPageList(chapter.toSChapter())
+				} catch (e: Throwable) {
+					throw mapException(e)
+				}
 			pageList.map { page ->
-				val resolved = page.imageUrl
-					?: (external as? HttpSource)?.getImageUrl(page)
-					?: page.url
+				val resolved =
+					page.imageUrl
+						?: (external as? HttpSource)?.getImageUrl(page)
+						?: page.url
 				page.imageUrl = resolved
 				pageCache[pageCacheKey(source, resolved)] = page
 				page.toMangaPage(source, resolved)
 			}
 		}
-	}
 
 	override suspend fun getPageUrl(page: MangaPage): String {
 		if (external !is HttpSource) return page.url
@@ -158,24 +201,36 @@ class ExternalMangaRepository(
 
 	override suspend fun getPageRequest(page: MangaPage): Request {
 		val httpSource = external as? HttpSource ?: return super.getPageRequest(page)
-		val tachiyomiPage = pageCache[pageCacheKey(source, page.url)]
-			?: Page(index = 0, url = page.url, imageUrl = page.url)
+		val tachiyomiPage =
+			pageCache[pageCacheKey(source, page.url)]
+				?: Page(index = 0, url = page.url, imageUrl = page.url)
 		return withContext(Dispatchers.IO) {
-			val imageRequest = try { httpSource.getImageRequest(tachiyomiPage) } catch (e: Throwable) {
-				throw mapException(e)
-			}
-			imageRequest.newBuilder()
+			val imageRequest =
+				try {
+					httpSource.getImageRequest(tachiyomiPage)
+				} catch (e: Throwable) {
+					throw mapException(e)
+				}
+			imageRequest
+				.newBuilder()
 				.tag(tsuki.model.MangaSource::class.java, source)
 				.build()
 		}
 	}
 
-	override suspend fun getPageResponse(page: MangaPage, okHttp: OkHttpClient, interceptor: Interceptor): Response {
+	override suspend fun getPageResponse(
+		page: MangaPage,
+		okHttp: OkHttpClient,
+		interceptor: Interceptor,
+	): Response {
 		val httpSource = external as? HttpSource ?: return super.getPageResponse(page, okHttp, interceptor)
-		val tachiyomiPage = pageCache[pageCacheKey(source, page.url)]
-			?: Page(index = 0, url = page.url, imageUrl = page.url)
+		val tachiyomiPage =
+			pageCache[pageCacheKey(source, page.url)]
+				?: Page(index = 0, url = page.url, imageUrl = page.url)
 		return withContext(Dispatchers.IO) {
-			try { httpSource.getImage(tachiyomiPage) } catch (e: Throwable) {
+			try {
+				httpSource.getImage(tachiyomiPage)
+			} catch (e: Throwable) {
 				throw mapException(e)
 			}
 		}
@@ -233,6 +288,10 @@ class ExternalMangaRepository(
 
 	private companion object {
 		val pageCache = ConcurrentHashMap<String, Page>()
-		fun pageCacheKey(source: TachiyomiMangaSource, url: String): String = "${source.name}:$url"
+
+		fun pageCacheKey(
+			source: TachiyomiMangaSource,
+			url: String,
+		): String = "${source.name}:$url"
 	}
 }

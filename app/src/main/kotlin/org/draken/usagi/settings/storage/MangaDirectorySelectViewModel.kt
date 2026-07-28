@@ -14,67 +14,70 @@ import org.draken.usagi.local.data.LocalStorageManager
 import javax.inject.Inject
 
 @HiltViewModel
-class MangaDirectorySelectViewModel @Inject constructor(
-	private val storageManager: LocalStorageManager,
-	private val settings: AppSettings,
-) : BaseViewModel() {
+class MangaDirectorySelectViewModel
+	@Inject
+	constructor(
+		private val storageManager: LocalStorageManager,
+		private val settings: AppSettings,
+	) : BaseViewModel() {
+		val items = MutableStateFlow(emptyList<DirectoryModel>())
+		val onDismissDialog = MutableEventFlow<Unit>()
+		val onPickDirectory = MutableEventFlow<Unit>()
 
-	val items = MutableStateFlow(emptyList<DirectoryModel>())
-	val onDismissDialog = MutableEventFlow<Unit>()
-	val onPickDirectory = MutableEventFlow<Unit>()
-
-	init {
-		refresh()
-	}
-
-	fun onItemClick(item: DirectoryModel) {
-		if (item.file != null) {
-			settings.mangaStorageDir = item.file
-			onDismissDialog.call(Unit)
-		} else {
-			onPickDirectory.call(Unit)
+		init {
+			refresh()
 		}
-	}
 
-	fun onCustomDirectoryPicked(uri: Uri) {
-		launchJob(Dispatchers.Default) {
-			storageManager.takePermissions(uri)
-			val dir = storageManager.resolveUri(uri)
-			if (!dir.isWriteable()) {
-				throw AccessDeniedException(dir)
+		fun onItemClick(item: DirectoryModel) {
+			if (item.file != null) {
+				settings.mangaStorageDir = item.file
+				onDismissDialog.call(Unit)
+			} else {
+				onPickDirectory.call(Unit)
 			}
-			if (dir !in storageManager.getApplicationStorageDirs()) {
-				settings.mangaStorageDir = dir
-				storageManager.setDirIsNoMedia(dir)
-			}
-			onDismissDialog.call(Unit)
 		}
-	}
 
-	fun refresh() {
-		launchJob(Dispatchers.Default) {
-			val defaultValue = storageManager.getDefaultWriteableDir()
-			val available = storageManager.getWriteableDirs()
-			items.value = buildList(available.size + 1) {
-				available.mapTo(this) { dir ->
-					DirectoryModel(
-						title = storageManager.getDirectoryDisplayName(dir, isFullPath = false),
-						titleRes = 0,
-						file = dir,
-						isChecked = dir == defaultValue,
-						isAvailable = true,
-						isRemovable = false,
-					)
+		fun onCustomDirectoryPicked(uri: Uri) {
+			launchJob(Dispatchers.Default) {
+				storageManager.takePermissions(uri)
+				val dir = storageManager.resolveUri(uri)
+				if (!dir.isWriteable()) {
+					throw AccessDeniedException(dir)
 				}
-				this += DirectoryModel(
-					title = null,
-					titleRes = R.string.pick_custom_directory,
-					file = null,
-					isChecked = false,
-					isAvailable = true,
-					isRemovable = false,
-				)
+				if (dir !in storageManager.getApplicationStorageDirs()) {
+					settings.mangaStorageDir = dir
+					storageManager.setDirIsNoMedia(dir)
+				}
+				onDismissDialog.call(Unit)
+			}
+		}
+
+		fun refresh() {
+			launchJob(Dispatchers.Default) {
+				val defaultValue = storageManager.getDefaultWriteableDir()
+				val available = storageManager.getWriteableDirs()
+				items.value =
+					buildList(available.size + 1) {
+						available.mapTo(this) { dir ->
+							DirectoryModel(
+								title = storageManager.getDirectoryDisplayName(dir, isFullPath = false),
+								titleRes = 0,
+								file = dir,
+								isChecked = dir == defaultValue,
+								isAvailable = true,
+								isRemovable = false,
+							)
+						}
+						this +=
+							DirectoryModel(
+								title = null,
+								titleRes = R.string.pick_custom_directory,
+								file = null,
+								isChecked = false,
+								isAvailable = true,
+								isRemovable = false,
+							)
+					}
 			}
 		}
 	}
-}

@@ -8,10 +8,8 @@ import tsuki.util.ifNullOrEmpty
 class EditTextDefaultSummaryProvider(
 	private val defaultValue: String,
 ) : Preference.SummaryProvider<EditTextPreference> {
-
-	override fun provideSummary(
-		preference: EditTextPreference,
-	): CharSequence = preference.text.ifNullOrEmpty {
-		preference.context.getString(R.string.default_s, defaultValue)
-	}
+	override fun provideSummary(preference: EditTextPreference): CharSequence =
+		preference.text.ifNullOrEmpty {
+			preference.context.getString(R.string.default_s, defaultValue)
+		}
 }

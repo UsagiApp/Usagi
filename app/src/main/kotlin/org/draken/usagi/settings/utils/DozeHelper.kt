@@ -20,12 +20,12 @@ import org.draken.usagi.core.util.ext.powerManager
 class DozeHelper(
 	private val fragment: PreferenceFragmentCompat,
 ) {
-
-	private val startForDozeResult = fragment.registerForActivityResult(
-		ActivityResultContracts.StartActivityForResult(),
-	) {
-		updatePreference()
-	}
+	private val startForDozeResult =
+		fragment.registerForActivityResult(
+			ActivityResultContracts.StartActivityForResult(),
+		) {
+			updatePreference()
+		}
 
 	fun updatePreference() {
 		val preference = fragment.findPreference<Preference>(AppSettings.KEY_IGNORE_DOZE) ?: return
@@ -42,10 +42,11 @@ class DozeHelper(
 		val powerManager = context.powerManager ?: return false
 		return if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
 			try {
-				val intent = Intent(
-					Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-					"package:$packageName".toUri(),
-				)
+				val intent =
+					Intent(
+						Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+						"package:$packageName".toUri(),
+					)
 				startForDozeResult.launch(intent)
 				true
 			} catch (e: ActivityNotFoundException) {

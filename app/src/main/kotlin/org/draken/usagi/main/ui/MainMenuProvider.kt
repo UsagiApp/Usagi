@@ -11,8 +11,10 @@ class MainMenuProvider(
 	private val router: AppRouter,
 	private val viewModel: MainViewModel,
 ) : MenuProvider {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		menuInflater.inflate(R.menu.opt_main, menu)
 	}
 
@@ -23,22 +25,25 @@ class MainMenuProvider(
 		menu.findItem(R.id.action_app_update)?.isVisible = hasAppUpdate
 	}
 
-	override fun onMenuItemSelected(menuItem: MenuItem): Boolean = when (menuItem.itemId) {
-		R.id.action_settings -> {
-			router.openSettings()
-			true
-		}
+	override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+		when (menuItem.itemId) {
+			R.id.action_settings -> {
+				router.openSettings()
+				true
+			}
 
-		R.id.action_incognito -> {
-			viewModel.setIncognitoMode(!menuItem.isChecked)
-			true
-		}
+			R.id.action_incognito -> {
+				viewModel.setIncognitoMode(!menuItem.isChecked)
+				true
+			}
 
-		R.id.action_app_update -> {
-			router.openAppUpdate()
-			true
-		}
+			R.id.action_app_update -> {
+				router.openAppUpdate()
+				true
+			}
 
-		else -> false
-	}
+			else -> {
+				false
+			}
+		}
 }

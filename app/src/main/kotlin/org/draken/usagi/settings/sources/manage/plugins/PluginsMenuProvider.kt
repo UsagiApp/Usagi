@@ -14,9 +14,13 @@ class PluginsMenuProvider(
 	private val onClearSelection: () -> Unit,
 	private val onDeleteClick: () -> Unit,
 	private val onSearchQueryChanged: (String?) -> Unit,
-) : MenuProvider, MenuItem.OnActionExpandListener, SearchView.OnQueryTextListener {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+) : MenuProvider,
+	MenuItem.OnActionExpandListener,
+	SearchView.OnQueryTextListener {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		if (isSelectionMode()) {
 			menu.add(0, R.id.action_remove, 0, R.string.delete).apply {
 				setIcon(R.drawable.ic_delete)
@@ -36,19 +40,26 @@ class PluginsMenuProvider(
 		}
 	}
 
-	override fun onMenuItemSelected(menuItem: MenuItem): Boolean = when (menuItem.itemId) {
-		android.R.id.home -> {
-			if (isSelectionMode()) {
-				onClearSelection()
+	override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+		when (menuItem.itemId) {
+			android.R.id.home -> {
+				if (isSelectionMode()) {
+					onClearSelection()
+					true
+				} else {
+					false
+				}
+			}
+
+			R.id.action_remove -> {
+				onDeleteClick()
 				true
-			} else false
+			}
+
+			else -> {
+				false
+			}
 		}
-		R.id.action_remove -> {
-			onDeleteClick()
-			true
-		}
-		else -> false
-	}
 
 	override fun onMenuItemActionExpand(item: MenuItem): Boolean {
 		appBarOwner?.appBar?.setExpanded(false, true)

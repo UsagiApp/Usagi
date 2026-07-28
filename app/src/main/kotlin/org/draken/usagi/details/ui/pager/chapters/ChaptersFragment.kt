@@ -50,7 +50,6 @@ class ChaptersFragment :
 	OnListItemClickListener<ChapterListItem>,
 	RecyclerViewOwner,
 	ChipsView.OnChipClickListener {
-
 	private val viewModel by ChaptersPagesViewModel.ActivityVMLazy(this)
 
 	private var chaptersAdapter: ChaptersAdapter? = null
@@ -64,24 +63,29 @@ class ChaptersFragment :
 		container: ViewGroup?,
 	) = FragmentChaptersBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: FragmentChaptersBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentChaptersBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		val isClassic = activity is org.draken.usagi.details.ui.DetailsClassicActivity
 		chaptersAdapter = ChaptersAdapter(this)
-		selectionController = ListSelectionController(
-			appCompatDelegate = checkNotNull(findAppCompatDelegate()),
-			decoration = ChaptersSelectionDecoration(binding.root.context),
-			registryOwner = this,
-			callback = ChaptersSelectionCallback(viewModel, router, binding.recyclerViewChapters),
-		)
+		selectionController =
+			ListSelectionController(
+				appCompatDelegate = checkNotNull(findAppCompatDelegate()),
+				decoration = ChaptersSelectionDecoration(binding.root.context),
+				registryOwner = this,
+				callback = ChaptersSelectionCallback(viewModel, router, binding.recyclerViewChapters),
+			)
 		viewModel.isChaptersInGridView.observe(viewLifecycleOwner) { chaptersInGridView ->
-			binding.recyclerViewChapters.layoutManager = if (chaptersInGridView) {
-				GridLayoutManager(context, ChapterGridSpanHelper.getSpanCount(binding.recyclerViewChapters)).apply {
-					spanSizeLookup = ChapterGridSpanHelper.SpanSizeLookup(binding.recyclerViewChapters)
+			binding.recyclerViewChapters.layoutManager =
+				if (chaptersInGridView) {
+					GridLayoutManager(context, ChapterGridSpanHelper.getSpanCount(binding.recyclerViewChapters)).apply {
+						spanSizeLookup = ChapterGridSpanHelper.SpanSizeLookup(binding.recyclerViewChapters)
+					}
+				} else {
+					LinearLayoutManager(context)
 				}
-			} else {
-				LinearLayoutManager(context)
-			}
 		}
 		with(binding.recyclerViewChapters) {
 			addItemDecoration(TypedListSpacingDecoration(context, true))
@@ -113,7 +117,10 @@ class ChaptersFragment :
 		super.onDestroyView()
 	}
 
-	override fun onItemClick(item: ChapterListItem, view: View) {
+	override fun onItemClick(
+		item: ChapterListItem,
+		view: View,
+	) {
 		if (selectionController?.onItemClick(item.chapter.id) == true) {
 			return
 		}
@@ -122,7 +129,8 @@ class ChaptersFragment :
 			dismissParentDialog()
 		} else {
 			router.openReader(
-				ReaderIntent.Builder(view.context)
+				ReaderIntent
+					.Builder(view.context)
 					.manga(viewModel.getMangaOrNull() ?: return)
 					.state(ReaderState(item.chapter.id, 0, 0))
 					.build(),
@@ -130,22 +138,27 @@ class ChaptersFragment :
 		}
 	}
 
-	override fun onItemLongClick(item: ChapterListItem, view: View): Boolean {
-		return selectionController?.onItemLongClick(view, item.chapter.id) == true
-	}
+	override fun onItemLongClick(
+		item: ChapterListItem,
+		view: View,
+	): Boolean = selectionController?.onItemLongClick(view, item.chapter.id) == true
 
-	override fun onItemContextClick(item: ChapterListItem, view: View): Boolean {
-		return selectionController?.onItemContextClick(view, item.chapter.id) == true
-	}
+	override fun onItemContextClick(
+		item: ChapterListItem,
+		view: View,
+	): Boolean = selectionController?.onItemContextClick(view, item.chapter.id) == true
 
-	override fun onChipClick(chip: Chip, data: Any?) {
+	override fun onChipClick(
+		chip: Chip,
+		data: Any?,
+	) {
 		if (data !is ListFilterOption.Branch) return
 		viewModel.setSelectedBranch(data.titleText)
 	}
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		viewBinding?.run {
 			val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

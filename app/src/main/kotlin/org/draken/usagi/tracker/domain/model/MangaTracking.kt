@@ -10,8 +10,5 @@ data class MangaTracking(
 	val lastChapterDate: Instant?,
 	val newChapters: Int,
 ) {
-
-	fun isEmpty(): Boolean {
-		return lastChapterId == 0L
-	}
+	fun isEmpty(): Boolean = lastChapterId == 0L
 }

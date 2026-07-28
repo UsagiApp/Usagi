@@ -18,14 +18,15 @@ class DetailsErrorObserver(
 	private val viewModel: DetailsViewModel,
 	resolver: ExceptionResolver?,
 ) : ErrorObserver(
-	snackbarHost, null, resolver,
-	{ isResolved ->
-		if (isResolved) {
-			viewModel.reload()
-		}
-	},
-) {
-
+		snackbarHost,
+		null,
+		resolver,
+		{ isResolved ->
+			if (isResolved) {
+				viewModel.reload()
+			}
+		},
+	) {
 	override suspend fun emit(value: Throwable) {
 		val snackbar = Snackbar.make(host, value.getDisplayMessage(host.context.resources), Snackbar.LENGTH_SHORT)
 		snackbar.setAnchorView(bottomSheet)

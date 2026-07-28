@@ -32,8 +32,8 @@ data class DownloadItemModel(
 	val chaptersDownloaded: Int,
 	val isExpanded: Boolean,
 	val chapters: StateFlow<List<DownloadChapter>?>,
-) : ListModel, Comparable<DownloadItemModel> {
-
+) : ListModel,
+	Comparable<DownloadItemModel> {
 	val percent: Float
 		get() = if (max > 0) progress / max.toFloat() else 0f
 
@@ -46,40 +46,39 @@ data class DownloadItemModel(
 	val canResume: Boolean
 		get() = workState == WorkInfo.State.RUNNING && isPaused
 
-	fun getEtaString(): CharSequence? = if (hasEta) {
-		DateUtils.getRelativeTimeSpanString(
-			eta,
-			System.currentTimeMillis(),
-			DateUtils.SECOND_IN_MILLIS,
-		)
-	} else {
-		null
-	}
+	fun getEtaString(): CharSequence? =
+		if (hasEta) {
+			DateUtils.getRelativeTimeSpanString(
+				eta,
+				System.currentTimeMillis(),
+				DateUtils.SECOND_IN_MILLIS,
+			)
+		} else {
+			null
+		}
 
-	fun getErrorMessage(context: Context): CharSequence? = if (error != null) {
-		buildSpannedString {
-			bold {
-				color(context.getThemeColor(appcompatR.attr.colorError, Color.RED)) {
-					append(error)
+	fun getErrorMessage(context: Context): CharSequence? =
+		if (error != null) {
+			buildSpannedString {
+				bold {
+					color(context.getThemeColor(appcompatR.attr.colorError, Color.RED)) {
+						append(error)
+					}
 				}
 			}
+		} else {
+			null
 		}
-	} else {
-		null
-	}
 
-	override fun compareTo(other: DownloadItemModel): Int {
-		return timestamp compareTo other.timestamp
-	}
+	override fun compareTo(other: DownloadItemModel): Int = timestamp compareTo other.timestamp
 
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is DownloadItemModel && other.id == id
-	}
+	override fun areItemsTheSame(other: ListModel): Boolean = other is DownloadItemModel && other.id == id
 
-	override fun getChangePayload(previousState: ListModel): Any? = when {
-		previousState !is DownloadItemModel -> super.getChangePayload(previousState)
-		workState != previousState.workState -> null
-		isExpanded != previousState.isExpanded -> ListModelDiffCallback.PAYLOAD_CHECKED_CHANGED
-		else -> ListModelDiffCallback.PAYLOAD_ANYTHING_CHANGED
-	}
+	override fun getChangePayload(previousState: ListModel): Any? =
+		when {
+			previousState !is DownloadItemModel -> super.getChangePayload(previousState)
+			workState != previousState.workState -> null
+			isExpanded != previousState.isExpanded -> ListModelDiffCallback.PAYLOAD_CHECKED_CHANGED
+			else -> ListModelDiffCallback.PAYLOAD_ANYTHING_CHANGED
+		}
 }

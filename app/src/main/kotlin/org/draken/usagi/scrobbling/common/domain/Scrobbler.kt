@@ -15,9 +15,6 @@ import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.util.ext.findKeyByValue
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.sanitize
-import tsuki.model.Manga
-import tsuki.util.findById
-import tsuki.util.runCatchingCancellable
 import org.draken.usagi.scrobbling.common.data.ScrobblerRepository
 import org.draken.usagi.scrobbling.common.data.ScrobblingEntity
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblerManga
@@ -26,6 +23,9 @@ import org.draken.usagi.scrobbling.common.domain.model.ScrobblerService
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblerUser
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblingInfo
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblingStatus
+import tsuki.model.Manga
+import tsuki.util.findById
+import tsuki.util.runCatchingCancellable
 import java.util.EnumMap
 
 abstract class Scrobbler(
@@ -34,22 +34,22 @@ abstract class Scrobbler(
 	private val repository: ScrobblerRepository,
 	private val mangaRepositoryFactory: MangaRepository.Factory,
 ) {
-
 	private val infoCache = LongSparseArray<ScrobblerMangaInfo>()
 	protected val statuses = EnumMap<ScrobblingStatus, String>(ScrobblingStatus::class.java)
 
-	val user: Flow<ScrobblerUser> = flow {
-		repository.cachedUser?.let {
-			emit(it)
+	val user: Flow<ScrobblerUser> =
+		flow {
+			repository.cachedUser?.let {
+				emit(it)
+			}
+			runCatchingCancellable {
+				repository.loadUser()
+			}.onSuccess {
+				emit(it)
+			}.onFailure {
+				it.printStackTraceDebug()
+			}
 		}
-		runCatchingCancellable {
-			repository.loadUser()
-		}.onSuccess {
-			emit(it)
-		}.onFailure {
-			it.printStackTraceDebug()
-		}
-	}
 
 	val isEnabled: Boolean
 		get() = repository.isAuthorized
@@ -63,29 +63,38 @@ abstract class Scrobbler(
 		repository.logout()
 	}
 
-	suspend fun findManga(query: String, offset: Int): List<ScrobblerManga> {
-		return repository.findManga(query, offset)
-	}
+	suspend fun findManga(
+		query: String,
+		offset: Int,
+	): List<ScrobblerManga> = repository.findManga(query, offset)
 
-	suspend fun linkManga(mangaId: Long, targetId: Long) {
+	suspend fun linkManga(
+		mangaId: Long,
+		targetId: Long,
+	) {
 		repository.createRate(mangaId, targetId)
 	}
 
-	suspend fun scrobble(manga: Manga, chapterId: Long) {
+	suspend fun scrobble(
+		manga: Manga,
+		chapterId: Long,
+	) {
 		var chapters = manga.chapters
 		if (chapters.isNullOrEmpty()) {
 			chapters = mangaRepositoryFactory.create(manga.source).getDetails(manga).chapters
 		}
 		requireNotNull(chapters)
-		val chapter = checkNotNull(chapters.findById(chapterId)) {
-			"Chapter $chapterId not found in this manga"
-		}
-		val number = if (chapter.number > 0f) {
-			chapter.number.toInt()
-		} else {
-			chapters = chapters.filter { x -> x.branch == chapter.branch }
-			chapters.indexOf(chapter) + 1
-		}
+		val chapter =
+			checkNotNull(chapters.findById(chapterId)) {
+				"Chapter $chapterId not found in this manga"
+			}
+		val number =
+			if (chapter.number > 0f) {
+				chapter.number.toInt()
+			} else {
+				chapters = chapters.filter { x -> x.branch == chapter.branch }
+				chapters.indexOf(chapter) + 1
+			}
 		val entity = db.getScrobblingDao().find(scrobblerService.id, manga.id) ?: return
 		repository.updateRate(entity.id, entity.mangaId, number)
 	}
@@ -102,42 +111,44 @@ abstract class Scrobbler(
 		comment: String?,
 	)
 
-	fun observeScrobblingInfo(mangaId: Long): Flow<ScrobblingInfo?> {
-		return db.getScrobblingDao().observe(scrobblerService.id, mangaId)
+	fun observeScrobblingInfo(mangaId: Long): Flow<ScrobblingInfo?> =
+		db
+			.getScrobblingDao()
+			.observe(scrobblerService.id, mangaId)
 			.map { it?.toScrobblingInfo() }
-	}
 
-	fun observeAllScrobblingInfo(): Flow<List<ScrobblingInfo>> {
-		return db.getScrobblingDao().observe(scrobblerService.id)
+	fun observeAllScrobblingInfo(): Flow<List<ScrobblingInfo>> =
+		db
+			.getScrobblingDao()
+			.observe(scrobblerService.id)
 			.map { entities ->
 				coroutineScope {
-					entities.map {
-						async {
-							it.toScrobblingInfo()
-						}
-					}.awaitAll()
+					entities
+						.map {
+							async {
+								it.toScrobblingInfo()
+							}
+						}.awaitAll()
 				}.filterNotNull()
 			}
-	}
 
 	suspend fun unregisterScrobbling(mangaId: Long) {
 		repository.unregister(mangaId)
 	}
 
-	protected suspend fun getMangaInfo(id: Long): ScrobblerMangaInfo {
-		return repository.getMangaInfo(id)
-	}
+	protected suspend fun getMangaInfo(id: Long): ScrobblerMangaInfo = repository.getMangaInfo(id)
 
 	private suspend fun ScrobblingEntity.toScrobblingInfo(): ScrobblingInfo? {
-		val mangaInfo = infoCache.getOrElse(targetId) {
-			runCatchingCancellable {
-				getMangaInfo(targetId)
-			}.onFailure {
-				it.printStackTraceDebug()
-			}.onSuccess {
-				infoCache.put(targetId, it)
-			}.getOrNull() ?: return null
-		}
+		val mangaInfo =
+			infoCache.getOrElse(targetId) {
+				runCatchingCancellable {
+					getMangaInfo(targetId)
+				}.onFailure {
+					it.printStackTraceDebug()
+				}.onSuccess {
+					infoCache.put(targetId, it)
+				}.getOrNull() ?: return null
+			}
 		return ScrobblingInfo(
 			scrobbler = scrobblerService,
 			mangaId = mangaId,
@@ -154,10 +165,12 @@ abstract class Scrobbler(
 	}
 }
 
-suspend fun Scrobbler.tryScrobble(manga: Manga, chapterId: Long): Boolean {
-	return runCatchingCancellable {
+suspend fun Scrobbler.tryScrobble(
+	manga: Manga,
+	chapterId: Long,
+): Boolean =
+	runCatchingCancellable {
 		scrobble(manga, chapterId)
 	}.onFailure {
 		it.printStackTraceDebug()
 	}.isSuccess
-}

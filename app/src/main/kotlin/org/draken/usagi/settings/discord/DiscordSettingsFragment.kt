@@ -19,16 +19,19 @@ import org.draken.usagi.scrobbling.discord.ui.DiscordAuthActivity
 
 @AndroidEntryPoint
 class DiscordSettingsFragment : BasePreferenceFragment(R.string.discord) {
-
 	private val viewModel by viewModels<DiscordSettingsViewModel>()
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
 		addPreferencesFromResource(R.xml.pref_discord)
 		findPreference<EditTextPreference>(AppSettings.KEY_DISCORD_TOKEN)?.let { pref ->
-			pref.dialogMessage = pref.context.getString(
-				R.string.discord_token_description,
-				pref.context.getString(R.string.sign_in),
-			)
+			pref.dialogMessage =
+				pref.context.getString(
+					R.string.discord_token_description,
+					pref.context.getString(R.string.sign_in),
+				)
 			pref.setOnBindEditTextListener {
 				it.setHint(R.string.discord_token_hint)
 				it.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
@@ -36,7 +39,10 @@ class DiscordSettingsFragment : BasePreferenceFragment(R.string.discord) {
 		}
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		viewModel.tokenState.observe(viewLifecycleOwner) { (state, token) ->
 			bindTokenPreference(state, token)
@@ -57,7 +63,10 @@ class DiscordSettingsFragment : BasePreferenceFragment(R.string.discord) {
 		super.onDisplayPreferenceDialog(preference)
 	}
 
-	private fun bindTokenPreference(state: TokenState, token: String?) {
+	private fun bindTokenPreference(
+		state: TokenState,
+		token: String?,
+	) {
 		val pref = findPreference<EditTextPreference>(AppSettings.KEY_DISCORD_TOKEN) ?: return
 		when (state) {
 			TokenState.EMPTY -> {
@@ -77,8 +86,12 @@ class DiscordSettingsFragment : BasePreferenceFragment(R.string.discord) {
 
 			TokenState.VALID -> {
 				pref.icon = null
-				pref.summary = if (token.isNullOrBlank()) { getString(R.string.logged_in_as, "null") }
-					else { getString(R.string.logged_in_as, token) }
+				pref.summary =
+					if (token.isNullOrBlank()) {
+						getString(R.string.logged_in_as, "null")
+					} else {
+						getString(R.string.logged_in_as, token)
+					}
 			}
 
 			TokenState.CHECKING -> {
@@ -89,7 +102,6 @@ class DiscordSettingsFragment : BasePreferenceFragment(R.string.discord) {
 	}
 
 	class TokenDialogFragment : EditTextPreferenceDialogFragmentCompat() {
-
 		override fun onPrepareDialogBuilder(builder: AlertDialog.Builder) {
 			super.onPrepareDialogBuilder(builder)
 			builder.setNeutralButton(R.string.sign_in) { _, _ ->
@@ -104,12 +116,12 @@ class DiscordSettingsFragment : BasePreferenceFragment(R.string.discord) {
 		}
 
 		companion object {
-
 			const val DIALOG_FRAGMENT_TAG: String = "androidx.preference.PreferenceFragment.DIALOG"
 
-			fun newInstance(key: String) = TokenDialogFragment().withArgs(1) {
-				putString(ARG_KEY, key)
-			}
+			fun newInstance(key: String) =
+				TokenDialogFragment().withArgs(1) {
+					putString(ARG_KEY, key)
+				}
 		}
 	}
 }

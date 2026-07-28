@@ -17,7 +17,6 @@ class ScrobblingEntity(
 	@ColumnInfo(name = "comment") val comment: String?,
 	@ColumnInfo(name = "rating") val rating: Float,
 ) {
-
 	fun copy(
 		status: String?,
 		comment: String?,

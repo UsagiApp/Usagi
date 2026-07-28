@@ -8,7 +8,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class LocalIndexUpdateService : CoroutineIntentService() {
-
 	@Inject
 	lateinit var localMangaIndex: LocalMangaIndex
 

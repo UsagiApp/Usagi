@@ -13,39 +13,40 @@ import org.draken.usagi.tracker.domain.TrackingRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class TrackerSettingsViewModel @Inject constructor(
-	private val repository: TrackingRepository,
-	private val database: MangaDatabase,
-) : BaseViewModel() {
+class TrackerSettingsViewModel
+	@Inject
+	constructor(
+		private val repository: TrackingRepository,
+		private val database: MangaDatabase,
+	) : BaseViewModel() {
+		val categoriesCount = MutableStateFlow<IntArray?>(null)
 
-	val categoriesCount = MutableStateFlow<IntArray?>(null)
+		init {
+			updateCategoriesCount()
+			val databaseObserver = DatabaseObserver(this)
+			addCloseable(databaseObserver)
+			launchJob(Dispatchers.Default) {
+				database.invalidationTracker.addObserver(databaseObserver)
+			}
+		}
 
-	init {
-		updateCategoriesCount()
-		val databaseObserver = DatabaseObserver(this)
-		addCloseable(databaseObserver)
-		launchJob(Dispatchers.Default) {
-			database.invalidationTracker.addObserver(databaseObserver)
+		private fun updateCategoriesCount() {
+			launchJob(Dispatchers.Default) {
+				categoriesCount.value = repository.getCategoriesCount()
+			}
+		}
+
+		private class DatabaseObserver(
+			private var vm: TrackerSettingsViewModel?,
+		) : InvalidationTracker.Observer(arrayOf(TABLE_FAVOURITE_CATEGORIES)),
+			Closeable {
+			override fun onInvalidated(tables: Set<String>) {
+				vm?.updateCategoriesCount()
+			}
+
+			override fun close() {
+				(vm ?: return).database.invalidationTracker.removeObserverAsync(this)
+				vm = null
+			}
 		}
 	}
-
-	private fun updateCategoriesCount() {
-		launchJob(Dispatchers.Default) {
-			categoriesCount.value = repository.getCategoriesCount()
-		}
-	}
-
-	private class DatabaseObserver(private var vm: TrackerSettingsViewModel?) :
-		InvalidationTracker.Observer(arrayOf(TABLE_FAVOURITE_CATEGORIES)),
-		Closeable {
-
-		override fun onInvalidated(tables: Set<String>) {
-			vm?.updateCategoriesCount()
-		}
-
-		override fun close() {
-			(vm ?: return).database.invalidationTracker.removeObserverAsync(this)
-			vm = null
-		}
-	}
-}

@@ -8,7 +8,6 @@ class ExpiringValue<T>(
 	lifetime: Long,
 	timeUnit: TimeUnit,
 ) {
-
 	private val expiresAt = SystemClock.elapsedRealtime() + timeUnit.toMillis(lifetime)
 
 	val isExpired: Boolean

@@ -27,10 +27,10 @@ import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DownloadsActivity : BaseActivity<ActivityDownloadsBinding>(),
+class DownloadsActivity :
+	BaseActivity<ActivityDownloadsBinding>(),
 	DownloadItemListener,
 	ListSelectionController.Callback {
-
 	@Inject
 	lateinit var coil: ImageLoader
 
@@ -46,12 +46,13 @@ class DownloadsActivity : BaseActivity<ActivityDownloadsBinding>(),
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
 		val downloadsAdapter = DownloadsAdapter(this, this)
 		val decoration = TypedListSpacingDecoration(this, false)
-		selectionController = ListSelectionController(
-			appCompatDelegate = delegate,
-			decoration = DownloadsSelectionDecoration(this),
-			registryOwner = this,
-			callback = this,
-		)
+		selectionController =
+			ListSelectionController(
+				appCompatDelegate = delegate,
+				decoration = DownloadsSelectionDecoration(this),
+				registryOwner = this,
+				callback = this,
+			)
 		with(viewBinding.recyclerView) {
 			setHasFixedSize(true)
 			addItemDecoration(decoration)
@@ -68,7 +69,10 @@ class DownloadsActivity : BaseActivity<ActivityDownloadsBinding>(),
 		viewModel.hasCancellableWorks.observe(this, menuInvalidator)
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 		viewBinding.recyclerView.updatePadding(
 			left = bars.left,
@@ -80,25 +84,31 @@ class DownloadsActivity : BaseActivity<ActivityDownloadsBinding>(),
 			right = bars.right,
 			top = bars.top,
 		)
-		return WindowInsetsCompat.Builder(insets)
+		return WindowInsetsCompat
+			.Builder(insets)
 			.setInsets(WindowInsetsCompat.Type.systemBars(), Insets.NONE)
 			.build()
 	}
 
-	override fun onItemClick(item: DownloadItemModel, view: View) {
+	override fun onItemClick(
+		item: DownloadItemModel,
+		view: View,
+	) {
 		if (selectionController.onItemClick(item.id.mostSignificantBits)) {
 			return
 		}
 		router.openDetails(item.manga ?: return)
 	}
 
-	override fun onItemLongClick(item: DownloadItemModel, view: View): Boolean {
-		return selectionController.onItemLongClick(view, item.id.mostSignificantBits)
-	}
+	override fun onItemLongClick(
+		item: DownloadItemModel,
+		view: View,
+	): Boolean = selectionController.onItemLongClick(view, item.id.mostSignificantBits)
 
-	override fun onItemContextClick(item: DownloadItemModel, view: View): Boolean {
-		return selectionController.onItemContextClick(view, item.id.mostSignificantBits)
-	}
+	override fun onItemContextClick(
+		item: DownloadItemModel,
+		view: View,
+	): Boolean = selectionController.onItemContextClick(view, item.id.mostSignificantBits)
 
 	override fun onExpandClick(item: DownloadItemModel) {
 		if (!selectionController.onItemClick(item.id.mostSignificantBits)) {
@@ -126,21 +136,28 @@ class DownloadsActivity : BaseActivity<ActivityDownloadsBinding>(),
 		scheduler.skipAll(item.id)
 	}
 
-	override fun onSelectionChanged(controller: ListSelectionController, count: Int) {
+	override fun onSelectionChanged(
+		controller: ListSelectionController,
+		count: Int,
+	) {
 		viewBinding.recyclerView.invalidateItemDecorations()
 	}
 
 	override fun onCreateActionMode(
 		controller: ListSelectionController,
 		menuInflater: MenuInflater,
-		menu: Menu
+		menu: Menu,
 	): Boolean {
 		menuInflater.inflate(R.menu.mode_downloads, menu)
 		return true
 	}
 
-	override fun onActionItemClicked(controller: ListSelectionController, mode: ActionMode?, item: MenuItem): Boolean {
-		return when (item.itemId) {
+	override fun onActionItemClicked(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		item: MenuItem,
+	): Boolean =
+		when (item.itemId) {
 			R.id.action_resume -> {
 				viewModel.resume(controller.snapshot())
 				mode?.finish()
@@ -170,11 +187,16 @@ class DownloadsActivity : BaseActivity<ActivityDownloadsBinding>(),
 				true
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
-	}
 
-	override fun onPrepareActionMode(controller: ListSelectionController, mode: ActionMode?, menu: Menu): Boolean {
+	override fun onPrepareActionMode(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		menu: Menu,
+	): Boolean {
 		val snapshot = viewModel.snapshot(controller.peekCheckedIds())
 		var canPause = true
 		var canResume = true

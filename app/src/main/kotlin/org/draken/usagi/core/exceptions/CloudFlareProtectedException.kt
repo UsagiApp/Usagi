@@ -10,6 +10,5 @@ class CloudFlareProtectedException(
 	source: MangaSource?,
 	@Transient val headers: Headers,
 ) : CloudFlareException("Protected by CloudFlare", CloudFlareHelper.PROTECTION_CAPTCHA) {
-
 	override val source: MangaSource = source ?: UnknownMangaSource
 }

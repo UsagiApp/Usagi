@@ -3,17 +3,16 @@ package org.draken.usagi.scrobbling.discord.ui
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.scrobbling.discord.data.DiscordRepository
 import javax.inject.Inject
-import androidx.core.net.toUri
 
 @AndroidEntryPoint
 class DiscordAuthActivity : ComponentActivity() {
-
 	@Inject
 	lateinit var settings: AppSettings
 
@@ -46,21 +45,28 @@ class DiscordAuthActivity : ComponentActivity() {
 						startAuth()
 					}
 				}
-			} else { finish() }
-		} else { startAuth() }
+			} else {
+				finish()
+			}
+		} else {
+			startAuth()
+		}
 	}
 
 	private fun startAuth() {
 		val discordUri = repository.oauthUrl.toUri()
-		val intent = Intent(Intent.ACTION_VIEW, discordUri).apply {
-			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-		}
+		val intent =
+			Intent(Intent.ACTION_VIEW, discordUri).apply {
+				addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+			}
 
 		try {
 			startActivity(intent)
 		} catch (_: Exception) {
 			intent.data = repository.oauthFallbackUrl.toUri()
-			try { startActivity(intent) } catch (e: Exception) {
+			try {
+				startActivity(intent)
+			} catch (e: Exception) {
 				e.printStackTrace()
 				finish()
 			}

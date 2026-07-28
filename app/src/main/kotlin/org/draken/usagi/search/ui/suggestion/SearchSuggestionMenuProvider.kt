@@ -16,13 +16,15 @@ class SearchSuggestionMenuProvider(
 	private val voiceInputLauncher: ActivityResultLauncher<String?>,
 	private val viewModel: SearchSuggestionViewModel,
 ) : MenuProvider {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		menuInflater.inflate(R.menu.opt_search_suggestion, menu)
 	}
 
-	override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-		return when (menuItem.itemId) {
+	override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+		when (menuItem.itemId) {
 			R.id.action_clear -> {
 				clearSearchHistory()
 				true
@@ -32,9 +34,10 @@ class SearchSuggestionMenuProvider(
 				voiceInputLauncher.tryLaunch(context.getString(R.string.search_manga), null)
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
-	}
 
 	override fun onPrepareMenu(menu: Menu) {
 		super.onPrepareMenu(menu)

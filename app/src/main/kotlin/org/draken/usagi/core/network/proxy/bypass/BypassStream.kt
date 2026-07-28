@@ -6,7 +6,9 @@ import java.io.OutputStream
 import kotlin.math.min
 import kotlin.random.Random
 
-class BypassStream(private val delegate: OutputStream): FilterOutputStream(delegate) {
+class BypassStream(
+	private val delegate: OutputStream,
+) : FilterOutputStream(delegate) {
 	private var first = true
 	private val buffer = ByteArrayOutputStream()
 
@@ -20,7 +22,11 @@ class BypassStream(private val delegate: OutputStream): FilterOutputStream(deleg
 		}
 	}
 
-	override fun write(b: ByteArray, off: Int, len: Int) {
+	override fun write(
+		b: ByteArray,
+		off: Int,
+		len: Int,
+	) {
 		if (first) {
 			buffer.write(b, off, len)
 			val data = buffer.toByteArray()
@@ -77,24 +83,42 @@ class BypassStream(private val delegate: OutputStream): FilterOutputStream(deleg
 		return method in METHOD
 	}
 
-	private fun u16(d: ByteArray, o: Int) = ((d[o].toInt() and 0xFF) shl 8) or (d[o + 1].toInt() and 0xFF)
+	private fun u16(
+		d: ByteArray,
+		o: Int,
+	) = ((d[o].toInt() and 0xFF) shl 8) or (d[o + 1].toInt() and 0xFF)
 
-	/* Bypass, main */
-	private fun writeChunk(data: ByteArray, size: Int, out: OutputStream) {
+	// Bypass, main
+	private fun writeChunk(
+		data: ByteArray,
+		size: Int,
+		out: OutputStream,
+	) {
 		if (size <= 0) return
 		if (isTlsHello(data, size)) {
 			val sni = findSni(data, size)
-			if (sni != null) writeTls(data, size, sni, out)
-			else simpleSplit(data, size, out)
+			if (sni != null) {
+				writeTls(data, size, sni, out)
+			} else {
+				simpleSplit(data, size, out)
+			}
 		} else {
 			simpleSplit(data, size, out)
 		}
 	}
 
-	private fun writeTls(data: ByteArray, size: Int, sni: SniInfo, out: OutputStream) {
+	private fun writeTls(
+		data: ByteArray,
+		size: Int,
+		sni: SniInfo,
+		out: OutputStream,
+	) {
 		val payloadLen = u16(data, 3)
 		val recEnd = 5 + payloadLen
-		if (recEnd > size) { splitTcp(data, size, sni, out); return }
+		if (recEnd > size) {
+			splitTcp(data, size, sni, out)
+			return
+		}
 
 		val splits = splitPoints(sni, payloadLen)
 		var off = 5
@@ -111,10 +135,16 @@ class BypassStream(private val delegate: OutputStream): FilterOutputStream(deleg
 			off = end
 			if (i < splits.size - 1) delay()
 		}
-		if (recEnd < size) { out.write(data, recEnd, size - recEnd); out.flush() }
+		if (recEnd < size) {
+			out.write(data, recEnd, size - recEnd)
+			out.flush()
+		}
 	}
 
-	private fun splitPoints(sni: SniInfo, payLen: Int): List<Int> {
+	private fun splitPoints(
+		sni: SniInfo,
+		payLen: Int,
+	): List<Int> {
 		val payEnd = 5 + payLen
 		val pts = mutableListOf<Int>()
 		val before = sni.offset
@@ -131,38 +161,67 @@ class BypassStream(private val delegate: OutputStream): FilterOutputStream(deleg
 		return pts
 	}
 
-	private fun splitTcp(data: ByteArray, size: Int, sni: SniInfo, out: OutputStream) {
-		val splits = buildList {
-			add(1)
-			if (sni.offset in 2 until size) add(sni.offset)
-			val m = sni.offset + sni.length / 2
-			if (m > (lastOrNull() ?: 0) && m < size) add(m)
-			val a = sni.offset + sni.length
-			if (a > (lastOrNull() ?: 0) && a < size) add(a)
-		}.distinct().sorted().filter { it in 1 until size }
+	private fun splitTcp(
+		data: ByteArray,
+		size: Int,
+		sni: SniInfo,
+		out: OutputStream,
+	) {
+		val splits =
+			buildList {
+				add(1)
+				if (sni.offset in 2 until size) add(sni.offset)
+				val m = sni.offset + sni.length / 2
+				if (m > (lastOrNull() ?: 0) && m < size) add(m)
+				val a = sni.offset + sni.length
+				if (a > (lastOrNull() ?: 0) && a < size) add(a)
+			}.distinct().sorted().filter { it in 1 until size }
 		var off = 0
 		for ((i, pos) in splits.withIndex()) {
 			val len = pos - off
-			if (len > 0) { out.write(data, off, len); out.flush(); off = pos; if (i < splits.size - 1) delay() }
+			if (len > 0) {
+				out.write(data, off, len)
+				out.flush()
+				off = pos
+				if (i < splits.size - 1) delay()
+			}
 		}
-		if (off < size) { out.write(data, off, size - off); out.flush() }
+		if (off < size) {
+			out.write(data, off, size - off)
+			out.flush()
+		}
 	}
 
-	private fun simpleSplit(data: ByteArray, size: Int, out: OutputStream) {
-		if (size <= 2) { out.write(data, 0, size); out.flush(); return }
-		out.write(data, 0, 1); out.flush(); delay()
-		out.write(data, 1, size - 1); out.flush()
+	private fun simpleSplit(
+		data: ByteArray,
+		size: Int,
+		out: OutputStream,
+	) {
+		if (size <= 2) {
+			out.write(data, 0, size)
+			out.flush()
+			return
+		}
+		out.write(data, 0, 1)
+		out.flush()
+		delay()
+		out.write(data, 1, size - 1)
+		out.flush()
 	}
 
-	private fun applyDesync(headers: String): String = headers
-		.replaceFirst("Host:", mixCase("Host") + ":")
-		.replaceFirst("host:", mixCase("host") + ":")
-		.replace(Regex("(?i)(Host:\\s*)([^\\r\\n]+)")) { m ->
-			val h = m.groupValues[2].trimEnd()
-			"${m.groupValues[1]} ${if (!h.contains(':') && !h.endsWith('.')) "$h." else h}"
-		}
+	private fun applyDesync(headers: String): String =
+		headers
+			.replaceFirst("Host:", mixCase("Host") + ":")
+			.replaceFirst("host:", mixCase("host") + ":")
+			.replace(Regex("(?i)(Host:\\s*)([^\\r\\n]+)")) { m ->
+				val h = m.groupValues[2].trimEnd()
+				"${m.groupValues[1]} ${if (!h.contains(':') && !h.endsWith('.')) "$h." else h}"
+			}
 
-	private fun findSni(data: ByteArray, size: Int): SniInfo? {
+	private fun findSni(
+		data: ByteArray,
+		size: Int,
+	): SniInfo? {
 		if (size < 9 || data[0] != 0x16.toByte() || data[1] != 0x03.toByte()) return null
 		val recLen = u16(data, 3)
 		if (recLen < 42 || 5 + recLen > size) return null
@@ -189,8 +248,9 @@ class BypassStream(private val delegate: OutputStream): FilterOutputStream(deleg
 				var q = dStart + 2
 				while (q + 3 <= dStart + l) {
 					val nLen = u16(data, q + 1)
-					if (data[q].toInt() and 0xFF == 0x00 && q + 3 + nLen <= dStart + l)
+					if (data[q].toInt() and 0xFF == 0x00 && q + 3 + nLen <= dStart + l) {
 						return SniInfo(q + 3, nLen)
+					}
 					q += 3 + nLen
 				}
 			}
@@ -199,8 +259,10 @@ class BypassStream(private val delegate: OutputStream): FilterOutputStream(deleg
 		return null
 	}
 
-	private fun isTlsHello(data: ByteArray, size: Int) =
-		size >= 9 && data[0] == 0x16.toByte() && data[1] == 0x03.toByte() && data[5].toInt() and 0xFF == 0x01
+	private fun isTlsHello(
+		data: ByteArray,
+		size: Int,
+	) = size >= 9 && data[0] == 0x16.toByte() && data[1] == 0x03.toByte() && data[5].toInt() and 0xFF == 0x01
 
 	private fun delay() = Thread.sleep(Random.nextLong(30L, 81L))
 
@@ -209,7 +271,10 @@ class BypassStream(private val delegate: OutputStream): FilterOutputStream(deleg
 		return if (r == s) s.replaceFirstChar { it.lowercaseChar() } else r
 	}
 
-	private data class SniInfo(val offset: Int, val length: Int)
+	private data class SniInfo(
+		val offset: Int,
+		val length: Int,
+	)
 
 	companion object {
 		private const val MAX_HELLO = 32 * 1024

@@ -9,11 +9,12 @@ data class SourceSnapshot(
 	val byShortName: Map<String, MangaSource>,
 ) {
 	companion object {
-		val EMPTY = SourceSnapshot(
-			sources = emptyList(),
-			version = 0,
-			byName = emptyMap(),
-			byShortName = emptyMap(),
-		)
+		val EMPTY =
+			SourceSnapshot(
+				sources = emptyList(),
+				version = 0,
+				byName = emptyMap(),
+				byShortName = emptyMap(),
+			)
 	}
 }

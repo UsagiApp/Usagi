@@ -16,8 +16,10 @@ class SourcesCatalogMenuProvider(
 ) : MenuProvider,
 	MenuItem.OnActionExpandListener,
 	SearchView.OnQueryTextListener {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		menuInflater.inflate(R.menu.opt_sources_catalog, menu)
 		val searchMenuItem = menu.findItem(R.id.action_search)
 		searchMenuItem.setOnActionExpandListener(this)

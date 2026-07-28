@@ -8,7 +8,6 @@ import org.draken.usagi.R
 enum class SearchSuggestionType(
 	@StringRes val titleResId: Int,
 ) {
-
 	GENRES(R.string.genres),
 	QUERIES_RECENT(R.string.recent_queries),
 	QUERIES_SUGGEST(R.string.suggested_queries),

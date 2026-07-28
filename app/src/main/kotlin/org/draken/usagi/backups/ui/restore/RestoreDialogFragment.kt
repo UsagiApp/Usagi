@@ -25,9 +25,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 @AndroidEntryPoint
-class RestoreDialogFragment : AlertDialogFragment<DialogRestoreBinding>(), OnListItemClickListener<BackupSectionModel>,
+class RestoreDialogFragment :
+	AlertDialogFragment<DialogRestoreBinding>(),
+	OnListItemClickListener<BackupSectionModel>,
 	View.OnClickListener {
-
 	private val viewModel: RestoreViewModel by viewModels()
 
 	override fun onCreateViewBinding(
@@ -35,7 +36,10 @@ class RestoreDialogFragment : AlertDialogFragment<DialogRestoreBinding>(), OnLis
 		container: ViewGroup?,
 	) = DialogRestoreBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: DialogRestoreBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: DialogRestoreBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		val adapter = BackupSectionsAdapter(this)
 		binding.recyclerView.adapter = adapter
@@ -51,15 +55,18 @@ class RestoreDialogFragment : AlertDialogFragment<DialogRestoreBinding>(), OnLis
 		).observe(viewLifecycleOwner, this::onLoadingChanged)
 	}
 
-	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder {
-		return super.onBuildDialog(builder)
+	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder =
+		super
+			.onBuildDialog(builder)
 			.setTitle(R.string.restore_backup)
 			.setCancelable(false)
-	}
 
 	override fun onClick(v: View) {
 		when (v.id) {
-			R.id.button_cancel -> dismiss()
+			R.id.button_cancel -> {
+				dismiss()
+			}
+
 			R.id.button_restore -> {
 				if (startRestoreService()) {
 					Toast.makeText(v.context, R.string.backup_restored_background, Toast.LENGTH_SHORT).show()
@@ -72,7 +79,10 @@ class RestoreDialogFragment : AlertDialogFragment<DialogRestoreBinding>(), OnLis
 		}
 	}
 
-	override fun onItemClick(item: BackupSectionModel, view: View) {
+	override fun onItemClick(
+		item: BackupSectionModel,
+		view: View,
+	) {
 		viewModel.onItemClick(item)
 	}
 
@@ -100,12 +110,11 @@ class RestoreDialogFragment : AlertDialogFragment<DialogRestoreBinding>(), OnLis
 		)
 	}
 
-	private fun Date.formatBackupDate(): String {
-		return getString(
+	private fun Date.formatBackupDate(): String =
+		getString(
 			R.string.backup_date_,
 			SimpleDateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(this),
 		)
-	}
 
 	private fun onError(e: Throwable) {
 		MaterialAlertDialogBuilder(context ?: return)

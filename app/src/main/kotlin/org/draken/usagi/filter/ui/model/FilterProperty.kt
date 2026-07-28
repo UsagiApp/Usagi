@@ -6,7 +6,6 @@ data class FilterProperty<out T>(
 	val isLoading: Boolean,
 	val error: Throwable?,
 ) {
-
 	constructor(
 		availableItems: List<T>,
 		selectedItems: Set<T>,
@@ -32,24 +31,26 @@ data class FilterProperty<out T>(
 	fun isEmptyAndSuccess(): Boolean = availableItems.isEmpty() && error == null
 
 	companion object {
+		val LOADING =
+			FilterProperty<Nothing>(
+				availableItems = emptyList(),
+				selectedItems = emptySet(),
+				isLoading = true,
+				error = null,
+			)
 
-		val LOADING = FilterProperty<Nothing>(
-			availableItems = emptyList(),
-			selectedItems = emptySet(),
-			isLoading = true,
-			error = null,
-		)
+		val EMPTY =
+			FilterProperty<Nothing>(
+				availableItems = emptyList(),
+				selectedItems = emptySet(),
+			)
 
-		val EMPTY = FilterProperty<Nothing>(
-			availableItems = emptyList(),
-			selectedItems = emptySet(),
-		)
-
-		fun error(error: Throwable) = FilterProperty<Nothing>(
-			availableItems = emptyList(),
-			selectedItems = emptySet(),
-			isLoading = false,
-			error = error,
-		)
+		fun error(error: Throwable) =
+			FilterProperty<Nothing>(
+				availableItems = emptyList(),
+				selectedItems = emptySet(),
+				isLoading = false,
+				error = error,
+			)
 	}
 }

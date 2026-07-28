@@ -26,9 +26,9 @@ import org.draken.usagi.databinding.SheetListModeBinding
 class ListConfigBottomSheet :
 	BaseAdaptiveSheet<SheetListModeBinding>(),
 	Slider.OnChangeListener,
-	MaterialButtonToggleGroup.OnButtonCheckedListener, CompoundButton.OnCheckedChangeListener,
+	MaterialButtonToggleGroup.OnButtonCheckedListener,
+	CompoundButton.OnCheckedChangeListener,
 	AdapterView.OnItemSelectedListener {
-
 	private val viewModel by viewModels<ListConfigViewModel>()
 
 	override fun onCreateViewBinding(
@@ -36,7 +36,10 @@ class ListConfigBottomSheet :
 		container: ViewGroup?,
 	) = SheetListModeBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: SheetListModeBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: SheetListModeBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		val mode = viewModel.listMode
 		binding.buttonList.isChecked = mode == ListMode.LIST
@@ -63,12 +66,13 @@ class ListConfigBottomSheet :
 		val sortOrders = viewModel.getSortOrders()
 		if (sortOrders != null) {
 			binding.textViewOrderTitle.isVisible = true
-			binding.spinnerOrder.adapter = ArrayAdapter(
-				binding.spinnerOrder.context,
-				android.R.layout.simple_spinner_dropdown_item,
-				android.R.id.text1,
-				sortOrders.map { binding.spinnerOrder.context.getString(it.titleResId) },
-			)
+			binding.spinnerOrder.adapter =
+				ArrayAdapter(
+					binding.spinnerOrder.context,
+					android.R.layout.simple_spinner_dropdown_item,
+					android.R.id.text1,
+					sortOrders.map { binding.spinnerOrder.context.getString(it.titleResId) },
+				)
 			val selected = sortOrders.indexOf(viewModel.getSelectedSortOrder())
 			if (selected >= 0) {
 				binding.spinnerOrder.setSelection(selected, false)
@@ -78,7 +82,10 @@ class ListConfigBottomSheet :
 		}
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		viewBinding?.scrollView?.updatePadding(
 			bottom = insets.getInsets(typeMask).bottom,
@@ -86,36 +93,53 @@ class ListConfigBottomSheet :
 		return insets.consume(v, typeMask, bottom = true)
 	}
 
-	override fun onButtonChecked(group: MaterialButtonToggleGroup?, checkedId: Int, isChecked: Boolean) {
+	override fun onButtonChecked(
+		group: MaterialButtonToggleGroup?,
+		checkedId: Int,
+		isChecked: Boolean,
+	) {
 		if (!isChecked) {
 			return
 		}
-		val mode = when (checkedId) {
-			R.id.button_list -> ListMode.LIST
-			R.id.button_list_detailed -> ListMode.DETAILED_LIST
-			R.id.button_grid -> ListMode.GRID
-			R.id.button_cover_only -> ListMode.COVER_ONLY
-			else -> return
-		}
+		val mode =
+			when (checkedId) {
+				R.id.button_list -> ListMode.LIST
+				R.id.button_list_detailed -> ListMode.DETAILED_LIST
+				R.id.button_grid -> ListMode.GRID
+				R.id.button_cover_only -> ListMode.COVER_ONLY
+				else -> return
+			}
 		val isGridMode = mode == ListMode.GRID || mode == ListMode.COVER_ONLY
 		requireViewBinding().textViewGridTitle.isVisible = isGridMode
 		requireViewBinding().sliderGrid.isVisible = isGridMode
 		viewModel.listMode = mode
 	}
 
-	override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
+	override fun onCheckedChanged(
+		buttonView: CompoundButton,
+		isChecked: Boolean,
+	) {
 		when (buttonView.id) {
 			R.id.switch_grouping -> viewModel.isGroupingEnabled = isChecked
 		}
 	}
 
-	override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
+	override fun onValueChange(
+		slider: Slider,
+		value: Float,
+		fromUser: Boolean,
+	) {
 		if (fromUser) {
 			viewModel.gridSize = value.toInt()
 		}
 	}
 
-	override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+	override fun onItemSelected(
+		parent: AdapterView<*>,
+		view: View?,
+		position: Int,
+		id: Long,
+	) {
 		when (parent.id) {
 			R.id.spinner_order -> {
 				viewModel.setSortOrder(position)

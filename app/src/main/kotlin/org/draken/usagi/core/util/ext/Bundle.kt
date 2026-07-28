@@ -15,50 +15,39 @@ import tsuki.util.toArraySet
 import java.io.Serializable
 import java.util.EnumSet
 
-
 // https://issuetracker.google.com/issues/240585930
 
-inline fun <reified T : Parcelable> Bundle.getParcelableCompat(key: String): T? {
-	return BundleCompat.getParcelable(this, key, T::class.java)
-}
+inline fun <reified T : Parcelable> Bundle.getParcelableCompat(key: String): T? = BundleCompat.getParcelable(this, key, T::class.java)
 
-inline fun <reified T : Parcelable> Bundle.requireParcelable(key: String): T = checkNotNull(getParcelableCompat(key)) {
-	"Parcelable of type \"${T::class.java.name}\" not found at \"$key\""
-}
+inline fun <reified T : Parcelable> Bundle.requireParcelable(key: String): T =
+	checkNotNull(getParcelableCompat(key)) {
+		"Parcelable of type \"${T::class.java.name}\" not found at \"$key\""
+	}
 
-inline fun <reified T : Parcelable> Intent.getParcelableExtraCompat(key: String): T? {
-	return IntentCompat.getParcelableExtra(this, key, T::class.java)
-}
+inline fun <reified T : Parcelable> Intent.getParcelableExtraCompat(key: String): T? = IntentCompat.getParcelableExtra(this, key, T::class.java)
 
-inline fun <reified T : Serializable> Intent.getSerializableExtraCompat(key: String): T? {
-	return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+inline fun <reified T : Serializable> Intent.getSerializableExtraCompat(key: String): T? =
+	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
 		getSerializableExtra(key, T::class.java)
 	} else {
 		getSerializableExtra(key) as T?
 	}
-}
 
-inline fun <reified T : Serializable> Bundle.getSerializableCompat(key: String): T? {
-	return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+inline fun <reified T : Serializable> Bundle.getSerializableCompat(key: String): T? =
+	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
 		getSerializable(key, T::class.java)
 	} else {
 		getSerializable(key) as T?
 	}
-}
 
-inline fun <reified T : Parcelable> Parcel.readParcelableCompat(): T? {
-	return ParcelCompat.readParcelable(this, T::class.java.classLoader, T::class.java)
-}
+inline fun <reified T : Parcelable> Parcel.readParcelableCompat(): T? = ParcelCompat.readParcelable(this, T::class.java.classLoader, T::class.java)
 
-inline fun <reified T : Serializable> Parcel.readSerializableCompat(): T? {
-	return ParcelCompat.readSerializable(this, T::class.java.classLoader, T::class.java)
-}
+inline fun <reified T : Serializable> Parcel.readSerializableCompat(): T? = ParcelCompat.readSerializable(this, T::class.java.classLoader, T::class.java)
 
-inline fun <reified T : Serializable> Bundle.requireSerializable(key: String): T {
-	return checkNotNull(getSerializableCompat(key)) {
+inline fun <reified T : Serializable> Bundle.requireSerializable(key: String): T =
+	checkNotNull(getSerializableCompat(key)) {
 		"Serializable of type \"${T::class.java.name}\" not found at \"$key\""
 	}
-}
 
 fun <E : Enum<E>> Parcel.writeEnumSet(set: Set<E>?) {
 	if (set == null) {
@@ -89,15 +78,12 @@ fun Parcel.writeStringSet(set: Set<String>?) {
 	writeStringArray(set?.toTypedArray().orEmpty())
 }
 
-fun Parcel.readStringSet(): Set<String> {
-	return this.createStringArray()?.toArraySet().orEmpty()
-}
+fun Parcel.readStringSet(): Set<String> = this.createStringArray()?.toArraySet().orEmpty()
 
-fun <T> SavedStateHandle.require(key: String): T {
-	return checkNotNull(get(key)) {
+fun <T> SavedStateHandle.require(key: String): T =
+	checkNotNull(get(key)) {
 		"Value $key not found in SavedStateHandle or has a wrong type"
 	}
-}
 
 fun Parcelable.marshall(): ByteArray {
 	val parcel = Parcel.obtain()
@@ -120,4 +106,7 @@ fun <T : Parcelable> Parcelable.Creator<T>.unmarshall(bytes: ByteArray): T {
 	}
 }
 
-inline fun buildBundle(capacity: Int, block: Bundle.() -> Unit): Bundle = Bundle(capacity).apply(block)
+inline fun buildBundle(
+	capacity: Int,
+	block: Bundle.() -> Unit,
+): Bundle = Bundle(capacity).apply(block)

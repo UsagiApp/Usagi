@@ -11,50 +11,54 @@ import androidx.annotation.AttrRes
 import androidx.core.view.PointerIconCompat
 import com.google.android.material.textview.MaterialTextView
 
-class SelectableTextView @JvmOverloads constructor(
-	context: Context,
-	attrs: AttributeSet? = null,
-	@AttrRes defStyleAttr: Int = android.R.attr.textViewStyle,
-) : MaterialTextView(context, attrs, defStyleAttr) {
-
-	init {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			pointerIcon = PointerIcon.getSystemIcon(context, PointerIconCompat.TYPE_TEXT)
+class SelectableTextView
+	@JvmOverloads
+	constructor(
+		context: Context,
+		attrs: AttributeSet? = null,
+		@AttrRes defStyleAttr: Int = android.R.attr.textViewStyle,
+	) : MaterialTextView(context, attrs, defStyleAttr) {
+		init {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+				pointerIcon = PointerIcon.getSystemIcon(context, PointerIconCompat.TYPE_TEXT)
+			}
 		}
-	}
 
-	override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
-		fixSelectionRange()
-		return super.dispatchTouchEvent(event)
-	}
+		override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
+			fixSelectionRange()
+			return super.dispatchTouchEvent(event)
+		}
 
-	// https://stackoverflow.com/questions/22810147/error-when-selecting-text-from-textview-java-lang-indexoutofboundsexception-se
-	private fun fixSelectionRange() {
-		if (selectionStart < 0 || selectionEnd < 0) {
+		// https://stackoverflow.com/questions/22810147/error-when-selecting-text-from-textview-java-lang-indexoutofboundsexception-se
+		private fun fixSelectionRange() {
+			if (selectionStart < 0 || selectionEnd < 0) {
+				val spannableText = text as? Spannable ?: return
+				Selection.setSelection(spannableText, spannableText.length)
+			}
+		}
+
+		override fun scrollTo(
+			x: Int,
+			y: Int,
+		) {
+			super.scrollTo(0, 0)
+		}
+
+		fun selectAll() {
 			val spannableText = text as? Spannable ?: return
-			Selection.setSelection(spannableText, spannableText.length)
+			Selection.selectAll(spannableText)
+		}
+
+		// fix crash on setText: Invalid offset
+		fun setTextSafely(text: CharSequence?) {
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+				clearFocus()
+				val isSelectable = isTextSelectable
+				setTextIsSelectable(false)
+				setText(text)
+				setTextIsSelectable(isSelectable)
+			} else {
+				setText(text)
+			}
 		}
 	}
-
-	override fun scrollTo(x: Int, y: Int) {
-		super.scrollTo(0, 0)
-	}
-
-	fun selectAll() {
-		val spannableText = text as? Spannable ?: return
-		Selection.selectAll(spannableText)
-	}
-
-	// fix crash on setText: Invalid offset
-	fun setTextSafely(text: CharSequence?) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-			clearFocus()
-			val isSelectable = isTextSelectable
-			setTextIsSelectable(false)
-			setText(text)
-			setTextIsSelectable(isSelectable)
-		} else {
-			setText(text)
-		}
-	}
-}

@@ -20,25 +20,26 @@ import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
-class BackupViewModel @Inject constructor(
-	savedStateHandle: SavedStateHandle,
-	private val repository: BackupRepository,
-	@ApplicationContext context: Context,
-) : BaseViewModel() {
+class BackupViewModel
+	@Inject
+	constructor(
+		savedStateHandle: SavedStateHandle,
+		private val repository: BackupRepository,
+		@ApplicationContext context: Context,
+	) : BaseViewModel() {
+		val progress = MutableStateFlow(Progress.INDETERMINATE)
+		val onBackupDone = MutableEventFlow<Uri>()
 
-	val progress = MutableStateFlow(Progress.INDETERMINATE)
-	val onBackupDone = MutableEventFlow<Uri>()
+		private val destination = savedStateHandle.require<Uri>(AppRouter.KEY_DATA)
+		private val contentResolver: ContentResolver = context.contentResolver
 
-	private val destination = savedStateHandle.require<Uri>(AppRouter.KEY_DATA)
-	private val contentResolver: ContentResolver = context.contentResolver
-
-	init {
-		launchLoadingJob(Dispatchers.Default) {
-			ZipOutputStream(checkNotNull(contentResolver.openOutputStream(destination))).use {
-				it.setLevel(Deflater.BEST_COMPRESSION)
-				repository.createBackup(it, progress)
+		init {
+			launchLoadingJob(Dispatchers.Default) {
+				ZipOutputStream(checkNotNull(contentResolver.openOutputStream(destination))).use {
+					it.setLevel(Deflater.BEST_COMPRESSION)
+					repository.createBackup(it, progress)
+				}
+				onBackupDone.call(destination)
 			}
-			onBackupDone.call(destination)
 		}
 	}
-}

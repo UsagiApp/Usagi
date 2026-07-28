@@ -31,7 +31,6 @@ fun searchResultsAD(
 ) = adapterDelegateViewBinding<SearchResultsListModel, ListModel, ItemListGroupBinding>(
 	{ layoutInflater, parent -> ItemListGroupBinding.inflate(layoutInflater, parent, false) },
 ) {
-
 	binding.recyclerView.setRecycledViewPool(sharedPool)
 	val adapter = ListDelegationAdapter(mangaGridItemAD(sizeResolver, listener))
 	binding.recyclerView.addItemDecoration(selectionDecoration)

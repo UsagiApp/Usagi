@@ -15,73 +15,70 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 @SuppressLint("RestrictedApi")
-suspend fun WorkManager.deleteWork(id: UUID) = suspendCoroutine { cont ->
-	workManagerImpl.workTaskExecutor.executeOnTaskThread {
-		try {
-			workManagerImpl.workDatabase.workSpecDao().delete(id.toString())
-			cont.resume(Unit)
-		} catch (e: Exception) {
-			cont.resumeWithException(e)
-		}
-	}
-}
-
-@SuppressLint("RestrictedApi")
-suspend fun WorkManager.deleteWorks(ids: Collection<UUID>) = suspendCoroutine { cont ->
-	workManagerImpl.workTaskExecutor.executeOnTaskThread {
-		try {
-			val db = workManagerImpl.workDatabase
-			db.runInTransaction {
-				for (id in ids) {
-					db.workSpecDao().delete(id.toString())
-				}
+suspend fun WorkManager.deleteWork(id: UUID) =
+	suspendCoroutine { cont ->
+		workManagerImpl.workTaskExecutor.executeOnTaskThread {
+			try {
+				workManagerImpl.workDatabase.workSpecDao().delete(id.toString())
+				cont.resume(Unit)
+			} catch (e: Exception) {
+				cont.resumeWithException(e)
 			}
-			cont.resume(Unit)
-		} catch (e: Exception) {
-			cont.resumeWithException(e)
 		}
 	}
-}
 
 @SuppressLint("RestrictedApi")
-suspend fun WorkManager.awaitWorkInfosByTag(tag: String): List<WorkInfo> {
-	return getWorkInfosByTag(tag).await()
-}
+suspend fun WorkManager.deleteWorks(ids: Collection<UUID>) =
+	suspendCoroutine { cont ->
+		workManagerImpl.workTaskExecutor.executeOnTaskThread {
+			try {
+				val db = workManagerImpl.workDatabase
+				db.runInTransaction {
+					for (id in ids) {
+						db.workSpecDao().delete(id.toString())
+					}
+				}
+				cont.resume(Unit)
+			} catch (e: Exception) {
+				cont.resumeWithException(e)
+			}
+		}
+	}
+
+@SuppressLint("RestrictedApi")
+suspend fun WorkManager.awaitWorkInfosByTag(tag: String): List<WorkInfo> = getWorkInfosByTag(tag).await()
 
 @SuppressLint("RestrictedApi")
 suspend fun WorkManager.awaitFinishedWorkInfosByTag(tag: String): List<WorkInfo> {
-	val query = WorkQuery.Builder.fromTags(listOf(tag))
-		.addStates(listOf(WorkInfo.State.SUCCEEDED, WorkInfo.State.CANCELLED, WorkInfo.State.FAILED))
-		.build()
+	val query =
+		WorkQuery.Builder
+			.fromTags(listOf(tag))
+			.addStates(listOf(WorkInfo.State.SUCCEEDED, WorkInfo.State.CANCELLED, WorkInfo.State.FAILED))
+			.build()
 	return getWorkInfos(query).await()
 }
 
 @SuppressLint("RestrictedApi")
-suspend fun WorkManager.awaitWorkInfoById(id: UUID): WorkInfo? {
-	return getWorkInfoById(id).await()
-}
+suspend fun WorkManager.awaitWorkInfoById(id: UUID): WorkInfo? = getWorkInfoById(id).await()
 
 @SuppressLint("RestrictedApi")
-suspend fun WorkManager.awaitUniqueWorkInfoByName(name: String): List<WorkInfo> {
-	return getWorkInfosForUniqueWork(name).await()
-}
+suspend fun WorkManager.awaitUniqueWorkInfoByName(name: String): List<WorkInfo> = getWorkInfosForUniqueWork(name).await()
 
 @SuppressLint("RestrictedApi")
-suspend fun WorkManager.awaitUpdateWork(request: WorkRequest): WorkManager.UpdateResult {
-	return updateWork(request).await()
-}
+suspend fun WorkManager.awaitUpdateWork(request: WorkRequest): WorkManager.UpdateResult = updateWork(request).await()
 
 @SuppressLint("RestrictedApi")
-suspend fun WorkManager.getWorkSpec(id: UUID): WorkSpec? = suspendCoroutine { cont ->
-	workManagerImpl.workTaskExecutor.executeOnTaskThread {
-		try {
-			val spec = workManagerImpl.workDatabase.workSpecDao().getWorkSpec(id.toString())
-			cont.resume(spec)
-		} catch (e: Exception) {
-			cont.resumeWithException(e)
+suspend fun WorkManager.getWorkSpec(id: UUID): WorkSpec? =
+	suspendCoroutine { cont ->
+		workManagerImpl.workTaskExecutor.executeOnTaskThread {
+			try {
+				val spec = workManagerImpl.workDatabase.workSpecDao().getWorkSpec(id.toString())
+				cont.resume(spec)
+			} catch (e: Exception) {
+				cont.resumeWithException(e)
+			}
 		}
 	}
-}
 
 @SuppressLint("RestrictedApi")
 suspend fun WorkManager.getWorkInputData(id: UUID): Data? = getWorkSpec(id)?.input
@@ -90,4 +87,5 @@ val Data.isEmpty: Boolean
 	get() = this == Data.EMPTY
 
 private val WorkManager.workManagerImpl
-	@SuppressLint("RestrictedApi") inline get() = this as WorkManagerImpl
+	@SuppressLint("RestrictedApi")
+	inline get() = this as WorkManagerImpl

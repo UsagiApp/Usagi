@@ -12,20 +12,23 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import org.draken.usagi.core.util.ext.drawable
 import javax.inject.Inject
 
-class CoilImageGetter @Inject constructor(
-	@ApplicationContext private val context: Context,
-	private val coil: ImageLoader,
-) : Html.ImageGetter {
-
-	@WorkerThread
-	override fun getDrawable(source: String?): Drawable? {
-		return coil.executeBlocking(
-			ImageRequest.Builder(context)
-				.data(source)
-				.allowHardware(false)
-				.build(),
-		).drawable?.apply {
-			setBounds(0, 0, intrinsicHeight, intrinsicHeight)
-		}
+class CoilImageGetter
+	@Inject
+	constructor(
+		@ApplicationContext private val context: Context,
+		private val coil: ImageLoader,
+	) : Html.ImageGetter {
+		@WorkerThread
+		override fun getDrawable(source: String?): Drawable? =
+			coil
+				.executeBlocking(
+					ImageRequest
+						.Builder(context)
+						.data(source)
+						.allowHardware(false)
+						.build(),
+				).drawable
+				?.apply {
+					setBounds(0, 0, intrinsicHeight, intrinsicHeight)
+				}
 	}
-}

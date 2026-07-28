@@ -1,7 +1,6 @@
 package org.draken.usagi.list.ui.adapter
 
 enum class ListItemType {
-
 	QUICK_FILTER,
 	FILTER_SORT,
 	FILTER_TAG,
@@ -34,6 +33,7 @@ enum class ListItemType {
 	NAV_ITEM,
 	CHAPTER_LIST,
 	CHAPTER_GRID,
+
 	// For some special external sources
 	CHECKBOX,
 	CHIPS,

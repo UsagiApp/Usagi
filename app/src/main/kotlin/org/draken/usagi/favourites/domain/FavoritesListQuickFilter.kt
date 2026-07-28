@@ -8,31 +8,32 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.domain.MangaListQuickFilter
 
-class FavoritesListQuickFilter @AssistedInject constructor(
-	@Assisted private val categoryId: Long,
-	private val settings: AppSettings,
-	private val repository: FavouritesRepository,
-	networkState: NetworkState,
-) : MangaListQuickFilter(settings) {
-
-	init {
-		setFilterOption(ListFilterOption.Downloaded, !networkState.value)
-	}
-
-	override suspend fun getAvailableFilterOptions(): List<ListFilterOption> = buildList {
-		add(ListFilterOption.Downloaded)
-		if (settings.isTrackerEnabled) {
-			add(ListFilterOption.Macro.NEW_CHAPTERS)
+class FavoritesListQuickFilter
+	@AssistedInject
+	constructor(
+		@Assisted private val categoryId: Long,
+		private val settings: AppSettings,
+		private val repository: FavouritesRepository,
+		networkState: NetworkState,
+	) : MangaListQuickFilter(settings) {
+		init {
+			setFilterOption(ListFilterOption.Downloaded, !networkState.value)
 		}
-		add(ListFilterOption.Macro.COMPLETED)
-		repository.findPopularSources(categoryId, 10).mapTo(this) {
-			ListFilterOption.Source(it)
+
+		override suspend fun getAvailableFilterOptions(): List<ListFilterOption> =
+			buildList {
+				add(ListFilterOption.Downloaded)
+				if (settings.isTrackerEnabled) {
+					add(ListFilterOption.Macro.NEW_CHAPTERS)
+				}
+				add(ListFilterOption.Macro.COMPLETED)
+				repository.findPopularSources(categoryId, 10).mapTo(this) {
+					ListFilterOption.Source(it)
+				}
+			}
+
+		@AssistedFactory
+		interface Factory {
+			fun create(categoryId: Long): FavoritesListQuickFilter
 		}
 	}
-
-	@AssistedFactory
-	interface Factory {
-
-		fun create(categoryId: Long): FavoritesListQuickFilter
-	}
-}

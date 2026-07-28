@@ -7,7 +7,6 @@ import org.draken.usagi.core.ui.list.OnListItemClickListener
 class TrackerCategoriesConfigAdapter(
 	listener: OnListItemClickListener<FavouriteCategory>,
 ) : BaseListAdapter<FavouriteCategory>() {
-
 	init {
 		delegatesManager.addDelegate(trackerCategoryAD(listener))
 	}

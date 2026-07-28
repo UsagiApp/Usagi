@@ -19,13 +19,14 @@ import java.util.Date
 import kotlin.reflect.KClass
 
 object SampleData {
-
-	private val moshi = Moshi.Builder()
-		.add(DateAdapter())
-		.add(InstantAdapter())
-		.add(MangaSourceAdapter())
-		.add(KotlinJsonAdapterFactory())
-		.build()
+	private val moshi =
+		Moshi
+			.Builder()
+			.add(DateAdapter())
+			.add(InstantAdapter())
+			.add(MangaSourceAdapter())
+			.add(KotlinJsonAdapterFactory())
+			.build()
 
 	val manga: Manga = loadAsset("manga/header.json", Manga::class)
 
@@ -37,7 +38,10 @@ object SampleData {
 
 	val favouriteCategory: FavouriteCategory = loadAsset("categories/simple.json", FavouriteCategory::class)
 
-	fun <T : Any> loadAsset(name: String, cls: KClass<T>): T {
+	fun <T : Any> loadAsset(
+		name: String,
+		cls: KClass<T>,
+	): T {
 		val assets = InstrumentationRegistry.getInstrumentation().context.assets
 		return assets.open(name).use {
 			moshi.adapter(cls.java).fromJson(it.source().buffer())
@@ -45,7 +49,6 @@ object SampleData {
 	}
 
 	private class DateAdapter : JsonAdapter<Date>() {
-
 		@FromJson
 		override fun fromJson(reader: JsonReader): Date? {
 			val ms = reader.nextLong()
@@ -57,13 +60,15 @@ object SampleData {
 		}
 
 		@ToJson
-		override fun toJson(writer: JsonWriter, value: Date?) {
+		override fun toJson(
+			writer: JsonWriter,
+			value: Date?,
+		) {
 			writer.value(value?.time ?: 0L)
 		}
 	}
 
 	private class MangaSourceAdapter : JsonAdapter<MangaSource>() {
-
 		@FromJson
 		override fun fromJson(reader: JsonReader): MangaSource? {
 			val name = reader.nextString() ?: return null
@@ -71,13 +76,15 @@ object SampleData {
 		}
 
 		@ToJson
-		override fun toJson(writer: JsonWriter, value: MangaSource?) {
+		override fun toJson(
+			writer: JsonWriter,
+			value: MangaSource?,
+		) {
 			writer.value(value?.name)
 		}
 	}
 
 	private class InstantAdapter : JsonAdapter<Instant>() {
-
 		@FromJson
 		override fun fromJson(reader: JsonReader): Instant? {
 			val ms = reader.nextLong()
@@ -89,7 +96,10 @@ object SampleData {
 		}
 
 		@ToJson
-		override fun toJson(writer: JsonWriter, value: Instant?) {
+		override fun toJson(
+			writer: JsonWriter,
+			value: Instant?,
+		) {
 			writer.value(value?.toEpochMilli() ?: 0L)
 		}
 	}

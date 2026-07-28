@@ -13,21 +13,27 @@ class CategoriesSelectionCallback(
 	private val recyclerView: RecyclerView,
 	private val viewModel: FavouritesCategoriesViewModel,
 ) : ListSelectionController.Callback {
-
-	override fun onSelectionChanged(controller: ListSelectionController, count: Int) {
+	override fun onSelectionChanged(
+		controller: ListSelectionController,
+		count: Int,
+	) {
 		recyclerView.invalidateItemDecorations()
 	}
 
 	override fun onCreateActionMode(
 		controller: ListSelectionController,
 		menuInflater: MenuInflater,
-		menu: Menu
+		menu: Menu,
 	): Boolean {
 		menuInflater.inflate(R.menu.mode_category, menu)
 		return true
 	}
 
-	override fun onPrepareActionMode(controller: ListSelectionController, mode: ActionMode?, menu: Menu): Boolean {
+	override fun onPrepareActionMode(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		menu: Menu,
+	): Boolean {
 		val categories = viewModel.getCategories(controller.peekCheckedIds())
 		var canShow = categories.isNotEmpty()
 		var canHide = canShow
@@ -44,8 +50,12 @@ class CategoriesSelectionCallback(
 		return true
 	}
 
-	override fun onActionItemClicked(controller: ListSelectionController, mode: ActionMode?, item: MenuItem): Boolean {
-		return when (item.itemId) {
+	override fun onActionItemClicked(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		item: MenuItem,
+	): Boolean =
+		when (item.itemId) {
 			R.id.action_show -> {
 				viewModel.setIsVisible(controller.snapshot(), true)
 				mode?.finish()
@@ -63,11 +73,15 @@ class CategoriesSelectionCallback(
 				true
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
-	}
 
-	private fun confirmDeleteCategories(ids: Set<Long>, mode: ActionMode?) {
+	private fun confirmDeleteCategories(
+		ids: Set<Long>,
+		mode: ActionMode?,
+	) {
 		buildAlertDialog(recyclerView.context, isCentered = true) {
 			setMessage(R.string.categories_delete_confirm)
 			setTitle(R.string.remove_category)

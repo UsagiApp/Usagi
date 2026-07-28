@@ -14,7 +14,6 @@ data class ReaderUiState(
 	val percent: Float,
 	val incognito: Boolean,
 ) {
-
 	val chapterNumber: Int
 		get() = chapterIndex + 1
 

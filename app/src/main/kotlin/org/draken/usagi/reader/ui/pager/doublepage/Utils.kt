@@ -7,12 +7,12 @@ import org.draken.usagi.reader.ui.pager.standard.PageHolder
 
 fun RecyclerView.visiblePageHolders(): Sequence<PageHolder> {
 	val lm = layoutManager as? LinearLayoutManager ?: return emptySequence()
-	return (lm.findFirstVisibleItemPosition()..lm.findLastVisibleItemPosition()).asSequence()
+	return (lm.findFirstVisibleItemPosition()..lm.findLastVisibleItemPosition())
+		.asSequence()
 		.mapNotNull { findViewHolderForAdapterPosition(it) as? PageHolder }
 }
 
-fun RecyclerView.allPageHolders(): Sequence<PageHolder> {
-	return children.mapNotNull {
+fun RecyclerView.allPageHolders(): Sequence<PageHolder> =
+	children.mapNotNull {
 		findContainingViewHolder(it) as? PageHolder
 	}
-}

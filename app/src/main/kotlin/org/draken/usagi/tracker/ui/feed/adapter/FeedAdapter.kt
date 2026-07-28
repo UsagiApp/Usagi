@@ -21,8 +21,8 @@ class FeedAdapter(
 	listener: MangaListListener,
 	sizeResolver: ItemSizeResolver,
 	feedClickListener: OnListItemClickListener<FeedItem>,
-) : BaseListAdapter<ListModel>(), FastScroller.SectionIndexer {
-
+) : BaseListAdapter<ListModel>(),
+	FastScroller.SectionIndexer {
 	init {
 		addDelegate(ListItemType.FEED, feedItemAD(feedClickListener))
 		addDelegate(
@@ -42,7 +42,8 @@ class FeedAdapter(
 		addDelegate(ListItemType.QUICK_FILTER, quickFilterAD(listener))
 	}
 
-	override fun getSectionText(context: Context, position: Int): CharSequence? {
-		return findHeader(position)?.getText(context)
-	}
+	override fun getSectionText(
+		context: Context,
+		position: Int,
+	): CharSequence? = findHeader(position)?.getText(context)
 }

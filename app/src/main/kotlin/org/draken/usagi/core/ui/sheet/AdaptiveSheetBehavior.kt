@@ -15,7 +15,6 @@ import com.google.android.material.sidesheet.SideSheetDialog
 import java.util.LinkedList
 
 sealed class AdaptiveSheetBehavior {
-
 	@JvmField
 	protected val callbacks = LinkedList<AdaptiveSheetCallback>()
 
@@ -36,7 +35,6 @@ sealed class AdaptiveSheetBehavior {
 	class Bottom(
 		private val delegate: BottomSheetBehavior<*>,
 	) : AdaptiveSheetBehavior() {
-
 		override var state: Int
 			get() = delegate.state
 			set(value) {
@@ -61,11 +59,17 @@ sealed class AdaptiveSheetBehavior {
 		init {
 			delegate.addBottomSheetCallback(
 				object : BottomSheetCallback() {
-					override fun onStateChanged(bottomSheet: View, newState: Int) {
+					override fun onStateChanged(
+						bottomSheet: View,
+						newState: Int,
+					) {
 						callbacks.forEach { it.onStateChanged(bottomSheet, newState) }
 					}
 
-					override fun onSlide(bottomSheet: View, slideOffset: Float) {
+					override fun onSlide(
+						bottomSheet: View,
+						slideOffset: Float,
+					) {
 						callbacks.forEach { it.onSlide(bottomSheet, slideOffset) }
 					}
 				},
@@ -76,7 +80,6 @@ sealed class AdaptiveSheetBehavior {
 	class Side(
 		private val delegate: SideSheetBehavior<*>,
 	) : AdaptiveSheetBehavior() {
-
 		override var state: Int
 			get() = delegate.state
 			set(value) {
@@ -92,11 +95,17 @@ sealed class AdaptiveSheetBehavior {
 		init {
 			delegate.addCallback(
 				object : SideSheetCallback() {
-					override fun onStateChanged(sheet: View, newState: Int) {
+					override fun onStateChanged(
+						sheet: View,
+						newState: Int,
+					) {
 						callbacks.forEach { it.onStateChanged(sheet, newState) }
 					}
 
-					override fun onSlide(sheet: View, slideOffset: Float) {
+					override fun onSlide(
+						sheet: View,
+						slideOffset: Float,
+					) {
 						callbacks.forEach { it.onSlide(sheet, slideOffset) }
 					}
 				},
@@ -105,7 +114,6 @@ sealed class AdaptiveSheetBehavior {
 	}
 
 	companion object {
-
 		const val STATE_EXPANDED = SideSheetBehavior.STATE_EXPANDED
 		const val STATE_COLLAPSED = BottomSheetBehavior.STATE_COLLAPSED
 		const val STATE_SETTLING = SideSheetBehavior.STATE_SETTLING
@@ -121,11 +129,12 @@ sealed class AdaptiveSheetBehavior {
 			return null
 		}
 
-		private fun from(dialog: Dialog?): AdaptiveSheetBehavior? = when (dialog) {
-			is BottomSheetDialog -> Bottom(dialog.behavior)
-			is SideSheetDialog -> Side(dialog.behavior)
-			else -> null
-		}
+		private fun from(dialog: Dialog?): AdaptiveSheetBehavior? =
+			when (dialog) {
+				is BottomSheetDialog -> Bottom(dialog.behavior)
+				is SideSheetDialog -> Side(dialog.behavior)
+				else -> null
+			}
 
 		fun from(lp: CoordinatorLayout.LayoutParams): AdaptiveSheetBehavior? =
 			when (val behavior = lp.behavior) {

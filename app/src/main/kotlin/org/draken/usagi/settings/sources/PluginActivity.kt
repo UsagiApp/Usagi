@@ -25,7 +25,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class PluginActivity : AppCompatActivity() {
-
 	@Inject
 	lateinit var mangaDynamicRepository: MangaDynamicRepository
 
@@ -50,11 +49,12 @@ class PluginActivity : AppCompatActivity() {
 			return
 		}
 		lifecycleScope.launch {
-			val isSuccess = withContext(Dispatchers.IO) {
-				runCatching {
-					import(uri)
-				}.isSuccess
-			}
+			val isSuccess =
+				withContext(Dispatchers.IO) {
+					runCatching {
+						import(uri)
+					}.isSuccess
+				}
 			finishWithResult(isSuccess)
 		}
 	}
@@ -70,9 +70,10 @@ class PluginActivity : AppCompatActivity() {
 	}
 
 	private fun resolve(uri: Uri): String {
-		val originalName = DocumentFile.fromSingleUri(this, uri)?.name
-			?: uri.lastPathSegment?.substringAfterLast('/')
-			?: "plugin_${System.currentTimeMillis()}.jar"
+		val originalName =
+			DocumentFile.fromSingleUri(this, uri)?.name
+				?: uri.lastPathSegment?.substringAfterLast('/')
+				?: "plugin_${System.currentTimeMillis()}.jar"
 		return PluginFileLoader.resolve(originalName)
 	}
 
@@ -81,28 +82,32 @@ class PluginActivity : AppCompatActivity() {
 		if (type in PluginFileLoader.SUPPORTED_MIME_TYPES) {
 			return true
 		}
-		val name = DocumentFile.fromSingleUri(this, uri)?.name
-			?: uri.lastPathSegment
-			?: return false
+		val name =
+			DocumentFile.fromSingleUri(this, uri)?.name
+				?: uri.lastPathSegment
+				?: return false
 		return name.lowercase(Locale.ROOT).endsWith(".jar")
 	}
 
 	private fun finishWithResult(isSuccess: Boolean) {
-		Toast.makeText(
-			applicationContext,
-			if (isSuccess) R.string.load_success else R.string.load_failed,
-			Toast.LENGTH_LONG,
-		).show()
+		Toast
+			.makeText(
+				applicationContext,
+				if (isSuccess) R.string.load_success else R.string.load_failed,
+				Toast.LENGTH_LONG,
+			).show()
 		startActivity(
-			AppRouter.sourcesSettingsIntent(this)
+			AppRouter
+				.sourcesSettingsIntent(this)
 				.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
 		)
 		finish()
 	}
 
-	private fun Intent.extractInputUri(): Uri? = when (action) {
-		Intent.ACTION_VIEW -> data
-		Intent.ACTION_SEND -> getParcelableExtraCompat(Intent.EXTRA_STREAM)
-		else -> data ?: getParcelableExtraCompat(Intent.EXTRA_STREAM)
-	}
+	private fun Intent.extractInputUri(): Uri? =
+		when (action) {
+			Intent.ACTION_VIEW -> data
+			Intent.ACTION_SEND -> getParcelableExtraCompat(Intent.EXTRA_STREAM)
+			else -> data ?: getParcelableExtraCompat(Intent.EXTRA_STREAM)
+		}
 }

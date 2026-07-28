@@ -6,4 +6,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MangaLock @Inject constructor() : MultiMutex<Manga>()
+class MangaLock
+	@Inject
+	constructor() : MultiMutex<Manga>()

@@ -31,7 +31,10 @@ import com.google.android.material.tabs.TabLayout
 import org.draken.usagi.core.ui.OnContextClickListenerCompat
 import kotlin.math.roundToInt
 
-fun View.hasGlobalPoint(x: Int, y: Int): Boolean {
+fun View.hasGlobalPoint(
+	x: Int,
+	y: Int,
+): Boolean {
 	if (visibility != View.VISIBLE) {
 		return false
 	}
@@ -48,7 +51,9 @@ fun View.measureHeight(): Int {
 	return if (vh == 0) {
 		measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
 		measuredHeight
-	} else vh
+	} else {
+		vh
+	}
 }
 
 fun View.measureWidth(): Int {
@@ -56,13 +61,14 @@ fun View.measureWidth(): Int {
 	return if (vw == 0) {
 		measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
 		measuredWidth
-	} else vw
+	} else {
+		vw
+	}
 }
 
 inline fun ViewPager2.doOnPageChanged(crossinline callback: (Int) -> Unit) {
 	registerOnPageChangeCallback(
 		object : ViewPager2.OnPageChangeCallback() {
-
 			override fun onPageSelected(position: Int) {
 				super.onPageSelected(position)
 				callback(position)
@@ -74,9 +80,7 @@ inline fun ViewPager2.doOnPageChanged(crossinline callback: (Int) -> Unit) {
 val ViewPager2.recyclerView: RecyclerView?
 	get() = children.firstNotNullOfOrNull { it as? RecyclerView }
 
-fun ViewPager2.findCurrentViewHolder(): ViewHolder? {
-	return recyclerView?.findViewHolderForAdapterPosition(currentItem)
-}
+fun ViewPager2.findCurrentViewHolder(): ViewHolder? = recyclerView?.findViewHolderForAdapterPosition(currentItem)
 
 fun FragmentManager.findCurrentPagerFragment(pager: ViewPager2): Fragment? {
 	val currentId = pager.adapter?.getItemId(pager.currentItem) ?: pager.currentItem
@@ -97,23 +101,25 @@ fun View.resetTransformations() {
 
 fun Slider.setValueRounded(newValue: Float) {
 	val step = stepSize
-	val roundedValue = if (step <= 0f) {
-		newValue
-	} else {
-		(newValue / step).roundToInt() * step
-	}
+	val roundedValue =
+		if (step <= 0f) {
+			newValue
+		} else {
+			(newValue / step).roundToInt() * step
+		}
 	value = roundedValue.coerceIn(valueFrom, valueTo)
 }
 
 fun RangeSlider.setValuesRounded(vararg newValues: Float) {
 	val step = stepSize
-	values = newValues.map { newValue ->
-		if (step <= 0f) {
-			newValue
-		} else {
-			(newValue / step).roundToInt() * step
-		}.coerceIn(valueFrom, valueTo)
-	}
+	values =
+		newValues.map { newValue ->
+			if (step <= 0f) {
+				newValue
+			} else {
+				(newValue / step).roundToInt() * step
+			}.coerceIn(valueFrom, valueTo)
+		}
 }
 
 fun RecyclerView.invalidateNestedItemDecorations() {
@@ -126,7 +132,10 @@ val View.parentView: ViewGroup?
 	get() = parent as? ViewGroup
 
 @Suppress("UnusedReceiverParameter")
-fun View.measureDimension(desiredSize: Int, measureSpec: Int): Int {
+fun View.measureDimension(
+	desiredSize: Int,
+	measureSpec: Int,
+): Int {
 	var result: Int
 	val specMode = MeasureSpec.getMode(measureSpec)
 	val specSize = MeasureSpec.getSize(measureSpec)
@@ -141,7 +150,10 @@ fun View.measureDimension(desiredSize: Int, measureSpec: Int): Int {
 	return result
 }
 
-fun <V> V.setChecked(checked: Boolean, animate: Boolean) where V : View, V : Checkable {
+fun <V> V.setChecked(
+	checked: Boolean,
+	animate: Boolean,
+) where V : View, V : Checkable {
 	val skipAnimation = !animate && checked != isChecked
 	isChecked = checked
 	if (skipAnimation) {
@@ -183,7 +195,9 @@ fun View.setTooltipCompat(tooltip: CharSequence?) {
 	}
 }
 
-fun View.setTooltipCompat(@StringRes tooltipResId: Int) = setTooltipCompat(context.getString(tooltipResId))
+fun View.setTooltipCompat(
+	@StringRes tooltipResId: Int,
+) = setTooltipCompat(context.getString(tooltipResId))
 
 val Toolbar.menuView: ActionMenuView?
 	get() {
@@ -208,7 +222,9 @@ fun Chip.setProgressIcon() {
 	progressDrawable.start()
 }
 
-fun View.setContentDescriptionAndTooltip(@StringRes resId: Int) {
+fun View.setContentDescriptionAndTooltip(
+	@StringRes resId: Int,
+) {
 	val text = resources.getString(resId)
 	contentDescription = text
 	setTooltipCompat(text)

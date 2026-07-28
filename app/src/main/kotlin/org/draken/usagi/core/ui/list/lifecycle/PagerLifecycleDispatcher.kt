@@ -9,7 +9,6 @@ import org.draken.usagi.core.util.ext.recyclerView
 class PagerLifecycleDispatcher(
 	private val pager: ViewPager2,
 ) : ViewPager2.OnPageChangeCallback() {
-
 	private var pendingUpdate: OneShotLayoutListener? = null
 
 	override fun onPageSelected(position: Int) {
@@ -20,9 +19,10 @@ class PagerLifecycleDispatcher(
 		setResumedPage(pager.currentItem)
 	}
 
-	fun postInvalidate() = pager.post {
-		invalidate()
-	}
+	fun postInvalidate() =
+		pager.post {
+			invalidate()
+		}
 
 	private fun setResumedPage(position: Int) {
 		pendingUpdate?.cancel()
@@ -49,7 +49,6 @@ class PagerLifecycleDispatcher(
 		private val view: View,
 		private val targetPosition: Int,
 	) : View.OnLayoutChangeListener {
-
 		override fun onLayoutChange(
 			v: View?,
 			left: Int,
@@ -59,7 +58,7 @@ class PagerLifecycleDispatcher(
 			oldLeft: Int,
 			oldTop: Int,
 			oldRight: Int,
-			oldBottom: Int
+			oldBottom: Int,
 		) {
 			view.removeOnLayoutChangeListener(this)
 			setResumedPage(targetPosition)

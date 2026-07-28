@@ -10,16 +10,16 @@ import org.draken.usagi.core.util.ext.processLifecycleScope
 import tsuki.util.runCatchingCancellable
 
 fun interface ReversibleHandle {
-
 	suspend fun reverse()
 }
 
-fun ReversibleHandle.reverseAsync() = processLifecycleScope.launch(Dispatchers.Default, CoroutineStart.ATOMIC) {
-	runCatchingCancellable {
-		withContext(NonCancellable) {
-			reverse()
+fun ReversibleHandle.reverseAsync() =
+	processLifecycleScope.launch(Dispatchers.Default, CoroutineStart.ATOMIC) {
+		runCatchingCancellable {
+			withContext(NonCancellable) {
+				reverse()
+			}
+		}.onFailure {
+			it.printStackTraceDebug()
 		}
-	}.onFailure {
-		it.printStackTraceDebug()
 	}
-}

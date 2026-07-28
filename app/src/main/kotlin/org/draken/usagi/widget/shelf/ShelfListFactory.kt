@@ -31,16 +31,17 @@ class ShelfListFactory(
 	private val settings: AppSettings,
 	widgetId: Int,
 ) : RemoteViewsService.RemoteViewsFactory {
-
 	private val dataSet = ArrayList<Manga>()
 	private val config = AppWidgetConfig(context, ShelfWidgetProvider::class.java, widgetId)
-	private val transformation = RoundedCornersTransformation(
-		context.resources.getDimension(R.dimen.appwidget_corner_radius_inner),
-	)
-	private val coverSize = Size(
-		context.resources.getDimensionPixelSize(R.dimen.widget_cover_width),
-		context.resources.getDimensionPixelSize(R.dimen.widget_cover_height),
-	)
+	private val transformation =
+		RoundedCornersTransformation(
+			context.resources.getDimension(R.dimen.appwidget_corner_radius_inner),
+		)
+	private val coverSize =
+		Size(
+			context.resources.getDimensionPixelSize(R.dimen.widget_cover_width),
+			context.resources.getDimensionPixelSize(R.dimen.widget_cover_height),
+		)
 
 	override fun onCreate() = Unit
 
@@ -49,18 +50,19 @@ class ShelfListFactory(
 	override fun getItemId(position: Int) = dataSet.getOrNull(position)?.id ?: 0L
 
 	override fun onDataSetChanged() {
-		val data = if (settings.appPassword.isNullOrEmpty()) {
-			runBlocking {
-				val category = config.categoryId
-				if (category == 0L) {
-					favouritesRepository.getAllManga()
-				} else {
-					favouritesRepository.getManga(category)
+		val data =
+			if (settings.appPassword.isNullOrEmpty()) {
+				runBlocking {
+					val category = config.categoryId
+					if (category == 0L) {
+						favouritesRepository.getAllManga()
+					} else {
+						favouritesRepository.getManga(category)
+					}
 				}
+			} else {
+				emptyList()
 			}
-		} else {
-			emptyList()
-		}
 		dataSet.replaceWith(data)
 	}
 
@@ -71,14 +73,18 @@ class ShelfListFactory(
 		val item = dataSet.getOrNull(position) ?: return views
 		views.setTextViewText(R.id.textView_title, item.title)
 		runCatching {
-			coilLazy.get().executeBlocking(
-				ImageRequest.Builder(context)
-					.data(item.coverUrl)
-					.size(coverSize)
-					.mangaExtra(item)
-					.transformations(transformation, TrimTransformation())
-					.build(),
-			).getDrawableOrThrow().toBitmap()
+			coilLazy
+				.get()
+				.executeBlocking(
+					ImageRequest
+						.Builder(context)
+						.data(item.coverUrl)
+						.size(coverSize)
+						.mangaExtra(item)
+						.transformations(transformation, TrimTransformation())
+						.build(),
+				).getDrawableOrThrow()
+				.toBitmap()
 		}.onSuccess { cover ->
 			views.setImageViewBitmap(R.id.imageView_cover, cover)
 		}.onFailure {

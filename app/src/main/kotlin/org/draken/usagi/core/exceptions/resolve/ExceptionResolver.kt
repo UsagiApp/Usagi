@@ -28,14 +28,14 @@ import org.draken.usagi.core.ui.dialog.buildAlertDialog
 import org.draken.usagi.core.util.ext.isHttpUrl
 import org.draken.usagi.core.util.ext.restartApplication
 import org.draken.usagi.details.ui.pager.EmptyMangaReason
-import tsuki.exception.AuthRequiredException
-import tsuki.exception.NotFoundException
-import tsuki.model.Manga
-import tsuki.model.MangaSource
 import org.draken.usagi.scrobbling.common.domain.ScrobblerAuthRequiredException
 import org.draken.usagi.scrobbling.common.ui.ScrobblerAuthHelper
 import org.draken.usagi.settings.sources.auth.SourceAuthActivity
+import tsuki.exception.AuthRequiredException
+import tsuki.exception.NotFoundException
 import tsuki.exception.ParseException
+import tsuki.model.Manga
+import tsuki.model.MangaSource
 import java.security.cert.CertPathValidatorException
 import javax.inject.Inject
 import javax.inject.Provider
@@ -44,221 +44,276 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
 class ExceptionResolver private constructor(
-    private val host: Host,
-    private val settings: AppSettings,
-    private val scrobblerAuthHelperProvider: Provider<ScrobblerAuthHelper>,
+	private val host: Host,
+	private val settings: AppSettings,
+	private val scrobblerAuthHelperProvider: Provider<ScrobblerAuthHelper>,
 ) {
-    private val continuations = MutableScatterMap<String, Continuation<Boolean>>(1)
+	private val continuations = MutableScatterMap<String, Continuation<Boolean>>(1)
 
-    private val browserActionContract = host.registerForActivityResult(BrowserActivity.Contract()) {
-        handleActivityResult(BrowserActivity.TAG, true)
-    }
-    private val sourceAuthContract = host.registerForActivityResult(SourceAuthActivity.Contract()) {
-        handleActivityResult(SourceAuthActivity.TAG, it)
-    }
-    private val cloudflareContract = host.registerForActivityResult(CloudFlareActivity.Contract()) {
-        handleActivityResult(CloudFlareActivity.TAG, it)
-    }
+	private val browserActionContract =
+		host.registerForActivityResult(BrowserActivity.Contract()) {
+			handleActivityResult(BrowserActivity.TAG, true)
+		}
+	private val sourceAuthContract =
+		host.registerForActivityResult(SourceAuthActivity.Contract()) {
+			handleActivityResult(SourceAuthActivity.TAG, it)
+		}
+	private val cloudflareContract =
+		host.registerForActivityResult(CloudFlareActivity.Contract()) {
+			handleActivityResult(CloudFlareActivity.TAG, it)
+		}
 
-    fun showErrorDetails(e: Throwable, url: String? = null) {
-        host.router.showErrorDialog(e, url)
-    }
-
-    suspend fun resolve(e: Throwable): Boolean = host.lifecycleScope.async {
-        when (e) {
-            is CloudFlareProtectedException -> resolveCF(e)
-            is AuthRequiredException -> resolveAuthException(e.source)
-            is SSLException,
-            is CertPathValidatorException -> {
-                showSslErrorDialog()
-                false
-            }
-
-            is InteractiveActionRequiredException -> resolveBrowserAction(e)
-
-            is ProxyConfigException -> {
-                host.router.openProxySettings()
-                false
-            }
-
-            is NotFoundException -> {
-                openInBrowser(e.url)
-                false
-            }
-
-            is ParseException -> {
-                if (e.url.isNotEmpty()) {
-                    openInBrowser(e.url)
-                }
-                false
-            }
-
-            is EmptyMangaException -> {
-                when (e.reason) {
-                    EmptyMangaReason.NO_CHAPTERS -> openAlternatives(e.manga)
-                    EmptyMangaReason.LOADING_ERROR -> Unit
-                    EmptyMangaReason.RESTRICTED -> host.router.openBrowser(e.manga)
-                    else -> Unit
-                }
-                false
-            }
-
-            is UnsupportedSourceException -> {
-                e.manga?.let { openAlternatives(it) }
-                false
-            }
-
-            is ScrobblerAuthRequiredException -> {
-                val authHelper = scrobblerAuthHelperProvider.get()
-                if (authHelper.isAuthorized(e.scrobbler)) {
-                    true
-                } else {
-                    host.withContext {
-                        authHelper.startAuth(this, e.scrobbler).onFailure(::showErrorDetails)
-                    }
-                    false
-                }
-            }
-
-            else -> false
-        }
-    }.await()
-
-    private suspend fun resolveBrowserAction(
-        e: InteractiveActionRequiredException
-    ): Boolean = suspendCancellableCoroutine { cont ->
-		continuations[BrowserActivity.TAG] = cont
-		browserActionContract.launch(e)
+	fun showErrorDetails(
+		e: Throwable,
+		url: String? = null,
+	) {
+		host.router.showErrorDialog(e, url)
 	}
 
-    private suspend fun resolveCF(e: CloudFlareProtectedException): Boolean = suspendCancellableCoroutine { cont ->
-		continuations[CloudFlareActivity.TAG] = cont
-		cloudflareContract.launch(e)
+	suspend fun resolve(e: Throwable): Boolean =
+		host.lifecycleScope
+			.async {
+				when (e) {
+					is CloudFlareProtectedException -> {
+						resolveCF(e)
+					}
+
+					is AuthRequiredException -> {
+						resolveAuthException(e.source)
+					}
+
+					is SSLException,
+					is CertPathValidatorException,
+					-> {
+						showSslErrorDialog()
+						false
+					}
+
+					is InteractiveActionRequiredException -> {
+						resolveBrowserAction(e)
+					}
+
+					is ProxyConfigException -> {
+						host.router.openProxySettings()
+						false
+					}
+
+					is NotFoundException -> {
+						openInBrowser(e.url)
+						false
+					}
+
+					is ParseException -> {
+						if (e.url.isNotEmpty()) {
+							openInBrowser(e.url)
+						}
+						false
+					}
+
+					is EmptyMangaException -> {
+						when (e.reason) {
+							EmptyMangaReason.NO_CHAPTERS -> openAlternatives(e.manga)
+							EmptyMangaReason.LOADING_ERROR -> Unit
+							EmptyMangaReason.RESTRICTED -> host.router.openBrowser(e.manga)
+							else -> Unit
+						}
+						false
+					}
+
+					is UnsupportedSourceException -> {
+						e.manga?.let { openAlternatives(it) }
+						false
+					}
+
+					is ScrobblerAuthRequiredException -> {
+						val authHelper = scrobblerAuthHelperProvider.get()
+						if (authHelper.isAuthorized(e.scrobbler)) {
+							true
+						} else {
+							host.withContext {
+								authHelper.startAuth(this, e.scrobbler).onFailure(::showErrorDetails)
+							}
+							false
+						}
+					}
+
+					else -> {
+						false
+					}
+				}
+			}.await()
+
+	private suspend fun resolveBrowserAction(e: InteractiveActionRequiredException): Boolean =
+		suspendCancellableCoroutine { cont ->
+			continuations[BrowserActivity.TAG] = cont
+			browserActionContract.launch(e)
+		}
+
+	private suspend fun resolveCF(e: CloudFlareProtectedException): Boolean =
+		suspendCancellableCoroutine { cont ->
+			continuations[CloudFlareActivity.TAG] = cont
+			cloudflareContract.launch(e)
+		}
+
+	private suspend fun resolveAuthException(source: MangaSource): Boolean =
+		suspendCancellableCoroutine { cont ->
+			continuations[SourceAuthActivity.TAG] = cont
+			sourceAuthContract.launch(source)
+		}
+
+	private fun openInBrowser(url: String) {
+		host.router.openBrowser(url, null, null)
 	}
 
-    private suspend fun resolveAuthException(source: MangaSource): Boolean = suspendCancellableCoroutine { cont ->
-		continuations[SourceAuthActivity.TAG] = cont
-		sourceAuthContract.launch(source)
+	private fun openAlternatives(manga: Manga) {
+		host.router.openAlternatives(manga)
 	}
 
-    private fun openInBrowser(url: String) {
-        host.router.openBrowser(url, null, null)
-    }
+	private fun handleActivityResult(
+		tag: String,
+		result: Boolean,
+	) {
+		continuations.remove(tag)?.resume(result)
+	}
 
-    private fun openAlternatives(manga: Manga) {
-        host.router.openAlternatives(manga)
-    }
+	private fun showSslErrorDialog() {
+		val ctx = host.context ?: return
+		if (settings.isSSLBypassEnabled) {
+			Toast.makeText(ctx, R.string.operation_not_supported, Toast.LENGTH_SHORT).show()
+			return
+		}
+		buildAlertDialog(ctx) {
+			setTitle(R.string.ignore_ssl_errors)
+			setMessage(R.string.ignore_ssl_errors_summary)
+			setPositiveButton(R.string.apply) { _, _ ->
+				settings.isSSLBypassEnabled = true
+				Toast.makeText(ctx, R.string.settings_apply_restart_required, Toast.LENGTH_LONG).show()
+				ctx.restartApplication()
+			}
+			setNegativeButton(android.R.string.cancel, null)
+		}.show()
+	}
 
-    private fun handleActivityResult(tag: String, result: Boolean) {
-        continuations.remove(tag)?.resume(result)
-    }
+	class Factory
+		@Inject
+		constructor(
+			private val settings: AppSettings,
+			private val scrobblerAuthHelperProvider: Provider<ScrobblerAuthHelper>,
+		) {
+			fun create(fragment: Fragment) =
+				ExceptionResolver(
+					host = Host.FragmentHost(fragment),
+					settings = settings,
+					scrobblerAuthHelperProvider = scrobblerAuthHelperProvider,
+				)
 
-    private fun showSslErrorDialog() {
-        val ctx = host.context ?: return
-        if (settings.isSSLBypassEnabled) {
-            Toast.makeText(ctx, R.string.operation_not_supported, Toast.LENGTH_SHORT).show()
-            return
-        }
-        buildAlertDialog(ctx) {
-            setTitle(R.string.ignore_ssl_errors)
-            setMessage(R.string.ignore_ssl_errors_summary)
-            setPositiveButton(R.string.apply) { _, _ ->
-                settings.isSSLBypassEnabled = true
-                Toast.makeText(ctx, R.string.settings_apply_restart_required, Toast.LENGTH_LONG).show()
-                ctx.restartApplication()
-            }
-            setNegativeButton(android.R.string.cancel, null)
-        }.show()
-    }
+			fun create(activity: FragmentActivity) =
+				ExceptionResolver(
+					host = Host.ActivityHost(activity),
+					settings = settings,
+					scrobblerAuthHelperProvider = scrobblerAuthHelperProvider,
+				)
+		}
 
-    class Factory @Inject constructor(
-        private val settings: AppSettings,
-        private val scrobblerAuthHelperProvider: Provider<ScrobblerAuthHelper>,
-    ) {
+	private sealed interface Host :
+		ActivityResultCaller,
+		LifecycleOwner {
+		val context: Context?
 
-        fun create(fragment: Fragment) = ExceptionResolver(
-            host = Host.FragmentHost(fragment),
-            settings = settings,
-            scrobblerAuthHelperProvider = scrobblerAuthHelperProvider,
-        )
+		val router: AppRouter
 
-        fun create(activity: FragmentActivity) = ExceptionResolver(
-            host = Host.ActivityHost(activity),
-            settings = settings,
-            scrobblerAuthHelperProvider = scrobblerAuthHelperProvider,
-        )
-    }
+		val fragmentManager: FragmentManager
 
-    private sealed interface Host : ActivityResultCaller, LifecycleOwner {
+		inline fun withContext(block: Context.() -> Unit) {
+			context?.apply(block)
+		}
 
-        val context: Context?
+		class ActivityHost(
+			val activity: FragmentActivity,
+		) : Host,
+			ActivityResultCaller by activity,
+			LifecycleOwner by activity {
+			override val context: Context
+				get() = activity
 
-        val router: AppRouter
+			override val router: AppRouter
+				get() = activity.router
 
-        val fragmentManager: FragmentManager
+			override val fragmentManager: FragmentManager
+				get() = activity.supportFragmentManager
+		}
 
-        inline fun withContext(block: Context.() -> Unit) {
-            context?.apply(block)
-        }
+		class FragmentHost(
+			val fragment: Fragment,
+		) : Host,
+			ActivityResultCaller by fragment {
+			override val context: Context?
+				get() = fragment.context
 
-        class ActivityHost(val activity: FragmentActivity) : Host,
-            ActivityResultCaller by activity,
-            LifecycleOwner by activity {
+			override val router: AppRouter
+				get() = fragment.router
 
-            override val context: Context
-                get() = activity
+			override val fragmentManager: FragmentManager
+				get() = fragment.childFragmentManager
 
-            override val router: AppRouter
-                get() = activity.router
+			override val lifecycle: Lifecycle
+				get() = fragment.viewLifecycleOwner.lifecycle
+		}
+	}
 
-            override val fragmentManager: FragmentManager
-                get() = activity.supportFragmentManager
-        }
+	companion object {
+		@StringRes
+		fun getResolveStringId(e: Throwable) =
+			when (e) {
+				is CloudFlareProtectedException -> {
+					R.string.captcha_solve
+				}
 
-        class FragmentHost(val fragment: Fragment) : Host,
-            ActivityResultCaller by fragment {
+				is ScrobblerAuthRequiredException,
+				is AuthRequiredException,
+				-> {
+					R.string.sign_in
+				}
 
-            override val context: Context?
-                get() = fragment.context
+				is NotFoundException -> {
+					if (e.url.isNotEmpty()) R.string.open_in_browser else 0
+				}
 
-            override val router: AppRouter
-                get() = fragment.router
+				is ParseException -> {
+					if (e.url.isNotEmpty()) R.string.open_in_browser else 0
+				}
 
-            override val fragmentManager: FragmentManager
-                get() = fragment.childFragmentManager
+				is UnsupportedSourceException -> {
+					if (e.manga != null) R.string.alternatives else 0
+				}
 
-            override val lifecycle: Lifecycle
-                get() = fragment.viewLifecycleOwner.lifecycle
-        }
-    }
+				is SSLException,
+				is CertPathValidatorException,
+				-> {
+					R.string.fix
+				}
 
-    companion object {
+				is ProxyConfigException -> {
+					R.string.settings
+				}
 
-        @StringRes
-        fun getResolveStringId(e: Throwable) = when (e) {
-            is CloudFlareProtectedException -> R.string.captcha_solve
-            is ScrobblerAuthRequiredException,
-            is AuthRequiredException -> R.string.sign_in
+				is InteractiveActionRequiredException -> {
+					R.string._continue
+				}
 
-            is NotFoundException -> if (e.url.isNotEmpty()) R.string.open_in_browser else 0
-            is ParseException -> if (e.url.isNotEmpty()) R.string.open_in_browser else 0
-            is UnsupportedSourceException -> if (e.manga != null) R.string.alternatives else 0
-            is SSLException,
-            is CertPathValidatorException -> R.string.fix
+				is EmptyMangaException -> {
+					when (e.reason) {
+						EmptyMangaReason.RESTRICTED -> if (e.manga.publicUrl.isHttpUrl()) R.string.open_in_browser else 0
+						EmptyMangaReason.NO_CHAPTERS -> R.string.alternatives
+						else -> 0
+					}
+				}
 
-            is ProxyConfigException -> R.string.settings
+				else -> {
+					0
+				}
+			}
 
-            is InteractiveActionRequiredException -> R.string._continue
-
-            is EmptyMangaException -> when (e.reason) {
-                EmptyMangaReason.RESTRICTED -> if (e.manga.publicUrl.isHttpUrl()) R.string.open_in_browser else 0
-                EmptyMangaReason.NO_CHAPTERS -> R.string.alternatives
-                else -> 0
-            }
-
-            else -> 0
-        }
-
-        fun canResolve(e: Throwable) = getResolveStringId(e) != 0
-    }
+		fun canResolve(e: Throwable) = getResolveStringId(e) != 0
+	}
 }

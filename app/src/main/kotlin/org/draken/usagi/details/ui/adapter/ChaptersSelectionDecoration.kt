@@ -18,24 +18,27 @@ import org.draken.usagi.details.ui.model.ChapterListItem
 import androidx.appcompat.R as appcompatR
 import com.google.android.material.R as materialR
 
-class ChaptersSelectionDecoration(context: Context) : AbstractSelectionItemDecoration() {
-
+class ChaptersSelectionDecoration(
+	context: Context,
+) : AbstractSelectionItemDecoration() {
 	private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 	private val radius = context.resources.getDimension(appcompatR.dimen.abc_control_corner_material)
 	private val checkIcon = ContextCompat.getDrawable(context, materialR.drawable.ic_mtrl_checked_circle)
 	private val iconOffset = context.resources.getDimensionPixelOffset(R.dimen.chapter_check_offset)
 	private val iconSize = context.resources.getDimensionPixelOffset(R.dimen.chapter_check_size)
 	private val strokeColor = context.getThemeColor(appcompatR.attr.colorPrimary, Color.RED)
-	private val fillColor = ColorUtils.setAlphaComponent(
-		ColorUtils.blendARGB(strokeColor, context.getThemeColor(materialR.attr.colorSurface), 0.8f),
-		0x74,
-	)
+	private val fillColor =
+		ColorUtils.setAlphaComponent(
+			ColorUtils.blendARGB(strokeColor, context.getThemeColor(materialR.attr.colorSurface), 0.8f),
+			0x74,
+		)
 
 	init {
-		paint.color = ColorUtils.setAlphaComponent(
-			context.getThemeColor(appcompatR.attr.colorPrimary, Color.DKGRAY),
-			98,
-		)
+		paint.color =
+			ColorUtils.setAlphaComponent(
+				context.getThemeColor(appcompatR.attr.colorPrimary, Color.DKGRAY),
+				98,
+			)
 		paint.style = Paint.Style.FILL
 		hasBackground = true
 		hasForeground = true
@@ -45,7 +48,10 @@ class ChaptersSelectionDecoration(context: Context) : AbstractSelectionItemDecor
 		checkIcon?.setTint(strokeColor)
 	}
 
-	override fun getItemId(parent: RecyclerView, child: View): Long {
+	override fun getItemId(
+		parent: RecyclerView,
+		child: View,
+	): Long {
 		val holder = parent.getChildViewHolder(child) ?: return RecyclerView.NO_ID
 		val item = holder.getItem(ChapterListItem::class.java) ?: return RecyclerView.NO_ID
 		return item.chapter.id
@@ -69,7 +75,7 @@ class ChaptersSelectionDecoration(context: Context) : AbstractSelectionItemDecor
 		parent: RecyclerView,
 		child: View,
 		bounds: RectF,
-		state: RecyclerView.State
+		state: RecyclerView.State,
 	) {
 		if (child !is CardView) {
 			return

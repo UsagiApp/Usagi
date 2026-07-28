@@ -17,25 +17,29 @@ class SyncAuthenticator(
 	private val syncSettings: SyncSettings,
 	private val authApi: SyncAuthApi,
 ) : Authenticator {
-
 	private val accountManager = AccountManager.get(context)
 	private val tokenType = context.getString(R.string.account_type_sync)
 
-	override fun authenticate(route: Route?, response: Response): Request? {
+	override fun authenticate(
+		route: Route?,
+		response: Response,
+	): Request? {
 		val newToken = tryRefreshToken() ?: return null
 		accountManager.setAuthToken(account, tokenType, newToken)
-		return response.request.newBuilder()
+		return response.request
+			.newBuilder()
 			.header(CommonHeaders.AUTHORIZATION, "Bearer $newToken")
 			.build()
 	}
 
-	private fun tryRefreshToken() = runCatching {
-		runBlocking {
-			authApi.authenticate(
-				syncSettings.syncUrl,
-				account.name,
-				accountManager.getPassword(account),
-			)
-		}
-	}.getOrNull()
+	private fun tryRefreshToken() =
+		runCatching {
+			runBlocking {
+				authApi.authenticate(
+					syncSettings.syncUrl,
+					account.name,
+					accountManager.getPassword(account),
+				)
+			}
+		}.getOrNull()
 }

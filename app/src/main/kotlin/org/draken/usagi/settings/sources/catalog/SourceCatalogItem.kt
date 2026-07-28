@@ -6,14 +6,10 @@ import org.draken.usagi.list.ui.model.ListModel
 import tsuki.model.MangaSource
 
 sealed interface SourceCatalogItem : ListModel {
-
 	data class Source(
 		val source: MangaSource,
 	) : SourceCatalogItem {
-
-		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is Source && other.source == source
-		}
+		override fun areItemsTheSame(other: ListModel): Boolean = other is Source && other.source == source
 	}
 
 	data class Hint(
@@ -21,9 +17,6 @@ sealed interface SourceCatalogItem : ListModel {
 		@StringRes val title: Int,
 		@StringRes val text: Int,
 	) : SourceCatalogItem {
-
-		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is Hint && other.title == title
-		}
+		override fun areItemsTheSame(other: ListModel): Boolean = other is Hint && other.title == title
 	}
 }

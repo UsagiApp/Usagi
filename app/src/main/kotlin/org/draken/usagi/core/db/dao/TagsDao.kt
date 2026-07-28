@@ -7,7 +7,6 @@ import org.draken.usagi.core.db.entity.TagEntity
 
 @Dao
 abstract class TagsDao {
-
 	@Query("SELECT * FROM tags WHERE source = :source")
 	abstract suspend fun findTags(source: String): List<TagEntity>
 
@@ -29,7 +28,10 @@ abstract class TagsDao {
 		ORDER BY COUNT(manga_id) DESC
 		LIMIT :limit""",
 	)
-	abstract suspend fun findPopularTags(source: String, limit: Int): List<TagEntity>
+	abstract suspend fun findPopularTags(
+		source: String,
+		limit: Int,
+	): List<TagEntity>
 
 	@Query(
 		"""SELECT tags.* FROM tags
@@ -39,7 +41,10 @@ abstract class TagsDao {
 		ORDER BY COUNT(manga_id) ASC
 		LIMIT :limit""",
 	)
-	abstract suspend fun findRareTags(source: String, limit: Int): List<TagEntity>
+	abstract suspend fun findRareTags(
+		source: String,
+		limit: Int,
+	): List<TagEntity>
 
 	@Query(
 		"""SELECT tags.* FROM tags
@@ -49,7 +54,11 @@ abstract class TagsDao {
 		ORDER BY COUNT(manga_id) DESC
 		LIMIT :limit""",
 	)
-	abstract suspend fun findTags(source: String, query: String, limit: Int): List<TagEntity>
+	abstract suspend fun findTags(
+		source: String,
+		query: String,
+		limit: Int,
+	): List<TagEntity>
 
 	@Query(
 		"""SELECT tags.* FROM tags
@@ -59,7 +68,10 @@ abstract class TagsDao {
 		ORDER BY COUNT(manga_id) DESC
 		LIMIT :limit""",
 	)
-	abstract suspend fun findTags(query: String, limit: Int): List<TagEntity>
+	abstract suspend fun findTags(
+		query: String,
+		limit: Int,
+	): List<TagEntity>
 
 	@Query(
 		"""

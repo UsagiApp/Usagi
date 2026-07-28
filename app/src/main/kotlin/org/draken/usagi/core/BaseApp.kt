@@ -18,25 +18,26 @@ import org.conscrypt.Conscrypt
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.model.MangaSourceRegistry
-import org.draken.usagi.core.os.AppValidator
 import org.draken.usagi.core.model.PluginKeyResolver
+import org.draken.usagi.core.os.AppValidator
 import org.draken.usagi.core.parser.MangaDynamicRepository
-import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.GlobalExceptionHandler
 import org.draken.usagi.core.util.ext.processLifecycleScope
+import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.data.index.LocalMangaIndex
 import org.draken.usagi.local.domain.model.LocalManga
 import org.draken.usagi.settings.work.WorkScheduleManager
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
-import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as External
 import java.security.Security
 import javax.inject.Inject
 import javax.inject.Provider
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as External
 
-open class BaseApp : Application(), Configuration.Provider {
-
+open class BaseApp :
+	Application(),
+	Configuration.Provider {
 	@Inject
 	lateinit var databaseObserversProvider: Provider<Set<@JvmSuppressWildcards InvalidationTracker.Observer>>
 
@@ -78,16 +79,18 @@ open class BaseApp : Application(), Configuration.Provider {
 	lateinit var localStorageChanges: MutableSharedFlow<LocalManga?>
 
 	override val workManagerConfiguration: Configuration
-		get() = Configuration.Builder()
-			.setWorkerFactory(workerFactory)
-			.build()
+		get() =
+			Configuration
+				.Builder()
+				.setWorkerFactory(workerFactory)
+				.build()
 
 	override fun onCreate() {
 		super.onCreate()
 		AppInfo.initialize(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
 		PlatformRegistry.applicationContext = this // TODO replace with OkHttp.initialize
 		Thread.setDefaultUncaughtExceptionHandler(
-			GlobalExceptionHandler(this, settings, Thread.getDefaultUncaughtExceptionHandler())
+			GlobalExceptionHandler(this, settings, Thread.getDefaultUncaughtExceptionHandler()),
 		)
 		AppCompatDelegate.setDefaultNightMode(settings.theme)
 		// TLS 1.3 support for Android < 10

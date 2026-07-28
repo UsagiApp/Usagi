@@ -16,10 +16,11 @@ data class ParcelableManga(
 	val manga: Manga,
 	private val withDescription: Boolean = true,
 ) : Parcelable {
-
 	companion object : Parceler<ParcelableManga> {
-
-		override fun ParcelableManga.write(parcel: Parcel, flags: Int) = with(manga) {
+		override fun ParcelableManga.write(
+			parcel: Parcel,
+			flags: Int,
+		) = with(manga) {
 			parcel.writeLong(id)
 			parcel.writeString(title)
 			parcel.writeStringSet(altTitles)
@@ -36,25 +37,26 @@ data class ParcelableManga(
 			parcel.writeString(source.name)
 		}
 
-		override fun create(parcel: Parcel) = ParcelableManga(
-			Manga(
-				id = parcel.readLong(),
-				title = requireNotNull(parcel.readString()),
-				altTitles = parcel.readStringSet(),
-				url = requireNotNull(parcel.readString()),
-				publicUrl = requireNotNull(parcel.readString()),
-				rating = parcel.readFloat(),
-				contentRating = parcel.readSerializableCompat(),
-				coverUrl = parcel.readString(),
-				largeCoverUrl = parcel.readString(),
-				description = parcel.readString(),
-				tags = requireNotNull(parcel.readParcelableCompat<ParcelableMangaTags>()).tags,
-				state = parcel.readSerializableCompat(),
-				authors = parcel.readStringSet(),
-				chapters = null,
-				source = MangaSource(parcel.readString()),
-			),
-			withDescription = true,
-		)
+		override fun create(parcel: Parcel) =
+			ParcelableManga(
+				Manga(
+					id = parcel.readLong(),
+					title = requireNotNull(parcel.readString()),
+					altTitles = parcel.readStringSet(),
+					url = requireNotNull(parcel.readString()),
+					publicUrl = requireNotNull(parcel.readString()),
+					rating = parcel.readFloat(),
+					contentRating = parcel.readSerializableCompat(),
+					coverUrl = parcel.readString(),
+					largeCoverUrl = parcel.readString(),
+					description = parcel.readString(),
+					tags = requireNotNull(parcel.readParcelableCompat<ParcelableMangaTags>()).tags,
+					state = parcel.readSerializableCompat(),
+					authors = parcel.readStringSet(),
+					chapters = null,
+					source = MangaSource(parcel.readString()),
+				),
+				withDescription = true,
+			)
 	}
 }

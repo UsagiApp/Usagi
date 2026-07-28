@@ -10,8 +10,10 @@ class CancellableSource(
 	private val job: Job?,
 	delegate: Source,
 ) : ForwardingSource(delegate) {
-
-	override fun read(sink: Buffer, byteCount: Long): Long {
+	override fun read(
+		sink: Buffer,
+		byteCount: Long,
+	): Long {
 		job?.ensureActive()
 		return super.read(sink, byteCount)
 	}

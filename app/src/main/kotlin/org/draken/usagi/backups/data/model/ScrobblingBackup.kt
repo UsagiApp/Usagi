@@ -15,7 +15,6 @@ class ScrobblingBackup(
 	@SerialName("comment") val comment: String?,
 	@SerialName("rating") val rating: Float,
 ) {
-
 	constructor(entity: ScrobblingEntity) : this(
 		scrobbler = entity.scrobbler,
 		id = entity.id,
@@ -27,14 +26,15 @@ class ScrobblingBackup(
 		rating = entity.rating,
 	)
 
-	fun toEntity() = ScrobblingEntity(
-		scrobbler = scrobbler,
-		id = id,
-		mangaId = mangaId,
-		targetId = targetId,
-		status = status,
-		chapter = chapter,
-		comment = comment,
-		rating = rating,
-	)
+	fun toEntity() =
+		ScrobblingEntity(
+			scrobbler = scrobbler,
+			id = id,
+			mangaId = mangaId,
+			targetId = targetId,
+			status = status,
+			chapter = chapter,
+			comment = comment,
+			rating = rating,
+		)
 }

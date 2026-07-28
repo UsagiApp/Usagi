@@ -3,7 +3,6 @@ package org.draken.usagi.core.network
 import okhttp3.CacheControl
 
 object CommonHeaders {
-
 	const val REFERER = "Referer"
 	const val USER_AGENT = "User-Agent"
 	const val ACCEPT = "Accept"

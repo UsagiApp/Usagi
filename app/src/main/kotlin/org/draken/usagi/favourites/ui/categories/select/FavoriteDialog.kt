@@ -23,9 +23,10 @@ import org.draken.usagi.favourites.ui.categories.select.adapter.MangaCategoriesA
 import org.draken.usagi.favourites.ui.categories.select.model.MangaCategoryItem
 
 @AndroidEntryPoint
-class FavoriteDialog : AlertDialogFragment<DialogFavoriteBinding>(),
-	OnListItemClickListener<MangaCategoryItem>, DialogInterface.OnClickListener {
-
+class FavoriteDialog :
+	AlertDialogFragment<DialogFavoriteBinding>(),
+	OnListItemClickListener<MangaCategoryItem>,
+	DialogInterface.OnClickListener {
 	private val viewModel by viewModels<FavoriteDialogViewModel>()
 
 	override fun onCreateViewBinding(
@@ -33,11 +34,11 @@ class FavoriteDialog : AlertDialogFragment<DialogFavoriteBinding>(),
 		container: ViewGroup?,
 	) = DialogFavoriteBinding.inflate(inflater, container, false)
 
-	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder {
-		return super.onBuildDialog(builder)
+	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder =
+		super
+			.onBuildDialog(builder)
 			.setPositiveButton(R.string.done, null)
 			.setNeutralButton(R.string.manage, this)
-	}
 
 	override fun onViewBindingCreated(
 		binding: DialogFavoriteBinding,
@@ -51,11 +52,17 @@ class FavoriteDialog : AlertDialogFragment<DialogFavoriteBinding>(),
 		bindHeader()
 	}
 
-	override fun onItemClick(item: MangaCategoryItem, view: View) {
+	override fun onItemClick(
+		item: MangaCategoryItem,
+		view: View,
+	) {
 		viewModel.setChecked(item.category.id, item.checkedState != MaterialCheckBox.STATE_CHECKED)
 	}
 
-	override fun onClick(dialog: DialogInterface?, which: Int) {
+	override fun onClick(
+		dialog: DialogInterface?,
+		which: Int,
+	) {
 		router.openFavoriteCategories()
 	}
 

@@ -15,7 +15,6 @@ class ExploreAdapter(
 	clickListener: OnListItemClickListener<MangaSourceItem>,
 	mangaClickListener: OnListItemClickListener<Manga>,
 ) : BaseListAdapter<ListModel>() {
-
 	init {
 		addDelegate(ListItemType.EXPLORE_BUTTONS, exploreButtonsAD(listener))
 		addDelegate(

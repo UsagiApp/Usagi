@@ -18,7 +18,6 @@ import org.draken.usagi.core.util.ext.getFileDisplayName
 import androidx.appcompat.R as appcompatR
 
 abstract class BaseBackupRestoreService : CoroutineIntentService() {
-
 	protected abstract val notificationTag: String
 	protected abstract val isRestoreService: Boolean
 
@@ -42,12 +41,14 @@ abstract class BaseBackupRestoreService : CoroutineIntentService() {
 		if (!applicationContext.checkNotificationPermission(CHANNEL_ID)) {
 			return
 		}
-		val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-			.setPriority(NotificationCompat.PRIORITY_HIGH)
-			.setDefaults(0)
-			.setSilent(true)
-			.setAutoCancel(true)
-			.setSubText(fileUri?.let { contentResolver.getFileDisplayName(it) })
+		val notification =
+			NotificationCompat
+				.Builder(applicationContext, CHANNEL_ID)
+				.setPriority(NotificationCompat.PRIORITY_HIGH)
+				.setDefaults(0)
+				.setSilent(true)
+				.setAutoCancel(true)
+				.setSubText(fileUri?.let { contentResolver.getFileDisplayName(it) })
 		when {
 			result.isAllSuccess -> {
 				if (isRestoreService) {
@@ -59,25 +60,26 @@ abstract class BaseBackupRestoreService : CoroutineIntentService() {
 						.setContentTitle(getString(R.string.backup_saved))
 						.setContentText(fileUri?.let { contentResolver.getFileDisplayName(it) })
 						.setSubText(null)
-
 				}
 				notification.setSmallIcon(R.drawable.ic_stat_done)
 			}
 
 			result.isAllFailed || !isRestoreService -> {
 				val title = getString(if (isRestoreService) R.string.data_not_restored else R.string.error_occurred)
-				val message = result.failures.joinToString("\n") {
-					it.getDisplayMessage(applicationContext.resources)
-				}
+				val message =
+					result.failures.joinToString("\n") {
+						it.getDisplayMessage(applicationContext.resources)
+					}
 				notification
 					.setContentText(if (isRestoreService) getString(R.string.data_not_restored_text) else message)
 					.setBigText(title, message)
 					.setSmallIcon(android.R.drawable.stat_notify_error)
-				result.failures.firstNotNullOfOrNull { error ->
-					ErrorReporterReceiver.getNotificationAction(applicationContext, error, startId, notificationTag)
-				}?.let { action ->
-					notification.addAction(action)
-				}
+				result.failures
+					.firstNotNullOfOrNull { error ->
+						ErrorReporterReceiver.getNotificationAction(applicationContext, error, startId, notificationTag)
+					}?.let { action ->
+						notification.addAction(action)
+					}
 			}
 
 			else -> {
@@ -97,11 +99,13 @@ abstract class BaseBackupRestoreService : CoroutineIntentService() {
 			),
 		)
 		if (!isRestoreService && fileUri != null) {
-			val shareIntent = ShareCompat.IntentBuilder(this@BaseBackupRestoreService)
-				.setStream(fileUri)
-				.setType("application/zip")
-				.setChooserTitle(R.string.share_backup)
-				.createChooserIntent()
+			val shareIntent =
+				ShareCompat
+					.IntentBuilder(this@BaseBackupRestoreService)
+					.setStream(fileUri)
+					.setType("application/zip")
+					.setChooserTitle(R.string.share_backup)
+					.createChooserIntent()
 			notification.addAction(
 				appcompatR.drawable.abc_ic_menu_share_mtrl_alpha,
 				getString(R.string.share),
@@ -111,25 +115,30 @@ abstract class BaseBackupRestoreService : CoroutineIntentService() {
 		notificationManager.notify(notificationTag, startId, notification.build())
 	}
 
-	protected fun NotificationCompat.Builder.setBigText(title: String, text: CharSequence) = setStyle(
-		NotificationCompat.BigTextStyle()
+	protected fun NotificationCompat.Builder.setBigText(
+		title: String,
+		text: CharSequence,
+	) = setStyle(
+		NotificationCompat
+			.BigTextStyle()
 			.bigText(text)
 			.setSummaryText(text)
 			.setBigContentTitle(title),
 	)
 
 	companion object {
-
 		const val CHANNEL_ID = "backup_restore"
 
 		fun createNotificationChannel(context: Context) {
-			val channel = NotificationChannelCompat.Builder(CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_HIGH)
-				.setName(context.getString(R.string.backup_restore))
-				.setShowBadge(true)
-				.setVibrationEnabled(false)
-				.setSound(null, null)
-				.setLightsEnabled(false)
-				.build()
+			val channel =
+				NotificationChannelCompat
+					.Builder(CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_HIGH)
+					.setName(context.getString(R.string.backup_restore))
+					.setShowBadge(true)
+					.setVibrationEnabled(false)
+					.setSound(null, null)
+					.setLightsEnabled(false)
+					.build()
 			NotificationManagerCompat.from(context).createNotificationChannel(channel)
 		}
 	}

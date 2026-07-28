@@ -24,38 +24,41 @@ import org.draken.usagi.core.prefs.TrackerDownloadStrategy
 import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
-import tsuki.util.names
 import org.draken.usagi.settings.utils.DozeHelper
 import org.draken.usagi.settings.utils.MultiSummaryProvider
 import org.draken.usagi.tracker.ui.debug.TrackerDebugActivity
 import org.draken.usagi.tracker.work.TrackerNotificationHelper
+import tsuki.util.names
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class TrackerSettingsFragment :
 	BasePreferenceFragment(R.string.check_for_new_chapters),
 	SharedPreferences.OnSharedPreferenceChangeListener {
-
 	private val viewModel by viewModels<TrackerSettingsViewModel>()
 	private val dozeHelper = DozeHelper(this)
 
 	@Inject
 	lateinit var notificationHelper: TrackerNotificationHelper
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
 		addPreferencesFromResource(R.xml.pref_tracker)
 
 		findPreference<MultiSelectListPreference>(AppSettings.KEY_TRACK_SOURCES)
 			?.summaryProvider = MultiSummaryProvider(R.string.dont_check)
 		val warningPreference = findPreference<Preference>(AppSettings.KEY_TRACK_WARNING)
 		if (warningPreference != null) {
-			warningPreference.summary = buildSpannedString {
-				append(getString(R.string.tracker_warning))
-				append(" ")
-				inSpans(URLSpan("https://dontkillmyapp.com/")) {
-					append(getString(R.string.read_more))
+			warningPreference.summary =
+				buildSpannedString {
+					append(getString(R.string.tracker_warning))
+					append(" ")
+					inSpans(URLSpan("https://dontkillmyapp.com/")) {
+						append(getString(R.string.read_more))
+					}
 				}
-			}
 		}
 		findPreference<ListPreference>(AppSettings.KEY_TRACKER_DOWNLOAD)?.run {
 			entryValues = TrackerDownloadStrategy.entries.names()
@@ -70,7 +73,10 @@ class TrackerSettingsFragment :
 		updateNotificationsSummary()
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		settings.subscribe(this)
 		viewModel.categoriesCount.observe(viewLifecycleOwner, ::onCategoriesCountChanged)
@@ -81,32 +87,43 @@ class TrackerSettingsFragment :
 		super.onDestroyView()
 	}
 
-	override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String?) {
+	override fun onSharedPreferenceChanged(
+		prefs: SharedPreferences,
+		key: String?,
+	) {
 		when (key) {
 			AppSettings.KEY_TRACKER_NOTIFICATIONS -> updateNotificationsSummary()
+
 			AppSettings.KEY_TRACK_SOURCES,
-			AppSettings.KEY_TRACKER_ENABLED -> updateCategoriesEnabled()
+			AppSettings.KEY_TRACKER_ENABLED,
+			-> updateCategoriesEnabled()
 		}
 	}
 
-	override fun onPreferenceTreeClick(preference: Preference): Boolean {
-		return when (preference.key) {
-			AppSettings.KEY_NOTIFICATIONS_SETTINGS -> when {
-				Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
-					val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-						.putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
-					startActivitySafe(intent)
-					true
-				}
+	override fun onPreferenceTreeClick(preference: Preference): Boolean =
+		when (preference.key) {
+			AppSettings.KEY_NOTIFICATIONS_SETTINGS -> {
+				when {
+					Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+						val intent =
+							Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+								.putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
+						startActivitySafe(intent)
+						true
+					}
 
-				!notificationHelper.getAreNotificationsEnabled() -> {
-					val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-						.setData(Uri.fromParts("package", requireContext().packageName, null))
-					startActivitySafe(intent)
-					true
-				}
+					!notificationHelper.getAreNotificationsEnabled() -> {
+						val intent =
+							Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+								.setData(Uri.fromParts("package", requireContext().packageName, null))
+						startActivitySafe(intent)
+						true
+					}
 
-				else -> super.onPreferenceTreeClick(preference)
+					else -> {
+						super.onPreferenceTreeClick(preference)
+					}
+				}
 			}
 
 			AppSettings.KEY_TRACK_CATEGORIES -> {
@@ -124,9 +141,10 @@ class TrackerSettingsFragment :
 				true
 			}
 
-			else -> super.onPreferenceTreeClick(preference)
+			else -> {
+				super.onPreferenceTreeClick(preference)
+			}
 		}
-	}
 
 	private fun updateNotificationsSummary() {
 		val pref = findPreference<Preference>(AppSettings.KEY_NOTIFICATIONS_SETTINGS) ?: return
@@ -145,16 +163,18 @@ class TrackerSettingsFragment :
 
 	private fun onCategoriesCountChanged(count: IntArray?) {
 		val pref = findPreference<Preference>(AppSettings.KEY_TRACK_CATEGORIES) ?: return
-		pref.summary = count?.let {
-			getString(R.string.enabled_d_of_d, count[0], count[1])
-		}
+		pref.summary =
+			count?.let {
+				getString(R.string.enabled_d_of_d, count[0], count[1])
+			}
 	}
 
-	private fun startActivitySafe(intent: Intent): Boolean = try {
-		startActivity(intent)
-		true
-	} catch (_: ActivityNotFoundException) {
-		Snackbar.make(listView, R.string.operation_not_supported, Snackbar.LENGTH_SHORT).show()
-		false
-	}
+	private fun startActivitySafe(intent: Intent): Boolean =
+		try {
+			startActivity(intent)
+			true
+		} catch (_: ActivityNotFoundException) {
+			Snackbar.make(listView, R.string.operation_not_supported, Snackbar.LENGTH_SHORT).show()
+			false
+		}
 }

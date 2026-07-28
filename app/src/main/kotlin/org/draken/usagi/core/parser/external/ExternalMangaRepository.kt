@@ -21,7 +21,6 @@ class ExternalMangaRepository(
 	override val source: ExternalMangaSource,
 	cache: MemoryContentCache,
 ) : CachingMangaRepository(cache) {
-
 	private val contentSource = ExternalPluginContentSource(contentResolver, source)
 
 	private val capabilities by lazy {
@@ -46,22 +45,29 @@ class ExternalMangaRepository(
 
 	override suspend fun getFilterOptions(): MangaListFilterOptions = filterOptions.get()
 
-	override suspend fun getList(offset: Int, order: SortOrder?, filter: MangaListFilter?): List<Manga> =
+	override suspend fun getList(
+		offset: Int,
+		order: SortOrder?,
+		filter: MangaListFilter?,
+	): List<Manga> =
 		runInterruptible(Dispatchers.IO) {
 			contentSource.getList(offset, order ?: defaultSortOrder, filter ?: MangaListFilter.EMPTY)
 		}
 
-	override suspend fun getDetailsImpl(manga: Manga): Manga = runInterruptible(Dispatchers.IO) {
-		contentSource.getDetails(manga)
-	}
+	override suspend fun getDetailsImpl(manga: Manga): Manga =
+		runInterruptible(Dispatchers.IO) {
+			contentSource.getDetails(manga)
+		}
 
-	override suspend fun getPagesImpl(chapter: MangaChapter): List<MangaPage> = runInterruptible(Dispatchers.IO) {
-		contentSource.getPages(chapter)
-	}
+	override suspend fun getPagesImpl(chapter: MangaChapter): List<MangaPage> =
+		runInterruptible(Dispatchers.IO) {
+			contentSource.getPages(chapter)
+		}
 
-	override suspend fun getPageUrl(page: MangaPage): String = runInterruptible(Dispatchers.IO) {
-		contentSource.getPageUrl(page.url)
-	}
+	override suspend fun getPageUrl(page: MangaPage): String =
+		runInterruptible(Dispatchers.IO) {
+			contentSource.getPageUrl(page.url)
+		}
 
 	override suspend fun getRelatedMangaImpl(seed: Manga): List<Manga> = emptyList() // TODO
 }

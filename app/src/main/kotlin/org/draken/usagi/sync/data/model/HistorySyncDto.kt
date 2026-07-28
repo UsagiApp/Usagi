@@ -18,7 +18,6 @@ data class HistorySyncDto(
 	@SerialName("chapters") val chaptersCount: Int,
 	@SerialName("manga") val manga: MangaSyncDto,
 ) {
-
 	constructor(cursor: Cursor, manga: MangaSyncDto) : this(
 		mangaId = cursor.getLong(cursor.getColumnIndexOrThrow("manga_id")),
 		createdAt = cursor.getLong(cursor.getColumnIndexOrThrow("created_at")),
@@ -32,15 +31,16 @@ data class HistorySyncDto(
 		manga = manga,
 	)
 
-	fun toContentValues() = buildContentValues(9) {
-		put("manga_id", mangaId)
-		put("created_at", createdAt)
-		put("updated_at", updatedAt)
-		put("chapter_id", chapterId)
-		put("page", page)
-		put("scroll", scroll)
-		put("percent", percent)
-		put("deleted_at", deletedAt)
-		put("chapters", chaptersCount)
-	}
+	fun toContentValues() =
+		buildContentValues(9) {
+			put("manga_id", mangaId)
+			put("created_at", createdAt)
+			put("updated_at", updatedAt)
+			put("chapter_id", chapterId)
+			put("page", page)
+			put("scroll", scroll)
+			put("percent", percent)
+			put("deleted_at", deletedAt)
+			put("chapters", chaptersCount)
+		}
 }

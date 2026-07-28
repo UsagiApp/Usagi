@@ -5,5 +5,6 @@ import org.draken.usagi.R
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingState
 
-fun loadingStateAD() = adapterDelegate<LoadingState, ListModel>(R.layout.item_loading_state) {
-}
+fun loadingStateAD() =
+	adapterDelegate<LoadingState, ListModel>(R.layout.item_loading_state) {
+	}

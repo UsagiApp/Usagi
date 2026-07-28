@@ -19,21 +19,27 @@ import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.textAndVisible
 import org.draken.usagi.databinding.FragmentPreviewBinding
 import org.draken.usagi.filter.ui.FilterCoordinator
+import org.draken.usagi.search.ui.MangaListActivity
 import tsuki.model.Manga
 import tsuki.model.MangaTag
 import tsuki.util.ifNullOrEmpty
-import org.draken.usagi.search.ui.MangaListActivity
 
 @AndroidEntryPoint
-class PreviewFragment : BaseFragment<FragmentPreviewBinding>(), View.OnClickListener, ChipsView.OnChipClickListener {
-
+class PreviewFragment :
+	BaseFragment<FragmentPreviewBinding>(),
+	View.OnClickListener,
+	ChipsView.OnChipClickListener {
 	private val viewModel: PreviewViewModel by viewModels()
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPreviewBinding {
-		return FragmentPreviewBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): FragmentPreviewBinding = FragmentPreviewBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: FragmentPreviewBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentPreviewBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		binding.buttonClose.isVisible = activity is MangaListActivity
 		binding.buttonClose.setOnClickListener(this)
@@ -50,29 +56,47 @@ class PreviewFragment : BaseFragment<FragmentPreviewBinding>(), View.OnClickList
 		viewModel.description.observe(viewLifecycleOwner, ::onDescriptionChanged)
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat = insets
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat = insets
 
 	override fun onClick(v: View) {
 		val manga = viewModel.manga.value
 		when (v.id) {
-			R.id.button_close -> closeSelf()
-			R.id.button_open -> router.openDetails(manga)
-			R.id.button_read -> router.openReader(manga)
+			R.id.button_close -> {
+				closeSelf()
+			}
 
-			R.id.textView_author -> router.showAuthorDialog(
-				author = manga.authors.firstOrNull() ?: return,
-				source = manga.source,
-			)
+			R.id.button_open -> {
+				router.openDetails(manga)
+			}
 
-			R.id.imageView_cover -> router.openImage(
-				url = manga.largeCoverUrl.ifNullOrEmpty { manga.coverUrl } ?: return,
-				source = manga.source,
-				anchor = v,
-			)
+			R.id.button_read -> {
+				router.openReader(manga)
+			}
+
+			R.id.textView_author -> {
+				router.showAuthorDialog(
+					author = manga.authors.firstOrNull() ?: return,
+					source = manga.source,
+				)
+			}
+
+			R.id.imageView_cover -> {
+				router.openImage(
+					url = manga.largeCoverUrl.ifNullOrEmpty { manga.coverUrl } ?: return,
+					source = manga.source,
+					anchor = v,
+				)
+			}
 		}
 	}
 
-	override fun onChipClick(chip: Chip, data: Any?) {
+	override fun onChipClick(
+		chip: Chip,
+		data: Any?,
+	) {
 		val tag = data as? MangaTag ?: return
 		val filter = FilterCoordinator.find(this)
 		if (filter == null) {

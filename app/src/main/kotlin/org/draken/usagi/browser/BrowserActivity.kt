@@ -21,8 +21,11 @@ import tsuki.model.MangaSource
 
 @AndroidEntryPoint
 class BrowserActivity : BaseBrowserActivity() {
-
-	override fun onCreate2(savedInstanceState: Bundle?, source: MangaSource, repository: MangaParserRepository?) {
+	override fun onCreate2(
+		savedInstanceState: Bundle?,
+		source: MangaSource,
+		repository: MangaParserRepository?,
+	) {
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = true)
 		viewBinding.webView.webViewClient = BrowserClient(this, adBlock)
 		lifecycleScope.launch {
@@ -53,39 +56,47 @@ class BrowserActivity : BaseBrowserActivity() {
 		return true
 	}
 
-	override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-		android.R.id.home -> {
-			viewBinding.webView.stopLoading()
-			finishAfterTransition()
-			true
-		}
-
-		R.id.action_browser -> {
-			if (!router.openExternalBrowser(viewBinding.webView.url.orEmpty(), item.title)) {
-				Snackbar.make(viewBinding.webView, R.string.operation_not_supported, Snackbar.LENGTH_SHORT).show()
+	override fun onOptionsItemSelected(item: MenuItem): Boolean =
+		when (item.itemId) {
+			android.R.id.home -> {
+				viewBinding.webView.stopLoading()
+				finishAfterTransition()
+				true
 			}
-			true
-		}
 
-		else -> super.onOptionsItemSelected(item)
-	}
+			R.id.action_browser -> {
+				if (!router.openExternalBrowser(viewBinding.webView.url.orEmpty(), item.title)) {
+					Snackbar.make(viewBinding.webView, R.string.operation_not_supported, Snackbar.LENGTH_SHORT).show()
+				}
+				true
+			}
+
+			else -> {
+				super.onOptionsItemSelected(item)
+			}
+		}
 
 	class Contract : ActivityResultContract<InteractiveActionRequiredException, Unit>() {
 		override fun createIntent(
 			context: Context,
-			input: InteractiveActionRequiredException
-		): Intent = AppRouter.browserIntent(
-			context = context,
-			url = input.url,
-			source = org.draken.usagi.core.model.MangaSource(input.sourceName),
-			title = null,
-		)
+			input: InteractiveActionRequiredException,
+		): Intent =
+			AppRouter.browserIntent(
+				context = context,
+				url = input.url,
+				source =
+					org.draken.usagi.core.model
+						.MangaSource(input.sourceName),
+				title = null,
+			)
 
-		override fun parseResult(resultCode: Int, intent: Intent?): Unit = Unit
+		override fun parseResult(
+			resultCode: Int,
+			intent: Intent?,
+		): Unit = Unit
 	}
 
 	companion object {
-
 		const val TAG = "BrowserActivity"
 	}
 }

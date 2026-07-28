@@ -17,7 +17,6 @@ class WebtoonAdapter(
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
 ) : BaseReaderAdapter<WebtoonHolder>(loader, readerSettingsProducer, networkState, exceptionResolver) {
-
 	override fun onCreateViewHolder(
 		parent: ViewGroup,
 		loader: PageLoader,
@@ -26,11 +25,12 @@ class WebtoonAdapter(
 		exceptionResolver: ExceptionResolver,
 	) = WebtoonHolder(
 		owner = lifecycleOwner,
-		binding = ItemPageWebtoonBinding.inflate(
-			LayoutInflater.from(parent.context),
-			parent,
-			false,
-		),
+		binding =
+			ItemPageWebtoonBinding.inflate(
+				LayoutInflater.from(parent.context),
+				parent,
+				false,
+			),
 		loader = loader,
 		readerSettingsProducer = readerSettingsProducer,
 		networkState = networkState,

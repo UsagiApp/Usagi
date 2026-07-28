@@ -15,10 +15,10 @@ import kotlin.math.hypot
 class BubbleAnimator(
 	private val bubble: View,
 ) {
-
-	private val animationDuration = (
-		bubble.resources.getInteger(android.R.integer.config_shortAnimTime) *
-			bubble.context.animatorDurationScale
+	private val animationDuration =
+		(
+			bubble.resources.getInteger(android.R.integer.config_shortAnimTime) *
+				bubble.context.animatorDurationScale
 		).toLong()
 	private var animator: Animator? = null
 	private var isHiding = false
@@ -29,18 +29,20 @@ class BubbleAnimator(
 		}
 		isHiding = false
 		animator?.cancel()
-		animator = ViewAnimationUtils.createCircularReveal(
-			bubble,
-			bubble.measureWidth(),
-			bubble.measuredHeight,
-			0f,
-			hypot(bubble.width.toDouble(), bubble.height.toDouble()).toFloat(),
-		).apply {
-			bubble.isVisible = true
-			duration = animationDuration
-			interpolator = DecelerateInterpolator()
-			start()
-		}
+		animator =
+			ViewAnimationUtils
+				.createCircularReveal(
+					bubble,
+					bubble.measureWidth(),
+					bubble.measuredHeight,
+					0f,
+					hypot(bubble.width.toDouble(), bubble.height.toDouble()).toFloat(),
+				).apply {
+					bubble.isVisible = true
+					duration = animationDuration
+					interpolator = DecelerateInterpolator()
+					start()
+				}
 	}
 
 	fun hide() {
@@ -49,22 +51,23 @@ class BubbleAnimator(
 		}
 		animator?.cancel()
 		isHiding = true
-		animator = ViewAnimationUtils.createCircularReveal(
-			bubble,
-			bubble.width,
-			bubble.height,
-			hypot(bubble.width.toDouble(), bubble.height.toDouble()).toFloat(),
-			0f,
-		).apply {
-			duration = animationDuration
-			interpolator = AccelerateInterpolator()
-			addListener(HideListener())
-			start()
-		}
+		animator =
+			ViewAnimationUtils
+				.createCircularReveal(
+					bubble,
+					bubble.width,
+					bubble.height,
+					hypot(bubble.width.toDouble(), bubble.height.toDouble()).toFloat(),
+					0f,
+				).apply {
+					duration = animationDuration
+					interpolator = AccelerateInterpolator()
+					addListener(HideListener())
+					start()
+				}
 	}
 
 	private inner class HideListener : AnimatorListenerAdapter() {
-
 		private var isCancelled = false
 
 		override fun onAnimationCancel(animation: Animator) {

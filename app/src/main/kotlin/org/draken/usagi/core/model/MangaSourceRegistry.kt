@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import tsuki.model.MangaSource
 
 object MangaSourceRegistry {
-
 	@Volatile
 	var snapshot: SourceSnapshot = SourceSnapshot.EMPTY
 		private set
@@ -19,10 +18,11 @@ object MangaSourceRegistry {
 	val entries: List<MangaSource>
 		get() = snapshot.sources
 
-	val updates = MutableSharedFlow<Unit>(
-		replay = 1,
-		onBufferOverflow = BufferOverflow.DROP_OLDEST,
-	)
+	val updates =
+		MutableSharedFlow<Unit>(
+			replay = 1,
+			onBufferOverflow = BufferOverflow.DROP_OLDEST,
+		)
 
 	fun publish(newSources: List<MangaSource>) {
 		val sources = newSources.distinctBy { it.name }
@@ -34,12 +34,13 @@ object MangaSourceRegistry {
 				shortName.putIfAbsent(source.sourceName, source)
 			}
 		}
-		snapshot = SourceSnapshot(
-			sources = sources,
-			version = snapshot.version + 1,
-			byName = name,
-			byShortName = shortName,
-		)
+		snapshot =
+			SourceSnapshot(
+				sources = sources,
+				version = snapshot.version + 1,
+				byName = name,
+				byShortName = shortName,
+			)
 		updates.tryEmit(Unit)
 	}
 

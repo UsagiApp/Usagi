@@ -11,7 +11,6 @@ import org.draken.usagi.list.ui.adapter.ListItemType
 class BackupSectionsAdapter(
 	clickListener: OnListItemClickListener<BackupSectionModel>,
 ) : BaseListAdapter<BackupSectionModel>() {
-
 	init {
 		addDelegate(ListItemType.NAV_ITEM, backupSectionAD(clickListener))
 	}
@@ -22,7 +21,6 @@ private fun backupSectionAD(
 ) = adapterDelegateViewBinding<BackupSectionModel, BackupSectionModel, ItemCheckableMultipleBinding>(
 	{ layoutInflater, parent -> ItemCheckableMultipleBinding.inflate(layoutInflater, parent, false) },
 ) {
-
 	binding.root.setOnClickListener { v ->
 		clickListener.onItemClick(item, v)
 	}

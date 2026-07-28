@@ -10,8 +10,10 @@ import org.draken.usagi.core.nav.AppRouter
 class FavouritesContainerMenuProvider(
 	private val router: AppRouter,
 ) : MenuProvider {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		menuInflater.inflate(R.menu.opt_favourites_container, menu)
 	}
 
@@ -21,7 +23,9 @@ class FavouritesContainerMenuProvider(
 				router.openFavoriteCategories()
 			}
 
-			else -> return false
+			else -> {
+				return false
+			}
 		}
 		return true
 	}

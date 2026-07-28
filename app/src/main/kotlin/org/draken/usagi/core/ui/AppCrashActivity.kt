@@ -16,24 +16,27 @@ import android.os.Process.myPid
 import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
-import android.R as androidR
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.R as materialR
 import org.draken.usagi.R
 import org.draken.usagi.databinding.ActivityCrashBinding
 import org.draken.usagi.main.ui.MainActivity
+import android.R as androidR
+import com.google.android.material.R as materialR
 
 class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
-
 	private var headingRunnable: Runnable? = null
 	private val handler = Handler(Looper.getMainLooper())
-	private val finishReceiver = object : BroadcastReceiver() {
-		override fun onReceive(context: Context?, intent: Intent?) = finishAndRemoveTask()
-	}
+	private val finishReceiver =
+		object : BroadcastReceiver() {
+			override fun onReceive(
+				context: Context?,
+				intent: Intent?,
+			) = finishAndRemoveTask()
+		}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		applyTheme()
@@ -54,7 +57,8 @@ class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 			finishAndRemoveTask()
 		}
 		ContextCompat.registerReceiver(
-			this, finishReceiver,
+			this,
+			finishReceiver,
 			IntentFilter(ACTION_FINISH_CRASH),
 			ContextCompat.RECEIVER_NOT_EXPORTED,
 		)
@@ -62,7 +66,10 @@ class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 		setupText()
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat) = insets
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	) = insets
 
 	override fun onDestroy() {
 		headingRunnable?.let(handler::removeCallbacks)
@@ -79,31 +86,34 @@ class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 		if (intent.getBooleanExtra(EXTRA_THEME_AMOLED, false)) setTheme(R.style.ThemeOverlay_Usagi_Amoled)
 	}
 
-	private fun setupView() = with(viewBinding.starView) {
-		val blended = ColorUtils.blendARGB(
-			resolveColor(materialR.attr.colorPrimaryContainer),
-			resolveColor(androidR.attr.colorBackground),
-			0.5f,
-		)
-		setColorFilter(blended)
-		ObjectAnimator.ofFloat(this, "rotation", -20f, 20f).apply {
-			duration = 5_000
-			repeatMode = ValueAnimator.REVERSE
-			repeatCount = ValueAnimator.INFINITE
-			start()
+	private fun setupView() =
+		with(viewBinding.starView) {
+			val blended =
+				ColorUtils.blendARGB(
+					resolveColor(materialR.attr.colorPrimaryContainer),
+					resolveColor(androidR.attr.colorBackground),
+					0.5f,
+				)
+			setColorFilter(blended)
+			ObjectAnimator.ofFloat(this, "rotation", -20f, 20f).apply {
+				duration = 5_000
+				repeatMode = ValueAnimator.REVERSE
+				repeatCount = ValueAnimator.INFINITE
+				start()
+			}
 		}
-	}
 
 	private fun setupText() {
 		var index = 0
 		val titles = arrayOf(getString(R.string.crash_oops), getString(R.string.error_occurred))
-		headingRunnable = object : Runnable {
-			override fun run() {
-				index = (index + 1) % titles.size
-				viewBinding.heading.fadeTo(titles[index])
-				handler.postDelayed(this, SWAP_DELAY)
-			}
-		}.also { handler.postDelayed(it, SWAP_DELAY) }
+		headingRunnable =
+			object : Runnable {
+				override fun run() {
+					index = (index + 1) % titles.size
+					viewBinding.heading.fadeTo(titles[index])
+					handler.postDelayed(this, SWAP_DELAY)
+				}
+			}.also { handler.postDelayed(it, SWAP_DELAY) }
 	}
 
 	private fun resolveColor(attr: Int): Int {
@@ -113,10 +123,13 @@ class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 	}
 
 	private fun TextView.fadeTo(newText: String) {
-		animate().alpha(0f).setDuration(FADE_DURATION).withEndAction {
-			text = newText
-			animate().alpha(1f).setDuration(FADE_DURATION).start()
-		}.start()
+		animate()
+			.alpha(0f)
+			.setDuration(FADE_DURATION)
+			.withEndAction {
+				text = newText
+				animate().alpha(1f).setDuration(FADE_DURATION).start()
+			}.start()
 	}
 
 	companion object {

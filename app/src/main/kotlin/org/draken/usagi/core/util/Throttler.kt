@@ -5,7 +5,6 @@ import android.os.SystemClock
 class Throttler(
 	private val timeoutMs: Long,
 ) {
-
 	private var lastTick = 0L
 
 	fun throttle(): Boolean {

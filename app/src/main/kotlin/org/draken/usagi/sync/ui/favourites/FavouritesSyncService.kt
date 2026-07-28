@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.IBinder
 
 class FavouritesSyncService : Service() {
-
 	private lateinit var syncAdapter: FavouritesSyncAdapter
 
 	override fun onCreate() {
@@ -13,7 +12,5 @@ class FavouritesSyncService : Service() {
 		syncAdapter = FavouritesSyncAdapter(applicationContext)
 	}
 
-	override fun onBind(intent: Intent?): IBinder {
-		return syncAdapter.syncAdapterBinder
-	}
+	override fun onBind(intent: Intent?): IBinder = syncAdapter.syncAdapterBinder
 }

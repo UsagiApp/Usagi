@@ -29,64 +29,74 @@ import org.draken.usagi.list.ui.model.LoadingState
 import javax.inject.Inject
 
 @HiltViewModel
-class FavoriteDialogViewModel @Inject constructor(
-	savedStateHandle: SavedStateHandle,
-	private val favouritesRepository: FavouritesRepository,
-	settings: AppSettings,
-) : BaseViewModel() {
-
-	val manga = savedStateHandle.require<List<ParcelableManga>>(AppRouter.KEY_MANGA_LIST).map {
-		it.manga
-	}
-
-	private val refreshTrigger = MutableStateFlow(Any())
-	val content = combine(
-		favouritesRepository.observeCategories(),
-		refreshTrigger,
-		settings.observeAsFlow(AppSettings.KEY_TRACKER_ENABLED) { isTrackerEnabled },
-	) { categories, _, tracker ->
-		mapList(categories, tracker)
-	}.withErrorHandling()
-		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, listOf(LoadingState))
-
-	fun setChecked(categoryId: Long, isChecked: Boolean) {
-		launchJob(Dispatchers.Default) {
-			if (isChecked) {
-				favouritesRepository.addToCategory(categoryId, manga)
-			} else {
-				favouritesRepository.removeFromCategory(categoryId, manga.ids())
+class FavoriteDialogViewModel
+	@Inject
+	constructor(
+		savedStateHandle: SavedStateHandle,
+		private val favouritesRepository: FavouritesRepository,
+		settings: AppSettings,
+	) : BaseViewModel() {
+		val manga =
+			savedStateHandle.require<List<ParcelableManga>>(AppRouter.KEY_MANGA_LIST).map {
+				it.manga
 			}
-			refreshTrigger.value = Any()
-		}
-	}
 
-	private suspend fun mapList(categories: List<FavouriteCategory>, tracker: Boolean): List<ListModel> {
-		if (categories.isEmpty()) {
-			return listOf(
-				EmptyState(
-					icon = 0,
-					textPrimary = R.string.empty_favourite_categories,
-					textSecondary = 0,
-					actionStringRes = 0,
-				),
-			)
+		private val refreshTrigger = MutableStateFlow(Any())
+		val content =
+			combine(
+				favouritesRepository.observeCategories(),
+				refreshTrigger,
+				settings.observeAsFlow(AppSettings.KEY_TRACKER_ENABLED) { isTrackerEnabled },
+			) { categories, _, tracker ->
+				mapList(categories, tracker)
+			}.withErrorHandling()
+				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, listOf(LoadingState))
+
+		fun setChecked(
+			categoryId: Long,
+			isChecked: Boolean,
+		) {
+			launchJob(Dispatchers.Default) {
+				if (isChecked) {
+					favouritesRepository.addToCategory(categoryId, manga)
+				} else {
+					favouritesRepository.removeFromCategory(categoryId, manga.ids())
+				}
+				refreshTrigger.value = Any()
+			}
 		}
-		val cats = MutableLongObjectMap<MutableLongSet>(categories.size)
-		categories.forEach { cats[it.id] = MutableLongSet(manga.size) }
-		for (m in manga) {
-			val ids = favouritesRepository.getCategoriesIds(m.id)
-			ids.forEach { id -> cats[id]?.add(m.id) }
-		}
-		return categories.map { cat ->
-			MangaCategoryItem(
-				category = cat,
-				checkedState = when (cats[cat.id]?.size ?: 0) {
-					0 -> MaterialCheckBox.STATE_UNCHECKED
-					manga.size -> MaterialCheckBox.STATE_CHECKED
-					else -> MaterialCheckBox.STATE_INDETERMINATE
-				},
-				isTrackerEnabled = tracker,
-			)
+
+		private suspend fun mapList(
+			categories: List<FavouriteCategory>,
+			tracker: Boolean,
+		): List<ListModel> {
+			if (categories.isEmpty()) {
+				return listOf(
+					EmptyState(
+						icon = 0,
+						textPrimary = R.string.empty_favourite_categories,
+						textSecondary = 0,
+						actionStringRes = 0,
+					),
+				)
+			}
+			val cats = MutableLongObjectMap<MutableLongSet>(categories.size)
+			categories.forEach { cats[it.id] = MutableLongSet(manga.size) }
+			for (m in manga) {
+				val ids = favouritesRepository.getCategoriesIds(m.id)
+				ids.forEach { id -> cats[id]?.add(m.id) }
+			}
+			return categories.map { cat ->
+				MangaCategoryItem(
+					category = cat,
+					checkedState =
+						when (cats[cat.id]?.size ?: 0) {
+							0 -> MaterialCheckBox.STATE_UNCHECKED
+							manga.size -> MaterialCheckBox.STATE_CHECKED
+							else -> MaterialCheckBox.STATE_INDETERMINATE
+						},
+					isTrackerEnabled = tracker,
+				)
+			}
 		}
 	}
-}

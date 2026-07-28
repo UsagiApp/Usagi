@@ -24,7 +24,6 @@ data class MangaSyncDto(
 	@SerialName("source") val source: String,
 	@SerialName("nsfw") val isNsfw: Boolean = false,
 ) {
-
 	constructor(cursor: Cursor, tags: Set<MangaTagSyncDto>) : this(
 		id = cursor.getLong(cursor.getColumnIndexOrThrow("manga_id")),
 		title = cursor.getString(cursor.getColumnIndexOrThrow("title")),
@@ -39,22 +38,23 @@ data class MangaSyncDto(
 		state = cursor.getStringOrNull(cursor.getColumnIndexOrThrow("state")),
 		author = cursor.getStringOrNull(cursor.getColumnIndexOrThrow("author")),
 		source = cursor.getString(cursor.getColumnIndexOrThrow("source")),
-        isNsfw = cursor.getBoolean(cursor.getColumnIndexOrThrow("nsfw")),
+		isNsfw = cursor.getBoolean(cursor.getColumnIndexOrThrow("nsfw")),
 	)
 
-	fun toContentValues() = buildContentValues(12) {
-		put("manga_id", id)
-		put("title", title)
-		put("alt_title", altTitle)
-		put("url", url)
-		put("public_url", publicUrl)
-		put("rating", rating)
-		put("content_rating", contentRating)
-		put("cover_url", coverUrl)
-		put("large_cover_url", largeCoverUrl)
-		put("state", state)
-		put("author", author)
-		put("source", source)
-        put("nsfw", isNsfw)
-	}
+	fun toContentValues() =
+		buildContentValues(12) {
+			put("manga_id", id)
+			put("title", title)
+			put("alt_title", altTitle)
+			put("url", url)
+			put("public_url", publicUrl)
+			put("rating", rating)
+			put("content_rating", contentRating)
+			put("cover_url", coverUrl)
+			put("large_cover_url", largeCoverUrl)
+			put("state", state)
+			put("author", author)
+			put("source", source)
+			put("nsfw", isNsfw)
+		}
 }

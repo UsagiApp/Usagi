@@ -8,7 +8,6 @@ open class MangaListAdapter(
 	listener: MangaListListener,
 	sizeResolver: ItemSizeResolver,
 ) : ReorderableListAdapter<ListModel>() {
-
 	init {
 		addDelegate(ListItemType.MANGA_LIST, mangaListItemAD(listener))
 		addDelegate(ListItemType.MANGA_LIST_DETAILED, mangaListDetailedItemAD(listener))

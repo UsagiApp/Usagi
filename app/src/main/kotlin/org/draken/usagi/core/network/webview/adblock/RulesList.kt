@@ -9,11 +9,13 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
  * Not all features are supported
  */
 class RulesList {
-
 	private val blockRules = ArrayList<Rule>()
 	private val allowRules = ArrayList<Rule>()
 
-	operator fun get(url: HttpUrl, baseUrl: HttpUrl?): Rule? {
+	operator fun get(
+		url: HttpUrl,
+		baseUrl: HttpUrl?,
+	): Rule? {
 		val rule = blockRules.find { x -> x(url, baseUrl) }
 		return rule?.takeIf { allowRules.none { x -> x(url, baseUrl) } }
 	}
@@ -28,7 +30,10 @@ class RulesList {
 		allowRules.trimToSize()
 	}
 
-	private fun String.addImpl(isWhitelist: Boolean, modifiers: String?) {
+	private fun String.addImpl(
+		isWhitelist: Boolean,
+		modifiers: String?,
+	) {
 		val list = if (isWhitelist) allowRules else blockRules
 
 		when {
@@ -84,8 +89,8 @@ class RulesList {
 			baseRule = this,
 			script = script,
 			thirdParty = thirdParty,
-			domains = null, //TODO
-			domainsNot = null, //TODO
+			domains = null, // TODO
+			domainsNot = null, // TODO
 		)
 	}
 }

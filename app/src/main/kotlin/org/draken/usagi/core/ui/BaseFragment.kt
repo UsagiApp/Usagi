@@ -14,9 +14,8 @@ import org.draken.usagi.core.exceptions.resolve.ExceptionResolver
 import org.draken.usagi.core.ui.util.ActionModeDelegate
 
 abstract class BaseFragment<B : ViewBinding> :
-	OnApplyWindowInsetsListener,
-	Fragment() {
-
+	Fragment(),
+	OnApplyWindowInsetsListener {
 	var viewBinding: B? = null
 		private set
 
@@ -35,14 +34,17 @@ abstract class BaseFragment<B : ViewBinding> :
 	final override fun onCreateView(
 		inflater: LayoutInflater,
 		container: ViewGroup?,
-		savedInstanceState: Bundle?
+		savedInstanceState: Bundle?,
 	): View {
 		val binding = onCreateViewBinding(inflater, container)
 		viewBinding = binding
 		return binding.root
 	}
 
-	final override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	final override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		ViewCompat.setOnApplyWindowInsetsListener(view, this)
 		onViewBindingCreated(requireViewBinding(), savedInstanceState)
@@ -53,11 +55,18 @@ abstract class BaseFragment<B : ViewBinding> :
 		super.onDestroyView()
 	}
 
-	fun requireViewBinding(): B = checkNotNull(viewBinding) {
-		"Fragment $this did not return a ViewBinding from onCreateView() or this was called before onCreateView()."
-	}
+	fun requireViewBinding(): B =
+		checkNotNull(viewBinding) {
+			"Fragment $this did not return a ViewBinding from onCreateView() or this was called before onCreateView()."
+		}
 
-	protected abstract fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): B
+	protected abstract fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): B
 
-	protected open fun onViewBindingCreated(binding: B, savedInstanceState: Bundle?) = Unit
+	protected open fun onViewBindingCreated(
+		binding: B,
+		savedInstanceState: Bundle?,
+	) = Unit
 }

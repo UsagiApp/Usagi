@@ -10,8 +10,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class PeekHeightController(
 	private val views: Array<View>,
-) : View.OnLayoutChangeListener, OnApplyWindowInsetsListener {
-
+) : View.OnLayoutChangeListener,
+	OnApplyWindowInsetsListener {
 	private var behavior: BottomSheetBehavior<*>? = null
 
 	fun attach() {
@@ -31,7 +31,7 @@ class PeekHeightController(
 		oldLeft: Int,
 		oldTop: Int,
 		oldRight: Int,
-		oldBottom: Int
+		oldBottom: Int,
 	) {
 		if (top != oldTop || bottom != oldBottom) {
 			updatePeekHeight()
@@ -40,7 +40,7 @@ class PeekHeightController(
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		updatePeekHeight()
 		return insets
@@ -50,13 +50,14 @@ class PeekHeightController(
 		behavior?.peekHeight = views.sumOf { it.height } + getBottomInset()
 	}
 
-	private fun getBottomInset(): Int = ViewCompat.getRootWindowInsets(views.first())
-		?.getInsets(WindowInsetsCompat.Type.navigationBars())
-		?.bottom ?: 0
+	private fun getBottomInset(): Int =
+		ViewCompat
+			.getRootWindowInsets(views.first())
+			?.getInsets(WindowInsetsCompat.Type.navigationBars())
+			?.bottom ?: 0
 
-	private fun findBehavior(): BottomSheetBehavior<*>? {
-		return views.first().ancestors.firstNotNullOfOrNull {
+	private fun findBehavior(): BottomSheetBehavior<*>? =
+		views.first().ancestors.firstNotNullOfOrNull {
 			((it as? View)?.layoutParams as? CoordinatorLayout.LayoutParams)?.behavior as? BottomSheetBehavior<*>
 		}
-	}
 }

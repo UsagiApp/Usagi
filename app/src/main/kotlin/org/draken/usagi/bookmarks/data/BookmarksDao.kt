@@ -14,7 +14,6 @@ import org.draken.usagi.core.db.entity.MangaWithTags
 
 @Dao
 abstract class BookmarksDao {
-
 	@Query("SELECT * FROM bookmarks WHERE page_id = :pageId")
 	abstract suspend fun find(pageId: Long): BookmarkEntity?
 
@@ -22,10 +21,19 @@ abstract class BookmarksDao {
 	@Query(
 		"SELECT * FROM manga JOIN bookmarks ON bookmarks.manga_id = manga.manga_id ORDER BY percent LIMIT :limit OFFSET :offset",
 	)
-	abstract suspend fun findAll(offset: Int, limit: Int): Map<MangaWithTags, List<BookmarkEntity>>
+	abstract suspend fun findAll(
+		offset: Int,
+		limit: Int,
+	): Map<MangaWithTags, List<BookmarkEntity>>
 
-	@Query("SELECT * FROM bookmarks WHERE manga_id = :mangaId AND chapter_id = :chapterId AND page = :page ORDER BY percent")
-	abstract fun observe(mangaId: Long, chapterId: Long, page: Int): Flow<BookmarkEntity?>
+	@Query(
+		"SELECT * FROM bookmarks WHERE manga_id = :mangaId AND chapter_id = :chapterId AND page = :page ORDER BY percent",
+	)
+	abstract fun observe(
+		mangaId: Long,
+		chapterId: Long,
+		page: Int,
+	): Flow<BookmarkEntity?>
 
 	@Query("SELECT * FROM bookmarks WHERE manga_id = :mangaId ORDER BY percent")
 	abstract fun observe(mangaId: Long): Flow<List<BookmarkEntity>>
@@ -46,21 +54,26 @@ abstract class BookmarksDao {
 	abstract suspend fun delete(pageId: Long): Int
 
 	@Query("DELETE FROM bookmarks WHERE manga_id = :mangaId AND chapter_id = :chapterId AND page = :page")
-	abstract suspend fun delete(mangaId: Long, chapterId: Long, page: Int): Int
+	abstract suspend fun delete(
+		mangaId: Long,
+		chapterId: Long,
+		page: Int,
+	): Int
 
 	@Upsert
 	abstract suspend fun upsert(bookmarks: Collection<BookmarkEntity>)
 
-	fun dump(): Flow<Pair<MangaWithTags, List<BookmarkEntity>>> = flow {
-		val window = 4
-		var offset = 0
-		while (currentCoroutineContext().isActive) {
-			val list = findAll(offset, window)
-			if (list.isEmpty()) {
-				break
+	fun dump(): Flow<Pair<MangaWithTags, List<BookmarkEntity>>> =
+		flow {
+			val window = 4
+			var offset = 0
+			while (currentCoroutineContext().isActive) {
+				val list = findAll(offset, window)
+				if (list.isEmpty()) {
+					break
+				}
+				offset += window
+				list.forEach { emit(it.key to it.value) }
 			}
-			offset += window
-			list.forEach { emit(it.key to it.value) }
 		}
-	}
 }

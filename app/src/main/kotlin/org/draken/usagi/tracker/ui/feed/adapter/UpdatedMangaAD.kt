@@ -21,9 +21,9 @@ fun updatedMangaAD(
 ) = adapterDelegateViewBinding<UpdatedMangaHeader, ListModel, ItemListGroupBinding>(
 	{ layoutInflater, parent -> ItemListGroupBinding.inflate(layoutInflater, parent, false) },
 ) {
-
-	val adapter = BaseListAdapter<ListModel>()
-		.addDelegate(ListItemType.MANGA_GRID, mangaGridItemAD(sizeResolver, listener))
+	val adapter =
+		BaseListAdapter<ListModel>()
+			.addDelegate(ListItemType.MANGA_GRID, mangaGridItemAD(sizeResolver, listener))
 	binding.recyclerView.adapter = adapter
 	binding.buttonMore.setOnClickListener { v ->
 		headerClickListener.onListHeaderClick(ListHeader(0, payload = item), v)

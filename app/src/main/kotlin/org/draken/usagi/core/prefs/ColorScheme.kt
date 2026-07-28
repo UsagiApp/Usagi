@@ -12,7 +12,6 @@ enum class ColorScheme(
 	@StyleRes val styleResId: Int,
 	@StringRes val titleResId: Int,
 ) {
-
 	DEFAULT(R.style.ThemeOverlay_Usagi_Totoro, R.string.theme_name_totoro),
 	MONET(R.style.ThemeOverlay_Usagi_Monet, R.string.theme_name_dynamic),
 	EXPRESSIVE(R.style.ThemeOverlay_Usagi_Expressive, R.string.theme_name_expressive),
@@ -27,13 +26,13 @@ enum class ColorScheme(
 	;
 
 	companion object {
-
 		val default: ColorScheme
-			get() = if (DynamicColors.isDynamicColorAvailable()) {
-				MONET
-			} else {
-				DEFAULT
-			}
+			get() =
+				if (DynamicColors.isDynamicColorAvailable()) {
+					MONET
+				} else {
+					DEFAULT
+				}
 
 		fun getAvailableList(): List<ColorScheme> {
 			val list = ColorScheme.entries.toMutableList()
@@ -44,8 +43,6 @@ enum class ColorScheme(
 			return list
 		}
 
-		fun safeValueOf(name: String): ColorScheme? {
-			return ColorScheme.entries.find(name)
-		}
+		fun safeValueOf(name: String): ColorScheme? = ColorScheme.entries.find(name)
 	}
 }

@@ -6,10 +6,12 @@ import org.draken.usagi.core.model.MangaSource
 import tsuki.model.MangaSource
 
 class MangaSourceParceler : Parceler<MangaSource> {
-
 	override fun create(parcel: Parcel): MangaSource = MangaSource(parcel.readString())
 
-	override fun MangaSource.write(parcel: Parcel, flags: Int) {
+	override fun MangaSource.write(
+		parcel: Parcel,
+		flags: Int,
+	) {
 		parcel.writeString(name)
 	}
 }

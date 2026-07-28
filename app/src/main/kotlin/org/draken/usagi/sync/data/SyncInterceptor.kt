@@ -14,7 +14,6 @@ class SyncInterceptor(
 	context: Context,
 	private val account: Account,
 ) : Interceptor {
-
 	private val accountManager = AccountManager.get(context)
 	private val tokenType = context.getString(R.string.account_type_sync)
 

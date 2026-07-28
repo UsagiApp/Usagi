@@ -7,11 +7,8 @@ data class PageThumbnail(
 	val isCurrent: Boolean,
 	val page: ReaderPage,
 ) : ListModel {
-
 	val number
 		get() = page.index + 1
 
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is PageThumbnail && page == other.page
-	}
+	override fun areItemsTheSame(other: ListModel): Boolean = other is PageThumbnail && page == other.page
 }

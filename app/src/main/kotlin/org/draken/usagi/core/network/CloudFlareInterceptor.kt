@@ -9,27 +9,32 @@ import tsuki.model.MangaSource
 import tsuki.network.CloudFlareHelper
 
 class CloudFlareInterceptor : Interceptor {
-
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val request = chain.request()
 		val response = chain.proceed(request)
 		return when (CloudFlareHelper.checkResponseForProtection(response)) {
-			CloudFlareHelper.PROTECTION_BLOCKED -> response.closeThrowing(
-				CloudFlareBlockedException(
-					url = request.url.toString(),
-					source = request.tag(MangaSource::class.java),
-				),
-			)
+			CloudFlareHelper.PROTECTION_BLOCKED -> {
+				response.closeThrowing(
+					CloudFlareBlockedException(
+						url = request.url.toString(),
+						source = request.tag(MangaSource::class.java),
+					),
+				)
+			}
 
-			CloudFlareHelper.PROTECTION_CAPTCHA -> response.closeThrowing(
-				CloudFlareProtectedException(
-					url = request.url.toString(),
-					source = request.tag(MangaSource::class.java),
-					headers = request.headers,
-				),
-			)
+			CloudFlareHelper.PROTECTION_CAPTCHA -> {
+				response.closeThrowing(
+					CloudFlareProtectedException(
+						url = request.url.toString(),
+						source = request.tag(MangaSource::class.java),
+						headers = request.headers,
+					),
+				)
+			}
 
-			else -> response
+			else -> {
+				response
+			}
 		}
 	}
 

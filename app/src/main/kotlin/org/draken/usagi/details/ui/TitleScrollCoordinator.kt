@@ -11,11 +11,16 @@ import java.lang.ref.WeakReference
 class TitleScrollCoordinator(
 	private val titleView: TextView,
 ) : NestedScrollView.OnScrollChangeListener {
-
 	private val location = IntArray(2)
 	private var activityRef: WeakReference<AppCompatActivity>? = null
 
-	override fun onScrollChange(v: NestedScrollView, scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int) {
+	override fun onScrollChange(
+		v: NestedScrollView,
+		scrollX: Int,
+		scrollY: Int,
+		oldScrollX: Int,
+		oldScrollY: Int,
+	) {
 		val actionBar = getActivity(v.context)?.supportActionBar ?: return
 		titleView.getLocationOnScreen(location)
 		var top = location[1] + titleView.height

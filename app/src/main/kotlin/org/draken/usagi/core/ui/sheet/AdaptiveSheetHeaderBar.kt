@@ -19,111 +19,119 @@ import org.draken.usagi.R
 import org.draken.usagi.databinding.LayoutSheetHeaderAdaptiveBinding
 import kotlin.math.roundToInt
 
-class AdaptiveSheetHeaderBar @JvmOverloads constructor(
-	context: Context,
-	attrs: AttributeSet? = null,
-	@AttrRes defStyleAttr: Int = 0,
-) : LinearLayout(context, attrs, defStyleAttr), AdaptiveSheetCallback {
+class AdaptiveSheetHeaderBar
+	@JvmOverloads
+	constructor(
+		context: Context,
+		attrs: AttributeSet? = null,
+		@AttrRes defStyleAttr: Int = 0,
+	) : LinearLayout(context, attrs, defStyleAttr),
+		AdaptiveSheetCallback {
+		private val binding =
+			LayoutSheetHeaderAdaptiveBinding.inflate(LayoutInflater.from(context), this)
+		private var sheetBehavior: AdaptiveSheetBehavior? = null
+		private var dragHandleFullHeight = 0
 
-	private val binding =
-		LayoutSheetHeaderAdaptiveBinding.inflate(LayoutInflater.from(context), this)
-	private var sheetBehavior: AdaptiveSheetBehavior? = null
-	private var dragHandleFullHeight = 0
+		var title: CharSequence?
+			get() = binding.shTextViewTitle.text
+			set(value) {
+				binding.shTextViewTitle.text = value
+			}
 
-	var title: CharSequence?
-		get() = binding.shTextViewTitle.text
-		set(value) {
-			binding.shTextViewTitle.text = value
-		}
+		val isTitleVisible: Boolean
+			get() = binding.shLayoutSidesheet.isVisible
 
-	val isTitleVisible: Boolean
-		get() = binding.shLayoutSidesheet.isVisible
-
-	init {
-		orientation = VERTICAL
-		binding.shButtonClose.setOnClickListener { dismissSheet() }
-		context.withStyledAttributes(
-			attrs,
-			R.styleable.AdaptiveSheetHeaderBar, defStyleAttr,
-		) {
-			title = getText(R.styleable.AdaptiveSheetHeaderBar_title)
-		}
-	}
-
-	override fun onAttachedToWindow() {
-		super.onAttachedToWindow()
-		if (isInEditMode) {
-			val isTabled = resources.getBoolean(R.bool.is_tablet)
-			binding.shDragHandle.isGone = isTabled
-			binding.shLayoutSidesheet.isVisible = isTabled
-		} else {
-			setBottomSheetBehavior(findParentSheetBehavior())
-		}
-	}
-
-	override fun onDetachedFromWindow() {
-		setBottomSheetBehavior(null)
-		super.onDetachedFromWindow()
-	}
-
-	override fun onGenericMotionEvent(event: MotionEvent): Boolean {
-		val behavior = sheetBehavior ?: return super.onGenericMotionEvent(event)
-		if (event.source and InputDevice.SOURCE_CLASS_POINTER != 0) {
-			if (event.actionMasked == MotionEvent.ACTION_SCROLL) {
-				if (event.getAxisValue(MotionEvent.AXIS_VSCROLL) < 0f) {
-					behavior.state = if (
-						behavior is AdaptiveSheetBehavior.Bottom
-						&& behavior.state == AdaptiveSheetBehavior.STATE_EXPANDED
-					) {
-						AdaptiveSheetBehavior.STATE_COLLAPSED
-					} else {
-						AdaptiveSheetBehavior.STATE_HIDDEN
-					}
-				} else {
-					behavior.state = AdaptiveSheetBehavior.STATE_EXPANDED
-				}
-				return true
+		init {
+			orientation = VERTICAL
+			binding.shButtonClose.setOnClickListener { dismissSheet() }
+			context.withStyledAttributes(
+				attrs,
+				R.styleable.AdaptiveSheetHeaderBar,
+				defStyleAttr,
+			) {
+				title = getText(R.styleable.AdaptiveSheetHeaderBar_title)
 			}
 		}
-		return super.onGenericMotionEvent(event)
-	}
 
-	override fun onStateChanged(sheet: View, newState: Int) {
-
-	}
-
-	fun setTitle(@StringRes resId: Int) {
-		binding.shTextViewTitle.setText(resId)
-	}
-
-	fun setProgress(progress: Float) {
-		if (sheetBehavior !is AdaptiveSheetBehavior.Bottom) return
-		val handle = binding.shDragHandle
-		val h = dragHandleFullHeight.takeIf { it > 0 }
-			?: handle.height.takeIf { it > 0 }?.also { dragHandleFullHeight = it }
-			?: return
-		val clamped = progress.coerceIn(0f, 1f)
-		val t = (h * (1f - clamped)).roundToInt()
-		if (handle.layoutParams.height != t) handle.updateLayoutParams { height = t }
-		handle.alpha = 1f - clamped
-	}
-
-	private fun setBottomSheetBehavior(behavior: AdaptiveSheetBehavior?) {
-		binding.shDragHandle.isVisible = behavior is AdaptiveSheetBehavior.Bottom
-		binding.shLayoutSidesheet.isVisible = behavior is AdaptiveSheetBehavior.Side
-		sheetBehavior?.removeCallback(this)
-		sheetBehavior = behavior
-		behavior?.addCallback(this)
-	}
-
-	private fun dismissSheet() {
-		sheetBehavior?.state = AdaptiveSheetBehavior.STATE_HIDDEN
-	}
-
-	private fun findParentSheetBehavior(): AdaptiveSheetBehavior? {
-		return ancestors.firstNotNullOfOrNull {
-			((it as? View)?.layoutParams as? CoordinatorLayout.LayoutParams)
-				?.let { params -> AdaptiveSheetBehavior.from(params) }
+		override fun onAttachedToWindow() {
+			super.onAttachedToWindow()
+			if (isInEditMode) {
+				val isTabled = resources.getBoolean(R.bool.is_tablet)
+				binding.shDragHandle.isGone = isTabled
+				binding.shLayoutSidesheet.isVisible = isTabled
+			} else {
+				setBottomSheetBehavior(findParentSheetBehavior())
+			}
 		}
+
+		override fun onDetachedFromWindow() {
+			setBottomSheetBehavior(null)
+			super.onDetachedFromWindow()
+		}
+
+		override fun onGenericMotionEvent(event: MotionEvent): Boolean {
+			val behavior = sheetBehavior ?: return super.onGenericMotionEvent(event)
+			if (event.source and InputDevice.SOURCE_CLASS_POINTER != 0) {
+				if (event.actionMasked == MotionEvent.ACTION_SCROLL) {
+					if (event.getAxisValue(MotionEvent.AXIS_VSCROLL) < 0f) {
+						behavior.state =
+							if (
+								behavior is AdaptiveSheetBehavior.Bottom &&
+								behavior.state == AdaptiveSheetBehavior.STATE_EXPANDED
+							) {
+								AdaptiveSheetBehavior.STATE_COLLAPSED
+							} else {
+								AdaptiveSheetBehavior.STATE_HIDDEN
+							}
+					} else {
+						behavior.state = AdaptiveSheetBehavior.STATE_EXPANDED
+					}
+					return true
+				}
+			}
+			return super.onGenericMotionEvent(event)
+		}
+
+		override fun onStateChanged(
+			sheet: View,
+			newState: Int,
+		) {
+		}
+
+		fun setTitle(
+			@StringRes resId: Int,
+		) {
+			binding.shTextViewTitle.setText(resId)
+		}
+
+		fun setProgress(progress: Float) {
+			if (sheetBehavior !is AdaptiveSheetBehavior.Bottom) return
+			val handle = binding.shDragHandle
+			val h =
+				dragHandleFullHeight.takeIf { it > 0 }
+					?: handle.height.takeIf { it > 0 }?.also { dragHandleFullHeight = it }
+					?: return
+			val clamped = progress.coerceIn(0f, 1f)
+			val t = (h * (1f - clamped)).roundToInt()
+			if (handle.layoutParams.height != t) handle.updateLayoutParams { height = t }
+			handle.alpha = 1f - clamped
+		}
+
+		private fun setBottomSheetBehavior(behavior: AdaptiveSheetBehavior?) {
+			binding.shDragHandle.isVisible = behavior is AdaptiveSheetBehavior.Bottom
+			binding.shLayoutSidesheet.isVisible = behavior is AdaptiveSheetBehavior.Side
+			sheetBehavior?.removeCallback(this)
+			sheetBehavior = behavior
+			behavior?.addCallback(this)
+		}
+
+		private fun dismissSheet() {
+			sheetBehavior?.state = AdaptiveSheetBehavior.STATE_HIDDEN
+		}
+
+		private fun findParentSheetBehavior(): AdaptiveSheetBehavior? =
+			ancestors.firstNotNullOfOrNull {
+				((it as? View)?.layoutParams as? CoordinatorLayout.LayoutParams)
+					?.let { params -> AdaptiveSheetBehavior.from(params) }
+			}
 	}
-}

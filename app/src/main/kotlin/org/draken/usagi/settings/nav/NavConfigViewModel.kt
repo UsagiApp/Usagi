@@ -20,80 +20,93 @@ import org.draken.usagi.core.ui.util.ActivityRecreationHandle
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.main.ui.MainActivity
 import org.draken.usagi.main.ui.MainNavigationDelegate
-import tsuki.util.move
 import org.draken.usagi.settings.nav.model.NavItemAddModel
 import org.draken.usagi.settings.nav.model.NavItemConfigModel
+import tsuki.util.move
 import javax.inject.Inject
 
 @HiltViewModel
-class NavConfigViewModel @Inject constructor(
-	private val settings: AppSettings,
-	private val activityRecreationHandle: ActivityRecreationHandle,
-) : BaseViewModel() {
+class NavConfigViewModel
+	@Inject
+	constructor(
+		private val settings: AppSettings,
+		private val activityRecreationHandle: ActivityRecreationHandle,
+	) : BaseViewModel() {
+		private val items = MutableStateFlow(settings.mainNavItems)
 
-	private val items = MutableStateFlow(settings.mainNavItems)
+		val content: StateFlow<List<ListModel>> =
+			items
+				.map { snapshot ->
+					buildList(snapshot.size + 1) {
+						snapshot.mapTo(this) {
+							NavItemConfigModel(it, getUnavailabilityHint(it))
+						}
+						if (size < NavItem.entries.size) {
+							val maxItemCount = if (settings.isFloatingNav) MainNavigationDelegate.MAX_FLOAT_ITEM_COUNT else MainNavigationDelegate.MAX_ITEM_COUNT
+							add(NavItemAddModel(size < maxItemCount))
+						}
+					}
+				}.stateIn(
+					viewModelScope + Dispatchers.Default,
+					SharingStarted.WhileSubscribed(5000),
+					emptyList(),
+				)
 
-	val content: StateFlow<List<ListModel>> = items.map { snapshot ->
-		buildList(snapshot.size + 1) {
-			snapshot.mapTo(this) {
-				NavItemConfigModel(it, getUnavailabilityHint(it))
+		private var commitJob: Job? = null
+
+		val availableItems
+			get() =
+				items.value.let { snapshot ->
+					NavItem.entries.filterNot { x -> x in snapshot }
+				}
+
+		fun reorder(
+			fromPos: Int,
+			toPos: Int,
+		) {
+			items.value =
+				items.value.toMutableList().apply {
+					move(fromPos, toPos)
+					commit(this)
+				}
+		}
+
+		fun addItem(item: NavItem) {
+			items.value =
+				items.value.plus(item).also {
+					commit(it)
+				}
+		}
+
+		fun removeItem(item: NavItem) {
+			val newList = items.value.toMutableList()
+			newList.remove(item)
+			if (newList.isEmpty()) {
+				newList.add(NavItem.EXPLORE)
 			}
-			if (size < NavItem.entries.size) {
-				val maxItemCount = if (settings.isFloatingNav) MainNavigationDelegate.MAX_FLOAT_ITEM_COUNT else MainNavigationDelegate.MAX_ITEM_COUNT
-				add(NavItemAddModel(size < maxItemCount))
+			items.value = newList
+			commit(newList)
+		}
+
+		private fun commit(value: List<NavItem>) {
+			val prevJob = commitJob
+			commitJob =
+				launchJob {
+					prevJob?.cancelAndJoin()
+					delay(500)
+					settings.mainNavItems = value
+					activityRecreationHandle.recreate(MainActivity::class.java)
+				}
+		}
+
+		private fun getUnavailabilityHint(item: NavItem) =
+			if (item.isAvailable(settings)) {
+				0
+			} else {
+				when (item) {
+					NavItem.FEED -> R.string.check_for_new_chapters_disabled
+					NavItem.SUGGESTIONS -> R.string.suggestions_unavailable_text
+					else -> 0
+				}
 			}
-		}
-	}.stateIn(
-		viewModelScope + Dispatchers.Default,
-		SharingStarted.WhileSubscribed(5000),
-		emptyList(),
-	)
-
-	private var commitJob: Job? = null
-
-	val availableItems
-		get() = items.value.let { snapshot ->
-			NavItem.entries.filterNot { x -> x in snapshot }
-		}
-
-	fun reorder(fromPos: Int, toPos: Int) {
-		items.value = items.value.toMutableList().apply {
-			move(fromPos, toPos)
-			commit(this)
-		}
 	}
-
-	fun addItem(item: NavItem) {
-		items.value = items.value.plus(item).also {
-			commit(it)
-		}
-	}
-
-	fun removeItem(item: NavItem) {
-		val newList = items.value.toMutableList()
-		newList.remove(item)
-		if (newList.isEmpty()) {
-			newList.add(NavItem.EXPLORE)
-		}
-		items.value = newList
-		commit(newList)
-	}
-
-	private fun commit(value: List<NavItem>) {
-		val prevJob = commitJob
-		commitJob = launchJob {
-			prevJob?.cancelAndJoin()
-			delay(500)
-			settings.mainNavItems = value
-			activityRecreationHandle.recreate(MainActivity::class.java)
-		}
-	}
-
-	private fun getUnavailabilityHint(item: NavItem) = if (item.isAvailable(settings)) {
-		0
-	} else when (item) {
-		NavItem.FEED -> R.string.check_for_new_chapters_disabled
-		NavItem.SUGGESTIONS -> R.string.suggestions_unavailable_text
-		else -> 0
-	}
-}

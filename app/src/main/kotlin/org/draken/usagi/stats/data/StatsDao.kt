@@ -16,7 +16,6 @@ import kotlin.collections.forEach
 
 @Dao
 abstract class StatsDao {
-
 	@Query("SELECT * FROM stats WHERE manga_id = :mangaId ORDER BY started_at")
 	abstract suspend fun findAll(mangaId: Long): List<StatsEntity>
 
@@ -41,7 +40,7 @@ abstract class StatsDao {
 	suspend fun getDurationStats(
 		fromDate: Long,
 		isNsfw: Boolean?,
-		favouriteCategories: Set<Long>
+		favouriteCategories: Set<Long>,
 	): Map<MangaEntity, Long> {
 		val conditions = ArrayList<String>()
 		conditions.add("(SELECT deleted_at FROM history WHERE history.manga_id = stats.manga_id) = 0")
@@ -55,29 +54,40 @@ abstract class StatsDao {
 			conditions.add("manga.nsfw = $flag")
 		}
 		val where = conditions.joinToString(separator = " AND ")
-		val query = SimpleSQLiteQuery(
-			"SELECT manga.*, SUM(duration) AS d FROM stats LEFT JOIN manga ON manga.manga_id = stats.manga_id WHERE $where GROUP BY manga.manga_id ORDER BY d DESC",
-		)
+		val query =
+			SimpleSQLiteQuery(
+				"SELECT manga.*, SUM(duration) AS d FROM stats LEFT JOIN manga ON manga.manga_id = stats.manga_id WHERE $where GROUP BY manga.manga_id ORDER BY d DESC",
+			)
 		return getDurationStatsImpl(query)
 	}
 
 	@RawQuery
 	protected abstract suspend fun getDurationStatsImpl(
-		query: SupportSQLiteQuery
-	): Map<@MapColumn("manga") MangaEntity, @MapColumn("d") Long>
+		query: SupportSQLiteQuery,
+	): Map<
+		@MapColumn("manga")
+		MangaEntity,
+		@MapColumn("d")
+		Long,
+	>
 
 	@Query("SELECT * FROM stats ORDER BY started_at LIMIT :limit OFFSET :offset")
-	protected abstract suspend fun findAll(offset: Int, limit: Int): List<StatsEntity>
-	fun dumpEnabled(): Flow<StatsEntity> = flow {
-		val window = 10
-		var offset = 0
-		while (currentCoroutineContext().isActive) {
-			val list = findAll(offset, window)
-			if (list.isEmpty()) {
-				break
+	protected abstract suspend fun findAll(
+		offset: Int,
+		limit: Int,
+	): List<StatsEntity>
+
+	fun dumpEnabled(): Flow<StatsEntity> =
+		flow {
+			val window = 10
+			var offset = 0
+			while (currentCoroutineContext().isActive) {
+				val list = findAll(offset, window)
+				if (list.isEmpty()) {
+					break
+				}
+				offset += window
+				list.forEach { emit(it) }
 			}
-			offset += window
-			list.forEach { emit(it) }
 		}
-	}
 }

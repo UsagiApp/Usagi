@@ -14,7 +14,6 @@ data class FeedItem(
 	val count: Int,
 	val isNew: Boolean,
 ) : ListModel {
-
 	val imageUrl: String?
 		get() = override?.coverUrl.ifNullOrEmpty { manga.coverUrl }
 
@@ -23,13 +22,12 @@ data class FeedItem(
 
 	fun toMangaWithOverride() = manga.withOverride(override)
 
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is FeedItem && other.id == id
-	}
+	override fun areItemsTheSame(other: ListModel): Boolean = other is FeedItem && other.id == id
 
-	override fun getChangePayload(previousState: ListModel): Any? = when {
-		previousState !is FeedItem -> null
-		isNew != previousState.isNew -> ListModelDiffCallback.PAYLOAD_ANYTHING_CHANGED
-		else -> super.getChangePayload(previousState)
-	}
+	override fun getChangePayload(previousState: ListModel): Any? =
+		when {
+			previousState !is FeedItem -> null
+			isNew != previousState.isNew -> ListModelDiffCallback.PAYLOAD_ANYTHING_CHANGED
+			else -> super.getChangePayload(previousState)
+		}
 }

@@ -7,7 +7,6 @@ import org.draken.usagi.list.ui.model.ListModel
 class ScrollingInfoAdapter(
 	router: AppRouter,
 ) : BaseListAdapter<ListModel>() {
-
 	init {
 		delegatesManager.addDelegate(scrobblingInfoAD(router))
 	}

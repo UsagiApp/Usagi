@@ -17,14 +17,15 @@ data class MangaDetailedListModel(
 	val isSaved: Boolean,
 	val tags: List<ChipsView.ChipModel>,
 ) : MangaListModel() {
+	override fun getChangePayload(previousState: ListModel): Any? =
+		when {
+			previousState !is MangaDetailedListModel || previousState.manga != manga -> null
 
-	override fun getChangePayload(previousState: ListModel): Any? = when {
-		previousState !is MangaDetailedListModel || previousState.manga != manga -> null
+			previousState.progress != progress -> PAYLOAD_PROGRESS_CHANGED
 
-		previousState.progress != progress -> PAYLOAD_PROGRESS_CHANGED
-		previousState.isFavorite != isFavorite ||
-			previousState.isSaved != isSaved -> PAYLOAD_ANYTHING_CHANGED
+			previousState.isFavorite != isFavorite ||
+				previousState.isSaved != isSaved -> PAYLOAD_ANYTHING_CHANGED
 
-		else -> super.getChangePayload(previousState)
-	}
+			else -> super.getChangePayload(previousState)
+		}
 }

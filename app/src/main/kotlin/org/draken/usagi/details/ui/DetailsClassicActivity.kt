@@ -115,7 +115,6 @@ class DetailsClassicActivity :
 	OnListItemClickListener<Bookmark>,
 	SwipeRefreshLayout.OnRefreshListener,
 	BottomSheetOwner {
-
 	@Inject
 	lateinit var shortcutManager: AppShortcutManager
 
@@ -141,15 +140,16 @@ class DetailsClassicActivity :
 		WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
 		supportActionBar?.setDisplayShowTitleEnabled(false)
-		backdropController = BackdropController(
-			backdrop = viewBinding.backdrop,
-			backdropGradient = viewBinding.backdropGradient,
-			backdropTopGradient = viewBinding.backdropTopGradient,
-			coverView = viewBinding.imageViewCover,
-			imageLoader = coil,
-			lifecycle = this,
-			settings = settings,
-		)
+		backdropController =
+			BackdropController(
+				backdrop = viewBinding.backdrop,
+				backdropGradient = viewBinding.backdropGradient,
+				backdropTopGradient = viewBinding.backdropTopGradient,
+				coverView = viewBinding.imageViewCover,
+				imageLoader = coil,
+				lifecycle = this,
+				settings = settings,
+			)
 
 		with(viewBinding) {
 			buttonRead.setOnClickListener(this@DetailsClassicActivity)
@@ -187,7 +187,7 @@ class DetailsClassicActivity :
 					appbar.getLocationOnScreen(loc)
 					val appBarBottom = loc[1] + appbar.height
 					supportActionBar?.setDisplayShowTitleEnabled(titleBottom < appBarBottom)
-				}
+				},
 			)
 			containerBottomSheet.let { sheet ->
 				val behavior = (sheet.layoutParams as? CoordinatorLayout.LayoutParams)?.behavior as? BottomSheetBehavior<*>
@@ -241,12 +241,13 @@ class DetailsClassicActivity :
 			.filterNot { appRouter.isChapterPagesSheetShown() }
 			.observeEvent(this, DownloadStartedObserver(viewBinding.scrollView))
 
-		menuProvider = DetailsMenuProvider(
-			activity = this,
-			viewModel = viewModel,
-			snackbarHost = viewBinding.scrollView,
-			appShortcutManager = shortcutManager,
-		)
+		menuProvider =
+			DetailsMenuProvider(
+				activity = this,
+				viewModel = viewModel,
+				snackbarHost = viewBinding.scrollView,
+				appShortcutManager = shortcutManager,
+			)
 		addMenuProvider(menuProvider)
 	}
 
@@ -258,7 +259,11 @@ class DetailsClassicActivity :
 	override fun onProvideAssistContent(outContent: AssistContent) {
 		super.onProvideAssistContent(outContent)
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			viewModel.getMangaOrNull()?.publicUrl?.toUriOrNull()?.let { outContent.webUri = it }
+			viewModel
+				.getMangaOrNull()
+				?.publicUrl
+				?.toUriOrNull()
+				?.let { outContent.webUri = it }
 		}
 	}
 
@@ -266,8 +271,14 @@ class DetailsClassicActivity :
 
 	override fun onClick(v: View) {
 		when (v.id) {
-			R.id.button_read -> openReader(isIncognitoMode = false)
-			R.id.chip_branch -> showBranchPopupMenu(v)
+			R.id.button_read -> {
+				openReader(isIncognitoMode = false)
+			}
+
+			R.id.chip_branch -> {
+				showBranchPopupMenu(v)
+			}
+
 			R.id.button_download -> {
 				val manga = viewModel.getMangaOrNull() ?: return
 				router.showDownloadDialog(manga, viewBinding.scrollView)
@@ -341,7 +352,10 @@ class DetailsClassicActivity :
 				val manga = viewModel.getMangaOrNull() ?: return
 				router.showScrobblingSelectorSheet(
 					manga = manga,
-					scrobblerService = viewModel.scrobblingInfo.value.firstOrNull()?.scrobbler,
+					scrobblerService =
+						viewModel.scrobblingInfo.value
+							.firstOrNull()
+							?.scrobbler,
 				)
 			}
 
@@ -352,24 +366,28 @@ class DetailsClassicActivity :
 		}
 	}
 
-    override fun onLongClick(v: View): Boolean = when (v.id) {
-		R.id.button_read -> {
-			val menu = PopupMenu(v.context, v)
-			menu.inflate(R.menu.popup_read)
-			menu.menu.findItem(R.id.action_forget)?.isVisible = viewModel.historyInfo.value.run {
-				!isIncognitoMode && history != null
+	override fun onLongClick(v: View): Boolean =
+		when (v.id) {
+			R.id.button_read -> {
+				val menu = PopupMenu(v.context, v)
+				menu.inflate(R.menu.popup_read)
+				menu.menu.findItem(R.id.action_forget)?.isVisible =
+					viewModel.historyInfo.value.run {
+						!isIncognitoMode && history != null
+					}
+				menu.setOnMenuItemClickListener(this)
+				menu.setForceShowIcon(true)
+				menu.show()
+				true
 			}
-			menu.setOnMenuItemClickListener(this)
-			menu.setForceShowIcon(true)
-			menu.show()
-			true
+
+			else -> {
+				false
+			}
 		}
 
-		else -> false
-	}
-
-	override fun onMenuItemClick(item: MenuItem): Boolean {
-		return when (item.itemId) {
+	override fun onMenuItemClick(item: MenuItem): Boolean =
+		when (item.itemId) {
 			R.id.action_incognito -> {
 				openReader(isIncognitoMode = true)
 				true
@@ -380,18 +398,26 @@ class DetailsClassicActivity :
 				true
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
-	}
 
-	override fun onChipClick(chip: Chip, data: Any?) {
+	override fun onChipClick(
+		chip: Chip,
+		data: Any?,
+	) {
 		val tag = data as? MangaTag ?: return
 		router.showTagDialog(tag)
 	}
 
-	override fun onItemClick(item: Bookmark, view: View) {
+	override fun onItemClick(
+		item: Bookmark,
+		view: View,
+	) {
 		router.openReader(
-			ReaderIntent.Builder(view.context)
+			ReaderIntent
+				.Builder(view.context)
 				.bookmark(item)
 				.incognito()
 				.build(),
@@ -420,14 +446,17 @@ class DetailsClassicActivity :
 		oldLeft: Int,
 		oldTop: Int,
 		oldRight: Int,
-		oldBottom: Int
+		oldBottom: Int,
 	) {
 		viewBinding.run {
 			buttonDescriptionMore.isVisible = textViewDescription.isTextTruncated
 		}
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		val barsInsets = insets.getInsets(typeMask)
 		statusBarInset = barsInsets.top
@@ -477,14 +506,21 @@ class DetailsClassicActivity :
 
 	private fun getSurfaceColor(): Int {
 		val ta = theme.obtainStyledAttributes(intArrayOf(android.R.attr.colorBackground))
-		return try { ta.getColor(0, 0) } finally { ta.recycle() }
+		return try {
+			ta.getColor(0, 0)
+		} finally {
+			ta.recycle()
+		}
 	}
 
 	private fun updateAppBarScrim(scrollY: Int) {
-		val alpha = if (!settings.isBackdropEnabled) 255 else {
-			val threshold = resources.displayMetrics.density * SCRIM_SCROLL_THRESHOLD_DP
-			(scrollY / threshold).coerceIn(0f, 1f).times(255).toInt()
-		}
+		val alpha =
+			if (!settings.isBackdropEnabled) {
+				255
+			} else {
+				val threshold = resources.displayMetrics.density * SCRIM_SCROLL_THRESHOLD_DP
+				(scrollY / threshold).coerceIn(0f, 1f).times(255).toInt()
+			}
 		viewBinding.appbar.setBackgroundColor(ColorUtils.setAlphaComponent(getSurfaceColor(), alpha))
 	}
 
@@ -504,11 +540,12 @@ class DetailsClassicActivity :
 	private fun onFavoritesChanged(categories: Set<FavouriteCategory>) {
 		val chip = viewBinding.infoLayout.chipFavorite
 		chip.setChipIconResource(if (categories.isEmpty()) R.drawable.ic_heart_outline else R.drawable.ic_heart)
-		chip.text = if (categories.isEmpty()) {
-			getString(R.string.add_to_favourites)
-		} else {
-			categories.joinToStringWithLimit(this, FAV_LABEL_LIMIT) { it.title }
-		}
+		chip.text =
+			if (categories.isEmpty()) {
+				getString(R.string.add_to_favourites)
+			} else {
+				categories.joinToStringWithLimit(this, FAV_LABEL_LIMIT) { it.title }
+			}
 	}
 
 	private fun onLocalSizeChanged(size: Long) {
@@ -529,15 +566,16 @@ class DetailsClassicActivity :
 		val rv = viewBinding.recyclerViewRelated
 
 		@Suppress("UNCHECKED_CAST")
-		val adapter = (rv.adapter as? BaseListAdapter<ListModel>) ?: BaseListAdapter<ListModel>()
-			.addDelegate(
-				ListItemType.MANGA_GRID,
-				mangaGridItemAD(
-					sizeResolver = StaticItemSizeResolver(resources.getDimensionPixelSize(R.dimen.smaller_grid_width)),
-				) { item, _ ->
-					router.openDetails(item.toMangaWithOverride())
-				},
-			).also { rv.adapter = it }
+		val adapter =
+			(rv.adapter as? BaseListAdapter<ListModel>) ?: BaseListAdapter<ListModel>()
+				.addDelegate(
+					ListItemType.MANGA_GRID,
+					mangaGridItemAD(
+						sizeResolver = StaticItemSizeResolver(resources.getDimensionPixelSize(R.dimen.smaller_grid_width)),
+					) { item, _ ->
+						router.openDetails(item.toMangaWithOverride())
+					},
+				).also { rv.adapter = it }
 		adapter.items = related
 		viewBinding.groupRelated.isVisible = true
 		viewBinding.buttonRelatedMore.isVisible = true
@@ -547,7 +585,9 @@ class DetailsClassicActivity :
 		viewBinding.swipeRefreshLayout.isRefreshing = isLoading
 	}
 
-	private fun onScrobblingInfoChanged(scrobblings: List<org.draken.usagi.scrobbling.common.domain.model.ScrobblingInfo>) {
+	private fun onScrobblingInfoChanged(
+		scrobblings: List<org.draken.usagi.scrobbling.common.domain.model.ScrobblingInfo>,
+	) {
 		var adapter = viewBinding.recyclerViewScrobbling.adapter as? ScrollingInfoAdapter
 		viewBinding.groupScrobbling.isGone = scrobblings.isEmpty()
 		if (adapter != null) {
@@ -594,63 +634,92 @@ class DetailsClassicActivity :
 				chipSource.setTooltipCompat(manga.source.getSummary(this@DetailsClassicActivity))
 				val faviconPlaceholderFactory = FaviconDrawable.Factory(R.style.FaviconDrawable_Chip)
 				faviconDisposable?.dispose()
-				faviconDisposable = ImageRequest.Builder(this@DetailsClassicActivity)
-					.data(manga.source.faviconUri())
-					.lifecycle(this@DetailsClassicActivity)
-					.crossfade(false)
-					.precision(Precision.EXACT)
-					.size(resources.getDimensionPixelSize(materialR.dimen.m3_chip_icon_size))
-					.target(ChipIconTarget(chipSource))
-					.placeholder(faviconPlaceholderFactory)
-					.error(faviconPlaceholderFactory)
-					.fallback(faviconPlaceholderFactory)
-					.mangaSourceExtra(manga.source)
-					.transformations(RoundedCornersTransformation(resources.getDimension(R.dimen.chip_icon_corner)))
-					.allowRgb565(true)
-					.enqueueWith(coil)
+				faviconDisposable =
+					ImageRequest
+						.Builder(this@DetailsClassicActivity)
+						.data(manga.source.faviconUri())
+						.lifecycle(this@DetailsClassicActivity)
+						.crossfade(false)
+						.precision(Precision.EXACT)
+						.size(resources.getDimensionPixelSize(materialR.dimen.m3_chip_icon_size))
+						.target(ChipIconTarget(chipSource))
+						.placeholder(faviconPlaceholderFactory)
+						.error(faviconPlaceholderFactory)
+						.fallback(faviconPlaceholderFactory)
+						.mangaSourceExtra(manga.source)
+						.transformations(RoundedCornersTransformation(resources.getDimension(R.dimen.chip_icon_corner)))
+						.allowRgb565(true)
+						.enqueueWith(coil)
 			}
 			chipBranch.isVisible = viewModel.branches.value.size > 1 ||
-				!viewModel.branches.value.firstOrNull()?.name.isNullOrEmpty()
+				!viewModel.branches.value
+					.firstOrNull()
+					?.name
+					.isNullOrEmpty()
 		}
 		title = manga.title
 		invalidateOptionsMenu()
 	}
 
 	private fun onMangaRemoved(manga: Manga) {
-		Toast.makeText(
-			this,
-			getString(R.string._s_deleted_from_local_storage, manga.title),
-			Toast.LENGTH_SHORT,
-		).show()
+		Toast
+			.makeText(
+				this,
+				getString(R.string._s_deleted_from_local_storage, manga.title),
+				Toast.LENGTH_SHORT,
+			).show()
 		finishAfterTransition()
 	}
 
-	private fun onHistoryChanged(info: HistoryInfo, isLoading: Boolean) = with(viewBinding) {
+	private fun onHistoryChanged(
+		info: HistoryInfo,
+		isLoading: Boolean,
+	) = with(viewBinding) {
 		buttonRead.setTitle(if (info.canContinue) R.string._continue else R.string.read)
-		buttonRead.subtitle = when {
-			isLoading -> getString(R.string.loading_)
-			info.isIncognitoMode -> getString(R.string.incognito_mode)
-			info.isChapterMissing -> getString(R.string.chapter_is_missing)
-			info.currentChapter >= 0 -> getString(
-				R.string.chapter_d_of_d,
-				info.currentChapter + 1,
-				info.totalChapters,
-			)
+		buttonRead.subtitle =
+			when {
+				isLoading -> {
+					getString(R.string.loading_)
+				}
 
-			info.totalChapters == 0 -> getString(R.string.no_chapters)
-			info.totalChapters == -1 -> getString(R.string.error_occurred)
-			else -> resources.getQuantityStringSafe(R.plurals.chapters, info.totalChapters, info.totalChapters)
-		}
+				info.isIncognitoMode -> {
+					getString(R.string.incognito_mode)
+				}
+
+				info.isChapterMissing -> {
+					getString(R.string.chapter_is_missing)
+				}
+
+				info.currentChapter >= 0 -> {
+					getString(
+						R.string.chapter_d_of_d,
+						info.currentChapter + 1,
+						info.totalChapters,
+					)
+				}
+
+				info.totalChapters == 0 -> {
+					getString(R.string.no_chapters)
+				}
+
+				info.totalChapters == -1 -> {
+					getString(R.string.error_occurred)
+				}
+
+				else -> {
+					resources.getQuantityStringSafe(R.plurals.chapters, info.totalChapters, info.totalChapters)
+				}
+			}
 		val isFirstCall = buttonRead.tag == null
 		buttonRead.tag = Unit
 		buttonRead.setProgress(info.percent.coerceIn(0f, 1f), !isFirstCall)
 		buttonDownload.isEnabled = info.isValid && info.canDownload
 		buttonRead.isEnabled = info.isValid
 
-        // Estimated time
-        val timeText = info.estimatedTime?.formatShort(resources)
-        infoLayout.chipTime.text = timeText
-        infoLayout.chipTime.isVisible = !timeText.isNullOrEmpty()
+		// Estimated time
+		val timeText = info.estimatedTime?.formatShort(resources)
+		infoLayout.chipTime.text = timeText
+		infoLayout.chipTime.isVisible = !timeText.isNullOrEmpty()
 	}
 
 	private fun onTagsChanged(tags: Collection<ChipsView.ChipModel>) {
@@ -665,12 +734,13 @@ class DetailsClassicActivity :
 		}
 		val menu = PopupMenu(v.context, v)
 		for ((i, branch) in branches.withIndex()) {
-			val title = buildSpannedString {
-				append(branch.name ?: getString(R.string.system_default))
-				append(' ')
-				append(' ')
-				append(branch.count.toString())
-			}
+			val title =
+				buildSpannedString {
+					append(branch.name ?: getString(R.string.system_default))
+					append(' ')
+					append(' ')
+					append(branch.count.toString())
+				}
 			val item = menu.menu.add(R.id.group_branches, Menu.NONE, i, title)
 			item.isCheckable = true
 			item.isChecked = branch.isSelected
@@ -688,9 +758,11 @@ class DetailsClassicActivity :
 		if (viewModel.historyInfo.value.isChapterMissing) {
 			Toast.makeText(this, R.string.chapter_is_missing, Toast.LENGTH_SHORT).show()
 		} else {
-			val builder = ReaderIntent.Builder(this)
-				.manga(manga)
-				.branch(viewModel.selectedBranchValue)
+			val builder =
+				ReaderIntent
+					.Builder(this)
+					.manga(manga)
+					.branch(viewModel.selectedBranchValue)
 			if (isIncognitoMode) {
 				builder.incognito()
 			}
@@ -708,7 +780,6 @@ class DetailsClassicActivity :
 	private class PrefetchObserver(
 		private val context: Context,
 	) : kotlinx.coroutines.flow.FlowCollector<List<ChapterListItem>?> {
-
 		private var isCalled = false
 
 		override suspend fun emit(value: List<ChapterListItem>?) {
@@ -728,4 +799,3 @@ class DetailsClassicActivity :
 		private const val SCRIM_SCROLL_THRESHOLD_DP = 160f
 	}
 }
-

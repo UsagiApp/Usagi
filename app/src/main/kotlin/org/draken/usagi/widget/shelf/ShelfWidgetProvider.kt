@@ -15,17 +15,19 @@ import org.draken.usagi.core.ui.BaseAppWidgetProvider
 import org.draken.usagi.reader.ui.ReaderActivity
 
 class ShelfWidgetProvider : BaseAppWidgetProvider() {
-
 	override fun onUpdate(
 		context: Context,
 		appWidgetManager: AppWidgetManager,
-		appWidgetIds: IntArray
+		appWidgetIds: IntArray,
 	) {
 		super.onUpdate(context, appWidgetManager, appWidgetIds)
 		appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.gridView)
 	}
 
-	override fun onUpdateWidget(context: Context, config: AppWidgetConfig): RemoteViews {
+	override fun onUpdateWidget(
+		context: Context,
+		config: AppWidgetConfig,
+	): RemoteViews {
 		val views = RemoteViews(context.packageName, R.layout.widget_shelf)
 		if (!config.hasBackground) {
 			views.setInt(R.id.widget_root, "setBackgroundColor", Color.TRANSPARENT)

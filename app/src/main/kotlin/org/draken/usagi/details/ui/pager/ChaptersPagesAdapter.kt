@@ -15,17 +15,20 @@ class ChaptersPagesAdapter(
 	private val isClassicUi: Boolean,
 ) : FragmentStateAdapter(fragment),
 	TabLayoutMediator.TabConfigurationStrategy {
-
 	override fun getItemCount(): Int = if (isPagesTabEnabled) 3 else 2
 
-	override fun createFragment(position: Int): Fragment = when (position) {
-		0 -> ChaptersFragment()
-		1 -> if (isPagesTabEnabled) PagesFragment() else BookmarksFragment()
-		2 -> BookmarksFragment()
-		else -> throw IllegalArgumentException("Invalid position $position")
-	}
+	override fun createFragment(position: Int): Fragment =
+		when (position) {
+			0 -> ChaptersFragment()
+			1 -> if (isPagesTabEnabled) PagesFragment() else BookmarksFragment()
+			2 -> BookmarksFragment()
+			else -> throw IllegalArgumentException("Invalid position $position")
+		}
 
-	override fun onConfigureTab(tab: TabLayout.Tab, position: Int) {
+	override fun onConfigureTab(
+		tab: TabLayout.Tab,
+		position: Int,
+	) {
 		if (isClassicUi) {
 			tab.setText(
 				when (position) {

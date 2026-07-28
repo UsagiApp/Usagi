@@ -8,13 +8,12 @@ import kotlinx.serialization.encoding.Encoder
 import tsuki.model.MangaSource
 
 object MangaSourceSerializer : KSerializer<MangaSource> {
+	override val descriptor: SerialDescriptor = serialDescriptor<String>()
 
-    override val descriptor: SerialDescriptor = serialDescriptor<String>()
+	override fun serialize(
+		encoder: Encoder,
+		value: MangaSource,
+	) = encoder.encodeString(value.name)
 
-    override fun serialize(
-        encoder: Encoder,
-        value: MangaSource
-    ) = encoder.encodeString(value.name)
-
-    override fun deserialize(decoder: Decoder): MangaSource = MangaSource(decoder.decodeString())
+	override fun deserialize(decoder: Decoder): MangaSource = MangaSource(decoder.decodeString())
 }

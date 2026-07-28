@@ -16,7 +16,6 @@ class DialogErrorObserver(
 	resolver: ExceptionResolver?,
 	private val onResolved: Consumer<Boolean>?,
 ) : ErrorObserver(host, fragment, resolver, onResolved) {
-
 	constructor(
 		host: View,
 		fragment: Fragment?,
@@ -24,10 +23,11 @@ class DialogErrorObserver(
 
 	override suspend fun emit(value: Throwable) {
 		val listener = DialogListener(value)
-		val dialogBuilder = MaterialAlertDialogBuilder(activity ?: host.context)
-			.setMessage(value.getDisplayMessage(host.context.resources))
-			.setNegativeButton(R.string.close, listener)
-			.setOnCancelListener(listener)
+		val dialogBuilder =
+			MaterialAlertDialogBuilder(activity ?: host.context)
+				.setMessage(value.getDisplayMessage(host.context.resources))
+				.setNegativeButton(R.string.close, listener)
+				.setOnCancelListener(listener)
 		if (canResolve(value)) {
 			dialogBuilder.setPositiveButton(ExceptionResolver.getResolveStringId(value), listener)
 		} else if (value is ParseException) {
@@ -47,9 +47,12 @@ class DialogErrorObserver(
 
 	private inner class DialogListener(
 		private val error: Throwable,
-	) : DialogInterface.OnClickListener, DialogInterface.OnCancelListener {
-
-		override fun onClick(dialog: DialogInterface?, which: Int) {
+	) : DialogInterface.OnClickListener,
+		DialogInterface.OnCancelListener {
+		override fun onClick(
+			dialog: DialogInterface?,
+			which: Int,
+		) {
 			when (which) {
 				DialogInterface.BUTTON_NEGATIVE -> onResolved?.accept(false)
 				DialogInterface.BUTTON_POSITIVE -> resolve(error)

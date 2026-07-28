@@ -7,7 +7,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 
-fun <T> AppSettings.observeAsFlow(key: String, valueProducer: AppSettings.() -> T) = flow {
+fun <T> AppSettings.observeAsFlow(
+	key: String,
+	valueProducer: AppSettings.() -> T,
+) = flow {
 	var lastValue: T = valueProducer()
 	emit(lastValue)
 	observeChanges().collect {
@@ -25,8 +28,10 @@ fun <T> AppSettings.observeAsStateFlow(
 	scope: CoroutineScope,
 	key: String,
 	valueProducer: AppSettings.() -> T,
-): StateFlow<T> = observeChanges().transform {
-	if (it == key) {
-		emit(valueProducer())
-	}
-}.stateIn(scope, SharingStarted.Eagerly, valueProducer())
+): StateFlow<T> =
+	observeChanges()
+		.transform {
+			if (it == key) {
+				emit(valueProducer())
+			}
+		}.stateIn(scope, SharingStarted.Eagerly, valueProducer())

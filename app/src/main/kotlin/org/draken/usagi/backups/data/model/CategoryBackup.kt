@@ -15,7 +15,6 @@ class CategoryBackup(
 	@SerialName("track") val track: Boolean = true,
 	@SerialName("show_in_lib") val isVisibleInLibrary: Boolean = true,
 ) {
-
 	constructor(entity: FavouriteCategoryEntity) : this(
 		categoryId = entity.categoryId,
 		createdAt = entity.createdAt,
@@ -26,14 +25,15 @@ class CategoryBackup(
 		isVisibleInLibrary = entity.isVisibleInLibrary,
 	)
 
-	fun toEntity() = FavouriteCategoryEntity(
-		categoryId = categoryId,
-		createdAt = createdAt,
-		sortKey = sortKey,
-		title = title,
-		order = order,
-		track = track,
-		isVisibleInLibrary = isVisibleInLibrary,
-		deletedAt = 0L,
-	)
+	fun toEntity() =
+		FavouriteCategoryEntity(
+			categoryId = categoryId,
+			createdAt = createdAt,
+			sortKey = sortKey,
+			title = title,
+			order = order,
+			track = track,
+			isVisibleInLibrary = isVisibleInLibrary,
+			deletedAt = 0L,
+		)
 }

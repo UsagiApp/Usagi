@@ -9,11 +9,11 @@ class IdlingDetector(
 	private val timeoutMs: Long,
 	private val callback: Callback,
 ) : DefaultLifecycleObserver {
-
 	private val handler = Handler(Looper.getMainLooper())
-	private val idleRunnable = Runnable {
-		callback.onIdle()
-	}
+	private val idleRunnable =
+		Runnable {
+			callback.onIdle()
+		}
 
 	fun bindToLifecycle(owner: LifecycleOwner) {
 		owner.lifecycle.addObserver(this)
@@ -31,7 +31,6 @@ class IdlingDetector(
 	}
 
 	fun interface Callback {
-
 		fun onIdle()
 	}
 }

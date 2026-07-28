@@ -17,7 +17,6 @@ class ReversedPagesAdapter(
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
 ) : BaseReaderAdapter<ReversedPageHolder>(loader, readerSettingsProducer, networkState, exceptionResolver) {
-
 	override fun onCreateViewHolder(
 		parent: ViewGroup,
 		loader: PageLoader,

@@ -9,8 +9,10 @@ import androidx.core.os.ConfigurationCompat
 import java.util.Locale
 
 class VoiceInputContract : ActivityResultContract<String?, String?>() {
-
-	override fun createIntent(context: Context, input: String?): Intent {
+	override fun createIntent(
+		context: Context,
+		input: String?,
+	): Intent {
 		val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
 		intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
 		val locale = ConfigurationCompat.getLocales(context.resources.configuration).get(0) ?: Locale.getDefault()
@@ -19,12 +21,14 @@ class VoiceInputContract : ActivityResultContract<String?, String?>() {
 		return intent
 	}
 
-	override fun parseResult(resultCode: Int, intent: Intent?): String? {
-		return if (resultCode == Activity.RESULT_OK && intent != null) {
+	override fun parseResult(
+		resultCode: Int,
+		intent: Intent?,
+	): String? =
+		if (resultCode == Activity.RESULT_OK && intent != null) {
 			val matches = intent.getStringArrayExtra(RecognizerIntent.EXTRA_RESULTS)
 			matches?.firstOrNull()
 		} else {
 			null
 		}
-	}
 }

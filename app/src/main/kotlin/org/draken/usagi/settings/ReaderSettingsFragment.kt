@@ -14,17 +14,19 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.ReaderMode
 import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
-import tsuki.util.names
 import org.draken.usagi.settings.utils.MultiSummaryProvider
 import org.draken.usagi.settings.utils.PercentSummaryProvider
 import org.draken.usagi.settings.utils.SliderPreference
+import tsuki.util.names
 
 @AndroidEntryPoint
 class ReaderSettingsFragment :
 	BasePreferenceFragment(R.string.reader_settings),
 	SharedPreferences.OnSharedPreferenceChangeListener {
-
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
 		addPreferencesFromResource(R.xml.pref_readers)
 		findPreference<ListPreference>(AppSettings.KEY_READER_MODE)?.run {
 			entryValues = ReaderMode.entries.names()
@@ -41,7 +43,10 @@ class ReaderSettingsFragment :
 		updateReaderModeDependency()
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		settings.subscribe(this)
 	}
@@ -51,18 +56,22 @@ class ReaderSettingsFragment :
 		super.onDestroyView()
 	}
 
-	override fun onPreferenceTreeClick(preference: Preference): Boolean {
-		return when (preference.key) {
+	override fun onPreferenceTreeClick(preference: Preference): Boolean =
+		when (preference.key) {
 			AppSettings.KEY_READER_TAP_ACTIONS -> {
 				router.openReaderTapGridSettings()
 				true
 			}
 
-			else -> super.onPreferenceTreeClick(preference)
+			else -> {
+				super.onPreferenceTreeClick(preference)
+			}
 		}
-	}
 
-	override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+	override fun onSharedPreferenceChanged(
+		sharedPreferences: SharedPreferences?,
+		key: String?,
+	) {
 		when (key) {
 			AppSettings.KEY_READER_MODE -> updateReaderModeDependency()
 		}

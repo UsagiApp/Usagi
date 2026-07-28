@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.IBinder
 
 class SyncAuthenticatorService : Service() {
-
 	private lateinit var authenticator: SyncAccountAuthenticator
 
 	override fun onCreate() {
@@ -13,7 +12,5 @@ class SyncAuthenticatorService : Service() {
 		authenticator = SyncAccountAuthenticator(this)
 	}
 
-	override fun onBind(intent: Intent?): IBinder? {
-		return authenticator.iBinder
-	}
+	override fun onBind(intent: Intent?): IBinder? = authenticator.iBinder
 }

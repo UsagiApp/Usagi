@@ -9,7 +9,6 @@ const val SEARCH_SUGGESTION_ITEM_TYPE_QUERY = 0
 class SearchSuggestionAdapter(
 	listener: SearchSuggestionListener,
 ) : BaseListAdapter<SearchSuggestionItem>() {
-
 	init {
 		delegatesManager
 			.addDelegate(SEARCH_SUGGESTION_ITEM_TYPE_QUERY, searchSuggestionQueryAD(listener))

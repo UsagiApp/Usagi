@@ -9,8 +9,5 @@ data class EmptyState(
 	@StringRes val textSecondary: Int,
 	@StringRes val actionStringRes: Int,
 ) : ListModel {
-
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is EmptyState
-	}
+	override fun areItemsTheSame(other: ListModel): Boolean = other is EmptyState
 }

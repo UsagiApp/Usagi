@@ -17,13 +17,18 @@ inline val Fragment.router: AppRouter
 
 tailrec fun Fragment.dismissParentDialog(): Boolean {
 	return when (val parent = parentFragment) {
-		null -> return false
+		null -> {
+			return false
+		}
+
 		is DialogFragment -> {
 			parent.dismiss()
 			true
 		}
 
-		else -> parent.dismissParentDialog()
+		else -> {
+			parent.dismissParentDialog()
+		}
 	}
 }
 
@@ -31,11 +36,17 @@ fun scaleUpActivityOptionsOf(view: View): Bundle? {
 	if (!view.context.isAnimationsEnabled || !view.isOnScreen()) {
 		return null
 	}
-	return ActivityOptions.makeScaleUpAnimation(
-		/* source = */ view,
-		/* startX = */ 0,
-		/* startY = */ 0,
-		/* width = */ view.width,
-		/* height = */ view.height,
-	).toBundle()
+	return ActivityOptions
+		.makeScaleUpAnimation(
+			// source =
+			view,
+			// startX =
+			0,
+			// startY =
+			0,
+			// width =
+			view.width,
+			// height =
+			view.height,
+		).toBundle()
 }

@@ -12,7 +12,6 @@ enum class NavItem(
 	@StringRes val title: Int,
 	@DrawableRes val icon: Int,
 ) {
-
 	HISTORY(R.id.nav_history, R.string.history, R.drawable.ic_history_selector),
 	FAVORITES(R.id.nav_favorites, R.string.favourites, R.drawable.ic_favourites_selector),
 	LOCAL(R.id.nav_local, R.string.on_device, R.drawable.ic_storage_selector),
@@ -23,9 +22,10 @@ enum class NavItem(
 	BOOKMARKS(R.id.nav_bookmarks, R.string.bookmarks, R.drawable.ic_bookmark_selector),
 	;
 
-	fun isAvailable(settings: AppSettings): Boolean = when (this) {
-		SUGGESTIONS -> settings.isSuggestionsEnabled
-		UPDATED, FEED -> settings.isTrackerEnabled
-		else -> true
-	}
+	fun isAvailable(settings: AppSettings): Boolean =
+		when (this) {
+			SUGGESTIONS -> settings.isSuggestionsEnabled
+			UPDATED, FEED -> settings.isTrackerEnabled
+			else -> true
+		}
 }

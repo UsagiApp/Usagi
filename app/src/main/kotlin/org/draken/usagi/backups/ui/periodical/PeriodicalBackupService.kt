@@ -21,7 +21,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class PeriodicalBackupService : CoroutineIntentService() {
-
 	@Inject
 	lateinit var externalBackupStorage: ExternalBackupStorage
 
@@ -39,7 +38,9 @@ class PeriodicalBackupService : CoroutineIntentService() {
 			return
 		}
 		val lastBackupDate = externalBackupStorage.getLastBackupDate()
-		if (lastBackupDate != null && lastBackupDate.time + settings.periodicalBackupFrequencyMillis > System.currentTimeMillis()) {
+		if (lastBackupDate != null &&
+			lastBackupDate.time + settings.periodicalBackupFrequencyMillis > System.currentTimeMillis()
+		) {
 			return
 		}
 		val output = BackupUtils.createTempFile(applicationContext)
@@ -62,22 +63,26 @@ class PeriodicalBackupService : CoroutineIntentService() {
 			return
 		}
 		BaseBackupRestoreService.createNotificationChannel(applicationContext)
-		val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-			.setPriority(NotificationCompat.PRIORITY_HIGH)
-			.setDefaults(0)
-			.setSilent(true)
-			.setAutoCancel(true)
+		val notification =
+			NotificationCompat
+				.Builder(applicationContext, CHANNEL_ID)
+				.setPriority(NotificationCompat.PRIORITY_HIGH)
+				.setDefaults(0)
+				.setSilent(true)
+				.setAutoCancel(true)
 		val title = getString(R.string.periodic_backups)
-		val message = getString(
-			R.string.inline_preference_pattern,
-			getString(R.string.packup_creation_failed),
-			error.getDisplayMessage(resources),
-		)
+		val message =
+			getString(
+				R.string.inline_preference_pattern,
+				getString(R.string.packup_creation_failed),
+				error.getDisplayMessage(resources),
+			)
 		notification
 			.setContentText(message)
 			.setSmallIcon(android.R.drawable.stat_notify_error)
 			.setStyle(
-				NotificationCompat.BigTextStyle()
+				NotificationCompat
+					.BigTextStyle()
 					.bigText(message)
 					.setSummaryText(getString(R.string.packup_creation_failed))
 					.setBigContentTitle(title),
@@ -98,7 +103,6 @@ class PeriodicalBackupService : CoroutineIntentService() {
 	}
 
 	private companion object {
-
 		const val CHANNEL_ID = BaseBackupRestoreService.CHANNEL_ID
 		const val TAG = "periodical_backup"
 	}

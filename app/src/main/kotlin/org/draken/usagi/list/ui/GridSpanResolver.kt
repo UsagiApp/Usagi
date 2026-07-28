@@ -11,7 +11,6 @@ import kotlin.math.roundToInt
 class GridSpanResolver(
 	resources: Resources,
 ) : View.OnLayoutChangeListener {
-
 	var spanCount = 3
 		private set
 
@@ -42,7 +41,10 @@ class GridSpanResolver(
 		(rv.layoutManager as? GridLayoutManager)?.spanCount = spanCount
 	}
 
-	fun setGridSize(scaleFactor: Float, rv: RecyclerView) {
+	fun setGridSize(
+		scaleFactor: Float,
+		rv: RecyclerView,
+	) {
 		cellWidth = (gridWidth * scaleFactor) + spacing
 		val lm = rv.layoutManager as? GridLayoutManager ?: return
 		val innerWidth = lm.width - lm.paddingEnd - lm.paddingStart

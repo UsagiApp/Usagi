@@ -5,7 +5,6 @@ import org.draken.usagi.R
 import org.draken.usagi.core.util.EditTextValidator
 
 class DomainValidator : EditTextValidator() {
-
 	override fun validate(text: String): ValidationResult {
 		val trimmed = text.trim()
 		if (trimmed.isEmpty()) {
@@ -19,16 +18,16 @@ class DomainValidator : EditTextValidator() {
 	}
 
 	companion object {
-
-		fun isValidDomain(value: String): Boolean = runCatching {
-			require(value.isNotEmpty())
-			val parts = value.split(':')
-			require(parts.size <= 2)
-			val urlBuilder = HttpUrl.Builder()
-			urlBuilder.host(parts.first())
-			if (parts.size == 2) {
-				urlBuilder.port(parts[1].toInt())
-			}
-		}.isSuccess
+		fun isValidDomain(value: String): Boolean =
+			runCatching {
+				require(value.isNotEmpty())
+				val parts = value.split(':')
+				require(parts.size <= 2)
+				val urlBuilder = HttpUrl.Builder()
+				urlBuilder.host(parts.first())
+				if (parts.size == 2) {
+					urlBuilder.port(parts[1].toInt())
+				}
+			}.isSuccess
 	}
 }

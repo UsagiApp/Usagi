@@ -6,7 +6,6 @@ import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.util.EditTextValidator
 
 class HeaderValidator : EditTextValidator() {
-
 	private val headers = Headers.Builder()
 
 	override fun validate(text: String): ValidationResult {
@@ -21,7 +20,8 @@ class HeaderValidator : EditTextValidator() {
 		}
 	}
 
-	private fun validateImpl(value: String): Boolean = runCatching {
-		headers[CommonHeaders.USER_AGENT] = value
-	}.isSuccess
+	private fun validateImpl(value: String): Boolean =
+		runCatching {
+			headers[CommonHeaders.USER_AGENT] = value
+		}.isSuccess
 }

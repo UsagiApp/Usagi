@@ -47,7 +47,6 @@ class SourcesManageFragment :
 	BaseFragment<FragmentSettingsSourcesBinding>(),
 	SourceConfigListener,
 	RecyclerViewOwner {
-
 	@Inject
 	lateinit var settings: AppSettings
 
@@ -76,9 +75,10 @@ class SourcesManageFragment :
 		with(binding.recyclerView) {
 			setHasFixedSize(true)
 			adapter = sourcesAdapter
-			reorderHelper = ItemTouchHelper(SourcesReorderCallback()).also {
-				it.attachToRecyclerView(this)
-			}
+			reorderHelper =
+				ItemTouchHelper(SourcesReorderCallback()).also {
+					it.attachToRecyclerView(this)
+				}
 		}
 		viewModel.content.observe(viewLifecycleOwner, checkNotNull(sourcesAdapter))
 		viewModel.onActionDone.observeEvent(
@@ -88,7 +88,10 @@ class SourcesManageFragment :
 		addMenuProvider(SourcesMenuProvider())
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		val isTablet = !resources.getBoolean(R.bool.is_tablet)
 		val isMaster = container?.id == R.id.container_master
@@ -134,7 +137,10 @@ class SourcesManageFragment :
 		viewModel.setPinned(item.source, !item.isPinned)
 	}
 
-	override fun onItemEnabledChanged(item: SourceConfigItem.SourceItem, isEnabled: Boolean) {
+	override fun onItemEnabledChanged(
+		item: SourceConfigItem.SourceItem,
+		isEnabled: Boolean,
+	) {
 		viewModel.setEnabled(item.source, isEnabled)
 	}
 
@@ -146,8 +152,10 @@ class SourcesManageFragment :
 		MenuProvider,
 		MenuItem.OnActionExpandListener,
 		SearchView.OnQueryTextListener {
-
-		override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+		override fun onCreateMenu(
+			menu: Menu,
+			menuInflater: MenuInflater,
+		) {
 			menuInflater.inflate(R.menu.opt_sources, menu)
 			val searchMenuItem = menu.findItem(R.id.action_search)
 			searchMenuItem.setOnActionExpandListener(this)
@@ -157,24 +165,27 @@ class SourcesManageFragment :
 			searchView.queryHint = searchMenuItem.title
 		}
 
-		override fun onMenuItemSelected(menuItem: MenuItem): Boolean = when (menuItem.itemId) {
-			R.id.action_catalog -> {
-				router.openSourcesCatalog()
-				true
-			}
+		override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+			when (menuItem.itemId) {
+				R.id.action_catalog -> {
+					router.openSourcesCatalog()
+					true
+				}
 
-			R.id.action_disable_all -> {
-				viewModel.disableAll()
-				true
-			}
+				R.id.action_disable_all -> {
+					viewModel.disableAll()
+					true
+				}
 
-			R.id.action_no_nsfw -> {
-				settings.isNsfwContentDisabled = !menuItem.isChecked
-				true
-			}
+				R.id.action_no_nsfw -> {
+					settings.isNsfwContentDisabled = !menuItem.isChecked
+					true
+				}
 
-			else -> false
-		}
+				else -> {
+					false
+				}
+			}
 
 		override fun onPrepareMenu(menu: Menu) {
 			super.onPrepareMenu(menu)
@@ -201,11 +212,11 @@ class SourcesManageFragment :
 		}
 	}
 
-	private inner class SourcesReorderCallback : ItemTouchHelper.SimpleCallback(
-		ItemTouchHelper.DOWN or ItemTouchHelper.UP,
-		ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
-	) {
-
+	private inner class SourcesReorderCallback :
+		ItemTouchHelper.SimpleCallback(
+			ItemTouchHelper.DOWN or ItemTouchHelper.UP,
+			ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT,
+		) {
 		override fun onMove(
 			recyclerView: RecyclerView,
 			viewHolder: RecyclerView.ViewHolder,
@@ -229,10 +240,12 @@ class SourcesManageFragment :
 			recyclerView: RecyclerView,
 			current: RecyclerView.ViewHolder,
 			target: RecyclerView.ViewHolder,
-		): Boolean = current.itemViewType == target.itemViewType && viewModel.canReorder(
-			current.bindingAdapterPosition,
-			target.bindingAdapterPosition,
-		)
+		): Boolean =
+			current.itemViewType == target.itemViewType &&
+				viewModel.canReorder(
+					current.bindingAdapterPosition,
+					target.bindingAdapterPosition,
+				)
 
 		override fun getDragDirs(
 			recyclerView: RecyclerView,
@@ -258,7 +271,10 @@ class SourcesManageFragment :
 			}
 		}
 
-		override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+		override fun onSwiped(
+			viewHolder: RecyclerView.ViewHolder,
+			direction: Int,
+		) {
 			val item = viewHolder.getItem(SourceConfigItem.Tip::class.java)
 			if (item != null) {
 				viewModel.onTipClosed(item)
@@ -267,7 +283,10 @@ class SourcesManageFragment :
 
 		override fun isLongPressDragEnabled() = true
 
-		override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+		override fun clearView(
+			recyclerView: RecyclerView,
+			viewHolder: RecyclerView.ViewHolder,
+		) {
 			super.clearView(recyclerView, viewHolder)
 			viewModel.saveSourcesOrder(sourcesAdapter?.items ?: return)
 		}

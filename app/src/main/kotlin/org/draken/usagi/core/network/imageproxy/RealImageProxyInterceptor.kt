@@ -15,28 +15,30 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class RealImageProxyInterceptor @Inject constructor(
-	private val settings: AppSettings,
-) : ImageProxyInterceptor {
+class RealImageProxyInterceptor
+	@Inject
+	constructor(
+		private val settings: AppSettings,
+	) : ImageProxyInterceptor {
+		private val delegate =
+			settings.observeAsStateFlow(
+				scope = processLifecycleScope + Dispatchers.Default,
+				key = AppSettings.KEY_IMAGES_PROXY,
+				valueProducer = { createDelegate() },
+			)
 
-	private val delegate = settings.observeAsStateFlow(
-		scope = processLifecycleScope + Dispatchers.Default,
-		key = AppSettings.KEY_IMAGES_PROXY,
-		valueProducer = { createDelegate() },
-	)
+		override suspend fun intercept(chain: Interceptor.Chain): ImageResult = delegate.value?.intercept(chain) ?: chain.proceed()
 
-	override suspend fun intercept(chain: Interceptor.Chain): ImageResult {
-		return delegate.value?.intercept(chain) ?: chain.proceed()
+		override suspend fun interceptPageRequest(
+			request: Request,
+			okHttp: OkHttpClient,
+		): Response = delegate.value?.interceptPageRequest(request, okHttp) ?: okHttp.newCall(request).await()
+
+		private fun createDelegate(): ImageProxyInterceptor? =
+			when (val proxy = settings.imagesProxy) {
+				-1 -> null
+				0 -> WsrvNlProxyInterceptor()
+				1 -> ZeroMsProxyInterceptor()
+				else -> error("Unsupported images proxy $proxy")
+			}
 	}
-
-	override suspend fun interceptPageRequest(request: Request, okHttp: OkHttpClient): Response {
-		return delegate.value?.interceptPageRequest(request, okHttp) ?: okHttp.newCall(request).await()
-	}
-
-	private fun createDelegate(): ImageProxyInterceptor? = when (val proxy = settings.imagesProxy) {
-		-1 -> null
-		0 -> WsrvNlProxyInterceptor()
-		1 -> ZeroMsProxyInterceptor()
-		else -> error("Unsupported images proxy $proxy")
-	}
-}

@@ -20,14 +20,17 @@ import org.draken.usagi.databinding.SheetBaseBinding
 class TrackerCategoriesConfigSheet :
 	BaseAdaptiveSheet<SheetBaseBinding>(),
 	OnListItemClickListener<FavouriteCategory> {
-
 	private val viewModel by viewModels<TrackerCategoriesConfigViewModel>()
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): SheetBaseBinding {
-		return SheetBaseBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): SheetBaseBinding = SheetBaseBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: SheetBaseBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: SheetBaseBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		binding.headerBar.setTitle(R.string.favourites_categories)
 		val adapter = TrackerCategoriesConfigAdapter(this)
@@ -36,7 +39,10 @@ class TrackerCategoriesConfigSheet :
 		viewModel.content.observe(viewLifecycleOwner, adapter)
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		viewBinding?.recyclerView?.updatePadding(
 			bottom = insets.getInsets(typeMask).bottom,
@@ -44,7 +50,10 @@ class TrackerCategoriesConfigSheet :
 		return insets.consume(v, typeMask, bottom = true)
 	}
 
-	override fun onItemClick(item: FavouriteCategory, view: View) {
+	override fun onItemClick(
+		item: FavouriteCategory,
+		view: View,
+	) {
 		viewModel.toggleItem(item)
 	}
 }

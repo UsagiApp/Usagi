@@ -10,33 +10,33 @@ import org.draken.usagi.scrobbling.common.domain.model.ScrobblerUser
 import org.draken.usagi.scrobbling.kitsu.ui.KitsuAuthActivity
 import javax.inject.Inject
 
-class ScrobblerAuthHelper @Inject constructor(
-	private val repositoriesMap: ScrobblerRepositoryMap,
-) {
+class ScrobblerAuthHelper
+	@Inject
+	constructor(
+		private val repositoriesMap: ScrobblerRepositoryMap,
+	) {
+		fun isAuthorized(scrobbler: ScrobblerService) = repositoriesMap[scrobbler].isAuthorized
 
-	fun isAuthorized(scrobbler: ScrobblerService) = repositoriesMap[scrobbler].isAuthorized
+		fun getCachedUser(scrobbler: ScrobblerService): ScrobblerUser? = repositoriesMap[scrobbler].cachedUser
 
-	fun getCachedUser(scrobbler: ScrobblerService): ScrobblerUser? {
-		return repositoriesMap[scrobbler].cachedUser
-	}
+		suspend fun getUser(scrobbler: ScrobblerService): ScrobblerUser = repositoriesMap[scrobbler].loadUser()
 
-	suspend fun getUser(scrobbler: ScrobblerService): ScrobblerUser {
-		return repositoriesMap[scrobbler].loadUser()
-	}
+		@SuppressLint("UnsafeImplicitIntentLaunch")
+		fun startAuth(
+			context: Context,
+			scrobbler: ScrobblerService,
+		) = runCatching {
+			if (scrobbler == ScrobblerService.KITSU) {
+				launchKitsuAuth(context)
+			} else {
+				val repository = repositoriesMap[scrobbler]
+				val intent = Intent(Intent.ACTION_VIEW)
+				intent.data = repository.oauthUrl.toUri()
+				context.startActivity(intent)
+			}
+		}
 
-	@SuppressLint("UnsafeImplicitIntentLaunch")
-	fun startAuth(context: Context, scrobbler: ScrobblerService) = runCatching {
-		if (scrobbler == ScrobblerService.KITSU) {
-			launchKitsuAuth(context)
-		} else {
-			val repository = repositoriesMap[scrobbler]
-			val intent = Intent(Intent.ACTION_VIEW)
-			intent.data = repository.oauthUrl.toUri()
-			context.startActivity(intent)
+		private fun launchKitsuAuth(context: Context) {
+			context.startActivity(Intent(context, KitsuAuthActivity::class.java))
 		}
 	}
-
-	private fun launchKitsuAuth(context: Context) {
-		context.startActivity(Intent(context, KitsuAuthActivity::class.java))
-	}
-}

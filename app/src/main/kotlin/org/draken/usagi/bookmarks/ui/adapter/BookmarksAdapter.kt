@@ -17,8 +17,8 @@ import org.draken.usagi.list.ui.model.ListModel
 class BookmarksAdapter(
 	clickListener: OnListItemClickListener<Bookmark>,
 	headerClickListener: ListHeaderClickListener?,
-) : BaseListAdapter<ListModel>(), FastScroller.SectionIndexer {
-
+) : BaseListAdapter<ListModel>(),
+	FastScroller.SectionIndexer {
 	init {
 		addDelegate(ListItemType.PAGE_THUMB, bookmarkLargeAD(clickListener))
 		addDelegate(ListItemType.HEADER, listHeaderAD(headerClickListener))
@@ -28,7 +28,8 @@ class BookmarksAdapter(
 		addDelegate(ListItemType.STATE_EMPTY, emptyStateListAD(null))
 	}
 
-	override fun getSectionText(context: Context, position: Int): CharSequence? {
-		return findHeader(position)?.getText(context)
-	}
+	override fun getSectionText(
+		context: Context,
+		position: Int,
+	): CharSequence? = findHeader(position)?.getText(context)
 }

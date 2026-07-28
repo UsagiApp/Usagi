@@ -24,9 +24,9 @@ import org.draken.usagi.core.exceptions.resolve.ExceptionResolver
 import org.draken.usagi.core.os.NetworkState
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.throttle
-import tsuki.model.MangaPage
 import org.draken.usagi.reader.domain.PageLoader
 import org.draken.usagi.reader.ui.config.ReaderSettings
+import tsuki.model.MangaPage
 
 class PageViewModel(
 	private val loader: PageLoader,
@@ -35,7 +35,6 @@ class PageViewModel(
 	private val exceptionResolver: ExceptionResolver,
 	private val isWebtoon: Boolean,
 ) : DefaultOnImageEventListener {
-
 	private val scope = loader.loaderScope + Dispatchers.Main.immediate
 	private var job: Job? = null
 	private var cachedBounds: Rect? = null
@@ -46,26 +45,31 @@ class PageViewModel(
 
 	fun onBind(page: MangaPage) {
 		val prevJob = job
-		job = scope.launch(Dispatchers.Default) {
-			prevJob?.cancelAndJoin()
-			doLoad(page, force = false)
-		}
+		job =
+			scope.launch(Dispatchers.Default) {
+				prevJob?.cancelAndJoin()
+				doLoad(page, force = false)
+			}
 	}
 
-	fun retry(page: MangaPage, isFromUser: Boolean) {
+	fun retry(
+		page: MangaPage,
+		isFromUser: Boolean,
+	) {
 		val prevJob = job
-		job = scope.launch {
-			prevJob?.cancelAndJoin()
-			val e = (state.value as? PageState.Error)?.error
-			if (e != null && ExceptionResolver.canResolve(e)) {
-				if (isFromUser) {
-					exceptionResolver.resolve(e)
+		job =
+			scope.launch {
+				prevJob?.cancelAndJoin()
+				val e = (state.value as? PageState.Error)?.error
+				if (e != null && ExceptionResolver.canResolve(e)) {
+					if (isFromUser) {
+						exceptionResolver.resolve(e)
+					}
+				}
+				withContext(Dispatchers.Default) {
+					doLoad(page, force = true)
 				}
 			}
-			withContext(Dispatchers.Default) {
-				doLoad(page, force = true)
-			}
-		}
 	}
 
 	fun showErrorDetails(url: String?) {
@@ -107,49 +111,59 @@ class PageViewModel(
 		}
 	}
 
-	private fun tryConvert(uri: Uri, e: Exception) {
+	private fun tryConvert(
+		uri: Uri,
+		e: Exception,
+	) {
 		val prevJob = job
-		job = scope.launch(Dispatchers.Default) {
-			prevJob?.join()
-			state.value = PageState.Converting()
-			try {
-				val newUri = loader.convertBimap(uri)
-				cachedBounds = if (settingsProducer.value.isPagesCropEnabled(isWebtoon)) {
-					loader.getTrimmedBounds(newUri)
-				} else {
-					null
+		job =
+			scope.launch(Dispatchers.Default) {
+				prevJob?.join()
+				state.value = PageState.Converting()
+				try {
+					val newUri = loader.convertBimap(uri)
+					cachedBounds =
+						if (settingsProducer.value.isPagesCropEnabled(isWebtoon)) {
+							loader.getTrimmedBounds(newUri)
+						} else {
+							null
+						}
+					state.value = PageState.Loaded(newUri.toImageSource(cachedBounds), isConverted = true)
+				} catch (ce: CancellationException) {
+					throw ce
+				} catch (e2: Throwable) {
+					e2.printStackTrace()
+					e.addSuppressed(e2)
+					state.value = PageState.Error(e)
 				}
-				state.value = PageState.Loaded(newUri.toImageSource(cachedBounds), isConverted = true)
-			} catch (ce: CancellationException) {
-				throw ce
-			} catch (e2: Throwable) {
-				e2.printStackTrace()
-				e.addSuppressed(e2)
-				state.value = PageState.Error(e)
 			}
-		}
 	}
 
 	@WorkerThread
-	private suspend fun doLoad(data: MangaPage, force: Boolean) = coroutineScope {
+	private suspend fun doLoad(
+		data: MangaPage,
+		force: Boolean,
+	) = coroutineScope {
 		state.value = PageState.Loading(null, -1)
-		val previewJob = launch {
-			val preview = loader.loadPreview(data) ?: return@launch
-			state.update {
-				if (it is PageState.Loading) it.copy(preview = preview) else it
+		val previewJob =
+			launch {
+				val preview = loader.loadPreview(data) ?: return@launch
+				state.update {
+					if (it is PageState.Loading) it.copy(preview = preview) else it
+				}
 			}
-		}
 		try {
 			val task = loader.loadPageAsync(data, force)
 			val progressObserver = observeProgress(this, task.progressAsFlow())
 			val uri = task.await()
 			progressObserver.cancelAndJoin()
 			previewJob.cancel()
-			cachedBounds = if (settingsProducer.value.isPagesCropEnabled(isWebtoon)) {
-				loader.getTrimmedBounds(uri)
-			} else {
-				null
-			}
+			cachedBounds =
+				if (settingsProducer.value.isPagesCropEnabled(isWebtoon)) {
+					loader.getTrimmedBounds(uri)
+				} else {
+					null
+				}
 			state.value = PageState.Loaded(uri.toImageSource(cachedBounds), isConverted = false)
 		} catch (e: CancellationException) {
 			throw e
@@ -163,7 +177,10 @@ class PageViewModel(
 		}
 	}
 
-	private fun observeProgress(scope: CoroutineScope, progress: Flow<Float>) = progress
+	private fun observeProgress(
+		scope: CoroutineScope,
+		progress: Flow<Float>,
+	) = progress
 		.throttle(250)
 		.onEach {
 			val progressValue = (100 * it).toInt()

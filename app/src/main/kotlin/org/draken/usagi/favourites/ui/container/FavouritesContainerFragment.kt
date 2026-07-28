@@ -32,12 +32,12 @@ import org.draken.usagi.databinding.ItemEmptyStateBinding
 import org.draken.usagi.favourites.ui.list.FavouritesListFragment
 
 @AndroidEntryPoint
-class FavouritesContainerFragment : BaseFragment<FragmentFavouritesContainerBinding>(),
+class FavouritesContainerFragment :
+	BaseFragment<FragmentFavouritesContainerBinding>(),
 	ActionModeListener,
 	RecyclerViewOwner,
 	ViewStub.OnInflateListener,
 	View.OnClickListener {
-
 	private val viewModel: FavouritesContainerViewModel by viewModels()
 
 	override val recyclerView: RecyclerView?
@@ -50,7 +50,10 @@ class FavouritesContainerFragment : BaseFragment<FragmentFavouritesContainerBind
 		container: ViewGroup?,
 	) = FragmentFavouritesContainerBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: FragmentFavouritesContainerBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentFavouritesContainerBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		val pagerAdapter = FavouritesContainerAdapter(this)
 		binding.pager.adapter = pagerAdapter
@@ -74,7 +77,10 @@ class FavouritesContainerFragment : BaseFragment<FragmentFavouritesContainerBind
 		super.onDestroyView()
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat = insets
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat = insets
 
 	override fun onActionModeStarted(mode: ActionMode) {
 		viewBinding?.run {
@@ -90,7 +96,10 @@ class FavouritesContainerFragment : BaseFragment<FragmentFavouritesContainerBind
 		}
 	}
 
-	override fun onInflate(stub: ViewStub?, inflated: View) {
+	override fun onInflate(
+		stub: ViewStub?,
+		inflated: View,
+	) {
 		val stubBinding = ItemEmptyStateBinding.bind(inflated)
 		stubBinding.icon.setImageAsync(R.drawable.ic_empty_favourites)
 		stubBinding.textPrimary.setText(R.string.text_empty_holder_primary)

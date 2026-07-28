@@ -19,7 +19,6 @@ fun mangaGridItemAD(
 ) = adapterDelegateViewBinding<MangaGridModel, ListModel, ItemMangaGridBinding>(
 	{ inflater, parent -> ItemMangaGridBinding.inflate(inflater, parent, false) },
 ) {
-
 	AdapterDelegateClickListenerAdapter(this, clickListener).attach(itemView)
 	sizeResolver.attachToView(itemView, binding.textViewTitle, binding.progressView)
 

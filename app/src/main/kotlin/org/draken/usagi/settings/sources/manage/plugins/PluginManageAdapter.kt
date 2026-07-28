@@ -20,11 +20,10 @@ class PluginManageAdapter(
 	onClick: (PluginManageItem.Plugin) -> Unit,
 	isSelected: (PluginManageItem.Plugin) -> Boolean,
 ) : BaseListAdapter<ListModel>() {
-
 	init {
 		addDelegate(
 			ListItemType.CHAPTER_LIST,
-			pluginItemDelegate(onRenameClick, onUpdateClick, onLongClick, onClick, isSelected)
+			pluginItemDelegate(onRenameClick, onUpdateClick, onLongClick, onClick, isSelected),
 		)
 		addDelegate(ListItemType.HINT_EMPTY, pluginPlaceholderDelegate())
 	}
@@ -39,7 +38,6 @@ class PluginManageAdapter(
 	) = adapterDelegateViewBinding<PluginManageItem.Plugin, ListModel, ItemSourceConfigBinding>(
 		{ layoutInflater, parent -> ItemSourceConfigBinding.inflate(layoutInflater, parent, false) },
 	) {
-
 		binding.imageViewIcon.setImageResource(R.drawable.ic_services)
 		binding.imageViewIcon.background = null
 		binding.imageViewMenu.isVisible = true
@@ -75,13 +73,14 @@ class PluginManageAdapter(
 		}
 	}
 
-	private fun pluginPlaceholderDelegate() = adapterDelegateViewBinding<PluginManageItem.Placeholder, ListModel, ItemEmptyHintBinding>(
-		{ layoutInflater, parent -> ItemEmptyHintBinding.inflate(layoutInflater, parent, false) },
-	) {
-		binding.icon.setImageResource(R.drawable.ic_empty_feed)
-		bind {
-			binding.textPrimary.setText(item.titleResId)
-			binding.textSecondary.setTextAndVisible(item.summaryResId ?: 0)
+	private fun pluginPlaceholderDelegate() =
+		adapterDelegateViewBinding<PluginManageItem.Placeholder, ListModel, ItemEmptyHintBinding>(
+			{ layoutInflater, parent -> ItemEmptyHintBinding.inflate(layoutInflater, parent, false) },
+		) {
+			binding.icon.setImageResource(R.drawable.ic_empty_feed)
+			bind {
+				binding.textPrimary.setText(item.titleResId)
+				binding.textSecondary.setTextAndVisible(item.summaryResId ?: 0)
+			}
 		}
-	}
 }

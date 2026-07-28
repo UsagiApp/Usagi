@@ -8,6 +8,5 @@ class CloudFlareBlockedException(
 	override val url: String,
 	source: MangaSource?,
 ) : CloudFlareException("Blocked by CloudFlare", CloudFlareHelper.PROTECTION_BLOCKED) {
-
 	override val source: MangaSource = source ?: UnknownMangaSource
 }

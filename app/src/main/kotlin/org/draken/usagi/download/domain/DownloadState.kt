@@ -23,7 +23,6 @@ data class DownloadState(
 	val downloadedChapters: Int = 0,
 	val timestamp: Long = System.currentTimeMillis(),
 ) {
-
 	val max: Int = totalChapters * totalPages
 
 	val progress: Int = totalPages * currentChapter + currentPage + 1
@@ -36,21 +35,22 @@ data class DownloadState(
 	val isParticularProgress: Boolean
 		get() = localManga == null && error == null && !isPaused && !isStopped && max > 0 && !isIndeterminate
 
-	fun toWorkData() = Data.Builder()
-		.putLong(DATA_MANGA_ID, manga.id)
-		.putInt(DATA_MAX, max)
-		.putInt(DATA_PROGRESS, progress)
-		.putLong(DATA_ETA, eta)
-		.putBoolean(DATA_STUCK, isStuck)
-		.putLong(DATA_TIMESTAMP, timestamp)
-		.putString(DATA_ERROR, errorMessage)
-		.putInt(DATA_CHAPTERS, downloadedChapters)
-		.putBoolean(DATA_INDETERMINATE, isIndeterminate)
-		.putBoolean(DATA_PAUSED, isPaused)
-		.build()
+	fun toWorkData() =
+		Data
+			.Builder()
+			.putLong(DATA_MANGA_ID, manga.id)
+			.putInt(DATA_MAX, max)
+			.putInt(DATA_PROGRESS, progress)
+			.putLong(DATA_ETA, eta)
+			.putBoolean(DATA_STUCK, isStuck)
+			.putLong(DATA_TIMESTAMP, timestamp)
+			.putString(DATA_ERROR, errorMessage)
+			.putInt(DATA_CHAPTERS, downloadedChapters)
+			.putBoolean(DATA_INDETERMINATE, isIndeterminate)
+			.putBoolean(DATA_PAUSED, isPaused)
+			.build()
 
 	companion object {
-
 		private const val DATA_MANGA_ID = "manga_id"
 		private const val DATA_MAX = "max"
 		private const val DATA_PROGRESS = "progress"

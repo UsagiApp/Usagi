@@ -38,9 +38,11 @@ private const val PAGE_PASSWORD = 1
 private const val PASSWORD_MIN_LENGTH = 4
 
 @AndroidEntryPoint
-class SyncAuthActivity : BaseActivity<ActivitySyncAuthBinding>(), View.OnClickListener, FragmentResultListener,
+class SyncAuthActivity :
+	BaseActivity<ActivitySyncAuthBinding>(),
+	View.OnClickListener,
+	FragmentResultListener,
 	DefaultTextWatcher {
-
 	private var accountAuthenticatorResponse: AccountAuthenticatorResponse? = null
 	private var resultBundle: Bundle? = null
 	private val pageBackCallback = PageBackCallback()
@@ -80,7 +82,10 @@ class SyncAuthActivity : BaseActivity<ActivitySyncAuthBinding>(), View.OnClickLi
 		}
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		viewBinding.root.updatePadding(top = barsInsets.top)
 		viewBinding.dockedToolbarChild.updateLayoutParams<MarginLayoutParams> {
@@ -115,7 +120,10 @@ class SyncAuthActivity : BaseActivity<ActivitySyncAuthBinding>(), View.OnClickLi
 
 			R.id.button_done -> {
 				viewModel.obtainToken(
-					email = viewBinding.editEmail.text.toString().trim(),
+					email =
+						viewBinding.editEmail.text
+							.toString()
+							.trim(),
 					password = viewBinding.editPassword.text.toString(),
 				)
 			}
@@ -126,7 +134,10 @@ class SyncAuthActivity : BaseActivity<ActivitySyncAuthBinding>(), View.OnClickLi
 		}
 	}
 
-	override fun onFragmentResult(requestKey: String, result: Bundle) {
+	override fun onFragmentResult(
+		requestKey: String,
+		result: Bundle,
+	) {
 		val syncURL = result.getString(SyncHostDialogFragment.KEY_SYNC_URL) ?: return
 		viewModel.syncURL.value = syncURL
 	}
@@ -142,7 +153,10 @@ class SyncAuthActivity : BaseActivity<ActivitySyncAuthBinding>(), View.OnClickLi
 
 	override fun afterTextChanged(s: Editable?) {
 		val isLoading = viewModel.isLoading.value
-		val email = viewBinding.editEmail.text?.trim()?.toString()
+		val email =
+			viewBinding.editEmail.text
+				?.trim()
+				?.toString()
 		val password = viewBinding.editPassword.text?.toString()
 		viewBinding.buttonNext.isEnabled = !isLoading && !email.isNullOrEmpty() && regexEmail.matches(email)
 		viewBinding.buttonDone.isEnabled = !isLoading && password != null && password.length >= PASSWORD_MIN_LENGTH
@@ -204,7 +218,8 @@ class SyncAuthActivity : BaseActivity<ActivitySyncAuthBinding>(), View.OnClickLi
 	}
 
 	private fun onAccountAlreadyExists() {
-		Toast.makeText(this, R.string.account_already_exists, Toast.LENGTH_SHORT)
+		Toast
+			.makeText(this, R.string.account_already_exists, Toast.LENGTH_SHORT)
 			.show()
 		accountAuthenticatorResponse?.onError(
 			AccountManager.ERROR_CODE_UNSUPPORTED_OPERATION,
@@ -214,7 +229,6 @@ class SyncAuthActivity : BaseActivity<ActivitySyncAuthBinding>(), View.OnClickLi
 	}
 
 	private inner class PageBackCallback : OnBackPressedCallback(false) {
-
 		override fun handleOnBackPressed() {
 			setPage(PAGE_EMAIL)
 			viewBinding.editEmail.requestFocus()

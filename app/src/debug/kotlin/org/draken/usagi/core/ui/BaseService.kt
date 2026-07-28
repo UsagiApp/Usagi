@@ -6,7 +6,6 @@ import androidx.lifecycle.LifecycleService
 import leakcanary.AppWatcher
 
 abstract class BaseService : LifecycleService() {
-
 	override fun attachBaseContext(newBase: Context) {
 		super.attachBaseContext(ContextCompat.getContextForLanguage(newBase))
 	}

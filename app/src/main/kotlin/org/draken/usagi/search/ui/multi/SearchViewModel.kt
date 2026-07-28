@@ -37,287 +37,319 @@ import org.draken.usagi.list.ui.model.EmptyState
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingFooter
 import org.draken.usagi.list.ui.model.LoadingState
+import org.draken.usagi.search.domain.SearchKind
+import org.draken.usagi.search.domain.SearchV2Helper
 import tsuki.model.Manga
 import tsuki.model.MangaSource
 import tsuki.util.runCatchingCancellable
-import org.draken.usagi.search.domain.SearchKind
-import org.draken.usagi.search.domain.SearchV2Helper
 import java.util.Locale
 import javax.inject.Inject
 
 private const val MAX_PARALLELISM = 4
 
 @HiltViewModel
-class SearchViewModel @Inject constructor(
-	savedStateHandle: SavedStateHandle,
-	private val mangaListMapper: MangaListMapper,
-	private val searchHelperFactory: SearchV2Helper.Factory,
-	private val sourcesRepository: MangaSourcesRepository,
-	private val historyRepository: HistoryRepository,
-	private val favouritesRepository: FavouritesRepository,
-) : BaseViewModel() {
+class SearchViewModel
+	@Inject
+	constructor(
+		savedStateHandle: SavedStateHandle,
+		private val mangaListMapper: MangaListMapper,
+		private val searchHelperFactory: SearchV2Helper.Factory,
+		private val sourcesRepository: MangaSourcesRepository,
+		private val historyRepository: HistoryRepository,
+		private val favouritesRepository: FavouritesRepository,
+	) : BaseViewModel() {
+		val query = savedStateHandle.get<String>(AppRouter.KEY_QUERY).orEmpty()
+		val kind = savedStateHandle.get<SearchKind>(AppRouter.KEY_KIND) ?: SearchKind.SIMPLE
 
-	val query = savedStateHandle.get<String>(AppRouter.KEY_QUERY).orEmpty()
-	val kind = savedStateHandle.get<SearchKind>(AppRouter.KEY_KIND) ?: SearchKind.SIMPLE
+		private var includeDisabledSources = MutableStateFlow(false)
+		private var pinnedOnly = MutableStateFlow(false)
+		private var hideEmpty = MutableStateFlow(false)
+		private val results = MutableStateFlow<List<SearchResultsListModel>>(emptyList())
 
-	private var includeDisabledSources = MutableStateFlow(false)
-	private var pinnedOnly = MutableStateFlow(false)
-	private var hideEmpty = MutableStateFlow(false)
-	private val results = MutableStateFlow<List<SearchResultsListModel>>(emptyList())
+		private var searchJob: Job? = null
 
-	private var searchJob: Job? = null
-
-	val list: StateFlow<List<ListModel>> = combine(
-		results,
-		isLoading.dropWhile { !it },
-		includeDisabledSources,
-		hideEmpty,
-	) { list, loading, includeDisabled, hideEmptyVal ->
-		val filteredList = if (hideEmptyVal) {
-			list.filter { it.list.isNotEmpty() }
-		} else {
-			list
-		}
-		when {
-			filteredList.isEmpty() -> listOf(
+		val list: StateFlow<List<ListModel>> =
+			combine(
+				results,
+				isLoading.dropWhile { !it },
+				includeDisabledSources,
+				hideEmpty,
+			) { list, loading, includeDisabled, hideEmptyVal ->
+				val filteredList =
+					if (hideEmptyVal) {
+						list.filter { it.list.isNotEmpty() }
+					} else {
+						list
+					}
 				when {
-					loading -> LoadingState
-					else -> EmptyState(
-						icon = R.drawable.ic_empty_common,
-						textPrimary = R.string.nothing_found,
-						textSecondary = R.string.text_search_holder_secondary,
-						actionStringRes = 0,
+					filteredList.isEmpty() -> {
+						listOf(
+							when {
+								loading -> {
+									LoadingState
+								}
+
+								else -> {
+									EmptyState(
+										icon = R.drawable.ic_empty_common,
+										textPrimary = R.string.nothing_found,
+										textSecondary = R.string.text_search_holder_secondary,
+										actionStringRes = 0,
+									)
+								}
+							},
+						)
+					}
+
+					loading -> {
+						filteredList + LoadingFooter()
+					}
+
+					includeDisabled -> {
+						filteredList
+					}
+
+					else -> {
+						filteredList + ButtonFooter(R.string.search_disabled_sources)
+					}
+				}
+			}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, listOf(LoadingState))
+
+		init {
+			doSearch()
+		}
+
+		fun getItems(ids: LongSet): Set<Manga> {
+			val snapshot = results.value
+			val result = ArraySet<Manga>(ids.size)
+			snapshot.forEach { x ->
+				for (item in x.list) {
+					if (item.id in ids) {
+						result.add(item.manga)
+					}
+				}
+			}
+			return result
+		}
+
+		fun retry() {
+			searchJob?.cancel()
+			results.value = emptyList()
+			includeDisabledSources.value = false
+			doSearch()
+		}
+
+		fun setPinnedOnly(value: Boolean) {
+			if (pinnedOnly.value != value) {
+				pinnedOnly.value = value
+				retry()
+			}
+		}
+
+		fun setHideEmpty(value: Boolean) {
+			hideEmpty.value = value
+		}
+
+		fun continueSearch() {
+			if (includeDisabledSources.value) {
+				return
+			}
+			val prevJob = searchJob
+			searchJob =
+				launchLoadingJob(Dispatchers.Default) {
+					includeDisabledSources.value = true
+					prevJob?.join()
+					val sources =
+						if (pinnedOnly.value) {
+							emptyList()
+						} else {
+							sourcesRepository
+								.getDisabledSources()
+								.sortedByDescending { it.priority() }
+						}
+					val semaphore = Semaphore(MAX_PARALLELISM)
+					sources
+						.map { source ->
+							launch {
+								semaphore.withPermit {
+									appendResult(searchSource(source))
+								}
+							}
+						}.joinAll()
+				}
+		}
+
+		private fun doSearch() {
+			val prevJob = searchJob
+			searchJob =
+				launchLoadingJob(Dispatchers.Default) {
+					prevJob?.cancelAndJoin()
+					appendResult(searchHistory())
+					appendResult(searchFavorites())
+					appendResult(searchLocal())
+					val sources =
+						if (pinnedOnly.value) {
+							sourcesRepository.getPinnedSources().toList()
+						} else {
+							sourcesRepository.getEnabledSources()
+						}
+					val semaphore = Semaphore(MAX_PARALLELISM)
+					sources
+						.map { source ->
+							launch {
+								semaphore.withPermit {
+									appendResult(searchSource(source))
+								}
+							}
+						}.joinAll()
+				}
+		}
+
+		// impl
+
+		private suspend fun searchSource(source: MangaSource): SearchResultsListModel? =
+			runCatchingCancellable {
+				val searchHelper = searchHelperFactory.create(source)
+				searchHelper(query, kind)
+			}.fold(
+				onSuccess = { result ->
+					if (result == null || result.manga.isEmpty()) {
+						null
+					} else {
+						val list =
+							mangaListMapper.toListModelList(
+								manga = result.manga,
+								mode = ListMode.GRID,
+							)
+						SearchResultsListModel(
+							titleResId = 0,
+							source = source,
+							list = list,
+							error = null,
+							listFilter = result.listFilter,
+							sortOrder = result.sortOrder,
+						)
+					}
+				},
+				onFailure = { error ->
+					error.printStackTraceDebug()
+					if (source.isBroken) {
+						null
+					} else {
+						SearchResultsListModel(0, source, null, null, emptyList(), error)
+					}
+				},
+			)
+
+		private suspend fun searchHistory(): SearchResultsListModel? =
+			runCatchingCancellable {
+				historyRepository.search(query, kind, Int.MAX_VALUE)
+			}.fold(
+				onSuccess = { result ->
+					if (result.isNotEmpty()) {
+						SearchResultsListModel(
+							titleResId = R.string.history,
+							source = UnknownMangaSource,
+							list = mangaListMapper.toListModelList(manga = result, mode = ListMode.GRID),
+							error = null,
+							listFilter = null,
+							sortOrder = null,
+						)
+					} else {
+						null
+					}
+				},
+				onFailure = { error ->
+					SearchResultsListModel(
+						titleResId = R.string.history,
+						source = UnknownMangaSource,
+						list = emptyList(),
+						error = error,
+						listFilter = null,
+						sortOrder = null,
 					)
 				},
 			)
 
-			loading -> filteredList + LoadingFooter()
-			includeDisabled -> filteredList
-			else -> filteredList + ButtonFooter(R.string.search_disabled_sources)
-		}
-	}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, listOf(LoadingState))
-
-	init {
-		doSearch()
-	}
-
-	fun getItems(ids: LongSet): Set<Manga> {
-		val snapshot = results.value
-		val result = ArraySet<Manga>(ids.size)
-		snapshot.forEach { x ->
-			for (item in x.list) {
-				if (item.id in ids) {
-					result.add(item.manga)
-				}
-			}
-		}
-		return result
-	}
-
-	fun retry() {
-		searchJob?.cancel()
-		results.value = emptyList()
-		includeDisabledSources.value = false
-		doSearch()
-	}
-
-	fun setPinnedOnly(value: Boolean) {
-		if (pinnedOnly.value != value) {
-			pinnedOnly.value = value
-			retry()
-		}
-	}
-
-	fun setHideEmpty(value: Boolean) {
-		hideEmpty.value = value
-	}
-
-	fun continueSearch() {
-		if (includeDisabledSources.value) {
-			return
-		}
-		val prevJob = searchJob
-		searchJob = launchLoadingJob(Dispatchers.Default) {
-			includeDisabledSources.value = true
-			prevJob?.join()
-			val sources = if (pinnedOnly.value) {
-				emptyList()
-			} else {
-				sourcesRepository.getDisabledSources()
-					.sortedByDescending { it.priority() }
-			}
-			val semaphore = Semaphore(MAX_PARALLELISM)
-			sources.map { source ->
-				launch {
-					semaphore.withPermit {
-						appendResult(searchSource(source))
+		private suspend fun searchFavorites(): SearchResultsListModel? =
+			runCatchingCancellable {
+				favouritesRepository.search(query, kind, Int.MAX_VALUE)
+			}.fold(
+				onSuccess = { result ->
+					if (result.isNotEmpty()) {
+						SearchResultsListModel(
+							titleResId = R.string.favourites,
+							source = UnknownMangaSource,
+							list =
+								mangaListMapper.toListModelList(
+									manga = result,
+									mode = ListMode.GRID,
+									flags = MangaListMapper.NO_FAVORITE,
+								),
+							error = null,
+							listFilter = null,
+							sortOrder = null,
+						)
+					} else {
+						null
 					}
-				}
-			}.joinAll()
-		}
-	}
+				},
+				onFailure = { error ->
+					SearchResultsListModel(
+						titleResId = R.string.favourites,
+						source = UnknownMangaSource,
+						list = emptyList(),
+						error = error,
+						listFilter = null,
+						sortOrder = null,
+					)
+				},
+			)
 
-	private fun doSearch() {
-		val prevJob = searchJob
-		searchJob = launchLoadingJob(Dispatchers.Default) {
-			prevJob?.cancelAndJoin()
-			appendResult(searchHistory())
-			appendResult(searchFavorites())
-			appendResult(searchLocal())
-			val sources = if (pinnedOnly.value) {
-				sourcesRepository.getPinnedSources().toList()
-			} else {
-				sourcesRepository.getEnabledSources()
-			}
-			val semaphore = Semaphore(MAX_PARALLELISM)
-			sources.map { source ->
-				launch {
-					semaphore.withPermit {
-						appendResult(searchSource(source))
+		private suspend fun searchLocal(): SearchResultsListModel? =
+			runCatchingCancellable {
+				searchHelperFactory.create(LocalMangaSource).invoke(query, kind)
+			}.fold(
+				onSuccess = { result ->
+					if (!result?.manga.isNullOrEmpty()) {
+						SearchResultsListModel(
+							titleResId = 0,
+							source = LocalMangaSource,
+							list =
+								mangaListMapper.toListModelList(
+									manga = result.manga,
+									mode = ListMode.GRID,
+									flags = MangaListMapper.NO_SAVED,
+								),
+							error = null,
+							listFilter = result.listFilter,
+							sortOrder = result.sortOrder,
+						)
+					} else {
+						null
 					}
-				}
-			}.joinAll()
+				},
+				onFailure = { error ->
+					SearchResultsListModel(
+						titleResId = 0,
+						source = LocalMangaSource,
+						list = emptyList(),
+						error = error,
+						listFilter = null,
+						sortOrder = null,
+					)
+				},
+			)
+
+		private fun appendResult(item: SearchResultsListModel?) {
+			if (item != null) {
+				results.append(item)
+			}
+		}
+
+		private fun MangaSource.priority(): Int {
+			var res = 0
+			if (locale.toLocale() == Locale.getDefault()) res += 2
+			return res
 		}
 	}
-
-	// impl
-
-	private suspend fun searchSource(source: MangaSource): SearchResultsListModel? = runCatchingCancellable {
-		val searchHelper = searchHelperFactory.create(source)
-		searchHelper(query, kind)
-	}.fold(
-		onSuccess = { result ->
-			if (result == null || result.manga.isEmpty()) {
-				null
-			} else {
-				val list = mangaListMapper.toListModelList(
-					manga = result.manga,
-					mode = ListMode.GRID,
-				)
-				SearchResultsListModel(
-					titleResId = 0,
-					source = source,
-					list = list,
-					error = null,
-					listFilter = result.listFilter,
-					sortOrder = result.sortOrder,
-				)
-			}
-		},
-		onFailure = { error ->
-			error.printStackTraceDebug()
-			if (source.isBroken) {
-				null
-			} else {
-				SearchResultsListModel(0, source, null, null, emptyList(), error)
-			}
-		},
-	)
-
-	private suspend fun searchHistory(): SearchResultsListModel? = runCatchingCancellable {
-		historyRepository.search(query, kind, Int.MAX_VALUE)
-	}.fold(
-		onSuccess = { result ->
-			if (result.isNotEmpty()) {
-				SearchResultsListModel(
-					titleResId = R.string.history,
-					source = UnknownMangaSource,
-					list = mangaListMapper.toListModelList(manga = result, mode = ListMode.GRID),
-					error = null,
-					listFilter = null,
-					sortOrder = null,
-				)
-			} else {
-				null
-			}
-		},
-		onFailure = { error ->
-			SearchResultsListModel(
-				titleResId = R.string.history,
-				source = UnknownMangaSource,
-				list = emptyList(),
-				error = error,
-				listFilter = null,
-				sortOrder = null,
-			)
-		},
-	)
-
-	private suspend fun searchFavorites(): SearchResultsListModel? = runCatchingCancellable {
-		favouritesRepository.search(query, kind, Int.MAX_VALUE)
-	}.fold(
-		onSuccess = { result ->
-			if (result.isNotEmpty()) {
-				SearchResultsListModel(
-					titleResId = R.string.favourites,
-					source = UnknownMangaSource,
-					list = mangaListMapper.toListModelList(
-						manga = result,
-						mode = ListMode.GRID,
-						flags = MangaListMapper.NO_FAVORITE,
-					),
-					error = null,
-					listFilter = null,
-					sortOrder = null,
-				)
-			} else {
-				null
-			}
-		},
-		onFailure = { error ->
-			SearchResultsListModel(
-				titleResId = R.string.favourites,
-				source = UnknownMangaSource,
-				list = emptyList(),
-				error = error,
-				listFilter = null,
-				sortOrder = null,
-			)
-		},
-	)
-
-	private suspend fun searchLocal(): SearchResultsListModel? = runCatchingCancellable {
-		searchHelperFactory.create(LocalMangaSource).invoke(query, kind)
-	}.fold(
-		onSuccess = { result ->
-			if (!result?.manga.isNullOrEmpty()) {
-				SearchResultsListModel(
-					titleResId = 0,
-					source = LocalMangaSource,
-					list = mangaListMapper.toListModelList(
-						manga = result.manga,
-						mode = ListMode.GRID,
-						flags = MangaListMapper.NO_SAVED,
-					),
-					error = null,
-					listFilter = result.listFilter,
-					sortOrder = result.sortOrder,
-				)
-			} else {
-				null
-			}
-		},
-		onFailure = { error ->
-			SearchResultsListModel(
-				titleResId = 0,
-				source = LocalMangaSource,
-				list = emptyList(),
-				error = error,
-				listFilter = null,
-				sortOrder = null,
-			)
-		},
-	)
-
-	private fun appendResult(item: SearchResultsListModel?) {
-		if (item != null) {
-			results.append(item)
-		}
-	}
-
-	private fun MangaSource.priority(): Int {
-		var res = 0
-		if (locale.toLocale() == Locale.getDefault()) res += 2
-		return res
-	}
-}

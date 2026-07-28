@@ -3,7 +3,6 @@ package org.draken.usagi.download.ui.list
 import org.draken.usagi.core.ui.list.OnListItemClickListener
 
 interface DownloadItemListener : OnListItemClickListener<DownloadItemModel> {
-
 	fun onCancelClick(item: DownloadItemModel)
 
 	fun onPauseClick(item: DownloadItemModel)

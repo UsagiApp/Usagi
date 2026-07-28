@@ -16,46 +16,54 @@ import java.util.EnumMap
 import javax.inject.Inject
 
 @HiltViewModel
-class ReaderTapGridConfigViewModel @Inject constructor(
-	private val tapGridSettings: TapGridSettings,
-) : BaseViewModel() {
+class ReaderTapGridConfigViewModel
+	@Inject
+	constructor(
+		private val tapGridSettings: TapGridSettings,
+	) : BaseViewModel() {
+		val content =
+			tapGridSettings
+				.observeChanges()
+				.onStart { emit(null) }
+				.map { getData() }
+				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, emptyMap())
 
-	val content = tapGridSettings.observeChanges()
-		.onStart { emit(null) }
-		.map { getData() }
-		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, emptyMap())
-
-	fun reset() {
-		launchJob(Dispatchers.Default) {
-			tapGridSettings.reset()
+		fun reset() {
+			launchJob(Dispatchers.Default) {
+				tapGridSettings.reset()
+			}
 		}
-	}
 
-	fun disableAll() {
-		launchJob(Dispatchers.Default) {
-			tapGridSettings.disableAll()
+		fun disableAll() {
+			launchJob(Dispatchers.Default) {
+				tapGridSettings.disableAll()
+			}
 		}
-	}
 
-	fun setTapAction(area: TapGridArea, isLongTap: Boolean, action: TapAction?) {
-		launchJob(Dispatchers.Default) {
-			tapGridSettings.setTapAction(area, isLongTap, action)
+		fun setTapAction(
+			area: TapGridArea,
+			isLongTap: Boolean,
+			action: TapAction?,
+		) {
+			launchJob(Dispatchers.Default) {
+				tapGridSettings.setTapAction(area, isLongTap, action)
+			}
 		}
-	}
 
-	private fun getData(): Map<TapGridArea, TapActions> {
-		val map = EnumMap<TapGridArea, TapActions>(TapGridArea::class.java)
-		for (area in TapGridArea.entries) {
-			map[area] = TapActions(
-				tapAction = tapGridSettings.getTapAction(area, isLongTap = false),
-				longTapAction = tapGridSettings.getTapAction(area, isLongTap = true),
-			)
+		private fun getData(): Map<TapGridArea, TapActions> {
+			val map = EnumMap<TapGridArea, TapActions>(TapGridArea::class.java)
+			for (area in TapGridArea.entries) {
+				map[area] =
+					TapActions(
+						tapAction = tapGridSettings.getTapAction(area, isLongTap = false),
+						longTapAction = tapGridSettings.getTapAction(area, isLongTap = true),
+					)
+			}
+			return map
 		}
-		return map
-	}
 
-	data class TapActions(
-		val tapAction: TapAction?,
-		val longTapAction: TapAction?,
-	)
-}
+		data class TapActions(
+			val tapAction: TapAction?,
+			val longTapAction: TapAction?,
+		)
+	}

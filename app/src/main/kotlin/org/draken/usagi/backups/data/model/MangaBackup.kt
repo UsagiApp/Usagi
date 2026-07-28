@@ -25,7 +25,6 @@ class MangaBackup(
 	@SerialName("source") val source: String,
 	@SerialName("tags") val tags: Set<TagBackup> = emptySet(),
 ) {
-
 	constructor(entity: MangaWithTags) : this(
 		id = entity.manga.id,
 		title = entity.manga.title,
@@ -43,19 +42,20 @@ class MangaBackup(
 		tags = entity.tags.mapToSet { TagBackup(it) },
 	)
 
-	fun toEntity() = MangaEntity(
-		id = id,
-		title = title,
-		altTitles = altTitles,
-		url = url,
-		publicUrl = publicUrl,
-		rating = rating,
-		isNsfw = isNsfw,
-		contentRating = contentRating,
-		coverUrl = coverUrl,
-		largeCoverUrl = largeCoverUrl,
-		state = state,
-		authors = authors,
-		source = source,
-	)
+	fun toEntity() =
+		MangaEntity(
+			id = id,
+			title = title,
+			altTitles = altTitles,
+			url = url,
+			publicUrl = publicUrl,
+			rating = rating,
+			isNsfw = isNsfw,
+			contentRating = contentRating,
+			coverUrl = coverUrl,
+			largeCoverUrl = largeCoverUrl,
+			state = state,
+			authors = authors,
+			source = source,
+		)
 }

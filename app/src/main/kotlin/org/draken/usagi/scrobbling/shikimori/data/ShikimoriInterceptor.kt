@@ -11,8 +11,9 @@ import java.net.HttpURLConnection
 
 private const val USER_AGENT_SHIKIMORI = "Kotatsu"
 
-class ShikimoriInterceptor(private val storage: ScrobblerStorage) : Interceptor {
-
+class ShikimoriInterceptor(
+	private val storage: ScrobblerStorage,
+) : Interceptor {
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val sourceRequest = chain.request()
 		val request = sourceRequest.newBuilder()

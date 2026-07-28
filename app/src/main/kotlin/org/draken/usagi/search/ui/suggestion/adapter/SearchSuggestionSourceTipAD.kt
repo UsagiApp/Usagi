@@ -7,13 +7,10 @@ import org.draken.usagi.databinding.ItemSearchSuggestionSourceTipBinding
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionListener
 import org.draken.usagi.search.ui.suggestion.model.SearchSuggestionItem
 
-fun searchSuggestionSourceTipAD(
-	listener: SearchSuggestionListener,
-) =
+fun searchSuggestionSourceTipAD(listener: SearchSuggestionListener) =
 	adapterDelegateViewBinding<SearchSuggestionItem.SourceTip, SearchSuggestionItem, ItemSearchSuggestionSourceTipBinding>(
 		{ inflater, parent -> ItemSearchSuggestionSourceTipBinding.inflate(inflater, parent, false) },
 	) {
-
 		binding.root.setOnClickListener {
 			listener.onSourceClick(item.source)
 		}

@@ -8,12 +8,11 @@ import androidx.annotation.CallSuper
 import org.draken.usagi.core.prefs.AppWidgetConfig
 
 abstract class BaseAppWidgetProvider : AppWidgetProvider() {
-
 	@CallSuper
 	override fun onUpdate(
 		context: Context,
 		appWidgetManager: AppWidgetManager,
-		appWidgetIds: IntArray
+		appWidgetIds: IntArray,
 	) {
 		appWidgetIds.forEach { id ->
 			val config = AppWidgetConfig(context, javaClass, id)
@@ -22,14 +21,21 @@ abstract class BaseAppWidgetProvider : AppWidgetProvider() {
 		}
 	}
 
-	override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+	override fun onDeleted(
+		context: Context,
+		appWidgetIds: IntArray,
+	) {
 		super.onDeleted(context, appWidgetIds)
 		for (id in appWidgetIds) {
 			AppWidgetConfig(context, javaClass, id).clear()
 		}
 	}
 
-	override fun onRestored(context: Context, oldWidgetIds: IntArray, newWidgetIds: IntArray) {
+	override fun onRestored(
+		context: Context,
+		oldWidgetIds: IntArray,
+		newWidgetIds: IntArray,
+	) {
 		super.onRestored(context, oldWidgetIds, newWidgetIds)
 		if (oldWidgetIds.size != newWidgetIds.size) {
 			return

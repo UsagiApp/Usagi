@@ -11,8 +11,9 @@ fun <T> Class<T>.castOrNull(obj: Any?): T? {
 	return obj as T
 }
 
-fun Any.isSerializable() = runCatching {
-	val oos = ObjectOutputStream(NullOutputStream())
-	oos.writeObject(this)
-	oos.flush()
-}.isSuccess
+fun Any.isSerializable() =
+	runCatching {
+		val oos = ObjectOutputStream(NullOutputStream())
+		oos.writeObject(this)
+		oos.flush()
+	}.isSuccess

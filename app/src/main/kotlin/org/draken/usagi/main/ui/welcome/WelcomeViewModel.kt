@@ -6,15 +6,16 @@ import org.draken.usagi.explore.data.MangaSourcesRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class WelcomeViewModel @Inject constructor(
-	private val repository: MangaSourcesRepository,
-) : BaseViewModel() {
-
-	init {
-		// Mark sources badge as seen so the "new sources" badge
-		// doesn't appear right after the welcome screen is dismissed
-		launchJob {
-			repository.clearNewSourcesBadge()
+class WelcomeViewModel
+	@Inject
+	constructor(
+		private val repository: MangaSourcesRepository,
+	) : BaseViewModel() {
+		init {
+			// Mark sources badge as seen so the "new sources" badge
+			// doesn't appear right after the welcome screen is dismissed
+			launchJob {
+				repository.clearNewSourcesBadge()
+			}
 		}
 	}
-}

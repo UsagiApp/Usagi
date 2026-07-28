@@ -26,17 +26,17 @@ import org.draken.usagi.core.util.ext.setValueRounded
 import org.draken.usagi.core.util.ext.systemBarsInsets
 import org.draken.usagi.core.util.progress.ImageRequestIndicatorListener
 import org.draken.usagi.databinding.ActivityColorFilterBinding
+import org.draken.usagi.reader.domain.ReaderColorFilter
 import tsuki.model.MangaPage
 import tsuki.util.format
-import org.draken.usagi.reader.domain.ReaderColorFilter
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ColorFilterConfigActivity :
 	BaseActivity<ActivityColorFilterBinding>(),
 	Slider.OnChangeListener,
-	View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-
+	View.OnClickListener,
+	CompoundButton.OnCheckedChangeListener {
 	@Inject
 	lateinit var coil: ImageLoader
 
@@ -69,7 +69,7 @@ class ColorFilterConfigActivity :
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		viewBinding.root.setPadding(
@@ -81,7 +81,11 @@ class ColorFilterConfigActivity :
 		return insets.consumeAllSystemBarsInsets()
 	}
 
-	override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
+	override fun onValueChange(
+		slider: Slider,
+		value: Float,
+		fromUser: Boolean,
+	) {
 		if (fromUser) {
 			when (slider.id) {
 				R.id.slider_brightness -> viewModel.setBrightness(value)
@@ -90,7 +94,10 @@ class ColorFilterConfigActivity :
 		}
 	}
 
-	override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
+	override fun onCheckedChanged(
+		buttonView: CompoundButton,
+		isChecked: Boolean,
+	) {
 		when (buttonView.id) {
 			R.id.switch_invert -> viewModel.setInversion(isChecked)
 			R.id.switch_grayscale -> viewModel.setGrayscale(isChecked)
@@ -126,18 +133,19 @@ class ColorFilterConfigActivity :
 		viewBinding.imageViewAfter.colorFilter = readerColorFilter?.toColorFilter()
 	}
 
-	private fun loadPreview(page: MangaPage) = with(viewBinding.imageViewBefore) {
-		addImageRequestListener(
-			ImageRequestIndicatorListener(
-				listOf(
-					viewBinding.progressBefore,
-					viewBinding.progressAfter,
+	private fun loadPreview(page: MangaPage) =
+		with(viewBinding.imageViewBefore) {
+			addImageRequestListener(
+				ImageRequestIndicatorListener(
+					listOf(
+						viewBinding.progressBefore,
+						viewBinding.progressAfter,
+					),
 				),
-			),
-		)
-		addImageRequestListener(ShadowImageListener(viewBinding.imageViewAfter))
-		setImageAsync(page)
-	}
+			)
+			addImageRequestListener(ShadowImageListener(viewBinding.imageViewAfter))
+			setImageAsync(page)
+		}
 
 	private fun onLoadingChanged(isLoading: Boolean) {
 		viewBinding.sliderContrast.isEnabled = !isLoading
@@ -147,8 +155,9 @@ class ColorFilterConfigActivity :
 		viewBinding.buttonDone.isEnabled = !isLoading
 	}
 
-	private class PercentLabelFormatter(resources: Resources) : LabelFormatter {
-
+	private class PercentLabelFormatter(
+		resources: Resources,
+	) : LabelFormatter {
 		private val pattern = resources.getString(R.string.percent_string_pattern)
 
 		override fun getFormattedValue(value: Float): String {
@@ -158,10 +167,12 @@ class ColorFilterConfigActivity :
 	}
 
 	private class ShadowImageListener(
-		private val imageView: ImageView
+		private val imageView: ImageView,
 	) : ImageRequest.Listener {
-
-		override fun onError(request: ImageRequest, result: ErrorResult) {
+		override fun onError(
+			request: ImageRequest,
+			result: ErrorResult,
+		) {
 			super.onError(request, result)
 			imageView.setImageDrawable(result.image?.asDrawable(imageView.resources))
 		}
@@ -171,7 +182,10 @@ class ColorFilterConfigActivity :
 			imageView.setImageDrawable(request.placeholder()?.asDrawable(imageView.resources))
 		}
 
-		override fun onSuccess(request: ImageRequest, result: SuccessResult) {
+		override fun onSuccess(
+			request: ImageRequest,
+			result: SuccessResult,
+		) {
 			super.onSuccess(request, result)
 			imageView.setImageDrawable(result.image.asDrawable(imageView.resources))
 		}

@@ -7,7 +7,6 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 open class MultiMutex<T : Any> {
-
 	private val delegates = ConcurrentHashMap<T, Mutex>()
 
 	@VisibleForTesting
@@ -27,7 +26,10 @@ open class MultiMutex<T : Any> {
 		delegates[element]?.unlock()
 	}
 
-	suspend inline fun <R> withLock(element: T, block: () -> R): R {
+	suspend inline fun <R> withLock(
+		element: T,
+		block: () -> R,
+	): R {
 		contract {
 			callsInPlace(block, InvocationKind.EXACTLY_ONCE)
 		}

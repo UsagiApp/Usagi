@@ -10,6 +10,5 @@ data class ErrorState(
 	@StringRes val buttonText: Int,
 	@StringRes val secondaryButtonText: Int,
 ) : ListModel {
-
 	override fun areItemsTheSame(other: ListModel) = other is ErrorState
 }

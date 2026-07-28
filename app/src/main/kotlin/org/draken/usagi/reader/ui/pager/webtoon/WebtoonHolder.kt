@@ -17,14 +17,13 @@ class WebtoonHolder(
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
 ) : BasePageHolder<ItemPageWebtoonBinding>(
-	binding = binding,
-	loader = loader,
-	readerSettingsProducer = readerSettingsProducer,
-	networkState = networkState,
-	exceptionResolver = exceptionResolver,
-	lifecycleOwner = owner,
-) {
-
+		binding = binding,
+		loader = loader,
+		readerSettingsProducer = readerSettingsProducer,
+		networkState = networkState,
+		exceptionResolver = exceptionResolver,
+		lifecycleOwner = owner,
+	) {
 	override val ssiv = binding.ssiv
 
 	private var scrollToRestore = 0

@@ -11,7 +11,6 @@ import org.draken.usagi.main.ui.owners.BottomSheetOwner
 class ReversibleActionObserver(
 	private val snackbarHost: View,
 ) : FlowCollector<ReversibleAction> {
-
 	override suspend fun emit(value: ReversibleAction) {
 		val handle = value.handle
 		val length = if (handle == null) Snackbar.LENGTH_SHORT else Snackbar.LENGTH_LONG

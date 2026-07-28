@@ -14,15 +14,17 @@ import tsuki.util.nullIfEmpty
 
 @Deprecated("")
 @CheckResult
-fun View.bindBadge(badge: BadgeDrawable?, counter: Int): BadgeDrawable? {
-	return bindBadgeImpl(badge, null, counter)
-}
+fun View.bindBadge(
+	badge: BadgeDrawable?,
+	counter: Int,
+): BadgeDrawable? = bindBadgeImpl(badge, null, counter)
 
 @Deprecated("")
 @CheckResult
-fun View.bindBadge(badge: BadgeDrawable?, text: String?): BadgeDrawable? {
-	return bindBadgeImpl(badge, text, 0)
-}
+fun View.bindBadge(
+	badge: BadgeDrawable?,
+	text: String?,
+): BadgeDrawable? = bindBadgeImpl(badge, text, 0)
 
 @Deprecated("")
 fun View.clearBadge(badge: BadgeDrawable?) {
@@ -33,20 +35,21 @@ private fun View.bindBadgeImpl(
 	badge: BadgeDrawable?,
 	text: String?,
 	counter: Int,
-): BadgeDrawable? = if (text != null || counter > 0) {
-	val badgeDrawable = badge ?: initBadge(this)
-	if (counter > 0) {
-		badgeDrawable.number = counter
+): BadgeDrawable? =
+	if (text != null || counter > 0) {
+		val badgeDrawable = badge ?: initBadge(this)
+		if (counter > 0) {
+			badgeDrawable.number = counter
+		} else {
+			badgeDrawable.text = text?.nullIfEmpty()
+		}
+		badgeDrawable.isVisible = true
+		badgeDrawable.align(this)
+		badgeDrawable
 	} else {
-		badgeDrawable.text = text?.nullIfEmpty()
+		badge?.isVisible = false
+		badge
 	}
-	badgeDrawable.isVisible = true
-	badgeDrawable.align(this)
-	badgeDrawable
-} else {
-	badge?.isVisible = false
-	badge
-}
 
 private fun initBadge(anchor: View): BadgeDrawable {
 	val badge = BadgeDrawable.create(anchor.context)
@@ -60,11 +63,12 @@ private fun initBadge(anchor: View): BadgeDrawable {
 }
 
 private fun BadgeDrawable.align(anchor: View) {
-	val extraOffset = if (anchor is CardView) {
-		(anchor.radius / 2f).toInt()
-	} else {
-		anchor.resources.getDimensionPixelOffset(R.dimen.badge_offset)
-	}
+	val extraOffset =
+		if (anchor is CardView) {
+			(anchor.radius / 2f).toInt()
+		} else {
+			anchor.resources.getDimensionPixelOffset(R.dimen.badge_offset)
+		}
 	horizontalOffset = intrinsicWidth + extraOffset
 	verticalOffset = intrinsicHeight + extraOffset
 }

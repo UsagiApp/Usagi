@@ -17,7 +17,6 @@ import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.IdRes
 import androidx.annotation.OptIn
-import androidx.appcompat.R as appcompatR
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.isEmpty
 import androidx.core.view.isVisible
@@ -66,6 +65,7 @@ import org.draken.usagi.suggestions.ui.SuggestionsFragment
 import org.draken.usagi.tracker.ui.feed.FeedFragment
 import org.draken.usagi.tracker.ui.updates.UpdatesFragment
 import java.util.LinkedList
+import androidx.appcompat.R as appcompatR
 import com.google.android.material.R as materialR
 
 private const val TAG_PRIMARY = "primary"
@@ -77,12 +77,13 @@ class MainNavigationDelegate(
 	private val settings: AppSettings,
 ) : OnBackPressedCallback(false),
 	NavigationBarView.OnItemSelectedListener,
-	NavigationBarView.OnItemReselectedListener, View.OnClickListener {
-
+	NavigationBarView.OnItemReselectedListener,
+	View.OnClickListener {
 	private val listeners = LinkedList<OnFragmentChangedListener>()
-	val navRailHeader = (navBar as? NavigationRailView)?.headerView?.let {
-		NavigationRailFabBinding.bind(it)
-	}
+	val navRailHeader =
+		(navBar as? NavigationRailView)?.headerView?.let {
+			NavigationRailFabBinding.bind(it)
+		}
 
 	val primaryFragment: Fragment?
 		get() = fragmentManager.findFragmentByTag(TAG_PRIMARY)
@@ -112,15 +113,14 @@ class MainNavigationDelegate(
 		}
 	}
 
-	override fun onNavigationItemSelected(item: MenuItem): Boolean {
-		return if (onNavigationItemSelected(item.itemId)) {
+	override fun onNavigationItemSelected(item: MenuItem): Boolean =
+		if (onNavigationItemSelected(item.itemId)) {
 			item.isChecked = true
 			setItems(item.itemId)
 			true
 		} else {
 			false
 		}
-	}
 
 	override fun onNavigationItemReselected(item: MenuItem) {
 		onNavigationItemReselected()
@@ -140,7 +140,10 @@ class MainNavigationDelegate(
 		navBar.selectedItemId = firstItem()?.itemId ?: return
 	}
 
-	fun onCreate(lifecycleOwner: LifecycleOwner, savedInstanceState: Bundle?) {
+	fun onCreate(
+		lifecycleOwner: LifecycleOwner,
+		savedInstanceState: Bundle?,
+	) {
 		if (navBar.menu.isEmpty()) {
 			createMenu(settings.mainNavItems, navBar.menu)
 		}
@@ -154,11 +157,12 @@ class MainNavigationDelegate(
 			}
 			setItems(itemId)
 		} else {
-			val itemId = if (savedInstanceState == null) {
-				firstItem()?.itemId ?: navBar.selectedItemId
-			} else {
-				navBar.selectedItemId
-			}
+			val itemId =
+				if (savedInstanceState == null) {
+					firstItem()?.itemId ?: navBar.selectedItemId
+				} else {
+					navBar.selectedItemId
+				}
 			onNavigationItemSelected(itemId)
 			setItems(itemId)
 		}
@@ -174,7 +178,9 @@ class MainNavigationDelegate(
 			setItems(selected)
 		}
 		sync()
-		for ((id, c) in floatCounters) { setFloatCount(id, c) }
+		for ((id, c) in floatCounters) {
+			setFloatCount(id, c)
+		}
 	}
 
 	fun detach() {
@@ -201,15 +207,17 @@ class MainNavigationDelegate(
 		listeners.remove(listener)
 	}
 
-	fun observeTitle() = callbackFlow {
-		val listener = OnFragmentChangedListener { f, _ ->
-			trySendBlocking(getItemId(f))
+	fun observeTitle() =
+		callbackFlow {
+			val listener =
+				OnFragmentChangedListener { f, _ ->
+					trySendBlocking(getItemId(f))
+				}
+			addOnFragmentChangedListener(listener)
+			awaitClose { removeOnFragmentChangedListener(listener) }
+		}.map {
+			navBar.menu.findItem(it)?.title
 		}
-		addOnFragmentChangedListener(listener)
-		awaitClose { removeOnFragmentChangedListener(listener) }
-	}.map {
-		navBar.menu.findItem(it)?.title
-	}
 
 	fun syncSelectedItem() {
 		val fragment = primaryFragment ?: return
@@ -221,11 +229,17 @@ class MainNavigationDelegate(
 		setItems(itemId)
 	}
 
-	fun setCounter(item: NavItem, counter: Int) {
+	fun setCounter(
+		item: NavItem,
+		counter: Int,
+	) {
 		setCounter(item.id, counter)
 	}
 
-	fun setItemVisibility(@IdRes itemId: Int, isVisible: Boolean) {
+	fun setItemVisibility(
+		@IdRes itemId: Int,
+		isVisible: Boolean,
+	) {
 		val item = navBar.menu.findItem(itemId) ?: return
 		item.isVisible = isVisible
 		if (item.isChecked && !isVisible) {
@@ -234,18 +248,21 @@ class MainNavigationDelegate(
 		setUnhideItem(itemId, isVisible)
 	}
 
-	internal fun onNavigationItemSelected(@IdRes itemId: Int): Boolean {
-		val newFragment = when (itemId) {
-			R.id.nav_history -> HistoryListFragment::class.java
-			R.id.nav_favorites -> FavouritesContainerFragment::class.java
-			R.id.nav_explore -> ExploreFragment::class.java
-			R.id.nav_feed -> FeedFragment::class.java
-			R.id.nav_local -> LocalListFragment::class.java
-			R.id.nav_suggestions -> SuggestionsFragment::class.java
-			R.id.nav_bookmarks -> AllBookmarksFragment::class.java
-			R.id.nav_updated -> UpdatesFragment::class.java
-			else -> return false
-		}
+	internal fun onNavigationItemSelected(
+		@IdRes itemId: Int,
+	): Boolean {
+		val newFragment =
+			when (itemId) {
+				R.id.nav_history -> HistoryListFragment::class.java
+				R.id.nav_favorites -> FavouritesContainerFragment::class.java
+				R.id.nav_explore -> ExploreFragment::class.java
+				R.id.nav_feed -> FeedFragment::class.java
+				R.id.nav_local -> LocalListFragment::class.java
+				R.id.nav_suggestions -> SuggestionsFragment::class.java
+				R.id.nav_bookmarks -> AllBookmarksFragment::class.java
+				R.id.nav_updated -> UpdatesFragment::class.java
+				else -> return false
+			}
 		if (!setPrimaryFragment(newFragment)) {
 			onNavigationItemReselected()
 		}
@@ -255,11 +272,19 @@ class MainNavigationDelegate(
 	internal fun onNavigationItemReselected() {
 		val fragment = primaryFragment ?: return
 		when (fragment) {
-			is HistoryListFragment -> fragment.router.showListConfigSheet(ListConfigSection.History)
-			is FavouritesContainerFragment -> fragment.categoryId?.let {
-				fragment.router.showListConfigSheet(ListConfigSection.Favorites(it))
+			is HistoryListFragment -> {
+				fragment.router.showListConfigSheet(ListConfigSection.History)
 			}
-			is RecyclerViewOwner -> fragment.recyclerView?.smoothScrollToTop()
+
+			is FavouritesContainerFragment -> {
+				fragment.categoryId?.let {
+					fragment.router.showListConfigSheet(ListConfigSection.Favorites(it))
+				}
+			}
+
+			is RecyclerViewOwner -> {
+				fragment.recyclerView?.smoothScrollToTop()
+			}
 		}
 	}
 
@@ -268,11 +293,13 @@ class MainNavigationDelegate(
 			return false
 		}
 		val fragment = instantiateFragment(fragmentClass)
-		val args = buildBundle(1) {
-			putBoolean(AppRouter.KEY_IS_BOTTOMTAB, true)
-		}
+		val args =
+			buildBundle(1) {
+				putBoolean(AppRouter.KEY_IS_BOTTOMTAB, true)
+			}
 		fragment.enterTransition = MaterialFadeThrough()
-		fragmentManager.beginTransaction()
+		fragmentManager
+			.beginTransaction()
 			.setReorderingAllowed(true)
 			.replace(R.id.container, fragmentClass, args, TAG_PRIMARY)
 			.runOnCommit { onFragmentChanged(fragment, fromUser = true) }
@@ -280,31 +307,39 @@ class MainNavigationDelegate(
 		return true
 	}
 
-	private fun onFragmentChanged(fragment: Fragment, fromUser: Boolean) {
+	private fun onFragmentChanged(
+		fragment: Fragment,
+		fromUser: Boolean,
+	) {
 		isEnabled = getItemId(fragment) != firstItem()?.itemId
 		listeners.forEach { it.onFragmentChanged(fragment, fromUser) }
 	}
 
-	private fun getItemId(fragment: Fragment) = when (fragment) {
-		is HistoryListFragment -> R.id.nav_history
-		is FavouritesContainerFragment -> R.id.nav_favorites
-		is ExploreFragment -> R.id.nav_explore
-		is FeedFragment -> R.id.nav_feed
-		is LocalListFragment -> R.id.nav_local
-		is SuggestionsFragment -> R.id.nav_suggestions
-		is AllBookmarksFragment -> R.id.nav_bookmarks
-		is UpdatesFragment -> R.id.nav_updated
-		else -> 0
-	}
+	private fun getItemId(fragment: Fragment) =
+		when (fragment) {
+			is HistoryListFragment -> R.id.nav_history
+			is FavouritesContainerFragment -> R.id.nav_favorites
+			is ExploreFragment -> R.id.nav_explore
+			is FeedFragment -> R.id.nav_feed
+			is LocalListFragment -> R.id.nav_local
+			is SuggestionsFragment -> R.id.nav_suggestions
+			is AllBookmarksFragment -> R.id.nav_bookmarks
+			is UpdatesFragment -> R.id.nav_updated
+			else -> 0
+		}
 
 	private fun instantiateFragment(fragmentClass: Class<out Fragment>): Fragment {
 		val classLoader = navBar.context.classLoader
 		return fragmentManager.fragmentFactory.instantiate(classLoader, fragmentClass.name)
 	}
 
-	private fun createMenu(items: List<NavItem>, menu: Menu) {
+	private fun createMenu(
+		items: List<NavItem>,
+		menu: Menu,
+	) {
 		for (item in items) {
-			menu.add(Menu.NONE, item.id, Menu.NONE, item.title)
+			menu
+				.add(Menu.NONE, item.id, Menu.NONE, item.title)
 				.setIcon(item.icon)
 			if (menu.size >= navBar.maxItemCount) {
 				break
@@ -314,12 +349,15 @@ class MainNavigationDelegate(
 
 	private fun firstItem(): MenuItem? {
 		val menu = navBar.menu
-		for (item in menu) { if (item.isVisible) return item }
+		for (item in menu) {
+			if (item.isVisible) return item
+		}
 		return null
 	}
 
 	private fun observeSettings(lifecycleOwner: LifecycleOwner) {
-		settings.observe(AppSettings.KEY_TRACKER_ENABLED, AppSettings.KEY_SUGGESTIONS, AppSettings.KEY_NAV_LABELS)
+		settings
+			.observe(AppSettings.KEY_TRACKER_ENABLED, AppSettings.KEY_SUGGESTIONS, AppSettings.KEY_NAV_LABELS)
 			.onEach {
 				setItemVisibility(R.id.nav_suggestions, settings.isSuggestionsEnabled)
 				setItemVisibility(R.id.nav_feed, settings.isTrackerEnabled)
@@ -330,23 +368,25 @@ class MainNavigationDelegate(
 
 	private fun setNavbarIsLabeled(value: Boolean) {
 		if (navBar is SlidingBottomNavigationView) {
-			navBar.minimumHeight = navBar.resources.getDimensionPixelSize(
-				if (value) {
-					materialR.dimen.m3_bottom_nav_min_height
-				} else {
-					R.dimen.nav_bar_height_compact
-				},
-			)
+			navBar.minimumHeight =
+				navBar.resources.getDimensionPixelSize(
+					if (value) {
+						materialR.dimen.m3_bottom_nav_min_height
+					} else {
+						R.dimen.nav_bar_height_compact
+					},
+				)
 		}
 		navRailHeader?.buttonExpand?.isVisible = value
 		if (!value) {
 			setNavbarIsExpanded(false)
 		}
-		navBar.labelVisibilityMode = if (value) {
-			NavigationBarView.LABEL_VISIBILITY_LABELED
-		} else {
-			NavigationBarView.LABEL_VISIBILITY_UNLABELED
-		}
+		navBar.labelVisibilityMode =
+			if (value) {
+				NavigationBarView.LABEL_VISIBILITY_LABELED
+			} else {
+				NavigationBarView.LABEL_VISIBILITY_UNLABELED
+			}
 	}
 
 	private fun setNavbarIsExpanded(value: Boolean) {
@@ -404,60 +444,66 @@ class MainNavigationDelegate(
 		if (fab != null) {
 			val size = (48 * density * scale).toInt()
 			fab.customSize = size
-			fab.layoutParams = (fab.layoutParams as? ViewGroup.MarginLayoutParams)?.apply {
-				marginStart = (8 * density * scale).toInt()
-			}
+			fab.layoutParams =
+				(fab.layoutParams as? ViewGroup.MarginLayoutParams)?.apply {
+					marginStart = (8 * density * scale).toInt()
+				}
 		}
 		val height = (32 * density * scale).toInt()
 		val horizontal = (4 * density * scale).toInt()
 		val isLabel = settings.isNavLabelsVisible
-		container.layoutParams = container.layoutParams.apply {
-			width = if (isLabel) (230 * density * scale).toInt() else LinearLayout.LayoutParams.WRAP_CONTENT
-		}
-		for (item in items) {
-			val wrapper = FrameLayout(context).apply {
-				clipChildren = false
-				clipToPadding = false
-				id = View.generateViewId()
-				layoutParams = if (isLabel) {
-					LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-				} else {
-					LinearLayout.LayoutParams(height, height)
-				}.apply {
-					leftMargin = horizontal
-					rightMargin = horizontal
-				}
+		container.layoutParams =
+			container.layoutParams.apply {
+				width = if (isLabel) (230 * density * scale).toInt() else LinearLayout.LayoutParams.WRAP_CONTENT
 			}
+		for (item in items) {
+			val wrapper =
+				FrameLayout(context).apply {
+					clipChildren = false
+					clipToPadding = false
+					id = View.generateViewId()
+					layoutParams =
+						if (isLabel) {
+							LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+						} else {
+							LinearLayout.LayoutParams(height, height)
+						}.apply {
+							leftMargin = horizontal
+							rightMargin = horizontal
+						}
+				}
 			buttonToItem[wrapper.id] = item.id
 			itemToButton[item.id] = wrapper.id
-			val button = object : MaterialButton(context, null, appcompatR.attr.borderlessButtonStyle) {
-				override fun toggle() {
-					if (!isChecked) super.toggle()
+			val button =
+				object : MaterialButton(context, null, appcompatR.attr.borderlessButtonStyle) {
+					override fun toggle() {
+						if (!isChecked) super.toggle()
+					}
+				}.apply {
+					id = View.generateViewId()
+					setTag(R.id.nav_history, item.id)
+					setTag(R.id.nav_feed, item.icon)
+					contentDescription = context.getString(item.title)
+					setTooltipCompat(context.getString(item.title))
+					layoutParams =
+						FrameLayout.LayoutParams(
+							FrameLayout.LayoutParams.MATCH_PARENT,
+							height,
+							Gravity.CENTER,
+						)
+					cornerRadius = height / 2
+					iconSize = (18 * density * scale).toInt()
+					insetTop = 0
+					insetBottom = 0
+					iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
+					minimumHeight = 0
+					minimumWidth = 0
+					isCheckable = true
+					maxLines = 1
+					ellipsize = TextUtils.TruncateAt.END
+					setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f * scale)
+					setOnClickListener { onFloatingItemClicked(wrapper.id) }
 				}
-			}.apply {
-				id = View.generateViewId()
-				setTag(R.id.nav_history, item.id)
-				setTag(R.id.nav_feed, item.icon)
-				contentDescription = context.getString(item.title)
-				setTooltipCompat(context.getString(item.title))
-				layoutParams = FrameLayout.LayoutParams(
-					FrameLayout.LayoutParams.MATCH_PARENT,
-					height,
-					Gravity.CENTER,
-				)
-				cornerRadius = height / 2
-				iconSize = (18 * density * scale).toInt()
-				insetTop = 0
-				insetBottom = 0
-				iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
-				minimumHeight = 0
-				minimumWidth = 0
-				isCheckable = true
-				maxLines = 1
-				ellipsize = TextUtils.TruncateAt.END
-				setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f * scale)
-				setOnClickListener { onFloatingItemClicked(wrapper.id) }
-			}
 			wrapper.addView(button)
 			container.addView(wrapper)
 		}
@@ -476,7 +522,9 @@ class MainNavigationDelegate(
 		}
 	}
 
-	private fun setItems(@IdRes itemId: Int) {
+	private fun setItems(
+		@IdRes itemId: Int,
+	) {
 		if (checkedItem == itemId) return
 		checkedItem = itemId
 		updateState()
@@ -530,8 +578,12 @@ class MainNavigationDelegate(
 	}
 
 	private fun animateBtn(
-		button: MaterialButton, toSelected: Boolean, selectedBgColor: Int,
-		defaultTextColor: Int, selectedTextColor: Int, defaultIconColor: Int,
+		button: MaterialButton,
+		toSelected: Boolean,
+		selectedBgColor: Int,
+		defaultTextColor: Int,
+		selectedTextColor: Int,
+		defaultIconColor: Int,
 	) {
 		val fromBg = if (toSelected) Color.TRANSPARENT else selectedBgColor
 		val toBg = if (toSelected) selectedBgColor else Color.TRANSPARENT
@@ -552,8 +604,12 @@ class MainNavigationDelegate(
 	}
 
 	private fun applyColors(
-		button: MaterialButton, isSelected: Boolean, selectedBgColor: Int,
-		defaultTextColor: Int, selectedTextColor: Int, defaultIconColor: Int,
+		button: MaterialButton,
+		isSelected: Boolean,
+		selectedBgColor: Int,
+		defaultTextColor: Int,
+		selectedTextColor: Int,
+		defaultIconColor: Int,
 	) {
 		if (isSelected) {
 			button.backgroundTintList = ColorStateList.valueOf(selectedBgColor)
@@ -574,13 +630,19 @@ class MainNavigationDelegate(
 		}
 	}
 
-	private fun setUnhideItem(@IdRes itemId: Int, isVisible: Boolean) {
+	private fun setUnhideItem(
+		@IdRes itemId: Int,
+		isVisible: Boolean,
+	) {
 		unhideItems[itemId] = isVisible
 		val id = itemToButton[itemId] ?: return
 		floatContainer?.findViewById<FrameLayout>(id)?.isVisible = isVisible
 	}
 
-	private fun setCounter(@IdRes id: Int, counter: Int) {
+	private fun setCounter(
+		@IdRes id: Int,
+		counter: Int,
+	) {
 		counters[id] = counter
 		if (counter == 0) {
 			navBar.getBadge(id)?.isVisible = false
@@ -593,7 +655,10 @@ class MainNavigationDelegate(
 		setFloatCount(id, counter)
 	}
 
-	private fun setFloatCount(@IdRes itemId: Int, counter: Int) {
+	private fun setFloatCount(
+		@IdRes itemId: Int,
+		counter: Int,
+	) {
 		floatCounters[itemId] = counter
 		val container = floatContainer ?: return
 		val wrapId = itemToButton[itemId] ?: return
@@ -602,36 +667,37 @@ class MainNavigationDelegate(
 		if (counter == 0) {
 			badges[itemId]?.isVisible = false
 		} else {
-			val badge = badges.getOrPut(itemId) {
-				BadgeDrawable.create(container.context).apply {
-					val density = container.context.resources.displayMetrics.density
-					val scale = getScale(container.context)
-					horizontalOffset = (10 * density * scale).toInt()
-					verticalOffset = (10 * density * scale).toInt()
-					val listener = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-						BadgeUtils.setBadgeDrawableBounds(this, button, wrapper)
+			val badge =
+				badges.getOrPut(itemId) {
+					BadgeDrawable.create(container.context).apply {
+						val density = container.context.resources.displayMetrics.density
+						val scale = getScale(container.context)
+						horizontalOffset = (10 * density * scale).toInt()
+						verticalOffset = (10 * density * scale).toInt()
+						val listener =
+							View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+								BadgeUtils.setBadgeDrawableBounds(this, button, wrapper)
+							}
+						button.addOnLayoutChangeListener(listener)
+						layoutListeners[itemId] = listener
+						BadgeUtils.attachBadgeDrawable(this, button, wrapper)
 					}
-					button.addOnLayoutChangeListener(listener)
-					layoutListeners[itemId] = listener
-					BadgeUtils.attachBadgeDrawable(this, button, wrapper)
 				}
-			}
 			if (counter < 0) badge.clearNumber() else badge.number = counter
 			badge.isVisible = true
 		}
 	}
 
-	private fun getScale(context: Context): Float {
-		return if (context.resources.displayMetrics.densityDpi >= 500) 1.2f else 1.0f
-	}
+	private fun getScale(context: Context): Float = if (context.resources.displayMetrics.densityDpi >= 500) 1.2f else 1.0f
 
 	fun interface OnFragmentChangedListener {
-
-		fun onFragmentChanged(fragment: Fragment, fromUser: Boolean)
+		fun onFragmentChanged(
+			fragment: Fragment,
+			fromUser: Boolean,
+		)
 	}
 
 	companion object {
-
 		const val MAX_ITEM_COUNT = 6
 		const val MAX_FLOAT_ITEM_COUNT = 3
 		private val counters = mutableMapOf<Int, Int>()

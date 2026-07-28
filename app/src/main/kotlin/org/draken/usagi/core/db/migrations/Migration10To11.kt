@@ -4,7 +4,6 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 class Migration10To11 : Migration(10, 11) {
-
 	override fun migrate(db: SupportSQLiteDatabase) {
 		db.execSQL(
 			"""
@@ -18,7 +17,7 @@ class Migration10To11 : Migration(10, 11) {
 				`created_at` INTEGER NOT NULL,
 				PRIMARY KEY(`manga_id`, `page_id`),
 				FOREIGN KEY(`manga_id`) REFERENCES `manga`(`manga_id`) ON UPDATE NO ACTION ON DELETE CASCADE )
-			""".trimIndent()
+			""".trimIndent(),
 		)
 		db.execSQL("CREATE INDEX IF NOT EXISTS `index_bookmarks_manga_id` ON `bookmarks` (`manga_id`)")
 		db.execSQL("CREATE INDEX IF NOT EXISTS `index_bookmarks_page_id` ON `bookmarks` (`page_id`)")

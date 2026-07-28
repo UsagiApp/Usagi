@@ -21,14 +21,13 @@ class DoublePageHolder(
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
 ) : PageHolder(
-	owner = owner,
-	binding = binding,
-	loader = loader,
-	readerSettingsProducer = readerSettingsProducer,
-	networkState = networkState,
-	exceptionResolver = exceptionResolver,
-) {
-
+		owner = owner,
+		binding = binding,
+		loader = loader,
+		readerSettingsProducer = readerSettingsProducer,
+		networkState = networkState,
+		exceptionResolver = exceptionResolver,
+	) {
 	private val isEven: Boolean
 		get() = bindingAdapterPosition and 1 == 0
 
@@ -44,10 +43,11 @@ class DoublePageHolder(
 
 	override fun onReady() {
 		with(binding.ssiv) {
-			maxScale = 2f * maxOf(
-				width / sWidth.toFloat(),
-				height / sHeight.toFloat(),
-			)
+			maxScale = 2f *
+				maxOf(
+					width / sWidth.toFloat(),
+					height / sHeight.toFloat(),
+				)
 			binding.ssiv.colorFilter = settings.colorFilter?.toColorFilter()
 			minimumScaleType = SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE
 			setScaleAndCenter(

@@ -44,11 +44,11 @@ import org.draken.usagi.reader.ui.ReaderNavigationCallback
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class BookmarksFragment : BaseFragment<FragmentMangaBookmarksBinding>(),
+class BookmarksFragment :
+	BaseFragment<FragmentMangaBookmarksBinding>(),
 	OnListItemClickListener<Bookmark>,
 	RecyclerViewOwner,
 	ListSelectionController.Callback {
-
 	private val activityViewModel by ChaptersPagesViewModel.ActivityVMLazy(this)
 	private val viewModel by viewModels<BookmarksViewModel>()
 
@@ -67,9 +67,10 @@ class BookmarksFragment : BaseFragment<FragmentMangaBookmarksBinding>(),
 	private var selectionController: ListSelectionController? = null
 
 	private val spanSizeLookup = SpanSizeLookup()
-	private val listCommitCallback = Runnable {
-		spanSizeLookup.invalidateCache()
-	}
+	private val listCommitCallback =
+		Runnable {
+			spanSizeLookup.invalidateCache()
+		}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -77,23 +78,29 @@ class BookmarksFragment : BaseFragment<FragmentMangaBookmarksBinding>(),
 		activityViewModel.mangaDetails.observe(this, viewModel)
 	}
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentMangaBookmarksBinding {
-		return FragmentMangaBookmarksBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): FragmentMangaBookmarksBinding = FragmentMangaBookmarksBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: FragmentMangaBookmarksBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentMangaBookmarksBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		spanResolver = GridSpanResolver(binding.root.resources)
-		selectionController = ListSelectionController(
-			appCompatDelegate = checkNotNull(findAppCompatDelegate()),
-			decoration = BookmarksSelectionDecoration(binding.root.context),
-			registryOwner = this,
-			callback = this,
-		)
-		bookmarksAdapter = BookmarksAdapter(
-			clickListener = this@BookmarksFragment,
-			headerClickListener = null,
-		)
+		selectionController =
+			ListSelectionController(
+				appCompatDelegate = checkNotNull(findAppCompatDelegate()),
+				decoration = BookmarksSelectionDecoration(binding.root.context),
+				registryOwner = this,
+				callback = this,
+			)
+		bookmarksAdapter =
+			BookmarksAdapter(
+				clickListener = this@BookmarksFragment,
+				headerClickListener = null,
+			)
 		viewModel.gridScale.observe(viewLifecycleOwner, ::onGridScaleChanged) // before rv initialization
 		with(binding.recyclerView) {
 			addItemDecoration(TypedListSpacingDecoration(context, false))
@@ -116,7 +123,10 @@ class BookmarksFragment : BaseFragment<FragmentMangaBookmarksBinding>(),
 		viewModel.onActionDone.observeEvent(viewLifecycleOwner, ReversibleActionObserver(binding.recyclerView))
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		viewBinding?.recyclerView?.setPadding(
 			barsInsets.left,
@@ -135,7 +145,10 @@ class BookmarksFragment : BaseFragment<FragmentMangaBookmarksBinding>(),
 		super.onDestroyView()
 	}
 
-	override fun onItemClick(item: Bookmark, view: View) {
+	override fun onItemClick(
+		item: Bookmark,
+		view: View,
+	) {
 		if (selectionController?.onItemClick(item.pageId) == true) {
 			return
 		}
@@ -143,24 +156,31 @@ class BookmarksFragment : BaseFragment<FragmentMangaBookmarksBinding>(),
 		if (listener != null && listener.onBookmarkSelected(item)) {
 			dismissParentDialog()
 		} else {
-			val intent = ReaderIntent.Builder(view.context)
-				.manga(activityViewModel.getMangaOrNull() ?: return)
-				.bookmark(item)
-				.incognito()
-				.build()
+			val intent =
+				ReaderIntent
+					.Builder(view.context)
+					.manga(activityViewModel.getMangaOrNull() ?: return)
+					.bookmark(item)
+					.incognito()
+					.build()
 			router.openReader(intent)
 		}
 	}
 
-	override fun onItemLongClick(item: Bookmark, view: View): Boolean {
-		return selectionController?.onItemLongClick(view, item.pageId) == true
-	}
+	override fun onItemLongClick(
+		item: Bookmark,
+		view: View,
+	): Boolean = selectionController?.onItemLongClick(view, item.pageId) == true
 
-	override fun onItemContextClick(item: Bookmark, view: View): Boolean {
-		return selectionController?.onItemContextClick(view, item.pageId) == true
-	}
+	override fun onItemContextClick(
+		item: Bookmark,
+		view: View,
+	): Boolean = selectionController?.onItemContextClick(view, item.pageId) == true
 
-	override fun onSelectionChanged(controller: ListSelectionController, count: Int) {
+	override fun onSelectionChanged(
+		controller: ListSelectionController,
+		count: Int,
+	) {
 		requireViewBinding().recyclerView.invalidateItemDecorations()
 	}
 
@@ -192,7 +212,9 @@ class BookmarksFragment : BaseFragment<FragmentMangaBookmarksBinding>(),
 				true
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
 	}
 
@@ -202,7 +224,6 @@ class BookmarksFragment : BaseFragment<FragmentMangaBookmarksBinding>(),
 	}
 
 	private inner class SpanSizeLookup : GridLayoutManager.SpanSizeLookup() {
-
 		init {
 			isSpanIndexCacheEnabled = true
 			isSpanGroupIndexCacheEnabled = true
@@ -222,4 +243,3 @@ class BookmarksFragment : BaseFragment<FragmentMangaBookmarksBinding>(),
 		}
 	}
 }
-

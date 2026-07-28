@@ -12,8 +12,10 @@ class LocalListMenuProvider(
 	private val fragment: Fragment,
 	private val onImportClick: Function0<Unit>,
 ) : MenuProvider {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		menuInflater.inflate(R.menu.opt_local, menu)
 	}
 
@@ -22,8 +24,8 @@ class LocalListMenuProvider(
 		menu.findItem(R.id.action_filter)?.isVisible = fragment.router.isFilterSupported()
 	}
 
-	override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-		return when (menuItem.itemId) {
+	override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+		when (menuItem.itemId) {
 			R.id.action_import -> {
 				onImportClick()
 				true
@@ -39,7 +41,8 @@ class LocalListMenuProvider(
 				true
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
-	}
 }

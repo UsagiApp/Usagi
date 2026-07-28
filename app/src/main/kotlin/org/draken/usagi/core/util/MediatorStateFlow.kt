@@ -5,8 +5,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.concurrent.atomic.AtomicInteger
 
-abstract class MediatorStateFlow<T>(initialValue: T) : StateFlow<T> {
-
+abstract class MediatorStateFlow<T>(
+	initialValue: T,
+) : StateFlow<T> {
 	private val delegate = MutableStateFlow(initialValue)
 	private val collectors = AtomicInteger(0)
 

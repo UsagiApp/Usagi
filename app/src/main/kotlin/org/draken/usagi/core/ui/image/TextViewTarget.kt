@@ -10,21 +10,22 @@ class TextViewTarget(
 	override val view: TextView,
 	@GravityInt compoundDrawable: Int,
 ) : GenericViewTarget<TextView>() {
-
-	private val drawableIndex: Int = when (compoundDrawable) {
-		Gravity.START -> 0
-		Gravity.TOP -> 2
-		Gravity.END -> 3
-		Gravity.BOTTOM -> 4
-		else -> -1
-	}
+	private val drawableIndex: Int =
+		when (compoundDrawable) {
+			Gravity.START -> 0
+			Gravity.TOP -> 2
+			Gravity.END -> 3
+			Gravity.BOTTOM -> 4
+			else -> -1
+		}
 
 	override var drawable: Drawable?
-		get() = if (drawableIndex != -1) {
-			view.compoundDrawablesRelative[drawableIndex]
-		} else {
-			null
-		}
+		get() =
+			if (drawableIndex != -1) {
+				view.compoundDrawablesRelative[drawableIndex]
+			} else {
+				null
+			}
 		set(value) {
 			if (drawableIndex == -1) {
 				return

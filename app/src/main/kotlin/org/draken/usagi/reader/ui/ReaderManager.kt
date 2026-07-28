@@ -21,7 +21,6 @@ class ReaderManager(
 	private val container: FragmentContainerView,
 	settings: AppSettings,
 ) {
-
 	private val modeMap = EnumMap<ReaderMode, Class<out BaseReaderFragment<*>>>(ReaderMode::class.java)
 
 	init {
@@ -57,16 +56,18 @@ class ReaderManager(
 	}
 
 	private fun invalidateTypesMap(useDoublePages: Boolean) {
-		modeMap[ReaderMode.STANDARD] = if (useDoublePages) {
-			DoubleReaderFragment::class.java
-		} else {
-			PagerReaderFragment::class.java
-		}
-		modeMap[ReaderMode.REVERSED] = if (useDoublePages) {
-			ReversedDoubleReaderFragment::class.java
-		} else {
-			ReversedReaderFragment::class.java
-		}
+		modeMap[ReaderMode.STANDARD] =
+			if (useDoublePages) {
+				DoubleReaderFragment::class.java
+			} else {
+				PagerReaderFragment::class.java
+			}
+		modeMap[ReaderMode.REVERSED] =
+			if (useDoublePages) {
+				ReversedDoubleReaderFragment::class.java
+			} else {
+				ReversedReaderFragment::class.java
+			}
 		modeMap[ReaderMode.WEBTOON] = WebtoonReaderFragment::class.java
 		modeMap[ReaderMode.VERTICAL] = VerticalReaderFragment::class.java
 	}

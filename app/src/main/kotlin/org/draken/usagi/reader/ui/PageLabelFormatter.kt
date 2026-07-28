@@ -4,8 +4,5 @@ import com.google.android.material.slider.LabelFormatter
 import tsuki.util.format
 
 class PageLabelFormatter : LabelFormatter {
-
-	override fun getFormattedValue(value: Float): String {
-		return (value + 1).format(0)
-	}
+	override fun getFormattedValue(value: Float): String = (value + 1).format(0)
 }

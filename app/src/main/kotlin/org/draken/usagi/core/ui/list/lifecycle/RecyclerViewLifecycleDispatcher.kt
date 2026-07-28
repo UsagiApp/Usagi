@@ -6,11 +6,14 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 
 class RecyclerViewLifecycleDispatcher : RecyclerView.OnScrollListener() {
-
 	private var prevFirst = NO_POSITION
 	private var prevLast = NO_POSITION
 
-	override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+	override fun onScrolled(
+		recyclerView: RecyclerView,
+		dx: Int,
+		dy: Int,
+	) {
 		super.onScrolled(recyclerView, dx, dy)
 		invalidate(recyclerView)
 	}

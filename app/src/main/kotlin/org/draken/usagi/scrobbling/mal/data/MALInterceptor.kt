@@ -4,18 +4,19 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import okio.IOException
 import org.draken.usagi.core.network.CommonHeaders
-import tsuki.util.mimeType
-import tsuki.util.parseHtml
 import org.draken.usagi.scrobbling.common.data.ScrobblerStorage
 import org.draken.usagi.scrobbling.common.domain.ScrobblerAuthRequiredException
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblerService
+import tsuki.util.mimeType
+import tsuki.util.parseHtml
 import java.net.HttpURLConnection
 
 private const val JSON = "application/json"
 private const val HTML = "text/html"
 
-class MALInterceptor(private val storage: ScrobblerStorage) : Interceptor {
-
+class MALInterceptor(
+	private val storage: ScrobblerStorage,
+) : Interceptor {
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val sourceRequest = chain.request()
 		val request = sourceRequest.newBuilder()
@@ -36,5 +37,4 @@ class MALInterceptor(private val storage: ScrobblerStorage) : Interceptor {
 		}
 		return response
 	}
-
 }

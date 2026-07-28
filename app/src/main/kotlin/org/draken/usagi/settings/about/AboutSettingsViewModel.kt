@@ -13,20 +13,22 @@ import org.draken.usagi.core.util.ext.call
 import javax.inject.Inject
 
 @HiltViewModel
-class AboutSettingsViewModel @Inject constructor(
-	private val appUpdateRepository: AppUpdateRepository,
-) : BaseViewModel() {
+class AboutSettingsViewModel
+	@Inject
+	constructor(
+		private val appUpdateRepository: AppUpdateRepository,
+	) : BaseViewModel() {
+		val isUpdateSupported =
+			flow {
+				emit(appUpdateRepository.isUpdateSupported())
+			}.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-	val isUpdateSupported = flow {
-		emit(appUpdateRepository.isUpdateSupported())
-	}.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+		val onUpdateAvailable = MutableEventFlow<AppVersion?>()
 
-	val onUpdateAvailable = MutableEventFlow<AppVersion?>()
-
-	fun checkForUpdates() {
-		launchLoadingJob {
-			val update = appUpdateRepository.fetchUpdate(true)
-			onUpdateAvailable.call(update)
+		fun checkForUpdates() {
+			launchLoadingJob {
+				val update = appUpdateRepository.fetchUpdate(true)
+				onUpdateAvailable.call(update)
+			}
 		}
 	}
-}

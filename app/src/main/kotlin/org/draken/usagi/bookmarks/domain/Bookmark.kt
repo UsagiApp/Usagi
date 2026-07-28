@@ -17,20 +17,20 @@ data class Bookmark(
 	val createdAt: Instant,
 	val percent: Float,
 ) : ListModel {
-
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is Bookmark &&
+	override fun areItemsTheSame(other: ListModel): Boolean =
+		other is Bookmark &&
 			manga.id == other.manga.id &&
 			chapterId == other.chapterId &&
 			page == other.page
-	}
 
-	fun toMangaPage() = MangaPage(
-		id = pageId,
-		url = imageUrl,
-		preview = imageUrl.takeIf {
-			MimeTypes.getMimeTypeFromUrl(it)?.isImage == true
-		},
-		source = manga.source,
-	)
+	fun toMangaPage() =
+		MangaPage(
+			id = pageId,
+			url = imageUrl,
+			preview =
+				imageUrl.takeIf {
+					MimeTypes.getMimeTypeFromUrl(it)?.isImage == true
+				},
+			source = manga.source,
+		)
 }

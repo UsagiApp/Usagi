@@ -17,19 +17,24 @@ import org.draken.usagi.core.util.ext.consume
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.textAndVisible
 import org.draken.usagi.databinding.SheetStatsMangaBinding
-import tsuki.util.format
 import org.draken.usagi.stats.ui.views.BarChartView
+import tsuki.util.format
 
 @AndroidEntryPoint
-class MangaStatsSheet : BaseAdaptiveSheet<SheetStatsMangaBinding>(), View.OnClickListener {
-
+class MangaStatsSheet :
+	BaseAdaptiveSheet<SheetStatsMangaBinding>(),
+	View.OnClickListener {
 	private val viewModel: MangaStatsViewModel by viewModels()
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): SheetStatsMangaBinding {
-		return SheetStatsMangaBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): SheetStatsMangaBinding = SheetStatsMangaBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: SheetStatsMangaBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: SheetStatsMangaBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		binding.textViewTitle.text = viewModel.manga.title
 		binding.chartView.barColor = UsagiColors.ofManga(binding.root.context, viewModel.manga)
@@ -43,7 +48,10 @@ class MangaStatsSheet : BaseAdaptiveSheet<SheetStatsMangaBinding>(), View.OnClic
 		binding.buttonOpen.setOnClickListener(this)
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		viewBinding?.scrollView?.updatePadding(
 			bottom = insets.getInsets(typeMask).bottom,

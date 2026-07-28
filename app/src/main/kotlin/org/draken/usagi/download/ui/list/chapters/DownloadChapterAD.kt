@@ -6,15 +6,15 @@ import org.draken.usagi.R
 import org.draken.usagi.core.util.ext.drawableEnd
 import org.draken.usagi.databinding.ItemChapterDownloadBinding
 
-fun downloadChapterAD() = adapterDelegateViewBinding<DownloadChapter, DownloadChapter, ItemChapterDownloadBinding>(
-	{ layoutInflater, parent -> ItemChapterDownloadBinding.inflate(layoutInflater, parent, false) },
-) {
+fun downloadChapterAD() =
+	adapterDelegateViewBinding<DownloadChapter, DownloadChapter, ItemChapterDownloadBinding>(
+		{ layoutInflater, parent -> ItemChapterDownloadBinding.inflate(layoutInflater, parent, false) },
+	) {
+		val iconDone = ContextCompat.getDrawable(context, R.drawable.ic_check)
 
-	val iconDone = ContextCompat.getDrawable(context, R.drawable.ic_check)
-
-	bind {
-		binding.textViewNumber.text = item.number
-		binding.textViewTitle.text = item.name
-		binding.textViewTitle.drawableEnd = if (item.isDownloaded) iconDone else null
+		bind {
+			binding.textViewNumber.text = item.number
+			binding.textViewTitle.text = item.name
+			binding.textViewTitle.drawableEnd = if (item.isDownloaded) iconDone else null
+		}
 	}
-}

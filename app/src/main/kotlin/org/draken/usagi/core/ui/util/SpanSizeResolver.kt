@@ -11,7 +11,6 @@ class SpanSizeResolver(
 	private val recyclerView: RecyclerView,
 	@Px private val minItemWidth: Int,
 ) : View.OnLayoutChangeListener {
-
 	fun attach() {
 		recyclerView.addOnLayoutChangeListener(this)
 	}

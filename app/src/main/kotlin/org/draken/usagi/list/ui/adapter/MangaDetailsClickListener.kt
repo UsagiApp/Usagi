@@ -7,8 +7,14 @@ import tsuki.model.Manga
 import tsuki.model.MangaTag
 
 interface MangaDetailsClickListener : OnListItemClickListener<MangaListModel> {
+	fun onReadClick(
+		manga: Manga,
+		view: View,
+	)
 
-	fun onReadClick(manga: Manga, view: View)
-
-	fun onTagClick(manga: Manga, tag: MangaTag, view: View)
+	fun onTagClick(
+		manga: Manga,
+		tag: MangaTag,
+		view: View,
+	)
 }

@@ -8,6 +8,7 @@ fun Manga.filterChapters(branch: String?): Manga {
 	return withChapters(chapters = chapters?.filter { it.branch == branch })
 }
 
-private fun Manga.withChapters(chapters: List<MangaChapter>?) = copy(
-	chapters = chapters,
-)
+private fun Manga.withChapters(chapters: List<MangaChapter>?) =
+	copy(
+		chapters = chapters,
+	)

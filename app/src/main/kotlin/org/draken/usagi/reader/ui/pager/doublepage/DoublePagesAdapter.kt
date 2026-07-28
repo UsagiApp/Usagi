@@ -17,7 +17,6 @@ class DoublePagesAdapter(
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
 ) : BaseReaderAdapter<DoublePageHolder>(loader, readerSettingsProducer, networkState, exceptionResolver) {
-
 	override fun onCreateViewHolder(
 		parent: ViewGroup,
 		loader: PageLoader,

@@ -10,12 +10,14 @@ private const val PROGRESS_MAX = 100
 class ProgressChromeClient(
 	private val progressIndicator: BaseProgressIndicator<*>,
 ) : WebChromeClient() {
-
 	init {
 		progressIndicator.max = PROGRESS_MAX
 	}
 
-	override fun onProgressChanged(view: WebView?, newProgress: Int) {
+	override fun onProgressChanged(
+		view: WebView?,
+		newProgress: Int,
+	) {
 		super.onProgressChanged(view, newProgress)
 		if (!progressIndicator.isVisible) {
 			return

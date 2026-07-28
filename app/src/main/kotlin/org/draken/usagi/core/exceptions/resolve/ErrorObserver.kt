@@ -22,7 +22,6 @@ abstract class ErrorObserver(
 	private val resolver: ExceptionResolver?,
 	private val onResolved: Consumer<Boolean>?,
 ) : FlowCollector<Throwable> {
-
 	protected open val activity = host.context.findActivity()
 
 	private val lifecycleScope: LifecycleCoroutineScope
@@ -31,19 +30,16 @@ abstract class ErrorObserver(
 	protected val fragmentManager: FragmentManager?
 		get() = fragment?.childFragmentManager ?: (activity as? AppCompatActivity)?.supportFragmentManager
 
-	protected fun canResolve(error: Throwable): Boolean {
-		return resolver != null && ExceptionResolver.canResolve(error)
-	}
+	protected fun canResolve(error: Throwable): Boolean = resolver != null && ExceptionResolver.canResolve(error)
 
 	protected fun router() = fragment?.router ?: (activity as? FragmentActivity)?.router
 
-	private fun isAlive(): Boolean {
-		return when {
+	private fun isAlive(): Boolean =
+		when {
 			fragment != null -> fragment.view != null
 			activity != null -> activity?.isDestroyed == false
 			else -> true
 		}
-	}
 
 	protected fun resolve(error: Throwable) {
 		if (isAlive()) {

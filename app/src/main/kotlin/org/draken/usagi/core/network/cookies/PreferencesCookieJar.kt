@@ -16,7 +16,6 @@ private const val PREFS_NAME = "cookies"
 class PreferencesCookieJar(
 	context: Context,
 ) : MutableCookieJar {
-
 	private val cache = ArrayMap<String, CookieWrapper>()
 	private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 	private var isLoaded = false
@@ -43,7 +42,10 @@ class PreferencesCookieJar(
 
 	@WorkerThread
 	@Synchronized
-	override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+	override fun saveFromResponse(
+		url: HttpUrl,
+		cookies: List<Cookie>,
+	) {
 		val wrapped = cookies.map { CookieWrapper(it) }
 		prefs.edit(commit = true) {
 			for (cookie in wrapped) {
@@ -58,7 +60,10 @@ class PreferencesCookieJar(
 
 	@Synchronized
 	@WorkerThread
-	override fun removeCookies(url: HttpUrl, predicate: Predicate<Cookie>?) {
+	override fun removeCookies(
+		url: HttpUrl,
+		predicate: Predicate<Cookie>?,
+	) {
 		loadPersistent()
 		val toRemove = HashSet<String>()
 		for ((key, cookie) in cache) {
@@ -88,12 +93,13 @@ class PreferencesCookieJar(
 			val map = prefs.all
 			cache.ensureCapacity(map.size)
 			for ((k, v) in map) {
-				val cookie = try {
-					CookieWrapper(v as String)
-				} catch (e: Exception) {
-					e.printStackTraceDebug()
-					continue
-				}
+				val cookie =
+					try {
+						CookieWrapper(v as String)
+					} catch (e: Exception) {
+						e.printStackTraceDebug()
+						continue
+					}
 				cache[k] = cookie
 			}
 			isLoaded = true

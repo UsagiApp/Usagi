@@ -8,7 +8,6 @@ import tsuki.model.Manga
 class LocalMangaUtil(
 	private val manga: Manga,
 ) {
-
 	init {
 		require(manga.isLocal) { "Expected LOCAL source but ${manga.source} found" }
 	}

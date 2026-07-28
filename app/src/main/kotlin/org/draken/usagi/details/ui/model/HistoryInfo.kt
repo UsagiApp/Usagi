@@ -20,11 +20,12 @@ data class HistoryInfo(
 		get() = currentChapter >= 0
 
 	val percent: Float
-		get() = if (history != null && (canContinue || isChapterMissing)) {
-			history.percent
-		} else {
-			0f
-		}
+		get() =
+			if (history != null && (canContinue || isChapterMissing)) {
+				history.percent
+			} else {
+				0f
+			}
 }
 
 fun HistoryInfo(
@@ -34,22 +35,28 @@ fun HistoryInfo(
 	isIncognitoMode: Boolean,
 	estimatedTime: ReadingTime?,
 ): HistoryInfo {
-	val chapters = if (manga?.chapters?.isEmpty() == true) {
-		emptyList()
-	} else {
-		manga?.chapters?.get(branch)
-	}
-	val currentChapter = if (history != null && !chapters.isNullOrEmpty()) {
-		chapters.indexOfFirst { it.id == history.chapterId }
-	} else {
-		-2
-	}
+	val chapters =
+		if (manga?.chapters?.isEmpty() == true) {
+			emptyList()
+		} else {
+			manga?.chapters?.get(branch)
+		}
+	val currentChapter =
+		if (history != null && !chapters.isNullOrEmpty()) {
+			chapters.indexOfFirst { it.id == history.chapterId }
+		} else {
+			-2
+		}
 	return HistoryInfo(
 		totalChapters = chapters?.size ?: -1,
 		currentChapter = currentChapter,
 		history = history,
 		isIncognitoMode = isIncognitoMode,
-		isChapterMissing = history != null && manga?.isLoaded == true && manga.allChapters.none { it.id == history.chapterId },
+		isChapterMissing =
+			history != null && manga?.isLoaded == true &&
+				manga.allChapters.none {
+					it.id == history.chapterId
+				},
 		canDownload = manga?.isLocal == false,
 		estimatedTime = estimatedTime,
 	)

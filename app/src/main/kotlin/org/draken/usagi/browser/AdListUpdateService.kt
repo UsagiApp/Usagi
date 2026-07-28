@@ -8,7 +8,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class AdListUpdateService : CoroutineIntentService() {
-
 	@Inject
 	lateinit var updater: AdBlock.Updater
 

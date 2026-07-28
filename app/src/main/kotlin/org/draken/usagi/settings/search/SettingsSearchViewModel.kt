@@ -14,47 +14,52 @@ import org.draken.usagi.core.util.ext.call
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsSearchViewModel @Inject constructor(
-	private val searchHelper: SettingsSearchHelper,
-) : BaseViewModel() {
-
-	private val query = MutableStateFlow<String?>(null)
-	private val allSettings by lazy {
-		searchHelper.inflatePreferences()
-	}
-
-	val content = query.map { q ->
-		if (q == null) {
-			emptyList()
-		} else {
-			allSettings.filter { it.title.contains(q, ignoreCase = true) }
+class SettingsSearchViewModel
+	@Inject
+	constructor(
+		private val searchHelper: SettingsSearchHelper,
+	) : BaseViewModel() {
+		private val query = MutableStateFlow<String?>(null)
+		private val allSettings by lazy {
+			searchHelper.inflatePreferences()
 		}
-	}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, emptyList())
 
-	val isSearchActive = query.map {
-		it != null
-	}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, query.value != null)
+		val content =
+			query
+				.map { q ->
+					if (q == null) {
+						emptyList()
+					} else {
+						allSettings.filter { it.title.contains(q, ignoreCase = true) }
+					}
+				}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, emptyList())
 
-	val onNavigateToPreference = MutableEventFlow<SettingsItem>()
-	val currentQuery: String
-		get() = query.value.orEmpty()
+		val isSearchActive =
+			query
+				.map {
+					it != null
+				}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, query.value != null)
 
-	fun onQueryChanged(value: String) {
-		if (query.value != null) {
-			query.value = value
+		val onNavigateToPreference = MutableEventFlow<SettingsItem>()
+		val currentQuery: String
+			get() = query.value.orEmpty()
+
+		fun onQueryChanged(value: String) {
+			if (query.value != null) {
+				query.value = value
+			}
+		}
+
+		fun discardSearch() {
+			query.value = null
+		}
+
+		fun startSearch() {
+			query.value = query.value.orEmpty()
+		}
+
+		fun navigateToPreference(item: SettingsItem) {
+			discardSearch()
+			onNavigateToPreference.call(item)
 		}
 	}
-
-	fun discardSearch() {
-		query.value = null
-	}
-
-	fun startSearch() {
-		query.value = query.value.orEmpty()
-	}
-
-	fun navigateToPreference(item: SettingsItem) {
-		discardSearch()
-		onNavigateToPreference.call(item)
-	}
-}

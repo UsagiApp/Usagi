@@ -29,7 +29,6 @@ class RegionBitmapDecoder(
 	private val fetchResult: SourceFetchResult,
 	private val options: Options,
 ) : Decoder {
-
 	override suspend fun decode(): DecodeResult? {
 		val sourceBytes = fetchResult.source.source().readByteArray()
 		val regionDecoder = BitmapDecoderCompat.createRegionDecoder(sourceBytes.inputStream())
@@ -55,25 +54,30 @@ class RegionBitmapDecoder(
 	/** Fallback when BitmapRegionDecoder.decodeRegion() fails. */
 	private fun decodeFullBitmap(bytes: ByteArray): DecodeResult? {
 		val opts = BitmapFactory.Options().apply { configureConfig() }
-		val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
-			?: return null
+		val bitmap =
+			BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
+				?: return null
 		bitmap.density = options.context.resources.displayMetrics.densityDpi
 		return DecodeResult(image = bitmap.asImage(), isSampled = false)
 	}
 
 	/** Compute and set the scaling properties for [BitmapFactory.Options]. */
-	private fun BitmapFactory.Options.configureScale(srcWidth: Int, srcHeight: Int): Rect {
+	private fun BitmapFactory.Options.configureScale(
+		srcWidth: Int,
+		srcHeight: Int,
+	): Rect {
 		val dstWidth = options.size.widthPx(options.scale) { srcWidth }
 		val dstHeight = options.size.heightPx(options.scale) { srcHeight }
 
 		val srcRatio = srcWidth / srcHeight.toDouble()
 		val dstRatio = dstWidth / dstHeight.toDouble()
-		val rect = if (srcRatio < dstRatio) {
-			// probably manga
-			Rect(0, 0, srcWidth, (srcWidth / dstRatio).toInt().coerceAtLeast(1))
-		} else {
-			Rect(0, 0, (srcHeight / dstRatio).toInt().coerceAtLeast(1), srcHeight)
-		}
+		val rect =
+			if (srcRatio < dstRatio) {
+				// probably manga
+				Rect(0, 0, srcWidth, (srcWidth / dstRatio).toInt().coerceAtLeast(1))
+			} else {
+				Rect(0, 0, (srcHeight / dstRatio).toInt().coerceAtLeast(1), srcHeight)
+			}
 		val scroll = options.getExtra(regionScrollKey)
 		if (scroll == SCROLL_UNDEFINED) {
 			rect.offsetTo(
@@ -88,22 +92,24 @@ class RegionBitmapDecoder(
 		}
 
 		// Calculate the image's sample size.
-		inSampleSize = DecodeUtils.calculateInSampleSize(
-			srcWidth = rect.width(),
-			srcHeight = rect.height(),
-			dstWidth = dstWidth,
-			dstHeight = dstHeight,
-			scale = options.scale,
-		)
+		inSampleSize =
+			DecodeUtils.calculateInSampleSize(
+				srcWidth = rect.width(),
+				srcHeight = rect.height(),
+				dstWidth = dstWidth,
+				dstHeight = dstHeight,
+				scale = options.scale,
+			)
 
 		// Calculate the image's density scaling multiple.
-		var scale = DecodeUtils.computeSizeMultiplier(
-			srcWidth = rect.width() / inSampleSize.toDouble(),
-			srcHeight = rect.height() / inSampleSize.toDouble(),
-			dstWidth = dstWidth.toDouble(),
-			dstHeight = dstHeight.toDouble(),
-			scale = options.scale,
-		)
+		var scale =
+			DecodeUtils.computeSizeMultiplier(
+				srcWidth = rect.width() / inSampleSize.toDouble(),
+				srcHeight = rect.height() / inSampleSize.toDouble(),
+				dstWidth = dstWidth.toDouble(),
+				dstHeight = dstHeight.toDouble(),
+				scale = options.scale,
+			)
 
 		// Only upscale the image if the options require an exact size.
 		if (options.precision == Precision.INEXACT) {
@@ -149,11 +155,10 @@ class RegionBitmapDecoder(
 	}
 
 	object Factory : Decoder.Factory {
-
 		override fun create(
 			result: SourceFetchResult,
 			options: Options,
-			imageLoader: ImageLoader
+			imageLoader: ImageLoader,
 		): Decoder = RegionBitmapDecoder(result, options)
 
 		override fun equals(other: Any?) = other is Factory
@@ -162,23 +167,25 @@ class RegionBitmapDecoder(
 	}
 
 	companion object {
-
 		const val SCROLL_UNDEFINED = -1
 		val regionScrollKey = Extras.Key(SCROLL_UNDEFINED)
 
-		private inline fun Size.widthPx(scale: Scale, original: () -> Int): Int {
-			return if (isOriginal) original() else width.toPx(scale)
-		}
+		private inline fun Size.widthPx(
+			scale: Scale,
+			original: () -> Int,
+		): Int = if (isOriginal) original() else width.toPx(scale)
 
-		private inline fun Size.heightPx(scale: Scale, original: () -> Int): Int {
-			return if (isOriginal) original() else height.toPx(scale)
-		}
+		private inline fun Size.heightPx(
+			scale: Scale,
+			original: () -> Int,
+		): Int = if (isOriginal) original() else height.toPx(scale)
 
-		private fun Dimension.toPx(scale: Scale) = pxOrElse {
-			when (scale) {
-				Scale.FILL -> Int.MIN_VALUE
-				Scale.FIT -> Int.MAX_VALUE
+		private fun Dimension.toPx(scale: Scale) =
+			pxOrElse {
+				when (scale) {
+					Scale.FILL -> Int.MIN_VALUE
+					Scale.FIT -> Int.MAX_VALUE
+				}
 			}
-		}
 	}
 }

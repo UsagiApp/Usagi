@@ -24,19 +24,22 @@ import org.draken.usagi.databinding.DialogLocalInfoBinding
 import androidx.appcompat.R as appcompatR
 
 @AndroidEntryPoint
-class LocalInfoDialog : AlertDialogFragment<DialogLocalInfoBinding>(), View.OnClickListener {
-
+class LocalInfoDialog :
+	AlertDialogFragment<DialogLocalInfoBinding>(),
+	View.OnClickListener {
 	private val viewModel: LocalInfoViewModel by viewModels()
 
-	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder {
-		return super.onBuildDialog(builder).setTitle(R.string.saved_manga).setNegativeButton(R.string.close, null)
-	}
+	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder = super.onBuildDialog(builder).setTitle(R.string.saved_manga).setNegativeButton(R.string.close, null)
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): DialogLocalInfoBinding {
-		return DialogLocalInfoBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): DialogLocalInfoBinding = DialogLocalInfoBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: DialogLocalInfoBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: DialogLocalInfoBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		viewModel.path.observe(this) {
 			binding.textViewPath.text = it
@@ -69,35 +72,42 @@ class LocalInfoDialog : AlertDialogFragment<DialogLocalInfoBinding>(), View.OnCl
 
 	private fun onCleanedUp(result: Pair<Int, Long>) {
 		val c = context ?: return
-		val text = if (result.first == 0 && result.second == 0L) {
-			c.getString(R.string.no_chapters_deleted)
-		} else {
-			c.getString(
-				R.string.chapters_deleted_pattern,
-				c.resources.getQuantityStringSafe(R.plurals.chapters, result.first, result.first),
-				FileSize.BYTES.format(c, result.second),
-			)
-		}
+		val text =
+			if (result.first == 0 && result.second == 0L) {
+				c.getString(R.string.no_chapters_deleted)
+			} else {
+				c.getString(
+					R.string.chapters_deleted_pattern,
+					c.resources.getQuantityStringSafe(R.plurals.chapters, result.first, result.first),
+					FileSize.BYTES.format(c, result.second),
+				)
+			}
 		Toast.makeText(c, text, Toast.LENGTH_SHORT).show()
 	}
 
-	private fun setSegments(size: Long, available: Long) {
+	private fun setSegments(
+		size: Long,
+		available: Long,
+	) {
 		val view = viewBinding?.barView ?: return
 		val total = size + available
-		val segment = SegmentedBarView.Segment(
-			percent = (size.toDouble() / total.toDouble()).toFloat(),
-			color = UsagiColors.segmentColor(view.context, appcompatR.attr.colorPrimary),
-		)
-		requireViewBinding().labelUsed.text = view.context.getString(
-			R.string.memory_usage_pattern,
-			getString(R.string.this_manga),
-			FileSize.BYTES.format(view.context, size),
-		)
-		requireViewBinding().labelAvailable.text = view.context.getString(
-			R.string.memory_usage_pattern,
-			getString(R.string.available),
-			FileSize.BYTES.format(view.context, available),
-		)
+		val segment =
+			SegmentedBarView.Segment(
+				percent = (size.toDouble() / total.toDouble()).toFloat(),
+				color = UsagiColors.segmentColor(view.context, appcompatR.attr.colorPrimary),
+			)
+		requireViewBinding().labelUsed.text =
+			view.context.getString(
+				R.string.memory_usage_pattern,
+				getString(R.string.this_manga),
+				FileSize.BYTES.format(view.context, size),
+			)
+		requireViewBinding().labelAvailable.text =
+			view.context.getString(
+				R.string.memory_usage_pattern,
+				getString(R.string.available),
+				FileSize.BYTES.format(view.context, available),
+			)
 		TextViewCompat.setCompoundDrawableTintList(
 			requireViewBinding().labelUsed,
 			ColorStateList.valueOf(segment.color),

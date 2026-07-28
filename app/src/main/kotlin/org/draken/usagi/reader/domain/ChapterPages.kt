@@ -4,8 +4,9 @@ import androidx.collection.LongSparseArray
 import androidx.collection.contains
 import org.draken.usagi.reader.ui.pager.ReaderPage
 
-class ChapterPages private constructor(private val pages: ArrayDeque<ReaderPage>) : List<ReaderPage> by pages {
-
+class ChapterPages private constructor(
+	private val pages: ArrayDeque<ReaderPage>,
+) : List<ReaderPage> by pages {
 	// map chapterId to index in pages deque
 	private val indices = LongSparseArray<IntRange>()
 
@@ -36,7 +37,10 @@ class ChapterPages private constructor(private val pages: ArrayDeque<ReaderPage>
 	}
 
 	@Synchronized
-	fun addLast(id: Long, newPages: List<ReaderPage>): Boolean {
+	fun addLast(
+		id: Long,
+		newPages: List<ReaderPage>,
+	): Boolean {
 		if (id in indices) {
 			return false
 		}
@@ -46,7 +50,10 @@ class ChapterPages private constructor(private val pages: ArrayDeque<ReaderPage>
 	}
 
 	@Synchronized
-	fun addFirst(id: Long, newPages: List<ReaderPage>): Boolean {
+	fun addFirst(
+		id: Long,
+		newPages: List<ReaderPage>,
+	): Boolean {
 		if (id in indices) {
 			return false
 		}
@@ -62,9 +69,10 @@ class ChapterPages private constructor(private val pages: ArrayDeque<ReaderPage>
 		pages.clear()
 	}
 
-	fun size(id: Long) = indices[id]?.run {
-		endInclusive - start + 1
-	} ?: 0
+	fun size(id: Long) =
+		indices[id]?.run {
+			endInclusive - start + 1
+		} ?: 0
 
 	fun subList(id: Long): List<ReaderPage> {
 		val range = indices[id] ?: return emptyList()
@@ -80,7 +88,5 @@ class ChapterPages private constructor(private val pages: ArrayDeque<ReaderPage>
 		}
 	}
 
-	private operator fun IntRange.plus(delta: Int): IntRange {
-		return IntRange(start + delta, endInclusive + delta)
-	}
+	private operator fun IntRange.plus(delta: Int): IntRange = IntRange(start + delta, endInclusive + delta)
 }

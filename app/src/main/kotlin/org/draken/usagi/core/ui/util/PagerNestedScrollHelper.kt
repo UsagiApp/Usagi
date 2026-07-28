@@ -12,7 +12,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 class PagerNestedScrollHelper(
 	private val recyclerView: RecyclerView,
 ) : DefaultLifecycleObserver {
-
 	fun bind(lifecycleOwner: LifecycleOwner) {
 		lifecycleOwner.lifecycle.addObserver(this)
 		recyclerView.isNestedScrollingEnabled = lifecycleOwner.lifecycle.currentState.isAtLeast(RESUMED)

@@ -19,26 +19,30 @@ import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.os.AppShortcutManager
-import org.draken.usagi.details.ui.DetailsClassicActivity
 import org.draken.usagi.core.ui.dialog.buildAlertDialog
 import org.draken.usagi.core.util.ext.isHttpUrl
+import org.draken.usagi.details.ui.DetailsClassicActivity
 
 class DetailsMenuProvider(
 	private val activity: FragmentActivity,
 	private val viewModel: DetailsViewModel,
 	private val snackbarHost: View,
 	private val appShortcutManager: AppShortcutManager,
-) : MenuProvider, ActivityResultCallback<ActivityResult> {
-
-	private val activityForResultLauncher = activity.registerForActivityResult(
-		ActivityResultContracts.StartActivityForResult(),
-		this,
-	)
+) : MenuProvider,
+	ActivityResultCallback<ActivityResult> {
+	private val activityForResultLauncher =
+		activity.registerForActivityResult(
+			ActivityResultContracts.StartActivityForResult(),
+			this,
+		)
 
 	private val router: AppRouter
 		get() = activity.router
 
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		menuInflater.inflate(R.menu.opt_details, menu)
 		if (activity is DetailsClassicActivity) {
 			menu.removeItem(R.id.action_save)
@@ -113,7 +117,8 @@ class DetailsMenuProvider(
 			R.id.action_shortcut -> {
 				activity.lifecycleScope.launch {
 					if (!appShortcutManager.requestPinShortcut(manga)) {
-						Snackbar.make(snackbarHost, R.string.operation_not_supported, Snackbar.LENGTH_SHORT)
+						Snackbar
+							.make(snackbarHost, R.string.operation_not_supported, Snackbar.LENGTH_SHORT)
 							.show()
 					}
 				}
@@ -124,7 +129,9 @@ class DetailsMenuProvider(
 				activityForResultLauncher.launch(intent)
 			}
 
-			else -> return false
+			else -> {
+				return false
+			}
 		}
 		return true
 	}

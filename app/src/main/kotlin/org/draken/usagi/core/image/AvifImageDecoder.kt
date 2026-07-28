@@ -23,74 +23,75 @@ class AvifImageDecoder(
 	private val source: ImageSource,
 	private val options: Options,
 ) : Decoder {
-
-	override suspend fun decode(): DecodeResult = runInterruptible {
-		val bytes = source.source().readByteBuffer()
-		val decoder = AvifDecoder.create(bytes) ?: throw ImageDecodeException(
-			uri = source.fileOrNull()?.toString(),
-			format = "avif",
-			message = "Requested to decode byte buffer which cannot be handled by AvifDecoder",
-		)
-		try {
-			val config = if (decoder.depth == 8 || decoder.alphaPresent) {
-				Bitmap.Config.ARGB_8888
-			} else {
-				Bitmap.Config.RGB_565
-			}
-			val bitmap = createBitmap(decoder.width, decoder.height, config)
-			val result = decoder.nextFrame(bitmap)
-			if (result != 0) {
-				bitmap.recycle()
-				throw ImageDecodeException(
+	override suspend fun decode(): DecodeResult =
+		runInterruptible {
+			val bytes = source.source().readByteBuffer()
+			val decoder =
+				AvifDecoder.create(bytes) ?: throw ImageDecodeException(
 					uri = source.fileOrNull()?.toString(),
 					format = "avif",
-					message = AvifDecoder.resultToString(result),
+					message = "Requested to decode byte buffer which cannot be handled by AvifDecoder",
 				)
+			try {
+				val config =
+					if (decoder.depth == 8 || decoder.alphaPresent) {
+						Bitmap.Config.ARGB_8888
+					} else {
+						Bitmap.Config.RGB_565
+					}
+				val bitmap = createBitmap(decoder.width, decoder.height, config)
+				val result = decoder.nextFrame(bitmap)
+				if (result != 0) {
+					bitmap.recycle()
+					throw ImageDecodeException(
+						uri = source.fileOrNull()?.toString(),
+						format = "avif",
+						message = AvifDecoder.resultToString(result),
+					)
+				}
+				// downscaling
+				val (dstWidth, dstHeight) =
+					DecodeUtils.computeDstSize(
+						srcWidth = bitmap.width,
+						srcHeight = bitmap.height,
+						targetSize = options.size,
+						scale = options.scale,
+						maxSize = options.maxBitmapSize,
+					)
+				if (dstWidth < bitmap.width || dstHeight < bitmap.height) {
+					val scaled = bitmap.scale(dstWidth, dstHeight)
+					bitmap.recycle()
+					DecodeResult(
+						image = scaled.asImage(),
+						isSampled = true,
+					)
+				} else {
+					DecodeResult(
+						image = bitmap.asImage(),
+						isSampled = false,
+					)
+				}
+			} finally {
+				decoder.release()
 			}
-			// downscaling
-			val (dstWidth, dstHeight) = DecodeUtils.computeDstSize(
-				srcWidth = bitmap.width,
-				srcHeight = bitmap.height,
-				targetSize = options.size,
-				scale = options.scale,
-				maxSize = options.maxBitmapSize,
-			)
-			if (dstWidth < bitmap.width || dstHeight < bitmap.height) {
-				val scaled = bitmap.scale(dstWidth, dstHeight)
-				bitmap.recycle()
-				DecodeResult(
-					image = scaled.asImage(),
-					isSampled = true,
-				)
-			} else {
-				DecodeResult(
-					image = bitmap.asImage(),
-					isSampled = false,
-				)
-			}
-		} finally {
-			decoder.release()
 		}
-	}
 
 	class Factory : Decoder.Factory {
-
 		override fun create(
 			result: SourceFetchResult,
 			options: Options,
-			imageLoader: ImageLoader
-		): Decoder? = if (isApplicable(result)) {
-			AvifImageDecoder(result.source, options)
-		} else {
-			null
-		}
+			imageLoader: ImageLoader,
+		): Decoder? =
+			if (isApplicable(result)) {
+				AvifImageDecoder(result.source, options)
+			} else {
+				null
+			}
 
 		override fun equals(other: Any?) = other is Factory
 
 		override fun hashCode() = javaClass.hashCode()
 
-		private fun isApplicable(result: SourceFetchResult): Boolean {
-			return result.mimeType == "image/avif"
-		}
+		private fun isApplicable(result: SourceFetchResult): Boolean = result.mimeType == "image/avif"
 	}
 }

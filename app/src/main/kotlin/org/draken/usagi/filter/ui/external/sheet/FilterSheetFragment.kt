@@ -7,14 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.core.view.doOnLayout
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.R as materialR
 import com.google.android.material.shape.MaterialShapeDrawable
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
@@ -31,10 +30,12 @@ import org.draken.usagi.databinding.SheetOptionsBinding
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.filter.ui.external.FilterAdapter
 import org.draken.usagi.filter.ui.external.FilterViewModel
+import com.google.android.material.R as materialR
 
 @AndroidEntryPoint
-class FilterSheetFragment : BaseAdaptiveSheet<SheetOptionsBinding>(), AdaptiveSheetCallback {
-
+class FilterSheetFragment :
+	BaseAdaptiveSheet<SheetOptionsBinding>(),
+	AdaptiveSheetCallback {
 	private val viewModel by viewModels<FilterViewModel>(
 		extrasProducer = {
 			defaultViewModelCreationExtras.withCreationCallback<FilterViewModel.Factory> { factory ->
@@ -45,11 +46,15 @@ class FilterSheetFragment : BaseAdaptiveSheet<SheetOptionsBinding>(), AdaptiveSh
 
 	private var systemBarsBottom = 0
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): SheetOptionsBinding {
-		return SheetOptionsBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): SheetOptionsBinding = SheetOptionsBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: SheetOptionsBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: SheetOptionsBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		if (dialog == null) binding.adjustForEmbeddedLayout()
 		val adapter = FilterAdapter(viewModel)
@@ -71,14 +76,20 @@ class FilterSheetFragment : BaseAdaptiveSheet<SheetOptionsBinding>(), AdaptiveSh
 		setHalfExpanded()
 	}
 
-	override fun onStateChanged(sheet: View, newState: Int) {
+	override fun onStateChanged(
+		sheet: View,
+		newState: Int,
+	) {
 		updateLayout(sheet)
 		if (newState == STATE_DRAGGING || newState == STATE_SETTLING) return
 		// Snap the drag handle to its resting state for programmatic moves; manual drags drive it via onSlide.
 		viewBinding?.headerBar?.setProgress(if (newState == STATE_EXPANDED) 1f else 0f)
 	}
 
-	override fun onSlide(sheet: View, slideOffset: Float) {
+	override fun onSlide(
+		sheet: View,
+		slideOffset: Float,
+	) {
 		updateLayout(sheet)
 		// Melt the drag handle away over the top stretch of the drag so reaching full screen is one
 		// seamless motion rather than the handle snapping out once expanded.
@@ -99,11 +110,12 @@ class FilterSheetFragment : BaseAdaptiveSheet<SheetOptionsBinding>(), AdaptiveSh
 	}
 
 	private fun getSheetSurfaceColor(sheet: View): Int {
-		val color = when (val background = sheet.background) {
-			is MaterialShapeDrawable -> background.fillColor?.defaultColor
-			is ColorDrawable -> background.color
-			else -> null
-		}
+		val color =
+			when (val background = sheet.background) {
+				is MaterialShapeDrawable -> background.fillColor?.defaultColor
+				is ColorDrawable -> background.color
+				else -> null
+			}
 		return color ?: requireContext().getThemeColor(android.R.attr.colorBackground)
 	}
 
@@ -117,7 +129,10 @@ class FilterSheetFragment : BaseAdaptiveSheet<SheetOptionsBinding>(), AdaptiveSh
 		}
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		val barsInsets = insets.getInsets(typeMask)
 		systemBarsBottom = barsInsets.bottom

@@ -19,34 +19,39 @@ import org.draken.usagi.explore.data.MangaSourcesRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class SourcesSettingsViewModel @Inject constructor(
-	sourcesRepository: MangaSourcesRepository,
-	@ApplicationContext private val context: Context,
-) : BaseViewModel() {
+class SourcesSettingsViewModel
+	@Inject
+	constructor(
+		sourcesRepository: MangaSourcesRepository,
+		@ApplicationContext private val context: Context,
+	) : BaseViewModel() {
+		private val linksHandlerActivity = ComponentName(context, "org.draken.usagi.details.ui.DetailsByLinkActivity")
 
-	private val linksHandlerActivity = ComponentName(context, "org.draken.usagi.details.ui.DetailsByLinkActivity")
+		val enabledSourcesCount =
+			sourcesRepository
+				.observeEnabledSourcesCount()
+				.withErrorHandling()
+				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, -1)
 
-	val enabledSourcesCount = sourcesRepository.observeEnabledSourcesCount()
-		.withErrorHandling()
-		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, -1)
+		val availableSourcesCount =
+			sourcesRepository
+				.observeAvailableSourcesCount()
+				.withErrorHandling()
+				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, -1)
 
-	val availableSourcesCount = sourcesRepository.observeAvailableSourcesCount()
-		.withErrorHandling()
-		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, -1)
+		val isLinksEnabled = MutableStateFlow(isLinksEnabled())
 
-	val isLinksEnabled = MutableStateFlow(isLinksEnabled())
+		fun setLinksEnabled(isEnabled: Boolean) {
+			context.packageManager.setComponentEnabledSetting(
+				linksHandlerActivity,
+				if (isEnabled) COMPONENT_ENABLED_STATE_ENABLED else COMPONENT_ENABLED_STATE_DISABLED,
+				PackageManager.DONT_KILL_APP,
+			)
+			isLinksEnabled.value = isLinksEnabled()
+		}
 
-	fun setLinksEnabled(isEnabled: Boolean) {
-		context.packageManager.setComponentEnabledSetting(
-			linksHandlerActivity,
-			if (isEnabled) COMPONENT_ENABLED_STATE_ENABLED else COMPONENT_ENABLED_STATE_DISABLED,
-			PackageManager.DONT_KILL_APP,
-		)
-		isLinksEnabled.value = isLinksEnabled()
+		private fun isLinksEnabled(): Boolean {
+			val state = context.packageManager.getComponentEnabledSetting(linksHandlerActivity)
+			return state == COMPONENT_ENABLED_STATE_ENABLED || state == COMPONENT_ENABLED_STATE_DEFAULT
+		}
 	}
-
-	private fun isLinksEnabled(): Boolean {
-		val state = context.packageManager.getComponentEnabledSetting(linksHandlerActivity)
-		return state == COMPONENT_ENABLED_STATE_ENABLED || state == COMPONENT_ENABLED_STATE_DEFAULT
-	}
-}

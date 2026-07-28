@@ -37,29 +37,30 @@ import org.draken.usagi.core.util.ext.start
 import org.draken.usagi.databinding.ActivityStatsBinding
 import org.draken.usagi.databinding.ItemEmptyStateBinding
 import org.draken.usagi.list.ui.adapter.ListItemType
-import tsuki.model.Manga
 import org.draken.usagi.stats.domain.StatsPeriod
 import org.draken.usagi.stats.domain.StatsRecord
 import org.draken.usagi.stats.ui.views.PieChartView
+import tsuki.model.Manga
 
 @AndroidEntryPoint
-class StatsActivity : BaseActivity<ActivityStatsBinding>(),
+class StatsActivity :
+	BaseActivity<ActivityStatsBinding>(),
 	OnListItemClickListener<Manga>,
 	PieChartView.OnSegmentClickListener,
 	AsyncListDiffer.ListListener<StatsRecord>,
 	ViewStub.OnInflateListener,
 	View.OnClickListener,
 	CompoundButton.OnCheckedChangeListener {
-
 	private val viewModel: StatsViewModel by viewModels()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(ActivityStatsBinding.inflate(layoutInflater))
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
-		val adapter = BaseListAdapter<StatsRecord>()
-			.addDelegate(ListItemType.FEED, statsAD(this))
-			.addListListener(this)
+		val adapter =
+			BaseListAdapter<StatsRecord>()
+				.addDelegate(ListItemType.FEED, statsAD(this))
+				.addListListener(this)
 		viewBinding.recyclerView.adapter = adapter
 		viewBinding.chart.onSegmentClickListener = this
 		viewBinding.stubEmpty.setOnInflateListener(this)
@@ -92,7 +93,7 @@ class StatsActivity : BaseActivity<ActivityStatsBinding>(),
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 		val isTablet = viewBinding.guidelineCenter != null
@@ -118,7 +119,8 @@ class StatsActivity : BaseActivity<ActivityStatsBinding>(),
 			marginStart = baseMargin + bars.start(v)
 			marginEnd = if (isTablet) baseMargin else baseMargin + bars.end(v)
 		}
-		return WindowInsetsCompat.Builder(insets)
+		return WindowInsetsCompat
+			.Builder(insets)
 			.setInsets(WindowInsetsCompat.Type.systemBars(), Insets.NONE)
 			.build()
 	}
@@ -129,16 +131,25 @@ class StatsActivity : BaseActivity<ActivityStatsBinding>(),
 		}
 	}
 
-	override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
+	override fun onCheckedChanged(
+		buttonView: CompoundButton,
+		isChecked: Boolean,
+	) {
 		val category = buttonView.tag as? FavouriteCategory ?: return
 		viewModel.setCategoryChecked(category, isChecked)
 	}
 
-	override fun onItemClick(item: Manga, view: View) {
+	override fun onItemClick(
+		item: Manga,
+		view: View,
+	) {
 		router.showStatisticSheet(item)
 	}
 
-	override fun onSegmentClick(view: PieChartView, segment: PieChartView.Segment) {
+	override fun onSegmentClick(
+		view: PieChartView,
+		segment: PieChartView.Segment,
+	) {
 		val manga = segment.tag as? Manga ?: return
 		onItemClick(manga, view)
 	}
@@ -148,18 +159,22 @@ class StatsActivity : BaseActivity<ActivityStatsBinding>(),
 		return super.onCreateOptionsMenu(menu)
 	}
 
-	override fun onOptionsItemSelected(item: MenuItem): Boolean {
-		return when (item.itemId) {
+	override fun onOptionsItemSelected(item: MenuItem): Boolean =
+		when (item.itemId) {
 			R.id.action_clear -> {
 				showClearConfirmDialog()
 				true
 			}
 
-			else -> super.onOptionsItemSelected(item)
+			else -> {
+				super.onOptionsItemSelected(item)
+			}
 		}
-	}
 
-	override fun onCurrentListChanged(previousList: MutableList<StatsRecord>, currentList: MutableList<StatsRecord>) {
+	override fun onCurrentListChanged(
+		previousList: MutableList<StatsRecord>,
+		currentList: MutableList<StatsRecord>,
+	) {
 		val isEmpty = currentList.isEmpty()
 		with(viewBinding) {
 			chart.isGone = isEmpty
@@ -168,7 +183,10 @@ class StatsActivity : BaseActivity<ActivityStatsBinding>(),
 		}
 	}
 
-	override fun onInflate(stub: ViewStub?, inflated: View) {
+	override fun onInflate(
+		stub: ViewStub?,
+		inflated: View,
+	) {
 		val stubBinding = ItemEmptyStateBinding.bind(inflated)
 		stubBinding.icon.setImageAsync(R.drawable.ic_empty_history)
 		stubBinding.textPrimary.setText(R.string.text_empty_holder_primary)

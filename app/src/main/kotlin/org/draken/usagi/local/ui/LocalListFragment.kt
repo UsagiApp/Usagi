@@ -30,19 +30,21 @@ import org.draken.usagi.remotelist.ui.MangaSearchMenuProvider
 import org.draken.usagi.remotelist.ui.RemoteListFragment
 import org.draken.usagi.settings.storage.RequestStorageManagerPermissionContract
 
-class LocalListFragment : MangaListFragment(), FilterCoordinator.Owner {
-
-	private val permissionRequestLauncher = registerForActivityResult(
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-			RequestStorageManagerPermissionContract()
-		} else {
-			ActivityResultContracts.RequestPermission()
-		},
-	) {
-		if (it) {
-			viewModel.onRefresh()
+class LocalListFragment :
+	MangaListFragment(),
+	FilterCoordinator.Owner {
+	private val permissionRequestLauncher =
+		registerForActivityResult(
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+				RequestStorageManagerPermissionContract()
+			} else {
+				ActivityResultContracts.RequestPermission()
+			},
+		) {
+			if (it) {
+				viewModel.onRefresh()
+			}
 		}
-	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -59,7 +61,10 @@ class LocalListFragment : MangaListFragment(), FilterCoordinator.Owner {
 	override val filterCoordinator: FilterCoordinator
 		get() = viewModel.filterCoordinator
 
-	override fun onViewBindingCreated(binding: FragmentListBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentListBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		addMenuProvider(LocalListMenuProvider(this, this::onEmptyActionClick))
 		addMenuProvider(MangaSearchMenuProvider(filterCoordinator, viewModel))
@@ -99,8 +104,8 @@ class LocalListFragment : MangaListFragment(), FilterCoordinator.Owner {
 		controller: ListSelectionController,
 		mode: ActionMode?,
 		item: MenuItem,
-	): Boolean {
-		return when (item.itemId) {
+	): Boolean =
+		when (item.itemId) {
 			R.id.action_remove -> {
 				showDeletionConfirm(selectedItemsIds, mode)
 				true
@@ -113,27 +118,31 @@ class LocalListFragment : MangaListFragment(), FilterCoordinator.Owner {
 				true
 			}
 
-			else -> super.onActionItemClicked(controller, mode, item)
+			else -> {
+				super.onActionItemClicked(controller, mode, item)
+			}
 		}
-	}
 
-	private fun showDeletionConfirm(ids: Set<Long>, mode: ActionMode?) {
+	private fun showDeletionConfirm(
+		ids: Set<Long>,
+		mode: ActionMode?,
+	) {
 		MaterialAlertDialogBuilder(context ?: return)
 			.setTitle(R.string.delete_manga)
 			.setMessage(getString(R.string.text_delete_local_manga_batch))
 			.setPositiveButton(R.string.delete) { _, _ ->
 				viewModel.delete(ids)
 				mode?.finish()
-			}
-			.setNegativeButton(android.R.string.cancel, null)
+			}.setNegativeButton(android.R.string.cancel, null)
 			.show()
 	}
 
 	private fun onItemRemoved() {
-		Snackbar.make(
-			requireViewBinding().recyclerView,
-			R.string.removal_completed,
-			Snackbar.LENGTH_SHORT,
-		).show()
+		Snackbar
+			.make(
+				requireViewBinding().recyclerView,
+				R.string.removal_completed,
+				Snackbar.LENGTH_SHORT,
+			).show()
 	}
 }

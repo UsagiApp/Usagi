@@ -24,7 +24,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MangaPrefetchService : CoroutineIntentService() {
-
 	@Inject
 	lateinit var mangaRepositoryFactory: MangaRepository.Factory
 
@@ -36,17 +35,25 @@ class MangaPrefetchService : CoroutineIntentService() {
 
 	override suspend fun IntentJobContext.processIntent(intent: Intent) {
 		when (intent.action) {
-			ACTION_PREFETCH_DETAILS -> prefetchDetails(
-				manga = intent.getParcelableExtraCompat<ParcelableManga>(EXTRA_MANGA)?.manga
-					?: return,
-			)
+			ACTION_PREFETCH_DETAILS -> {
+				prefetchDetails(
+					manga =
+						intent.getParcelableExtraCompat<ParcelableManga>(EXTRA_MANGA)?.manga
+							?: return,
+				)
+			}
 
-			ACTION_PREFETCH_PAGES -> prefetchPages(
-				chapter = intent.getParcelableExtraCompat<ParcelableChapter>(EXTRA_CHAPTER)?.chapter
-					?: return,
-			)
+			ACTION_PREFETCH_PAGES -> {
+				prefetchPages(
+					chapter =
+						intent.getParcelableExtraCompat<ParcelableChapter>(EXTRA_CHAPTER)?.chapter
+							?: return,
+				)
+			}
 
-			ACTION_PREFETCH_LAST -> prefetchLast()
+			ACTION_PREFETCH_LAST -> {
+				prefetchLast()
+			}
 		}
 	}
 
@@ -72,23 +79,26 @@ class MangaPrefetchService : CoroutineIntentService() {
 			return
 		}
 		val history = historyRepository.getOne(last)
-		val chapter = if (history == null) {
-			chapters.firstOrNull()
-		} else {
-			chapters.findById(history.chapterId) ?: chapters.firstOrNull()
-		} ?: return
+		val chapter =
+			if (history == null) {
+				chapters.firstOrNull()
+			} else {
+				chapters.findById(history.chapterId) ?: chapters.firstOrNull()
+			} ?: return
 		runCatchingCancellable { repo.getPages(chapter) }
 	}
 
 	companion object {
-
 		private const val EXTRA_MANGA = "manga"
 		private const val EXTRA_CHAPTER = "manga"
 		private const val ACTION_PREFETCH_DETAILS = "details"
 		private const val ACTION_PREFETCH_PAGES = "pages"
 		private const val ACTION_PREFETCH_LAST = "last"
 
-		fun prefetchDetails(context: Context, manga: Manga) {
+		fun prefetchDetails(
+			context: Context,
+			manga: Manga,
+		) {
 			if (!isPrefetchAvailable(context, manga.source)) return
 			val intent = Intent(context, MangaPrefetchService::class.java)
 			intent.action = ACTION_PREFETCH_DETAILS
@@ -96,7 +106,10 @@ class MangaPrefetchService : CoroutineIntentService() {
 			tryStart(context, intent)
 		}
 
-		fun prefetchPages(context: Context, chapter: MangaChapter) {
+		fun prefetchPages(
+			context: Context,
+			chapter: MangaChapter,
+		) {
 			if (!isPrefetchAvailable(context, chapter.source)) return
 			val intent = Intent(context, MangaPrefetchService::class.java)
 			intent.action = ACTION_PREFETCH_PAGES
@@ -111,18 +124,25 @@ class MangaPrefetchService : CoroutineIntentService() {
 			tryStart(context, intent)
 		}
 
-		private fun isPrefetchAvailable(context: Context, source: MangaSource?): Boolean {
+		private fun isPrefetchAvailable(
+			context: Context,
+			source: MangaSource?,
+		): Boolean {
 			if (source == LocalMangaSource || context.isPowerSaveMode()) {
 				return false
 			}
-			val entryPoint = EntryPointAccessors.fromApplication(
-				context,
-				PrefetchCompanionEntryPoint::class.java,
-			)
+			val entryPoint =
+				EntryPointAccessors.fromApplication(
+					context,
+					PrefetchCompanionEntryPoint::class.java,
+				)
 			return entryPoint.settings.isContentPrefetchEnabled
 		}
 
-		private fun tryStart(context: Context, intent: Intent) {
+		private fun tryStart(
+			context: Context,
+			intent: Intent,
+		) {
 			try {
 				context.startService(intent)
 			} catch (e: IllegalStateException) {

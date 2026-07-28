@@ -30,7 +30,5 @@ class Event<T>(
 		return result
 	}
 
-	override fun toString(): String {
-		return "Event(data=$data, isConsumed=$isConsumed)"
-	}
+	override fun toString(): String = "Event(data=$data, isConsumed=$isConsumed)"
 }

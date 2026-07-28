@@ -18,26 +18,30 @@ import androidx.core.app.ActivityOptionsCompat
 class OpenDocumentTreeHelper(
 	activityResultCaller: ActivityResultCaller,
 	flags: Int,
-	callback: ActivityResultCallback<Uri?>
+	callback: ActivityResultCallback<Uri?>,
 ) : ActivityResultLauncher<Uri?>() {
-
 	constructor(activityResultCaller: ActivityResultCaller, callback: ActivityResultCallback<Uri?>) : this(
 		activityResultCaller,
 		0,
 		callback,
 	)
 
-	private val pickFileTreeLauncherPrimaryStorage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-		activityResultCaller.registerForActivityResult(OpenDocumentTreeContractPrimaryStorage(flags), callback)
-	} else {
-		null
-	}
-	private val pickFileTreeLauncherDefault = activityResultCaller.registerForActivityResult(
-		contract = OpenDocumentTreeContractDefault(flags),
-		callback = callback,
-	)
+	private val pickFileTreeLauncherPrimaryStorage =
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			activityResultCaller.registerForActivityResult(OpenDocumentTreeContractPrimaryStorage(flags), callback)
+		} else {
+			null
+		}
+	private val pickFileTreeLauncherDefault =
+		activityResultCaller.registerForActivityResult(
+			contract = OpenDocumentTreeContractDefault(flags),
+			callback = callback,
+		)
 
-	override fun launch(input: Uri?, options: ActivityOptionsCompat?) {
+	override fun launch(
+		input: Uri?,
+		options: ActivityOptionsCompat?,
+	) {
 		try {
 			pickFileTreeLauncherDefault.launch(input, options)
 		} catch (e: Exception) {
@@ -65,8 +69,10 @@ class OpenDocumentTreeHelper(
 	private open class OpenDocumentTreeContractDefault(
 		private val flags: Int,
 	) : ActivityResultContracts.OpenDocumentTree() {
-
-		override fun createIntent(context: Context, input: Uri?): Intent {
+		override fun createIntent(
+			context: Context,
+			input: Uri?,
+		): Intent {
 			val intent = super.createIntent(context, input)
 			intent.addFlags(flags)
 			return intent
@@ -77,11 +83,14 @@ class OpenDocumentTreeHelper(
 	private class OpenDocumentTreeContractPrimaryStorage(
 		private val flags: Int,
 	) : OpenDocumentTreeContractDefault(flags) {
-
-		override fun createIntent(context: Context, input: Uri?): Intent {
-			val intent = (context.getSystemService(Context.STORAGE_SERVICE) as? StorageManager)
-				?.primaryStorageVolume
-				?.createOpenDocumentTreeIntent()
+		override fun createIntent(
+			context: Context,
+			input: Uri?,
+		): Intent {
+			val intent =
+				(context.getSystemService(Context.STORAGE_SERVICE) as? StorageManager)
+					?.primaryStorageVolume
+					?.createOpenDocumentTreeIntent()
 			if (intent == null) { // fallback
 				return super.createIntent(context, input)
 			}

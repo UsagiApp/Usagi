@@ -16,7 +16,6 @@ class MangaIntent private constructor(
 	@JvmField val id: Long,
 	@JvmField val uri: Uri?,
 ) {
-
 	constructor(intent: Intent?) : this(
 		manga = intent?.getParcelableExtraCompat<ParcelableManga>(KEY_MANGA)?.manga,
 		id = intent?.getLongExtra(KEY_ID, ID_NONE) ?: ID_NONE,
@@ -39,7 +38,6 @@ class MangaIntent private constructor(
 		get() = if (id != ID_NONE) id else manga?.id ?: uri?.lastPathSegment?.toLongOrNull() ?: ID_NONE
 
 	companion object {
-
 		const val ID_NONE = 0L
 
 		fun of(manga: Manga) = MangaIntent(manga, manga.id, null)

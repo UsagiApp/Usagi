@@ -13,18 +13,21 @@ import org.draken.usagi.settings.utils.RingtonePickContract
 class NotificationSettingsLegacyFragment :
 	BasePreferenceFragment(R.string.notifications),
 	SharedPreferences.OnSharedPreferenceChangeListener {
-
-	private val ringtonePickContract = registerForActivityResult(
-		RingtonePickContract(R.string.notification_sound),
-	) { uri ->
-		settings.notificationSound = uri ?: return@registerForActivityResult
-		findPreference<Preference>(AppSettings.KEY_NOTIFICATIONS_SOUND)?.run {
-			summary = RingtoneManager.getRingtone(context, uri)?.getTitle(context)
-				?: getString(R.string.silent)
+	private val ringtonePickContract =
+		registerForActivityResult(
+			RingtonePickContract(R.string.notification_sound),
+		) { uri ->
+			settings.notificationSound = uri ?: return@registerForActivityResult
+			findPreference<Preference>(AppSettings.KEY_NOTIFICATIONS_SOUND)?.run {
+				summary = RingtoneManager.getRingtone(context, uri)?.getTitle(context)
+					?: getString(R.string.silent)
+			}
 		}
-	}
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
 		addPreferencesFromResource(R.xml.pref_notifications)
 		findPreference<Preference>(AppSettings.KEY_NOTIFICATIONS_SOUND)?.run {
 			val uri = settings.notificationSound
@@ -34,7 +37,10 @@ class NotificationSettingsLegacyFragment :
 		updateInfo()
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		settings.subscribe(this)
 	}
@@ -44,22 +50,26 @@ class NotificationSettingsLegacyFragment :
 		super.onDestroyView()
 	}
 
-	override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
+	override fun onSharedPreferenceChanged(
+		prefs: SharedPreferences?,
+		key: String?,
+	) {
 		when (key) {
 			AppSettings.KEY_TRACKER_NOTIFICATIONS -> updateInfo()
 		}
 	}
 
-	override fun onPreferenceTreeClick(preference: Preference): Boolean {
-		return when (preference.key) {
+	override fun onPreferenceTreeClick(preference: Preference): Boolean =
+		when (preference.key) {
 			AppSettings.KEY_NOTIFICATIONS_SOUND -> {
 				ringtonePickContract.launch(settings.notificationSound)
 				true
 			}
 
-			else -> super.onPreferenceTreeClick(preference)
+			else -> {
+				super.onPreferenceTreeClick(preference)
+			}
 		}
-	}
 
 	private fun updateInfo() {
 		findPreference<Preference>(AppSettings.KEY_NOTIFICATIONS_INFO)

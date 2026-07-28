@@ -11,7 +11,6 @@ import eu.kanade.tachiyomi.source.model.FilterList
  * UI and main structures for [ExternalMangaRepository] should follow this interface.
  */
 interface FilterHost {
-
 	/** True when this repository serves a Mihon source whose filters should use the dynamic filter UI. */
 	val isDynamicFiltersSupported: Boolean
 

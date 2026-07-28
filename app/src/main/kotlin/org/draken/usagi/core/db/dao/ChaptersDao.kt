@@ -9,9 +9,11 @@ import org.draken.usagi.core.db.entity.ChapterEntity
 
 @Dao
 abstract class ChaptersDao {
-
 	@Query("UPDATE chapters SET source = :newKey WHERE source = :oldKey")
-	abstract suspend fun rewriteStoredSourceKey(oldKey: String, newKey: String)
+	abstract suspend fun rewriteStoredSourceKey(
+		oldKey: String,
+		newKey: String,
+	)
 
 	@Query("SELECT * FROM chapters WHERE manga_id = :mangaId ORDER BY `index` ASC")
 	abstract suspend fun findAll(mangaId: Long): List<ChapterEntity>
@@ -19,11 +21,16 @@ abstract class ChaptersDao {
 	@Query("DELETE FROM chapters WHERE manga_id = :mangaId")
 	abstract suspend fun deleteAll(mangaId: Long)
 
-	@Query("DELETE FROM chapters WHERE manga_id NOT IN (SELECT manga_id FROM history WHERE deleted_at = 0) AND manga_id NOT IN (SELECT manga_id FROM favourites WHERE deleted_at = 0)")
+	@Query(
+		"DELETE FROM chapters WHERE manga_id NOT IN (SELECT manga_id FROM history WHERE deleted_at = 0) AND manga_id NOT IN (SELECT manga_id FROM favourites WHERE deleted_at = 0)",
+	)
 	abstract suspend fun gc()
 
 	@Transaction
-	open suspend fun replaceAll(mangaId: Long, entities: Collection<ChapterEntity>) {
+	open suspend fun replaceAll(
+		mangaId: Long,
+		entities: Collection<ChapterEntity>,
+	) {
 		deleteAll(mangaId)
 		insert(entities)
 	}

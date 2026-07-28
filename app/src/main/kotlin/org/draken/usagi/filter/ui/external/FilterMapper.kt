@@ -28,7 +28,6 @@ import tsuki.model.MangaTag
  * encoded with the [TYPE_SORT] prefix so the toolbar can surface it separately from real filters.
  */
 object FilterMapper {
-
 	private const val TYPE_CHECKBOX = "cb"
 	private const val TYPE_TRISTATE = "tri"
 	private const val TYPE_SELECT = "sel"
@@ -45,7 +44,11 @@ object FilterMapper {
 	 * Encodes the (mutated) [working] filter list into a set of [MangaTag]s, comparing against
 	 * [defaults] so only changed filters are emitted.
 	 */
-	fun encode(working: FilterList, defaults: FilterList, source: MangaSource): Set<MangaTag> {
+	fun encode(
+		working: FilterList,
+		defaults: FilterList,
+		source: MangaSource,
+	): Set<MangaTag> {
 		val tags = LinkedHashSet<MangaTag>()
 		val sortPath = findSortFilter(defaults)?.path
 		encodeInto(working.toList(), defaults.toList(), prefix = "", sortPath = sortPath, source = source, out = tags)
@@ -53,38 +56,47 @@ object FilterMapper {
 	}
 
 	private fun encodeInto(
-		working: List<Filter<*>>, defaults: List<Filter<*>>, prefix: String,
-		sortPath: String?, source: MangaSource, out: MutableSet<MangaTag>,
+		working: List<Filter<*>>,
+		defaults: List<Filter<*>>,
+		prefix: String,
+		sortPath: String?,
+		source: MangaSource,
+		out: MutableSet<MangaTag>,
 	) {
 		working.forEachIndexed { index, filter ->
 			val path = if (prefix.isEmpty()) index.toString() else "$prefix.$index"
 			val default = defaults.getOrNull(index)
 			when (filter) {
-				is Filter.Header, is Filter.Separator -> Unit
+				is Filter.Header, is Filter.Separator -> {
+					Unit
+				}
 
 				is Filter.CheckBox -> {
 					val def = (default as? Filter.CheckBox)?.state ?: false
 					if (filter.state != def) {
-						out += tag(
-							source = source,
-							key = "$TYPE_CHECKBOX@$path=${if (filter.state) "1" else "0"}",
-							title = if (filter.state) filter.name else "${filter.name} (off)",
-						)
+						out +=
+							tag(
+								source = source,
+								key = "$TYPE_CHECKBOX@$path=${if (filter.state) "1" else "0"}",
+								title = if (filter.state) filter.name else "${filter.name} (off)",
+							)
 					}
 				}
 
 				is Filter.TriState -> {
 					val def = (default as? Filter.TriState)?.state ?: Filter.TriState.STATE_IGNORE
 					if (filter.state != def) {
-						out += tag(
-							source = source,
-							key = "$TYPE_TRISTATE@$path=${filter.state}",
-							title = when (filter.state) {
-								Filter.TriState.STATE_EXCLUDE -> "−${filter.name}"
-								Filter.TriState.STATE_IGNORE -> "${filter.name} (ignored)"
-								else -> filter.name
-							},
-						)
+						out +=
+							tag(
+								source = source,
+								key = "$TYPE_TRISTATE@$path=${filter.state}",
+								title =
+									when (filter.state) {
+										Filter.TriState.STATE_EXCLUDE -> "−${filter.name}"
+										Filter.TriState.STATE_IGNORE -> "${filter.name} (ignored)"
+										else -> filter.name
+									},
+							)
 					}
 				}
 
@@ -93,11 +105,12 @@ object FilterMapper {
 					if (filter.state != def) {
 						// The sort Select is tagged with the sort prefix so the toolbar can find it.
 						val type = if (path == sortPath) TYPE_SORT else TYPE_SELECT
-						out += tag(
-							source = source,
-							key = "$type@$path=${filter.state}",
-							title = "${filter.name}: ${filter.values.getOrNull(filter.state)}",
-						)
+						out +=
+							tag(
+								source = source,
+								key = "$type@$path=${filter.state}",
+								title = "${filter.name}: ${filter.values.getOrNull(filter.state)}",
+							)
 					}
 				}
 
@@ -105,29 +118,33 @@ object FilterMapper {
 					val selection = filter.state
 					val def = (default as? Filter.Sort)?.state
 					if (selection != def) {
-						val encodedSelection = selection?.let {
-							"${it.index}:${if (it.ascending) "a" else "d"}"
-						} ?: "none"
-						val title = selection?.let {
-							val arrow = if (it.ascending) ARROW_ASC else ARROW_DESC
-							"${filter.name}: ${filter.values.getOrNull(it.index)} $arrow"
-						} ?: "${filter.name} (none)"
-						out += tag(
-							source = source,
-							key = "$TYPE_SORT@$path=$encodedSelection",
-							title = title,
-						)
+						val encodedSelection =
+							selection?.let {
+								"${it.index}:${if (it.ascending) "a" else "d"}"
+							} ?: "none"
+						val title =
+							selection?.let {
+								val arrow = if (it.ascending) ARROW_ASC else ARROW_DESC
+								"${filter.name}: ${filter.values.getOrNull(it.index)} $arrow"
+							} ?: "${filter.name} (none)"
+						out +=
+							tag(
+								source = source,
+								key = "$TYPE_SORT@$path=$encodedSelection",
+								title = title,
+							)
 					}
 				}
 
 				is Filter.Text -> {
 					val def = (default as? Filter.Text)?.state.orEmpty()
 					if (filter.state != def) {
-						out += tag(
-							source = source,
-							key = "$TYPE_TEXT@$path=${filter.state}",
-							title = if (filter.state.isEmpty()) "${filter.name} (empty)" else "${filter.name}: ${filter.state}",
-						)
+						out +=
+							tag(
+								source = source,
+								key = "$TYPE_TEXT@$path=${filter.state}",
+								title = if (filter.state.isEmpty()) "${filter.name} (empty)" else "${filter.name}: ${filter.state}",
+							)
 					}
 				}
 
@@ -143,15 +160,24 @@ object FilterMapper {
 	/**
 	 * Applies the encoded state from [filter] back onto [target] (a freshly built default filter list).
 	 */
-	fun decode(target: FilterList, filter: MangaListFilter) {
+	fun decode(
+		target: FilterList,
+		filter: MangaListFilter,
+	) {
 		if (filter.tags.isEmpty()) return
 		val byPath = HashMap<String, Encoded>(filter.tags.size)
-		for (tag in filter.tags) { parseKey(tag.key)?.let { byPath[it.path] = it } }
+		for (tag in filter.tags) {
+			parseKey(tag.key)?.let { byPath[it.path] = it }
+		}
 		if (byPath.isEmpty()) return
 		decodeInto(target.toList(), prefix = "", byPath = byPath)
 	}
 
-	private fun decodeInto(filters: List<Filter<*>>, prefix: String, byPath: Map<String, Encoded>) {
+	private fun decodeInto(
+		filters: List<Filter<*>>,
+		prefix: String,
+		byPath: Map<String, Encoded>,
+	) {
 		filters.forEachIndexed { index, filter ->
 			val path = if (prefix.isEmpty()) index.toString() else "$prefix.$index"
 			if (filter is Filter.Group<*>) {
@@ -163,40 +189,55 @@ object FilterMapper {
 		}
 	}
 
-	private fun applyEncoded(filter: Filter<*>, encoded: Encoded) {
+	private fun applyEncoded(
+		filter: Filter<*>,
+		encoded: Encoded,
+	) {
 		when (filter) {
-			is Filter.CheckBox -> if (encoded.type == TYPE_CHECKBOX) {
-				filter.state = encoded.value == "1"
-			}
-
-			is Filter.TriState -> if (encoded.type == TYPE_TRISTATE) {
-				filter.state = encoded.value.toIntOrNull() ?: Filter.TriState.STATE_IGNORE
-			}
-
-			is Filter.Select<*> -> if (encoded.type == TYPE_SELECT || encoded.type == TYPE_SORT) {
-				// A sort Select is stored as "sort", a regular one as "select"; both decode to an index.
-				val idx = encoded.value.substringBefore(':').toIntOrNull() ?: return
-				if (idx in filter.values.indices) filter.state = idx
-			}
-
-			is Filter.Sort -> if (encoded.type == TYPE_SORT) {
-				if (encoded.value == "none") {
-					filter.state = null
-					return
+			is Filter.CheckBox -> {
+				if (encoded.type == TYPE_CHECKBOX) {
+					filter.state = encoded.value == "1"
 				}
-				val parts = encoded.value.split(':')
-				val idx = parts.getOrNull(0)?.toIntOrNull() ?: return
-				val ascending = parts.getOrNull(1) == "a"
-				if (idx in filter.values.indices) filter.state = Filter.Sort.Selection(idx, ascending)
 			}
 
-			is Filter.Text -> if (encoded.type == TYPE_TEXT) {
-				// Text filters (author/title/year/domain inputs) must survive the UI round-trip.
-				// Dropping them makes the visible filter look applied while the source receives "".
-				filter.state = encoded.value
+			is Filter.TriState -> {
+				if (encoded.type == TYPE_TRISTATE) {
+					filter.state = encoded.value.toIntOrNull() ?: Filter.TriState.STATE_IGNORE
+				}
 			}
 
-			else -> Unit
+			is Filter.Select<*> -> {
+				if (encoded.type == TYPE_SELECT || encoded.type == TYPE_SORT) {
+					// A sort Select is stored as "sort", a regular one as "select"; both decode to an index.
+					val idx = encoded.value.substringBefore(':').toIntOrNull() ?: return
+					if (idx in filter.values.indices) filter.state = idx
+				}
+			}
+
+			is Filter.Sort -> {
+				if (encoded.type == TYPE_SORT) {
+					if (encoded.value == "none") {
+						filter.state = null
+						return
+					}
+					val parts = encoded.value.split(':')
+					val idx = parts.getOrNull(0)?.toIntOrNull() ?: return
+					val ascending = parts.getOrNull(1) == "a"
+					if (idx in filter.values.indices) filter.state = Filter.Sort.Selection(idx, ascending)
+				}
+			}
+
+			is Filter.Text -> {
+				if (encoded.type == TYPE_TEXT) {
+					// Text filters (author/title/year/domain inputs) must survive the UI round-trip.
+					// Dropping them makes the visible filter look applied while the source receives "".
+					filter.state = encoded.value
+				}
+			}
+
+			else -> {
+				Unit
+			}
 		}
 	}
 
@@ -211,7 +252,10 @@ object FilterMapper {
 		return findSort(list, prefix = "") ?: findSortSelect(list, prefix = "")
 	}
 
-	private fun findSort(filters: List<Filter<*>>, prefix: String): SortRef? {
+	private fun findSort(
+		filters: List<Filter<*>>,
+		prefix: String,
+	): SortRef? {
 		filters.forEachIndexed { index, filter ->
 			val path = if (prefix.isEmpty()) index.toString() else "$prefix.$index"
 			when (filter) {
@@ -223,7 +267,10 @@ object FilterMapper {
 		return null
 	}
 
-	private fun findSortSelect(filters: List<Filter<*>>, prefix: String): SortRef? {
+	private fun findSortSelect(
+		filters: List<Filter<*>>,
+		prefix: String,
+	): SortRef? {
 		filters.forEachIndexed { index, filter ->
 			val path = if (prefix.isEmpty()) index.toString() else "$prefix.$index"
 			when (filter) {
@@ -252,13 +299,30 @@ object FilterMapper {
 		return Encoded(type = type, path = path, value = value)
 	}
 
-	private fun tag(source: MangaSource, key: String, title: String) = MangaTag(title, key, source)
+	private fun tag(
+		source: MangaSource,
+		key: String,
+		title: String,
+	) = MangaTag(title, key, source)
 
-	private data class Encoded(val type: String, val path: String, val value: String)
+	private data class Encoded(
+		val type: String,
+		val path: String,
+		val value: String,
+	)
 
 	/** A located sort control: either a real [Filter.Sort] or a [Filter.Select] used as a sort. */
-	sealed class SortRef(val path: String) {
-		class OfSort(path: String, val filter: Filter.Sort) : SortRef(path)
-		class OfSelect(path: String, val filter: Filter.Select<*>) : SortRef(path)
+	sealed class SortRef(
+		val path: String,
+	) {
+		class OfSort(
+			path: String,
+			val filter: Filter.Sort,
+		) : SortRef(path)
+
+		class OfSelect(
+			path: String,
+			val filter: Filter.Select<*>,
+		) : SortRef(path)
 	}
 }

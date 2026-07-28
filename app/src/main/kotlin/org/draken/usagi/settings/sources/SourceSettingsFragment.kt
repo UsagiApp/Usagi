@@ -10,6 +10,7 @@ import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterNotNull
+import org.draken.tsukimix.core.parser.tachiyomi.addLangToPref
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.SnackbarErrorObserver
 import org.draken.usagi.core.model.getTitle
@@ -25,14 +26,14 @@ import org.draken.usagi.core.ui.util.ReversibleActionObserver
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.withArgs
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
-import org.draken.tsukimix.core.parser.tachiyomi.addLangToPref
 import tsuki.model.MangaSource
 import javax.inject.Inject
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
 
 @AndroidEntryPoint
-class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenceChangeListener {
-
+class SourceSettingsFragment :
+	BasePreferenceFragment(0),
+	Preference.OnPreferenceChangeListener {
 	private val viewModel: SourceSettingsViewModel by viewModels()
 
 	@Inject
@@ -46,7 +47,10 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 		viewModel.onResume()
 	}
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
 		preferenceManager.sharedPreferencesName = SourceSettings.prefsName(viewModel.source)
 		addPreferencesFromResource(R.xml.pref_source)
 		addPreferencesFromRepository(viewModel.repository)
@@ -66,15 +70,19 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 		findPreference<Preference>(SourceSettings.KEY_SLOWDOWN)?.isVisible = isValidSource
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		viewModel.isAuthorized.filterNotNull().observe(viewLifecycleOwner) { isAuthorized ->
 			findPreference<Preference>(KEY_AUTH)?.isEnabled = !isAuthorized
 		}
 		viewModel.username.observe(viewLifecycleOwner) { username ->
-			findPreference<Preference>(KEY_AUTH)?.summary = username?.let {
-				getString(R.string.logged_in_as, it)
-			}
+			findPreference<Preference>(KEY_AUTH)?.summary =
+				username?.let {
+					getString(R.string.logged_in_as, it)
+				}
 		}
 		viewModel.onError.observeEvent(
 			viewLifecycleOwner,
@@ -120,7 +128,9 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 				true
 			}
 
-			else -> super.onPreferenceTreeClick(preference)
+			else -> {
+				super.onPreferenceTreeClick(preference)
+			}
 		}
 	}
 
@@ -138,7 +148,10 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 		super.onDisplayPreferenceDialog(preference)
 	}
 
-	override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
+	override fun onPreferenceChange(
+		preference: Preference,
+		newValue: Any?,
+	): Boolean {
 		when (preference.key) {
 			KEY_ENABLE -> viewModel.setEnabled(newValue == true)
 			else -> return false
@@ -147,7 +160,6 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 	}
 
 	class DomainDialogFragment : EditTextPreferenceDialogFragmentCompat() {
-
 		override fun onPrepareDialogBuilder(builder: AlertDialog.Builder) {
 			super.onPrepareDialogBuilder(builder)
 			builder.setNeutralButton(R.string.reset) { _, _ ->
@@ -163,22 +175,22 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 		}
 
 		companion object {
-
 			const val DIALOG_FRAGMENT_TAG: String = "androidx.preference.PreferenceFragment.DIALOG"
 
-			fun newInstance(key: String) = DomainDialogFragment().withArgs(1) {
-				putString(ARG_KEY, key)
-			}
+			fun newInstance(key: String) =
+				DomainDialogFragment().withArgs(1) {
+					putString(ARG_KEY, key)
+				}
 		}
 	}
 
 	companion object {
-
 		private const val KEY_AUTH = "auth"
 		private const val KEY_ENABLE = "enable"
 
-		fun newInstance(source: MangaSource) = SourceSettingsFragment().withArgs(1) {
-			putString(AppRouter.KEY_SOURCE, source.name)
-		}
+		fun newInstance(source: MangaSource) =
+			SourceSettingsFragment().withArgs(1) {
+				putString(AppRouter.KEY_SOURCE, source.name)
+			}
 	}
 }

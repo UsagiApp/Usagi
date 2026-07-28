@@ -12,16 +12,14 @@ class CategoryListModel(
 	val isTrackerEnabled: Boolean,
 	val isActionsEnabled: Boolean,
 ) : ListModel {
+	override fun areItemsTheSame(other: ListModel): Boolean = other is CategoryListModel && other.category.id == category.id
 
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is CategoryListModel && other.category.id == category.id
-	}
-
-	override fun getChangePayload(previousState: ListModel): Any? = when {
-		previousState !is CategoryListModel -> super.getChangePayload(previousState)
-		previousState.isActionsEnabled != isActionsEnabled -> ListModelDiffCallback.PAYLOAD_ANYTHING_CHANGED
-		else -> super.getChangePayload(previousState)
-	}
+	override fun getChangePayload(previousState: ListModel): Any? =
+		when {
+			previousState !is CategoryListModel -> super.getChangePayload(previousState)
+			previousState.isActionsEnabled != isActionsEnabled -> ListModelDiffCallback.PAYLOAD_ANYTHING_CHANGED
+			else -> super.getChangePayload(previousState)
+		}
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
@@ -57,7 +55,5 @@ class CategoryListModel(
 		return result
 	}
 
-	override fun toString(): String {
-		return "CategoryListModel(categoryId=${category.id})"
-	}
+	override fun toString(): String = "CategoryListModel(categoryId=${category.id})"
 }

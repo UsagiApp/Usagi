@@ -18,17 +18,19 @@ import org.draken.usagi.core.util.ext.getThemeColor
 import androidx.appcompat.R as appcompatR
 import com.google.android.material.R as materialR
 
-class DownloadsSelectionDecoration(context: Context) : AbstractSelectionItemDecoration() {
-
+class DownloadsSelectionDecoration(
+	context: Context,
+) : AbstractSelectionItemDecoration() {
 	private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 	private val checkIcon = ContextCompat.getDrawable(context, materialR.drawable.ic_mtrl_checked_circle)
 	private val iconOffset = context.resources.getDimensionPixelOffset(R.dimen.card_indicator_offset)
 	private val iconSize = context.resources.getDimensionPixelOffset(R.dimen.card_indicator_size)
 	private val strokeColor = context.getThemeColor(appcompatR.attr.colorPrimary, Color.RED)
-	private val fillColor = ColorUtils.setAlphaComponent(
-		ColorUtils.blendARGB(strokeColor, context.getThemeColor(materialR.attr.colorSurface), 0.8f),
-		0x74,
-	)
+	private val fillColor =
+		ColorUtils.setAlphaComponent(
+			ColorUtils.blendARGB(strokeColor, context.getThemeColor(materialR.attr.colorSurface), 0.8f),
+			0x74,
+		)
 	private val defaultRadius = context.resources.getDimension(R.dimen.list_selector_corner)
 
 	init {
@@ -40,7 +42,10 @@ class DownloadsSelectionDecoration(context: Context) : AbstractSelectionItemDeco
 		checkIcon?.setTint(strokeColor)
 	}
 
-	override fun getItemId(parent: RecyclerView, child: View): Long {
+	override fun getItemId(
+		parent: RecyclerView,
+		child: View,
+	): Long {
 		val holder = parent.getChildViewHolder(child) ?: return NO_ID
 		val item = holder.getItem(DownloadItemModel::class.java) ?: return NO_ID
 		return item.id.mostSignificantBits

@@ -34,7 +34,6 @@ abstract class BaseActivity<B : ViewBinding> :
 	AppCompatActivity(),
 	OnApplyWindowInsetsListener,
 	ScreenshotPolicyHelper.ContentContainer {
-
 	private var isAmoledTheme = false
 
 	lateinit var viewBinding: B
@@ -93,7 +92,10 @@ abstract class BaseActivity<B : ViewBinding> :
 		toolbar?.let(this::setSupportActionBar)
 	}
 
-	protected fun setDisplayHomeAsUp(isEnabled: Boolean, showUpAsClose: Boolean) {
+	protected fun setDisplayHomeAsUp(
+		isEnabled: Boolean,
+		showUpAsClose: Boolean,
+	) {
 		supportActionBar?.run {
 			setDisplayHomeAsUpEnabled(isEnabled)
 			if (showUpAsClose) {
@@ -115,7 +117,10 @@ abstract class BaseActivity<B : ViewBinding> :
 		return true
 	}
 
-	override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+	override fun onKeyDown(
+		keyCode: Int,
+		event: KeyEvent?,
+	): Boolean {
 		if (BuildConfig.DEBUG) {
 			if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
 				ActivityCompat.recreate(this)
@@ -162,8 +167,8 @@ abstract class BaseActivity<B : ViewBinding> :
 		intent?.putExtra(AppRouter.KEY_DATA, intent.data)
 	}
 
-	protected fun setContentViewWebViewSafe(viewBindingProducer: () -> B): Boolean {
-		return try {
+	protected fun setContentViewWebViewSafe(viewBindingProducer: () -> B): Boolean =
+		try {
 			setContentView(viewBindingProducer())
 			true
 		} catch (e: Exception) {
@@ -175,7 +180,6 @@ abstract class BaseActivity<B : ViewBinding> :
 				throw e
 			}
 		}
-	}
 
 	protected fun hasViewBinding() = ::viewBinding.isInitialized
 }

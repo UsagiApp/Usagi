@@ -19,7 +19,6 @@ abstract class BaseReaderAdapter<H : BasePageHolder<*>>(
 	private val networkState: NetworkState,
 	private val exceptionResolver: ExceptionResolver,
 ) : RecyclerView.Adapter<H>() {
-
 	private val differ = AsyncListDiffer(this, DiffCallback())
 
 	val hasItems: Boolean
@@ -29,7 +28,10 @@ abstract class BaseReaderAdapter<H : BasePageHolder<*>>(
 		stateRestorationPolicy = StateRestorationPolicy.PREVENT
 	}
 
-	override fun onBindViewHolder(holder: H, position: Int) {
+	override fun onBindViewHolder(
+		holder: H,
+		position: Int,
+	) {
 		holder.bind(differ.currentList[position])
 	}
 
@@ -60,11 +62,12 @@ abstract class BaseReaderAdapter<H : BasePageHolder<*>>(
 		viewType: Int,
 	): H = onCreateViewHolder(parent, loader, readerSettingsProducer, networkState, exceptionResolver)
 
-	suspend fun setItems(items: List<ReaderPage>) = suspendCoroutine { cont ->
-		differ.submitList(items) {
-			cont.resume(Unit)
+	suspend fun setItems(items: List<ReaderPage>) =
+		suspendCoroutine { cont ->
+			differ.submitList(items) {
+				cont.resume(Unit)
+			}
 		}
-	}
 
 	protected abstract fun onCreateViewHolder(
 		parent: ViewGroup,
@@ -75,13 +78,14 @@ abstract class BaseReaderAdapter<H : BasePageHolder<*>>(
 	): H
 
 	private class DiffCallback : DiffUtil.ItemCallback<ReaderPage>() {
+		override fun areItemsTheSame(
+			oldItem: ReaderPage,
+			newItem: ReaderPage,
+		): Boolean = oldItem.id == newItem.id && oldItem.chapterId == newItem.chapterId
 
-		override fun areItemsTheSame(oldItem: ReaderPage, newItem: ReaderPage): Boolean {
-			return oldItem.id == newItem.id && oldItem.chapterId == newItem.chapterId
-		}
-
-		override fun areContentsTheSame(oldItem: ReaderPage, newItem: ReaderPage): Boolean {
-			return oldItem == newItem
-		}
+		override fun areContentsTheSame(
+			oldItem: ReaderPage,
+			newItem: ReaderPage,
+		): Boolean = oldItem == newItem
 	}
 }

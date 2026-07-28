@@ -9,24 +9,28 @@ import org.draken.usagi.list.domain.ListSortOrder
 class FavouritesTouchListener(
 	private val sortOrder: () -> ListSortOrder?,
 	private val reorderHelper: () -> ItemTouchHelper?,
-	private val canDrag: () -> Boolean = { true }
+	private val canDrag: () -> Boolean = { true },
 ) : RecyclerView.OnItemTouchListener {
-
 	private var dX = 0f
 	private var dY = 0f
 	private var downTime = 0L
 	private var downHolder: RecyclerView.ViewHolder? = null
 	private var slopSq = 0
 
-	override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+	override fun onInterceptTouchEvent(
+		rv: RecyclerView,
+		e: MotionEvent,
+	): Boolean {
 		if (sortOrder() != ListSortOrder.NEWEST || !canDrag()) return false
 		when (e.actionMasked) {
 			MotionEvent.ACTION_DOWN -> {
-				dX = e.x; dY = e.y
+				dX = e.x
+				dY = e.y
 				downTime = System.currentTimeMillis()
 				slopSq = ViewConfiguration.get(rv.context).scaledTouchSlop.let { it * it }
 				downHolder = rv.findChildViewUnder(e.x, e.y)?.let(rv::getChildViewHolder)
 			}
+
 			MotionEvent.ACTION_MOVE -> {
 				val holder = downHolder ?: return false
 				val x = e.x - dX
@@ -37,12 +41,18 @@ class FavouritesTouchListener(
 					downHolder = null
 				}
 			}
-			MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> downHolder = null
+
+			MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+				downHolder = null
+			}
 		}
 		return false
 	}
 
-	override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) = Unit
+	override fun onTouchEvent(
+		rv: RecyclerView,
+		e: MotionEvent,
+	) = Unit
 
 	override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) = Unit
 }

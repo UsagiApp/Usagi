@@ -33,79 +33,85 @@ import org.draken.usagi.list.domain.ReadingProgress.Companion.PROGRESS_NONE
 import javax.inject.Inject
 
 @HiltViewModel
-class PreviewViewModel @Inject constructor(
-	savedStateHandle: SavedStateHandle,
-	private val mangaListMapper: MangaListMapper,
-	private val repositoryFactory: MangaRepository.Factory,
-	private val historyRepository: HistoryRepository,
-	private val imageGetter: Html.ImageGetter,
-) : BaseViewModel() {
+class PreviewViewModel
+	@Inject
+	constructor(
+		savedStateHandle: SavedStateHandle,
+		private val mangaListMapper: MangaListMapper,
+		private val repositoryFactory: MangaRepository.Factory,
+		private val historyRepository: HistoryRepository,
+		private val imageGetter: Html.ImageGetter,
+	) : BaseViewModel() {
+		val manga =
+			MutableStateFlow(
+				savedStateHandle.require<ParcelableManga>(AppRouter.KEY_MANGA).manga,
+			)
 
-	val manga = MutableStateFlow(
-		savedStateHandle.require<ParcelableManga>(AppRouter.KEY_MANGA).manga,
-	)
+		val footer =
+			combine(
+				manga,
+				historyRepository.observeOne(manga.value.id),
+				manga.flatMapLatest { historyRepository.observeShouldSkip(it) }.distinctUntilChanged(),
+			) { m, history, incognito ->
+				if (m.chapters == null) {
+					return@combine null
+				}
+				val b = m.getPreferredBranch(history)
+				val chapters = m.getChapters(b)
+				FooterInfo(
+					percent = history?.percent ?: PROGRESS_NONE,
+					currentChapter =
+						history?.chapterId?.let {
+							chapters.indexOfFirst { x -> x.id == it }
+						} ?: -1,
+					totalChapters = chapters.size,
+					isIncognito = incognito,
+				)
+			}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, null)
 
-	val footer = combine(
-		manga,
-		historyRepository.observeOne(manga.value.id),
-		manga.flatMapLatest { historyRepository.observeShouldSkip(it) }.distinctUntilChanged(),
-	) { m, history, incognito ->
-		if (m.chapters == null) {
-			return@combine null
-		}
-		val b = m.getPreferredBranch(history)
-		val chapters = m.getChapters(b)
-		FooterInfo(
-			percent = history?.percent ?: PROGRESS_NONE,
-			currentChapter = history?.chapterId?.let {
-				chapters.indexOfFirst { x -> x.id == it }
-			} ?: -1,
-			totalChapters = chapters.size,
-			isIncognito = incognito,
-		)
-	}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, null)
+		val description =
+			manga
+				.distinctUntilChangedBy { it.description.orEmpty() }
+				.transformLatest {
+					val description = it.description
+					if (description.isNullOrEmpty()) {
+						emit(null)
+					} else {
+						emit(description.parseAsHtml().filterSpans().sanitize())
+						emit(description.parseAsHtml(imageGetter = imageGetter).filterSpans())
+					}
+				}.combine(isLoading) { desc, loading ->
+					if (loading) null else desc ?: ""
+				}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.WhileSubscribed(5000), null)
 
-	val description = manga
-		.distinctUntilChangedBy { it.description.orEmpty() }
-		.transformLatest {
-			val description = it.description
-			if (description.isNullOrEmpty()) {
-				emit(null)
-			} else {
-				emit(description.parseAsHtml().filterSpans().sanitize())
-				emit(description.parseAsHtml(imageGetter = imageGetter).filterSpans())
+		val tagsChips =
+			manga
+				.map {
+					mangaListMapper.mapTags(it.tags)
+				}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, emptyList())
+
+		init {
+			launchLoadingJob(Dispatchers.Default) {
+				val repo = repositoryFactory.create(manga.value.source)
+				manga.value = repo.getDetails(manga.value)
 			}
-		}.combine(isLoading) { desc, loading ->
-			if (loading) null else desc ?: ""
-		}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.WhileSubscribed(5000), null)
+		}
 
-	val tagsChips = manga.map {
-		mangaListMapper.mapTags(it.tags)
-	}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, emptyList())
+		private fun Spanned.filterSpans(): CharSequence {
+			val spannable = SpannableString.valueOf(this)
+			val spans = spannable.getSpans<ForegroundColorSpan>()
+			for (span in spans) {
+				spannable.removeSpan(span)
+			}
+			return spannable.trim()
+		}
 
-	init {
-		launchLoadingJob(Dispatchers.Default) {
-			val repo = repositoryFactory.create(manga.value.source)
-			manga.value = repo.getDetails(manga.value)
+		data class FooterInfo(
+			val currentChapter: Int,
+			val totalChapters: Int,
+			val isIncognito: Boolean,
+			val percent: Float,
+		) {
+			fun isInProgress() = currentChapter >= 0
 		}
 	}
-
-	private fun Spanned.filterSpans(): CharSequence {
-		val spannable = SpannableString.valueOf(this)
-		val spans = spannable.getSpans<ForegroundColorSpan>()
-		for (span in spans) {
-			spannable.removeSpan(span)
-		}
-		return spannable.trim()
-	}
-
-	data class FooterInfo(
-		val currentChapter: Int,
-		val totalChapters: Int,
-		val isIncognito: Boolean,
-		val percent: Float,
-	) {
-
-		fun isInProgress() = currentChapter >= 0
-	}
-}

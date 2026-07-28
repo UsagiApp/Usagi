@@ -9,12 +9,13 @@ import android.os.Bundle
 import dagger.hilt.android.EntryPointAccessors
 import org.draken.usagi.R
 import org.draken.usagi.core.util.ext.onError
-import tsuki.util.runCatchingCancellable
 import org.draken.usagi.sync.domain.SyncController
 import org.draken.usagi.sync.ui.SyncAdapterEntryPoint
+import tsuki.util.runCatchingCancellable
 
-class HistorySyncAdapter(context: Context) : AbstractThreadedSyncAdapter(context, true) {
-
+class HistorySyncAdapter(
+	context: Context,
+) : AbstractThreadedSyncAdapter(context, true) {
 	override fun onPerformSync(
 		account: Account,
 		extras: Bundle,

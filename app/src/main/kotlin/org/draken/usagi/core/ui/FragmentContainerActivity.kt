@@ -16,11 +16,11 @@ import org.draken.usagi.main.ui.owners.AppBarOwner
 import org.draken.usagi.main.ui.owners.SnackbarOwner
 
 @AndroidEntryPoint
-abstract class FragmentContainerActivity(private val fragmentClass: Class<out Fragment>) :
-	BaseActivity<ActivityContainerBinding>(),
+abstract class FragmentContainerActivity(
+	private val fragmentClass: Class<out Fragment>,
+) : BaseActivity<ActivityContainerBinding>(),
 	AppBarOwner,
 	SnackbarOwner {
-
 	override val appBar: AppBarLayout
 		get() = viewBinding.appbar
 
@@ -40,7 +40,10 @@ abstract class FragmentContainerActivity(private val fragmentClass: Class<out Fr
 		}
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 		viewBinding.appbar.updatePadding(
 			left = bars.left,

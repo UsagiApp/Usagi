@@ -32,193 +32,203 @@ private const val SLIDE_DOWN_ANIMATION_DURATION = 175L
 
 private const val MAX_ITEM_COUNT = 6
 
-class SlidingBottomNavigationView @JvmOverloads constructor(
-	context: Context,
-	attrs: AttributeSet? = null,
-	@AttrRes defStyleAttr: Int = materialR.attr.bottomNavigationStyle,
-	@StyleRes defStyleRes: Int = materialR.style.Widget_Design_BottomNavigationView,
-) : NavigationBarView(context, attrs, defStyleAttr, defStyleRes),
-	CoordinatorLayout.AttachedBehavior {
+class SlidingBottomNavigationView
+	@JvmOverloads
+	constructor(
+		context: Context,
+		attrs: AttributeSet? = null,
+		@AttrRes defStyleAttr: Int = materialR.attr.bottomNavigationStyle,
+		@StyleRes defStyleRes: Int = materialR.style.Widget_Design_BottomNavigationView,
+	) : NavigationBarView(context, attrs, defStyleAttr, defStyleRes),
+		CoordinatorLayout.AttachedBehavior {
+		private var currentAnimator: ViewPropertyAnimator? = null
 
-	private var currentAnimator: ViewPropertyAnimator? = null
+		private var currentState = STATE_UP
+		private var behavior = HideBottomNavigationOnScrollBehavior()
 
-	private var currentState = STATE_UP
-	private var behavior = HideBottomNavigationOnScrollBehavior()
+		var isPinned: Boolean
+			get() = behavior.isPinned
+			set(value) {
+				behavior.isPinned = value
+				if (value) {
+					translationX = 0f
+				}
+			}
 
-	var isPinned: Boolean
-		get() = behavior.isPinned
-		set(value) {
-			behavior.isPinned = value
-			if (value) {
-				translationX = 0f
+		val isShownOrShowing: Boolean
+			get() = isVisible && currentState == STATE_UP
+
+		override fun getBehavior(): CoordinatorLayout.Behavior<*> = behavior
+
+		/** From BottomNavigationView **/
+
+		@SuppressLint("ClickableViewAccessibility")
+		override fun onTouchEvent(event: MotionEvent): Boolean {
+			super.onTouchEvent(event)
+			// Consume all events to avoid views under the BottomNavigationView from receiving touch events.
+			return true
+		}
+
+		override fun onMeasure(
+			widthMeasureSpec: Int,
+			heightMeasureSpec: Int,
+		) {
+			val minHeightSpec = makeMinHeightSpec(heightMeasureSpec)
+			super.onMeasure(widthMeasureSpec, minHeightSpec)
+			if (MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.EXACTLY) {
+				setMeasuredDimension(
+					measuredWidth,
+					max(
+						measuredHeight,
+						suggestedMinimumHeight + paddingTop + paddingBottom,
+					),
+				)
 			}
 		}
 
-	val isShownOrShowing: Boolean
-		get() = isVisible && currentState == STATE_UP
+		private fun makeMinHeightSpec(measureSpec: Int): Int {
+			var minHeight = suggestedMinimumHeight
+			if (MeasureSpec.getMode(measureSpec) != MeasureSpec.EXACTLY && minHeight > 0) {
+				minHeight += paddingTop + paddingBottom
 
-	override fun getBehavior(): CoordinatorLayout.Behavior<*> {
-		return behavior
-	}
+				return MeasureSpec.makeMeasureSpec(
+					max(MeasureSpec.getSize(measureSpec), minHeight),
+					MeasureSpec.AT_MOST,
+				)
+			}
 
-	/** From BottomNavigationView **/
+			return measureSpec
+		}
 
-	@SuppressLint("ClickableViewAccessibility")
-	override fun onTouchEvent(event: MotionEvent): Boolean {
-		super.onTouchEvent(event)
-		// Consume all events to avoid views under the BottomNavigationView from receiving touch events.
-		return true
-	}
+		override fun getMaxItemCount(): Int = MAX_ITEM_COUNT
 
-	override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-		val minHeightSpec = makeMinHeightSpec(heightMeasureSpec)
-		super.onMeasure(widthMeasureSpec, minHeightSpec)
-		if (MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.EXACTLY) {
-			setMeasuredDimension(
-				measuredWidth,
-				max(
-					measuredHeight,
-					suggestedMinimumHeight + paddingTop + paddingBottom,
-				),
+		@SuppressLint("RestrictedApi")
+		override fun createNavigationBarMenuView(context: Context) = BottomNavigationMenuView(context)
+
+		/** End **/
+
+		override fun onSaveInstanceState(): Parcelable {
+			val superState = super.onSaveInstanceState()
+			return SavedState(superState, currentState, translationY)
+		}
+
+		override fun onRestoreInstanceState(state: Parcelable?) {
+			if (state is SavedState) {
+				super.onRestoreInstanceState(state.superState)
+				super.setTranslationY(state.translationY)
+				currentState = state.currentState
+			} else {
+				super.onRestoreInstanceState(state)
+			}
+		}
+
+		override fun setTranslationY(translationY: Float) {
+			// Disallow translation change when state down
+			if (currentState != STATE_DOWN) {
+				super.setTranslationY(translationY)
+			}
+		}
+
+		override fun setMinimumHeight(minHeight: Int) {
+			super.setMinimumHeight(minHeight)
+			getChildAt(0)?.minimumHeight = minHeight
+		}
+
+		fun show() {
+			if (currentState == STATE_UP) {
+				return
+			}
+			currentAnimator?.cancel()
+			clearAnimation()
+
+			currentState = STATE_UP
+			animateTranslation(
+				0F,
+				SLIDE_UP_ANIMATION_DURATION,
+				LinearOutSlowInInterpolator(),
 			)
 		}
-	}
 
-	private fun makeMinHeightSpec(measureSpec: Int): Int {
-		var minHeight = suggestedMinimumHeight
-		if (MeasureSpec.getMode(measureSpec) != MeasureSpec.EXACTLY && minHeight > 0) {
-			minHeight += paddingTop + paddingBottom
+		fun hide() {
+			if (currentState == STATE_DOWN) {
+				return
+			}
+			currentAnimator?.cancel()
+			clearAnimation()
 
-			return MeasureSpec.makeMeasureSpec(
-				max(MeasureSpec.getSize(measureSpec), minHeight), MeasureSpec.AT_MOST,
+			currentState = STATE_DOWN
+			val target = measureHeight()
+			if (target == 0) {
+				return
+			}
+			animateTranslation(
+				target.toFloat(),
+				SLIDE_DOWN_ANIMATION_DURATION,
+				FastOutLinearInInterpolator(),
 			)
 		}
 
-		return measureSpec
-	}
-
-	override fun getMaxItemCount(): Int = MAX_ITEM_COUNT
-
-	@SuppressLint("RestrictedApi")
-	override fun createNavigationBarMenuView(context: Context) = BottomNavigationMenuView(context)
-
-	/** End **/
-
-	override fun onSaveInstanceState(): Parcelable {
-		val superState = super.onSaveInstanceState()
-		return SavedState(superState, currentState, translationY)
-	}
-
-	override fun onRestoreInstanceState(state: Parcelable?) {
-		if (state is SavedState) {
-			super.onRestoreInstanceState(state.superState)
-			super.setTranslationY(state.translationY)
-			currentState = state.currentState
-		} else {
-			super.onRestoreInstanceState(state)
+		fun showOrHide(show: Boolean) {
+			if (show) {
+				show()
+			} else {
+				hide()
+			}
 		}
-	}
 
-	override fun setTranslationY(translationY: Float) {
-		// Disallow translation change when state down
-		if (currentState != STATE_DOWN) {
-			super.setTranslationY(translationY)
+		private fun animateTranslation(
+			targetY: Float,
+			duration: Long,
+			interpolator: TimeInterpolator,
+		) {
+			currentAnimator =
+				animate()
+					.translationY(targetY)
+					.setInterpolator(interpolator)
+					.setDuration(duration)
+					.applySystemAnimatorScale(context)
+					.setListener(
+						object : AnimatorListenerAdapter() {
+							override fun onAnimationEnd(animation: Animator) {
+								currentAnimator = null
+								postInvalidate()
+							}
+						},
+					)
 		}
-	}
 
-	override fun setMinimumHeight(minHeight: Int) {
-		super.setMinimumHeight(minHeight)
-		getChildAt(0)?.minimumHeight = minHeight
-	}
+		internal class SavedState : AbsSavedState {
+			var currentState = STATE_UP
+			var translationY = 0F
 
-	fun show() {
-		if (currentState == STATE_UP) {
-			return
-		}
-		currentAnimator?.cancel()
-		clearAnimation()
+			constructor(superState: Parcelable, currentState: Int, translationY: Float) : super(superState) {
+				this.currentState = currentState
+				this.translationY = translationY
+			}
 
-		currentState = STATE_UP
-		animateTranslation(
-			0F,
-			SLIDE_UP_ANIMATION_DURATION,
-			LinearOutSlowInInterpolator(),
-		)
-	}
+			constructor(source: Parcel, loader: ClassLoader?) : super(source, loader) {
+				currentState = source.readInt()
+				translationY = source.readFloat()
+			}
 
-	fun hide() {
-		if (currentState == STATE_DOWN) {
-			return
-		}
-		currentAnimator?.cancel()
-		clearAnimation()
+			override fun writeToParcel(
+				out: Parcel,
+				flags: Int,
+			) {
+				super.writeToParcel(out, flags)
+				out.writeInt(currentState)
+				out.writeFloat(translationY)
+			}
 
-		currentState = STATE_DOWN
-		val target = measureHeight()
-		if (target == 0) {
-			return
-		}
-		animateTranslation(
-			target.toFloat(),
-			SLIDE_DOWN_ANIMATION_DURATION,
-			FastOutLinearInInterpolator(),
-		)
-	}
+			companion object {
+				@Suppress("unused")
+				@JvmField
+				val CREATOR: Parcelable.Creator<SavedState> =
+					object : Parcelable.Creator<SavedState> {
+						override fun createFromParcel(`in`: Parcel) = SavedState(`in`, SavedState::class.java.classLoader)
 
-	fun showOrHide(show: Boolean) {
-		if (show) {
-			show()
-		} else {
-			hide()
-		}
-	}
-
-	private fun animateTranslation(targetY: Float, duration: Long, interpolator: TimeInterpolator) {
-		currentAnimator = animate()
-			.translationY(targetY)
-			.setInterpolator(interpolator)
-			.setDuration(duration)
-			.applySystemAnimatorScale(context)
-			.setListener(
-				object : AnimatorListenerAdapter() {
-					override fun onAnimationEnd(animation: Animator) {
-						currentAnimator = null
-						postInvalidate()
+						override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
 					}
-				},
-			)
-	}
-
-	internal class SavedState : AbsSavedState {
-
-		var currentState = STATE_UP
-		var translationY = 0F
-
-		constructor(superState: Parcelable, currentState: Int, translationY: Float) : super(superState) {
-			this.currentState = currentState
-			this.translationY = translationY
-		}
-
-		constructor(source: Parcel, loader: ClassLoader?) : super(source, loader) {
-			currentState = source.readInt()
-			translationY = source.readFloat()
-		}
-
-		override fun writeToParcel(out: Parcel, flags: Int) {
-			super.writeToParcel(out, flags)
-			out.writeInt(currentState)
-			out.writeFloat(translationY)
-		}
-
-		companion object {
-
-			@Suppress("unused")
-			@JvmField
-			val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
-				override fun createFromParcel(`in`: Parcel) = SavedState(`in`, SavedState::class.java.classLoader)
-
-				override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
 			}
 		}
 	}
-}

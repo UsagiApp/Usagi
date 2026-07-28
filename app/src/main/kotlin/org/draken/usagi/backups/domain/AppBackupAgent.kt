@@ -11,6 +11,7 @@ import com.google.common.io.ByteStreams
 import kotlinx.coroutines.runBlocking
 import org.draken.usagi.backups.data.BackupRepository
 import org.draken.usagi.core.db.MangaDatabase
+import org.draken.usagi.core.model.PluginKeyResolver
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.filter.data.SavedFiltersRepository
@@ -21,41 +22,42 @@ import java.io.FileInputStream
 import java.util.EnumSet
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import org.draken.usagi.core.model.PluginKeyResolver
 
 class AppBackupAgent : BackupAgent() {
-
 	override fun onBackup(
 		oldState: ParcelFileDescriptor?,
 		data: BackupDataOutput?,
-		newState: ParcelFileDescriptor?
+		newState: ParcelFileDescriptor?,
 	) = Unit
 
 	override fun onRestore(
 		data: BackupDataInput?,
 		appVersionCode: Int,
-		newState: ParcelFileDescriptor?
+		newState: ParcelFileDescriptor?,
 	) = Unit
 
 	override fun onFullBackup(data: FullBackupDataOutput) {
 		super.onFullBackup(data)
-		val file = createBackupFile(
-			this,
-			BackupRepository(
-				database = MangaDatabase(context = applicationContext),
-				settings = AppSettings(applicationContext),
-				tapGridSettings = TapGridSettings(applicationContext),
-				mangaSourcesRepository = MangaSourcesRepository(
-					context = applicationContext,
-					db = MangaDatabase(context = applicationContext),
+		val file =
+			createBackupFile(
+				this,
+				BackupRepository(
+					database = MangaDatabase(context = applicationContext),
 					settings = AppSettings(applicationContext),
+					tapGridSettings = TapGridSettings(applicationContext),
+					mangaSourcesRepository =
+						MangaSourcesRepository(
+							context = applicationContext,
+							db = MangaDatabase(context = applicationContext),
+							settings = AppSettings(applicationContext),
+						),
+					savedFiltersRepository =
+						SavedFiltersRepository(
+							context = applicationContext,
+						),
+					pluginKeyResolver = PluginKeyResolver(),
 				),
-				savedFiltersRepository = SavedFiltersRepository(
-					context = applicationContext,
-				),
-				pluginKeyResolver = PluginKeyResolver(),
-			),
-		)
+			)
 		try {
 			fullBackupFile(file, data)
 		} finally {
@@ -69,7 +71,7 @@ class AppBackupAgent : BackupAgent() {
 		destination: File?,
 		type: Int,
 		mode: Long,
-		mtime: Long
+		mtime: Long,
 	) {
 		if (destination?.name?.endsWith(".bk.zip") == true) {
 			restoreBackupFile(
@@ -79,14 +81,16 @@ class AppBackupAgent : BackupAgent() {
 					database = MangaDatabase(applicationContext),
 					settings = AppSettings(applicationContext),
 					tapGridSettings = TapGridSettings(applicationContext),
-					mangaSourcesRepository = MangaSourcesRepository(
-						context = applicationContext,
-						db = MangaDatabase(context = applicationContext),
-						settings = AppSettings(applicationContext),
-					),
-					savedFiltersRepository = SavedFiltersRepository(
-						context = applicationContext,
-					),
+					mangaSourcesRepository =
+						MangaSourcesRepository(
+							context = applicationContext,
+							db = MangaDatabase(context = applicationContext),
+							settings = AppSettings(applicationContext),
+						),
+					savedFiltersRepository =
+						SavedFiltersRepository(
+							context = applicationContext,
+						),
 					pluginKeyResolver = PluginKeyResolver(),
 				),
 			)
@@ -97,7 +101,10 @@ class AppBackupAgent : BackupAgent() {
 	}
 
 	@VisibleForTesting
-	fun createBackupFile(context: Context, repository: BackupRepository): File {
+	fun createBackupFile(
+		context: Context,
+		repository: BackupRepository,
+	): File {
 		val file = BackupUtils.createTempFile(context)
 		ZipOutputStream(file.outputStream()).use { output ->
 			runBlocking {
@@ -108,7 +115,11 @@ class AppBackupAgent : BackupAgent() {
 	}
 
 	@VisibleForTesting
-	fun restoreBackupFile(fd: FileDescriptor, size: Long, repository: BackupRepository) {
+	fun restoreBackupFile(
+		fd: FileDescriptor,
+		size: Long,
+		repository: BackupRepository,
+	) {
 		ZipInputStream(ByteStreams.limit(FileInputStream(fd), size)).use { input ->
 			val sections = EnumSet.allOf(BackupSection::class.java)
 			// managed externally

@@ -25,12 +25,12 @@ import org.draken.usagi.core.util.ext.isLowRamDevice
 import org.draken.usagi.core.util.ext.isSerializable
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.databinding.LayoutPageInfoBinding
-import tsuki.util.ifZero
 import org.draken.usagi.reader.domain.PageLoader
 import org.draken.usagi.reader.ui.config.ReaderSettings
 import org.draken.usagi.reader.ui.pager.vm.PageState
 import org.draken.usagi.reader.ui.pager.vm.PageViewModel
 import org.draken.usagi.reader.ui.pager.webtoon.WebtoonHolder
+import tsuki.util.ifZero
 
 abstract class BasePageHolder<B : ViewBinding>(
 	protected val binding: B,
@@ -39,15 +39,17 @@ abstract class BasePageHolder<B : ViewBinding>(
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
 	lifecycleOwner: LifecycleOwner,
-) : LifecycleAwareViewHolder(binding.root, lifecycleOwner), DefaultOnImageEventListener, ComponentCallbacks2 {
-
-	protected val viewModel = PageViewModel(
-		loader = loader,
-		settingsProducer = readerSettingsProducer,
-		networkState = networkState,
-		exceptionResolver = exceptionResolver,
-		isWebtoon = this is WebtoonHolder,
-	)
+) : LifecycleAwareViewHolder(binding.root, lifecycleOwner),
+	DefaultOnImageEventListener,
+	ComponentCallbacks2 {
+	protected val viewModel =
+		PageViewModel(
+			loader = loader,
+			settingsProducer = readerSettingsProducer,
+			networkState = networkState,
+			exceptionResolver = exceptionResolver,
+			isWebtoon = this is WebtoonHolder,
+		)
 	protected val bindingInfo = LayoutPageInfoBinding.bind(binding.root)
 	protected abstract val ssiv: SubsamplingScaleImageView
 
@@ -67,16 +69,21 @@ abstract class BasePageHolder<B : ViewBinding>(
 			ssiv.addOnImageEventListener(viewModel)
 			ssiv.addOnImageEventListener(this@BasePageHolder)
 		}
-		val clickListener = View.OnClickListener { v ->
-			when (v.id) {
-				R.id.button_retry -> viewModel.retry(
-					page = boundData?.toMangaPage() ?: return@OnClickListener,
-					isFromUser = true,
-				)
+		val clickListener =
+			View.OnClickListener { v ->
+				when (v.id) {
+					R.id.button_retry -> {
+						viewModel.retry(
+							page = boundData?.toMangaPage() ?: return@OnClickListener,
+							isFromUser = true,
+						)
+					}
 
-				R.id.button_error_details -> viewModel.showErrorDetails(boundData?.url)
+					R.id.button_error_details -> {
+						viewModel.showErrorDetails(boundData?.url)
+					}
+				}
 			}
-		}
 		bindingInfo.buttonRetry.setOnClickListener(clickListener)
 		bindingInfo.buttonErrorDetails.setOnClickListener(clickListener)
 	}
@@ -169,7 +176,9 @@ abstract class BasePageHolder<B : ViewBinding>(
 				bindingInfo.textViewStatus.setText(R.string.processing_)
 			}
 
-			is PageState.Empty -> Unit
+			is PageState.Empty -> {
+				Unit
+			}
 
 			is PageState.Error -> {
 				val e = state.error
@@ -195,22 +204,32 @@ abstract class BasePageHolder<B : ViewBinding>(
 				}
 			}
 
-			is PageState.Shown -> Unit
+			is PageState.Shown -> {
+				Unit
+			}
 		}
 	}
 
 	protected fun SubsamplingScaleImageView.applyDownSampling(isForeground: Boolean) {
-		downSampling = when {
-			isForeground -> settings.downscale.value
-			!settings.isReaderOptimizationEnabled -> 1
-			else -> {
-				val base = when {
-					BuildConfig.DEBUG -> 32
-					context.isLowRamDevice() -> 8
-					else -> 4
+		downSampling =
+			when {
+				isForeground -> {
+					settings.downscale.value
 				}
-				maxOf(settings.downscale.value, base)
+
+				!settings.isReaderOptimizationEnabled -> {
+					1
+				}
+
+				else -> {
+					val base =
+						when {
+							BuildConfig.DEBUG -> 32
+							context.isLowRamDevice() -> 8
+							else -> 4
+						}
+					maxOf(settings.downscale.value, base)
+				}
 			}
-		}
 	}
 }

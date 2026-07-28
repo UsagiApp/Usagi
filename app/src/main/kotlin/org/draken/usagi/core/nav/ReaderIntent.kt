@@ -5,51 +5,58 @@ import android.content.Intent
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.bookmarks.domain.Bookmark
 import org.draken.usagi.core.model.parcelable.ParcelableManga
-import tsuki.model.Manga
 import org.draken.usagi.reader.ui.ReaderActivity
 import org.draken.usagi.reader.ui.ReaderState
+import tsuki.model.Manga
 
 @JvmInline
 value class ReaderIntent private constructor(
 	val intent: Intent,
 ) {
+	class Builder(
+		context: Context,
+	) {
+		private val intent =
+			Intent(context, ReaderActivity::class.java)
+				.setAction(ACTION_MANGA_READ)
 
-	class Builder(context: Context) {
+		fun manga(manga: Manga) =
+			apply {
+				intent.putExtra(AppRouter.KEY_MANGA, ParcelableManga(manga))
+				intent.setData(AppRouter.shortMangaUrl(manga.id))
+			}
 
-		private val intent = Intent(context, ReaderActivity::class.java)
-			.setAction(ACTION_MANGA_READ)
+		fun mangaId(mangaId: Long) =
+			apply {
+				intent.putExtra(AppRouter.KEY_ID, mangaId)
+				intent.setData(AppRouter.shortMangaUrl(mangaId))
+			}
 
-		fun manga(manga: Manga) = apply {
-			intent.putExtra(AppRouter.KEY_MANGA, ParcelableManga(manga))
-			intent.setData(AppRouter.shortMangaUrl(manga.id))
-		}
+		fun incognito() =
+			apply {
+				intent.putExtra(EXTRA_INCOGNITO, true)
+			}
 
-		fun mangaId(mangaId: Long) = apply {
-			intent.putExtra(AppRouter.KEY_ID, mangaId)
-			intent.setData(AppRouter.shortMangaUrl(mangaId))
-		}
+		fun branch(branch: String?) =
+			apply {
+				intent.putExtra(EXTRA_BRANCH, branch)
+			}
 
-		fun incognito() = apply {
-			intent.putExtra(EXTRA_INCOGNITO, true)
-		}
+		fun state(state: ReaderState?) =
+			apply {
+				intent.putExtra(EXTRA_STATE, state)
+			}
 
-		fun branch(branch: String?) = apply {
-			intent.putExtra(EXTRA_BRANCH, branch)
-		}
-
-		fun state(state: ReaderState?) = apply {
-			intent.putExtra(EXTRA_STATE, state)
-		}
-
-		fun bookmark(bookmark: Bookmark) = manga(
-			bookmark.manga,
-		).state(
-			ReaderState(
-				chapterId = bookmark.chapterId,
-				page = bookmark.page,
-				scroll = bookmark.scroll,
-			),
-		)
+		fun bookmark(bookmark: Bookmark) =
+			manga(
+				bookmark.manga,
+			).state(
+				ReaderState(
+					chapterId = bookmark.chapterId,
+					page = bookmark.page,
+					scroll = bookmark.scroll,
+				),
+			)
 
 		fun build() = ReaderIntent(intent)
 	}

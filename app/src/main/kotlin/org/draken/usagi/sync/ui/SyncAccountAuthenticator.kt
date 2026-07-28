@@ -9,9 +9,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 
-class SyncAccountAuthenticator(private val context: Context) : AbstractAccountAuthenticator(context) {
-
-	override fun editProperties(response: AccountAuthenticatorResponse?, accountType: String?): Bundle? = null
+class SyncAccountAuthenticator(
+	private val context: Context,
+) : AbstractAccountAuthenticator(context) {
+	override fun editProperties(
+		response: AccountAuthenticatorResponse?,
+		accountType: String?,
+	): Bundle? = null
 
 	override fun addAccount(
 		response: AccountAuthenticatorResponse?,

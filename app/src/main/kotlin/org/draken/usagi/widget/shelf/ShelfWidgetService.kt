@@ -12,7 +12,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ShelfWidgetService : RemoteViewsService() {
-
 	@Inject
 	lateinit var favouritesRepository: FavouritesRepository
 
@@ -23,10 +22,11 @@ class ShelfWidgetService : RemoteViewsService() {
 	lateinit var coilLazy: Lazy<ImageLoader>
 
 	override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
-		val widgetId = intent.getIntExtra(
-			AppWidgetManager.EXTRA_APPWIDGET_ID,
-			AppWidgetManager.INVALID_APPWIDGET_ID,
-		)
+		val widgetId =
+			intent.getIntExtra(
+				AppWidgetManager.EXTRA_APPWIDGET_ID,
+				AppWidgetManager.INVALID_APPWIDGET_ID,
+			)
 		return ShelfListFactory(applicationContext, favouritesRepository, coilLazy, settings, widgetId)
 	}
 }

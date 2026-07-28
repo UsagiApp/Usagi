@@ -9,16 +9,13 @@ class SortOption(
 	val title: String,
 	val indicator: Indicator,
 ) : ListModel {
-
 	enum class Indicator { NONE, ASCENDING, DESCENDING, SELECTED }
 
 	override fun areItemsTheSame(other: ListModel) = other is SortOption && other.id == id
 
-	override fun equals(other: Any?) =
-		other is SortOption && other.id == id && other.title == title && other.indicator == indicator
+	override fun equals(other: Any?) = other is SortOption && other.id == id && other.title == title && other.indicator == indicator
 
 	override fun hashCode() = id * 31 + indicator.ordinal
 
-	override fun getChangePayload(previousState: ListModel) =
-		if (previousState is SortOption && previousState.indicator != indicator) PAYLOAD_CHECKED_CHANGED else null
+	override fun getChangePayload(previousState: ListModel) = if (previousState is SortOption && previousState.indicator != indicator) PAYLOAD_CHECKED_CHANGED else null
 }

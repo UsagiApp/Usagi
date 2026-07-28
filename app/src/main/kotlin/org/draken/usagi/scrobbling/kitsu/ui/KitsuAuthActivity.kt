@@ -19,11 +19,11 @@ import org.draken.usagi.core.util.ext.consume
 import org.draken.usagi.databinding.ActivityKitsuAuthBinding
 import tsuki.util.urlEncoded
 
-class KitsuAuthActivity : BaseActivity<ActivityKitsuAuthBinding>(),
+class KitsuAuthActivity :
+	BaseActivity<ActivityKitsuAuthBinding>(),
 	View.OnClickListener,
 	DefaultTextWatcher,
 	TextView.OnEditorActionListener {
-
 	private val regexEmail = Regex("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", RegexOption.IGNORE_CASE)
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +39,7 @@ class KitsuAuthActivity : BaseActivity<ActivityKitsuAuthBinding>(),
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		val screenPadding = v.resources.getDimensionPixelOffset(R.dimen.screen_padding)
@@ -71,38 +71,55 @@ class KitsuAuthActivity : BaseActivity<ActivityKitsuAuthBinding>(),
 	override fun onEditorAction(
 		v: TextView,
 		actionId: Int,
-		event: KeyEvent?
-	): Boolean = when (v.id) {
-		R.id.edit_email -> {
-			viewBinding.editPassword.requestFocus()
-			true
-		}
-
-		R.id.edit_password -> {
-			if (viewBinding.buttonDone.isEnabled) {
-				continueAuth()
+		event: KeyEvent?,
+	): Boolean =
+		when (v.id) {
+			R.id.edit_email -> {
+				viewBinding.editPassword.requestFocus()
 				true
-			} else {
+			}
+
+			R.id.edit_password -> {
+				if (viewBinding.buttonDone.isEnabled) {
+					continueAuth()
+					true
+				} else {
+					false
+				}
+			}
+
+			else -> {
 				false
 			}
 		}
 
-		else -> false
-	}
-
 	override fun afterTextChanged(s: Editable?) {
-		val email = viewBinding.editEmail.text?.toString()?.trim()
-		val password = viewBinding.editPassword.text?.toString()?.trim()
-		viewBinding.buttonDone.isEnabled = !email.isNullOrEmpty()
-			&& !password.isNullOrEmpty()
-			&& regexEmail.matches(email)
-			&& password.length >= 3
+		val email =
+			viewBinding.editEmail.text
+				?.toString()
+				?.trim()
+		val password =
+			viewBinding.editPassword.text
+				?.toString()
+				?.trim()
+		viewBinding.buttonDone.isEnabled = !email.isNullOrEmpty() &&
+			!password.isNullOrEmpty() &&
+			regexEmail.matches(email) &&
+			password.length >= 3
 	}
 
 	@SuppressLint("UnsafeImplicitIntentLaunch")
 	private fun continueAuth() {
-		val email = viewBinding.editEmail.text?.toString()?.trim().orEmpty()
-		val password = viewBinding.editPassword.text?.toString()?.trim().orEmpty()
+		val email =
+			viewBinding.editEmail.text
+				?.toString()
+				?.trim()
+				.orEmpty()
+		val password =
+			viewBinding.editPassword.text
+				?.toString()
+				?.trim()
+				.orEmpty()
 		val url = "kotatsu://kitsu-auth?code=" + "$email;$password".urlEncoded()
 		val intent = Intent(Intent.ACTION_VIEW, url.toUri())
 		startActivity(intent)

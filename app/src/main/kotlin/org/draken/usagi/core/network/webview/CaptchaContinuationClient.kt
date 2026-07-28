@@ -11,12 +11,18 @@ class CaptchaContinuationClient(
 	private val targetUrl: String,
 	continuation: Continuation<Unit>,
 ) : ContinuationResumeWebViewClient(continuation) {
-
 	private val oldClearance = CloudFlareHelper.getClearanceCookie(cookieJar, targetUrl)
 
-	override fun onPageFinished(view: WebView?, url: String?) = Unit
+	override fun onPageFinished(
+		view: WebView?,
+		url: String?,
+	) = Unit
 
-	override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+	override fun onPageStarted(
+		view: WebView?,
+		url: String?,
+		favicon: Bitmap?,
+	) {
 		super.onPageStarted(view, url, favicon)
 		checkClearance(view)
 	}

@@ -16,12 +16,14 @@ class FavouritesReorderCallback(
 	private val getSelectedItemsIds: () -> Set<Long>,
 	private val saveMangaOrder: (List<ListModel>) -> Unit,
 	private val onDragStateChanged: (isDragging: Boolean) -> Unit,
-	private val canDrag: () -> Boolean = { true }
+	private val canDrag: () -> Boolean = { true },
 ) : ItemTouchHelper.SimpleCallback(ARS, 0) {
-
 	private val listSelect = mutableListOf<ListModel>()
 
-	override fun getDragDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+	override fun getDragDirs(
+		recyclerView: RecyclerView,
+		viewHolder: RecyclerView.ViewHolder,
+	): Int {
 		if (sortOrder() != ListSortOrder.NEWEST || !canDrag()) return 0
 		val p = viewHolder.bindingAdapterPosition
 		return if (p != RecyclerView.NO_POSITION && getAdapter()?.items?.getOrNull(p) is MangaListModel) ARS else 0
@@ -63,7 +65,10 @@ class FavouritesReorderCallback(
 		target: RecyclerView.ViewHolder,
 	) = current.itemViewType == target.itemViewType
 
-	override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+	override fun onSelectedChanged(
+		viewHolder: RecyclerView.ViewHolder?,
+		actionState: Int,
+	) {
 		super.onSelectedChanged(viewHolder, actionState)
 		onDragStateChanged(actionState != ItemTouchHelper.ACTION_STATE_IDLE)
 		if (actionState != ItemTouchHelper.ACTION_STATE_DRAG || viewHolder == null) return
@@ -89,8 +94,13 @@ class FavouritesReorderCallback(
 	}
 
 	override fun onChildDraw(
-		c: Canvas, rV: RecyclerView, viewHolder: RecyclerView.ViewHolder,
-		dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean,
+		c: Canvas,
+		rV: RecyclerView,
+		viewHolder: RecyclerView.ViewHolder,
+		dX: Float,
+		dY: Float,
+		actionState: Int,
+		isCurrentlyActive: Boolean,
 	) {
 		super.onChildDraw(c, rV, viewHolder, dX, dY, actionState, isCurrentlyActive)
 		if (actionState != ItemTouchHelper.ACTION_STATE_DRAG) return
@@ -103,21 +113,34 @@ class FavouritesReorderCallback(
 			if (holder == viewHolder) continue
 			val item = holder.getItem(MangaListModel::class.java) ?: continue
 			if (item.id !in used) continue
-			child.translationX = dX; child.translationY = dY
+			child.translationX = dX
+			child.translationY = dY
 		}
 	}
 
-	override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+	override fun clearView(
+		recyclerView: RecyclerView,
+		viewHolder: RecyclerView.ViewHolder,
+	) {
 		super.clearView(recyclerView, viewHolder)
 		val used = getSelectedItemsIds()
 		for (i in 0 until recyclerView.childCount) {
 			val child = recyclerView.getChildAt(i)
-			child.translationX = 0f; child.translationY = 0f
+			child.translationX = 0f
+			child.translationY = 0f
 			val item = recyclerView.getChildViewHolder(child).getItem(MangaListModel::class.java)
 			TooltipCompat.setTooltipText(child, item?.getSummary(recyclerView.context))
 		}
-		val adapter = getAdapter() ?: run { listSelect.clear(); return }
-		val items = adapter.items?.toMutableList() ?: run { listSelect.clear(); return }
+		val adapter =
+			getAdapter() ?: run {
+				listSelect.clear()
+				return
+			}
+		val items =
+			adapter.items?.toMutableList() ?: run {
+				listSelect.clear()
+				return
+			}
 		val moved = viewHolder.getItem(MangaListModel::class.java)?.id?.takeIf { it in used }
 		if (moved != null) {
 			val i = items.indexOfFirst { (it as? MangaListModel)?.id == moved }
@@ -138,7 +161,10 @@ class FavouritesReorderCallback(
 
 	override fun isLongPressDragEnabled() = false
 
-	override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) = Unit
+	override fun onSwiped(
+		viewHolder: RecyclerView.ViewHolder,
+		direction: Int,
+	) = Unit
 
 	companion object {
 		private const val ARS = ItemTouchHelper.DOWN or ItemTouchHelper.UP or ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT

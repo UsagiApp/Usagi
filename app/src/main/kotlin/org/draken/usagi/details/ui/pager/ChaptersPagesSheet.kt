@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.R as appcompatR
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -40,23 +39,28 @@ import org.draken.usagi.details.ui.DetailsViewModel
 import org.draken.usagi.details.ui.ReadButtonDelegate
 import org.draken.usagi.download.ui.worker.DownloadStartedObserver
 import javax.inject.Inject
+import androidx.appcompat.R as appcompatR
 
 @AndroidEntryPoint
-class ChaptersPagesSheet : BaseAdaptiveSheet<SheetChaptersPagesBinding>(),
+class ChaptersPagesSheet :
+	BaseAdaptiveSheet<SheetChaptersPagesBinding>(),
 	TabLayout.OnTabSelectedListener,
 	ActionModeListener,
 	AdaptiveSheetCallback {
-
 	@Inject
 	lateinit var settings: AppSettings
 
 	private val viewModel by ChaptersPagesViewModel.ActivityVMLazy(this)
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): SheetChaptersPagesBinding {
-		return SheetChaptersPagesBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): SheetChaptersPagesBinding = SheetChaptersPagesBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: SheetChaptersPagesBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: SheetChaptersPagesBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		disableFitToContents()
 
@@ -84,7 +88,7 @@ class ChaptersPagesSheet : BaseAdaptiveSheet<SheetChaptersPagesBinding>(),
 			binding.tabs.setSelectedTabIndicatorColor(
 				MaterialColors.getColor(
 					binding.tabs,
-                    appcompatR.attr.colorPrimary,
+					appcompatR.attr.colorPrimary,
 					MaterialColors.getColor(binding.tabs, android.R.attr.textColorPrimary),
 				),
 			)
@@ -118,21 +122,27 @@ class ChaptersPagesSheet : BaseAdaptiveSheet<SheetChaptersPagesBinding>(),
 		}
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat = insets
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat = insets
 
-	override fun onStateChanged(sheet: View, newState: Int) {
-        val binding = viewBinding ?: return
-        binding.layoutTouchBlock.isTouchEventsAllowed = dialog != null || newState != STATE_COLLAPSED
-        if (newState == STATE_DRAGGING || newState == STATE_SETTLING) {
-            return
-        }
+	override fun onStateChanged(
+		sheet: View,
+		newState: Int,
+	) {
+		val binding = viewBinding ?: return
+		binding.layoutTouchBlock.isTouchEventsAllowed = dialog != null || newState != STATE_COLLAPSED
+		if (newState == STATE_DRAGGING || newState == STATE_SETTLING) {
+			return
+		}
 		val isActionModeStarted = actionModeDelegate?.isActionModeStarted == true
 		binding.toolbar.menuView?.isVisible = newState == STATE_EXPANDED && !isActionModeStarted
 		if (settings.detailsUiMode == DetailsUiMode.CLASSIC) {
 			binding.splitButtonRead.isVisible = false
 		} else {
-			binding.splitButtonRead.isVisible = newState != STATE_EXPANDED && !isActionModeStarted
-				&& viewModel is DetailsViewModel
+			binding.splitButtonRead.isVisible = newState != STATE_EXPANDED && !isActionModeStarted &&
+				viewModel is DetailsViewModel
 		}
 	}
 
@@ -152,9 +162,10 @@ class ChaptersPagesSheet : BaseAdaptiveSheet<SheetChaptersPagesBinding>(),
 	override fun onTabUnselected(tab: TabLayout.Tab?) = Unit
 
 	override fun onTabReselected(tab: TabLayout.Tab?) {
-		val f = childFragmentManager.findCurrentPagerFragment(
-			viewBinding?.pager ?: return,
-		) as? RecyclerViewOwner ?: return
+		val f =
+			childFragmentManager.findCurrentPagerFragment(
+				viewBinding?.pager ?: return,
+			) as? RecyclerViewOwner ?: return
 		f.recyclerView?.smoothScrollToTop()
 	}
 
@@ -171,11 +182,12 @@ class ChaptersPagesSheet : BaseAdaptiveSheet<SheetChaptersPagesBinding>(),
 	private fun adjustLockState() {
 		viewBinding?.run {
 			pager.isUserInputEnabled = !isLocked
-			tabs.visibility = when {
-				(pager.adapter?.itemCount ?: 0) <= 1 -> View.GONE
-				isLocked -> View.INVISIBLE
-				else -> View.VISIBLE
-			}
+			tabs.visibility =
+				when {
+					(pager.adapter?.itemCount ?: 0) <= 1 -> View.GONE
+					isLocked -> View.INVISIBLE
+					else -> View.VISIBLE
+				}
 		}
 	}
 
@@ -195,7 +207,6 @@ class ChaptersPagesSheet : BaseAdaptiveSheet<SheetChaptersPagesBinding>(),
 	}
 
 	companion object {
-
 		const val TAB_CHAPTERS = 0
 		const val TAB_PAGES = 1
 		const val TAB_BOOKMARKS = 2

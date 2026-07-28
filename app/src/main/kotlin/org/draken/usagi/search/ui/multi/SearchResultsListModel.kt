@@ -18,22 +18,19 @@ data class SearchResultsListModel(
 	val list: List<MangaListModel>,
 	val error: Throwable?,
 ) : ListModel {
+	fun getTitle(context: Context): String =
+		if (titleResId != 0) {
+			context.getString(titleResId)
+		} else {
+			source.getTitle(context)
+		}
 
-	fun getTitle(context: Context): String = if (titleResId != 0) {
-		context.getString(titleResId)
-	} else {
-		source.getTitle(context)
-	}
+	override fun areItemsTheSame(other: ListModel): Boolean = other is SearchResultsListModel && source == other.source && titleResId == other.titleResId
 
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is SearchResultsListModel && source == other.source && titleResId == other.titleResId
-	}
-
-	override fun getChangePayload(previousState: ListModel): Any? {
-		return if (previousState is SearchResultsListModel && previousState.list != list) {
+	override fun getChangePayload(previousState: ListModel): Any? =
+		if (previousState is SearchResultsListModel && previousState.list != list) {
 			ListModelDiffCallback.PAYLOAD_NESTED_LIST_CHANGED
 		} else {
 			super.getChangePayload(previousState)
 		}
-	}
 }

@@ -14,8 +14,8 @@ import org.draken.usagi.databinding.ItemCheckboxBinding
 import org.draken.usagi.databinding.ItemChipsBinding
 import org.draken.usagi.databinding.ItemExpandableBinding
 import org.draken.usagi.databinding.ItemExternalHeaderBinding
-import org.draken.usagi.databinding.ItemSeparatorBinding
 import org.draken.usagi.databinding.ItemSelectBinding
+import org.draken.usagi.databinding.ItemSeparatorBinding
 import org.draken.usagi.databinding.ItemSortBinding
 import org.draken.usagi.databinding.ItemTextBinding
 import org.draken.usagi.databinding.ItemTristateBinding
@@ -24,8 +24,9 @@ import org.draken.usagi.list.ui.adapter.ListItemType
 
 private const val INDENT_DP = 16
 
-class FilterAdapter(listener: FilterListener) : BaseListAdapter<FilterItem>() {
-
+class FilterAdapter(
+	listener: FilterListener,
+) : BaseListAdapter<FilterItem>() {
 	init {
 		addDelegate(ListItemType.T_HEADER, headerDelegate())
 		addDelegate(ListItemType.SEPARATOR, separatorDelegate())
@@ -88,9 +89,10 @@ class FilterAdapter(listener: FilterListener) : BaseListAdapter<FilterItem>() {
 		adapterDelegateViewBinding<FilterItem.CheckBoxChips, FilterItem, ItemChipsBinding>(
 			{ inflater, parent -> ItemChipsBinding.inflate(inflater, parent, false) },
 		) {
-			binding.chipsView.onChipClickListener = ChipsView.OnChipClickListener { _, data ->
-				(data as? String)?.let(listener::onCheckBoxChipClick)
-			}
+			binding.chipsView.onChipClickListener =
+				ChipsView.OnChipClickListener { _, data ->
+					(data as? String)?.let(listener::onCheckBoxChipClick)
+				}
 			bind {
 				binding.chipsView.setChips(
 					item.chips.map { chip ->
@@ -112,11 +114,12 @@ class FilterAdapter(listener: FilterListener) : BaseListAdapter<FilterItem>() {
 			binding.layoutRoot.setOnClickListener { listener.onTriStateClick(item) }
 			bind {
 				binding.textViewTitle.text = item.title
-				val iconRes = when (item.state) {
-					Filter.TriState.STATE_INCLUDE -> R.drawable.ic_true
-					Filter.TriState.STATE_EXCLUDE -> R.drawable.ic_false
-					else -> R.drawable.ic_uncheck
-				}
+				val iconRes =
+					when (item.state) {
+						Filter.TriState.STATE_INCLUDE -> R.drawable.ic_true
+						Filter.TriState.STATE_EXCLUDE -> R.drawable.ic_false
+						else -> R.drawable.ic_uncheck
+					}
 				binding.imageViewState.setImageResource(iconRes)
 				binding.layoutRoot.applyPaddingIndent(item.depth)
 			}
@@ -126,13 +129,22 @@ class FilterAdapter(listener: FilterListener) : BaseListAdapter<FilterItem>() {
 		adapterDelegateViewBinding<FilterItem.Text, FilterItem, ItemTextBinding>(
 			{ inflater, parent -> ItemTextBinding.inflate(inflater, parent, false) },
 		) {
-			fun commit() { listener.onTextChanged(item, binding.editText.text?.toString().orEmpty()) }
+			fun commit() {
+				listener.onTextChanged(
+					item,
+					binding.editText.text
+						?.toString()
+						.orEmpty(),
+				)
+			}
 			binding.editText.setOnEditorActionListener { _, actionId, _ ->
 				if (actionId == EditorInfo.IME_ACTION_DONE) {
 					commit()
 					binding.editText.clearFocus()
 					true
-				} else false
+				} else {
+					false
+				}
 			}
 			binding.editText.setOnFocusChangeListener { _, hasFocus -> if (!hasFocus) commit() }
 			bind {
@@ -164,7 +176,9 @@ class FilterAdapter(listener: FilterListener) : BaseListAdapter<FilterItem>() {
 			bind {
 				binding.textViewTitle.text = item.title
 				val summary = item.activeSummary
-				if (summary.isNullOrEmpty()) { binding.textViewSummary.visibility = View.GONE } else {
+				if (summary.isNullOrEmpty()) {
+					binding.textViewSummary.visibility = View.GONE
+				} else {
 					binding.textViewSummary.visibility = View.VISIBLE
 					binding.textViewSummary.text = summary
 				}
@@ -191,7 +205,9 @@ class FilterAdapter(listener: FilterListener) : BaseListAdapter<FilterItem>() {
 						binding.imageViewArrow.rotation = 180f
 					}
 
-					null -> binding.imageViewArrow.visibility = View.INVISIBLE
+					null -> {
+						binding.imageViewArrow.visibility = View.INVISIBLE
+					}
 				}
 				binding.layoutRoot.applyPaddingIndent(item.depth)
 			}

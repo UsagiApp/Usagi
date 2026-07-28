@@ -4,4 +4,3 @@ enum class DetailsUiMode {
 	MODERN,
 	CLASSIC,
 }
-

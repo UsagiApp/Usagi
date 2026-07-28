@@ -30,8 +30,8 @@ class ListSelectionController(
 	private val decoration: AbstractSelectionItemDecoration,
 	private val registryOwner: SavedStateRegistryOwner,
 	private val callback: Callback,
-) : ActionMode.Callback, SavedStateRegistry.SavedStateProvider {
-
+) : ActionMode.Callback,
+	SavedStateRegistry.SavedStateProvider {
 	private var actionMode: ActionMode? = null
 	private var focusedItemId: LongSet? = null
 	private val dragListener = DragSelectionListener(this, decoration)
@@ -47,9 +47,7 @@ class ListSelectionController(
 
 	fun snapshot(): Set<Long> = (focusedItemId ?: peekCheckedIds()).toSet()
 
-	fun peekCheckedIds(): LongSet {
-		return focusedItemId ?: decoration.checkedItemsIds
-	}
+	fun peekCheckedIds(): LongSet = focusedItemId ?: decoration.checkedItemsIds
 
 	fun clear() {
 		decoration.clearSelection()
@@ -90,19 +88,25 @@ class ListSelectionController(
 		return false
 	}
 
-	fun onItemLongClick(view: View, id: Long): Boolean {
-		return if (useActionMode) {
+	fun onItemLongClick(
+		view: View,
+		id: Long,
+	): Boolean =
+		if (useActionMode) {
 			val checked = id in decoration.checkedItemsIds
 			view.post {
 				startSelection(id, !checked)
 				dragListener.onSelectionStarted(view, !checked)
-			}; true
+			}
+			true
 		} else {
 			onItemContextClick(view, id)
 		}
-	}
 
-	fun onItemContextClick(view: View, id: Long): Boolean {
+	fun onItemContextClick(
+		view: View,
+		id: Long,
+	): Boolean {
 		focusedItemId = longSetOf(id)
 		val menu = PopupMenu(view.context, view)
 		callback.onCreateActionMode(this, menu.menuInflater, menu.menu)
@@ -123,22 +127,29 @@ class ListSelectionController(
 		}
 	}
 
-	fun startSelection(id: Long, checked: Boolean = true): Boolean = startActionMode()?.also {
-		decoration.setItemIsChecked(id, checked)
-		notifySelectionChanged()
-	} != null
+	fun startSelection(
+		id: Long,
+		checked: Boolean = true,
+	): Boolean =
+		startActionMode()?.also {
+			decoration.setItemIsChecked(id, checked)
+			notifySelectionChanged()
+		} != null
 
-	override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-		return callback.onCreateActionMode(this, mode.menuInflater, menu)
-	}
+	override fun onCreateActionMode(
+		mode: ActionMode,
+		menu: Menu,
+	): Boolean = callback.onCreateActionMode(this, mode.menuInflater, menu)
 
-	override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-		return callback.onPrepareActionMode(this, mode, menu)
-	}
+	override fun onPrepareActionMode(
+		mode: ActionMode,
+		menu: Menu,
+	): Boolean = callback.onPrepareActionMode(this, mode, menu)
 
-	override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-		return callback.onActionItemClicked(this, mode, item)
-	}
+	override fun onActionItemClicked(
+		mode: ActionMode,
+		item: MenuItem,
+	): Boolean = callback.onActionItemClicked(this, mode, item)
 
 	override fun onDestroyActionMode(mode: ActionMode) {
 		callback.onDestroyActionMode(this, mode)
@@ -173,31 +184,51 @@ class ListSelectionController(
 	}
 
 	interface Callback {
+		fun onSelectionChanged(
+			controller: ListSelectionController,
+			count: Int,
+		)
 
-		fun onSelectionChanged(controller: ListSelectionController, count: Int)
+		fun onCreateActionMode(
+			controller: ListSelectionController,
+			menuInflater: MenuInflater,
+			menu: Menu,
+		): Boolean
 
-		fun onCreateActionMode(controller: ListSelectionController, menuInflater: MenuInflater, menu: Menu): Boolean
-
-		fun onPrepareActionMode(controller: ListSelectionController, mode: ActionMode?, menu: Menu): Boolean {
+		fun onPrepareActionMode(
+			controller: ListSelectionController,
+			mode: ActionMode?,
+			menu: Menu,
+		): Boolean {
 			mode?.title = controller.count.toString()
 			return true
 		}
 
-		fun onActionItemClicked(controller: ListSelectionController, mode: ActionMode?, item: MenuItem): Boolean
+		fun onActionItemClicked(
+			controller: ListSelectionController,
+			mode: ActionMode?,
+			item: MenuItem,
+		): Boolean
 
-		fun onDestroyActionMode(controller: ListSelectionController, mode: ActionMode) = Unit
+		fun onDestroyActionMode(
+			controller: ListSelectionController,
+			mode: ActionMode,
+		) = Unit
 	}
 
 	private inner class StateEventObserver : LifecycleEventObserver {
-
-		override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+		override fun onStateChanged(
+			source: LifecycleOwner,
+			event: Lifecycle.Event,
+		) {
 			if (event == Lifecycle.Event.ON_CREATE) {
 				source.lifecycle.removeObserver(this)
 				val registry = registryOwner.savedStateRegistry
 				registry.registerSavedStateProvider(PROVIDER_NAME, this@ListSelectionController)
 				val state = registry.consumeRestoredStateForKey(PROVIDER_NAME)
 				if (state != null) {
-					Dispatchers.Main.dispatch(EmptyCoroutineContext) { // == Handler.post
+					Dispatchers.Main.dispatch(EmptyCoroutineContext) {
+						// == Handler.post
 						if (source.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
 							restoreState(state.getLongArray(KEY_SELECTION)?.toList().orEmpty())
 						}

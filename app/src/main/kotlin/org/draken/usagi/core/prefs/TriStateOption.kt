@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 
 @Keep
 enum class TriStateOption {
-
-	ENABLED, ASK, DISABLED;
+	ENABLED,
+	ASK,
+	DISABLED,
 }

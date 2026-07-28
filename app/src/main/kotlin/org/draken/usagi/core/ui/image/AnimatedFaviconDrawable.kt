@@ -22,8 +22,9 @@ class AnimatedFaviconDrawable(
 	context: Context,
 	@StyleRes styleResId: Int,
 	name: String,
-) : FaviconDrawable(context, styleResId, name), Animatable, TimeAnimator.TimeListener {
-
+) : FaviconDrawable(context, styleResId, name),
+	Animatable,
+	TimeAnimator.TimeListener {
 	private val interpolator = FastOutSlowInInterpolator()
 	private val period = context.getAnimationDuration(R.integer.config_longAnimTime) * 2
 	private val timeAnimator = TimeAnimator()
@@ -44,7 +45,11 @@ class AnimatedFaviconDrawable(
 		super.draw(canvas)
 	}
 
-	override fun onTimeUpdate(animation: TimeAnimator?, totalTime: Long, deltaTime: Long) {
+	override fun onTimeUpdate(
+		animation: TimeAnimator?,
+		totalTime: Long,
+		deltaTime: Long,
+	) {
 		callback?.also {
 			updateColor()
 			it.invalidateDrawable(this)
@@ -75,14 +80,15 @@ class AnimatedFaviconDrawable(
 		}
 		val ph = period / 2
 		val fraction = abs((System.currentTimeMillis() % period) - ph) / ph.toFloat()
-		currentForegroundColor = ArgbEvaluatorCompat.getInstance()
-			.evaluate(interpolator.getInterpolation(fraction), colorLow, colorHigh)
+		currentForegroundColor =
+			ArgbEvaluatorCompat
+				.getInstance()
+				.evaluate(interpolator.getInterpolation(fraction), colorLow, colorHigh)
 	}
 
 	class Factory(
 		@StyleRes private val styleResId: Int,
 	) : ((ImageRequest) -> Image?) {
-
 		override fun invoke(request: ImageRequest): Image? {
 			val source = request.getExtra(mangaSourceKey) ?: return null
 			val context = request.context

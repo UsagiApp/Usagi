@@ -6,8 +6,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.draken.usagi.R
-import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
+import org.draken.usagi.core.parser.MangaRepository
 import tsuki.config.ConfigKey
 import tsuki.model.MangaSource
 import tsuki.util.mapToArray
@@ -19,65 +19,72 @@ class ImageServerDelegate(
 	private val mangaRepositoryFactory: MangaRepository.Factory,
 	private val mangaSource: MangaSource?,
 ) {
+	private val repositoryLazy =
+		suspendLazy {
+			mangaRepositoryFactory.create(checkNotNull(mangaSource)) as MangaParserRepository
+		}
 
-	private val repositoryLazy = suspendLazy {
-		mangaRepositoryFactory.create(checkNotNull(mangaSource)) as MangaParserRepository
-	}
+	suspend fun isAvailable() =
+		withContext(Dispatchers.Default) {
+			repositoryLazy.getOrNull()?.let { repository ->
+				repository.getConfigKeys().any { it is ConfigKey.PreferredImageServer }
+			} == true
+		}
 
-	suspend fun isAvailable() = withContext(Dispatchers.Default) {
-		repositoryLazy.getOrNull()?.let { repository ->
-			repository.getConfigKeys().any { it is ConfigKey.PreferredImageServer }
-		} == true
-	}
-
-	suspend fun getValue(): String? = withContext(Dispatchers.Default) {
-		repositoryLazy.getOrNull()?.let { repository ->
-			val key = repository.getConfigKeys().firstNotNullOfOrNull { it as? ConfigKey.PreferredImageServer }
-			if (key != null) {
-				key.presetValues[repository.getConfig()[key]]
-			} else {
-				null
+	suspend fun getValue(): String? =
+		withContext(Dispatchers.Default) {
+			repositoryLazy.getOrNull()?.let { repository ->
+				val key = repository.getConfigKeys().firstNotNullOfOrNull { it as? ConfigKey.PreferredImageServer }
+				if (key != null) {
+					key.presetValues[repository.getConfig()[key]]
+				} else {
+					null
+				}
 			}
 		}
-	}
 
 	suspend fun showDialog(context: Context): Boolean {
-		val repository = withContext(Dispatchers.Default) {
-			repositoryLazy.getOrNull()
-		} ?: return false
-		val key = repository.getConfigKeys().firstNotNullOfOrNull {
-			it as? ConfigKey.PreferredImageServer
-		} ?: return false
-		val entries = key.presetValues.values.mapToArray {
-			it ?: context.getString(R.string.automatic)
-		}
+		val repository =
+			withContext(Dispatchers.Default) {
+				repositoryLazy.getOrNull()
+			} ?: return false
+		val key =
+			repository.getConfigKeys().firstNotNullOfOrNull {
+				it as? ConfigKey.PreferredImageServer
+			} ?: return false
+		val entries =
+			key.presetValues.values.mapToArray {
+				it ?: context.getString(R.string.automatic)
+			}
 		val entryValues = key.presetValues.keys.toTypedArray()
 		val config = repository.getConfig()
 		val initialValue = config[key]
 		var currentValue = initialValue
-		val changed = suspendCancellableCoroutine { cont ->
-			val dialog = MaterialAlertDialogBuilder(context)
-				.setTitle(R.string.image_server)
-				.setCancelable(true)
-				.setSingleChoiceItems(entries, entryValues.indexOf(initialValue)) { _, i ->
-					currentValue = entryValues[i]
-				}.setNegativeButton(android.R.string.cancel) { dialog, _ ->
+		val changed =
+			suspendCancellableCoroutine { cont ->
+				val dialog =
+					MaterialAlertDialogBuilder(context)
+						.setTitle(R.string.image_server)
+						.setCancelable(true)
+						.setSingleChoiceItems(entries, entryValues.indexOf(initialValue)) { _, i ->
+							currentValue = entryValues[i]
+						}.setNegativeButton(android.R.string.cancel) { dialog, _ ->
+							dialog.cancel()
+						}.setPositiveButton(android.R.string.ok) { _, _ ->
+							if (currentValue != initialValue) {
+								config[key] = currentValue
+								cont.resume(true)
+							} else {
+								cont.resume(false)
+							}
+						}.setOnCancelListener {
+							cont.resume(false)
+						}.create()
+				dialog.show()
+				cont.invokeOnCancellation {
 					dialog.cancel()
-				}.setPositiveButton(android.R.string.ok) { _, _ ->
-					if (currentValue != initialValue) {
-						config[key] = currentValue
-						cont.resume(true)
-					} else {
-						cont.resume(false)
-					}
-				}.setOnCancelListener {
-					cont.resume(false)
-				}.create()
-			dialog.show()
-			cont.invokeOnCancellation {
-				dialog.cancel()
+				}
 			}
-		}
 		if (changed) {
 			repository.invalidateCache()
 		}

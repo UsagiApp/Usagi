@@ -7,17 +7,15 @@ import org.draken.usagi.databinding.ItemScrobblingMangaBinding
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblingInfo
 
-fun scrobblingMangaAD(
-	clickListener: OnListItemClickListener<ScrobblingInfo>,
-) = adapterDelegateViewBinding<ScrobblingInfo, ListModel, ItemScrobblingMangaBinding>(
-	{ layoutInflater, parent -> ItemScrobblingMangaBinding.inflate(layoutInflater, parent, false) },
-) {
+fun scrobblingMangaAD(clickListener: OnListItemClickListener<ScrobblingInfo>) =
+	adapterDelegateViewBinding<ScrobblingInfo, ListModel, ItemScrobblingMangaBinding>(
+		{ layoutInflater, parent -> ItemScrobblingMangaBinding.inflate(layoutInflater, parent, false) },
+	) {
+		AdapterDelegateClickListenerAdapter(this, clickListener).attach(itemView)
 
-	AdapterDelegateClickListenerAdapter(this, clickListener).attach(itemView)
-
-	bind {
-		binding.imageViewCover.setImageAsync(item.coverUrl, null)
-		binding.textViewTitle.text = item.title
-		binding.ratingBar.rating = item.rating * binding.ratingBar.numStars
+		bind {
+			binding.imageViewCover.setImageAsync(item.coverUrl, null)
+			binding.textViewTitle.text = item.title
+			binding.ratingBar.rating = item.rating * binding.ratingBar.numStars
+		}
 	}
-}

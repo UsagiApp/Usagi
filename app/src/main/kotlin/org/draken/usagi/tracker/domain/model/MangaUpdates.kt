@@ -6,7 +6,6 @@ import tsuki.model.MangaChapter
 import tsuki.util.ifZero
 
 sealed interface MangaUpdates {
-
 	val manga: Manga
 
 	data class Success(
@@ -15,7 +14,6 @@ sealed interface MangaUpdates {
 		val newChapters: List<MangaChapter>,
 		val isValid: Boolean,
 	) : MangaUpdates {
-
 		fun isNotEmpty() = newChapters.isNotEmpty()
 
 		fun lastChapterDate(): Long {
@@ -24,18 +22,16 @@ sealed interface MangaUpdates {
 				?: (manga.chapters?.lastOrNull()?.uploadDate ?: 0L)
 		}
 
-		fun lastChapterId(): Long {
-			return manga.getChapters(branch).maxByOrNull { it.number }?.id
+		fun lastChapterId(): Long =
+			manga.getChapters(branch).maxByOrNull { it.number }?.id
 				?: manga.chapters?.maxByOrNull { it.number }?.id
 				?: 0L
-		}
 	}
 
 	data class Failure(
 		override val manga: Manga,
 		val error: Throwable?,
 	) : MangaUpdates {
-
 		fun shouldRetry() = error is TooManyRequestExceptions
 	}
 }

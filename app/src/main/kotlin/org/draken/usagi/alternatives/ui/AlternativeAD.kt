@@ -39,7 +39,6 @@ fun alternativeAD(
 ) = adapterDelegateViewBinding<MangaAlternativeModel, ListModel, ItemMangaAlternativeBinding>(
 	{ inflater, parent -> ItemMangaAlternativeBinding.inflate(inflater, parent, false) },
 ) {
-
 	val colorGreen = ContextCompat.getColor(context, R.color.common_green)
 	val colorRed = ContextCompat.getColor(context, R.color.common_red)
 	val clickListener = AdapterDelegateClickListenerAdapter(this, listener)
@@ -55,37 +54,43 @@ fun alternativeAD(
 			if (item.mangaModel.isFavorite) addIcon(R.drawable.ic_heart_outline)
 			isVisible = iconsCount > 0
 		}
-		binding.textViewSubtitle.text = buildSpannedString {
-			if (item.chaptersCount > 0) {
-				append(
-					context.resources.getQuantityStringSafe(
-						R.plurals.chapters,
-						item.chaptersCount,
-						item.chaptersCount,
-					),
-				)
-			} else {
-				append(context.getString(R.string.no_chapters))
-			}
-			when (item.chaptersDiff.sign) {
-				-1 -> inSpans(ForegroundColorSpan(colorRed)) {
-					append("  ▼ ")
-					append(item.chaptersDiff.toString())
+		binding.textViewSubtitle.text =
+			buildSpannedString {
+				if (item.chaptersCount > 0) {
+					append(
+						context.resources.getQuantityStringSafe(
+							R.plurals.chapters,
+							item.chaptersCount,
+							item.chaptersCount,
+						),
+					)
+				} else {
+					append(context.getString(R.string.no_chapters))
 				}
+				when (item.chaptersDiff.sign) {
+					-1 -> {
+						inSpans(ForegroundColorSpan(colorRed)) {
+							append("  ▼ ")
+							append(item.chaptersDiff.toString())
+						}
+					}
 
-				1 -> inSpans(ForegroundColorSpan(colorGreen)) {
-					append("  ▲ +")
-					append(item.chaptersDiff.toString())
+					1 -> {
+						inSpans(ForegroundColorSpan(colorGreen)) {
+							append("  ▲ +")
+							append(item.chaptersDiff.toString())
+						}
+					}
 				}
 			}
-		}
 		binding.progressView.setProgress(
 			item.mangaModel.progress,
 			ListModelDiffCallback.PAYLOAD_PROGRESS_CHANGED in payloads,
 		)
 		binding.chipSource.also { chip ->
 			chip.text = item.manga.source.getTitle(chip.context)
-			ImageRequest.Builder(context)
+			ImageRequest
+				.Builder(context)
 				.data(item.manga.source.faviconUri())
 				.lifecycle(lifecycleOwner)
 				.crossfade(false)

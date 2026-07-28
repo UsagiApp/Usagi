@@ -3,9 +3,9 @@ package org.draken.usagi.core.zip
 import androidx.annotation.WorkerThread
 import androidx.collection.ArraySet
 import okio.Closeable
-import org.jetbrains.annotations.Blocking
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.withChildren
+import org.jetbrains.annotations.Blocking
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -18,28 +18,36 @@ class ZipOutput(
 	val file: File,
 	private val compressionLevel: Int = Deflater.DEFAULT_COMPRESSION,
 ) : Closeable {
-
 	private val entryNames = ArraySet<String>()
 	private var cachedOutput: ZipOutputStream? = null
 	private var append: Boolean = false
 
 	@Blocking
-	fun put(name: String, file: File): Boolean = withOutput { output ->
-		output.appendFile(file, name)
-	}
+	fun put(
+		name: String,
+		file: File,
+	): Boolean =
+		withOutput { output ->
+			output.appendFile(file, name)
+		}
 
 	@Blocking
-	fun put(name: String, content: String): Boolean = withOutput { output ->
-		output.appendText(content, name)
-	}
+	fun put(
+		name: String,
+		content: String,
+	): Boolean =
+		withOutput { output ->
+			output.appendText(content, name)
+		}
 
 	@Blocking
 	fun addDirectory(name: String): Boolean {
-		val entry = if (name.endsWith("/")) {
-			ZipEntry(name)
-		} else {
-			ZipEntry("$name/")
-		}
+		val entry =
+			if (name.endsWith("/")) {
+				ZipEntry(name)
+			} else {
+				ZipEntry("$name/")
+			}
 		return if (entryNames.add(entry.name)) {
 			withOutput { output ->
 				output.putNextEntry(entry)
@@ -52,8 +60,11 @@ class ZipOutput(
 	}
 
 	@Blocking
-	fun copyEntryFrom(other: ZipFile, entry: ZipEntry): Boolean {
-		return if (entryNames.add(entry.name)) {
+	fun copyEntryFrom(
+		other: ZipFile,
+		entry: ZipEntry,
+	): Boolean =
+		if (entryNames.add(entry.name)) {
 			val zipEntry = ZipEntry(entry.name)
 			withOutput { output ->
 				output.putNextEntry(zipEntry)
@@ -69,12 +80,12 @@ class ZipOutput(
 		} else {
 			false
 		}
-	}
 
 	@Blocking
-	fun finish() = withOutput { output ->
-		output.finish()
-	}
+	fun finish() =
+		withOutput { output ->
+			output.finish()
+		}
 
 	@Synchronized
 	override fun close() {
@@ -83,13 +94,17 @@ class ZipOutput(
 	}
 
 	@WorkerThread
-	private fun ZipOutputStream.appendFile(fileToZip: File, name: String): Boolean {
+	private fun ZipOutputStream.appendFile(
+		fileToZip: File,
+		name: String,
+	): Boolean {
 		if (fileToZip.isDirectory) {
-			val entry = if (name.endsWith("/")) {
-				ZipEntry(name)
-			} else {
-				ZipEntry("$name/")
-			}
+			val entry =
+				if (name.endsWith("/")) {
+					ZipEntry(name)
+				} else {
+					ZipEntry("$name/")
+				}
 			if (!entryNames.add(entry.name)) {
 				return false
 			}
@@ -118,7 +133,10 @@ class ZipOutput(
 	}
 
 	@WorkerThread
-	private fun ZipOutputStream.appendText(content: String, name: String): Boolean {
+	private fun ZipOutputStream.appendText(
+		content: String,
+		name: String,
+	): Boolean {
 		if (!entryNames.add(name)) {
 			return false
 		}
@@ -133,16 +151,16 @@ class ZipOutput(
 	}
 
 	@Synchronized
-	private fun <T> withOutput(block: (ZipOutputStream) -> T): T {
-		return try {
+	private fun <T> withOutput(block: (ZipOutputStream) -> T): T =
+		try {
 			(cachedOutput ?: newOutput(append)).withOutputImpl(block).also {
 				append = true // after 1st success write
 			}
-		} catch (e: NullPointerException) { // probably NullPointerException: Deflater has been closed
+		} catch (e: NullPointerException) {
+			// probably NullPointerException: Deflater has been closed
 			e.printStackTraceDebug()
 			newOutput(append).withOutputImpl(block)
 		}
-	}
 
 	private fun <T> ZipOutputStream.withOutputImpl(block: (ZipOutputStream) -> T): T {
 		val res = block(this)
@@ -150,11 +168,12 @@ class ZipOutput(
 		return res
 	}
 
-	private fun newOutput(append: Boolean) = ZipOutputStream(FileOutputStream(file, append)).also {
-		it.setLevel(compressionLevel)
-		cachedOutput?.closeSafe()
-		cachedOutput = it
-	}
+	private fun newOutput(append: Boolean) =
+		ZipOutputStream(FileOutputStream(file, append)).also {
+			it.setLevel(compressionLevel)
+			cachedOutput?.closeSafe()
+			cachedOutput = it
+		}
 
 	private fun Closeable.closeSafe() {
 		try {

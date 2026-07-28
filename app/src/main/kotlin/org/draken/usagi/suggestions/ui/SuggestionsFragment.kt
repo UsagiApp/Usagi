@@ -15,11 +15,13 @@ import org.draken.usagi.databinding.FragmentListBinding
 import org.draken.usagi.list.ui.MangaListFragment
 
 class SuggestionsFragment : MangaListFragment() {
-
 	override val viewModel by viewModels<SuggestionsViewModel>()
 	override val isSwipeRefreshEnabled = false
 
-	override fun onViewBindingCreated(binding: FragmentListBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentListBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		addMenuProvider(SuggestionMenuProvider())
 	}
@@ -36,8 +38,10 @@ class SuggestionsFragment : MangaListFragment() {
 	}
 
 	private inner class SuggestionMenuProvider : MenuProvider {
-
-		override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+		override fun onCreateMenu(
+			menu: Menu,
+			menuInflater: MenuInflater,
+		) {
 			menuInflater.inflate(R.menu.opt_suggestions, menu)
 		}
 
@@ -47,28 +51,31 @@ class SuggestionsFragment : MangaListFragment() {
 				menu.findItem(R.id.action_settings) == null
 		}
 
-		override fun onMenuItemSelected(menuItem: MenuItem): Boolean = when (menuItem.itemId) {
-			R.id.action_update -> {
-				viewModel.updateSuggestions()
-				Snackbar.make(
-					requireViewBinding().recyclerView,
-					R.string.suggestions_updating,
-					Snackbar.LENGTH_LONG,
-				).show()
-				true
-			}
+		override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+			when (menuItem.itemId) {
+				R.id.action_update -> {
+					viewModel.updateSuggestions()
+					Snackbar
+						.make(
+							requireViewBinding().recyclerView,
+							R.string.suggestions_updating,
+							Snackbar.LENGTH_LONG,
+						).show()
+					true
+				}
 
-			R.id.action_settings_suggestions -> {
-				router.openSuggestionsSettings()
-				true
-			}
+				R.id.action_settings_suggestions -> {
+					router.openSuggestionsSettings()
+					true
+				}
 
-			else -> false
-		}
+				else -> {
+					false
+				}
+			}
 	}
 
 	companion object {
-
 		@Deprecated(
 			"",
 			ReplaceWith(

@@ -20,23 +20,28 @@ import tsuki.util.mapToSet
 import tsuki.util.names
 
 @AndroidEntryPoint
-class ReaderPreviewSettingsFragment :
-	BasePreferenceFragment(R.string.reader_appearance) {
-
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+class ReaderPreviewSettingsFragment : BasePreferenceFragment(R.string.reader_appearance) {
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
 		addPreferencesFromResource(R.xml.pref_reader)
 		val pattern = getString(R.string.percent_string_pattern)
-		val summary = Preference.SummaryProvider<SliderPreference> { pref ->
-			pattern.format((150 - pref.value.coerceIn(50, 100)).toString())
-		}
+		val summary =
+			Preference.SummaryProvider<SliderPreference> { pref ->
+				pattern.format((150 - pref.value.coerceIn(50, 100)).toString())
+			}
 		findPreference<SliderPreference>(AppSettings.KEY_READER_TOP_BAR_OPACITY)?.summaryProvider = summary
 		findPreference<SliderPreference>(AppSettings.KEY_READER_BOTTOM_BAR_OPACITY)?.summaryProvider = summary
 
 		findPreference<ListPreference>(AppSettings.KEY_READER_ORIENTATION)?.run {
-			entryValues = arrayOf(
-				ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED.toString(), ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR.toString(),
-				ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT.toString(), ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE.toString(),
-			)
+			entryValues =
+				arrayOf(
+					ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED.toString(),
+					ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR.toString(),
+					ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT.toString(),
+					ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE.toString(),
+				)
 			setDefaultValueCompat(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED.toString())
 		}
 		findPreference<MultiSelectListPreference>(AppSettings.KEY_READER_CONTROLS)?.run {
@@ -54,14 +59,15 @@ class ReaderPreviewSettingsFragment :
 		}
 	}
 
-	override fun onPreferenceTreeClick(preference: Preference): Boolean {
-		return when (preference.key) {
+	override fun onPreferenceTreeClick(preference: Preference): Boolean =
+		when (preference.key) {
 			AppSettings.KEY_READER_TAP_ACTIONS -> {
 				router.openReaderTapGridSettings()
 				true
 			}
 
-			else -> super.onPreferenceTreeClick(preference)
+			else -> {
+				super.onPreferenceTreeClick(preference)
+			}
 		}
-	}
 }

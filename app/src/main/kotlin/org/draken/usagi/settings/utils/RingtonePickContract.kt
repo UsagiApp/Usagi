@@ -9,9 +9,13 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.StringRes
 import org.draken.usagi.core.util.ext.getParcelableExtraCompat
 
-class RingtonePickContract(@StringRes private val titleResId: Int) : ActivityResultContract<Uri?, Uri?>() {
-
-	override fun createIntent(context: Context, input: Uri?): Intent {
+class RingtonePickContract(
+	@StringRes private val titleResId: Int,
+) : ActivityResultContract<Uri?, Uri?>() {
+	override fun createIntent(
+		context: Context,
+		input: Uri?,
+	): Intent {
 		val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
 		intent.putExtra(
 			RingtoneManager.EXTRA_RINGTONE_TYPE,
@@ -30,7 +34,8 @@ class RingtonePickContract(@StringRes private val titleResId: Int) : ActivityRes
 		return intent
 	}
 
-	override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
-		return intent?.getParcelableExtraCompat(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
-	}
+	override fun parseResult(
+		resultCode: Int,
+		intent: Intent?,
+	): Uri? = intent?.getParcelableExtraCompat(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
 }

@@ -30,9 +30,10 @@ import java.util.EnumMap
 import androidx.appcompat.R as appcompatR
 
 @AndroidEntryPoint
-class ReaderTapGridConfigActivity : BaseActivity<ActivityReaderTapActionsBinding>(), View.OnClickListener,
+class ReaderTapGridConfigActivity :
+	BaseActivity<ActivityReaderTapActionsBinding>(),
+	View.OnClickListener,
 	View.OnLongClickListener {
-
 	private val viewModel: ReaderTapGridConfigViewModel by viewModels()
 
 	private val controls = EnumMap<TapGridArea, TextView>(TapGridArea::class.java)
@@ -59,7 +60,10 @@ class ReaderTapGridConfigActivity : BaseActivity<ActivityReaderTapActionsBinding
 		viewModel.content.observe(this, ::onContentChanged)
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		viewBinding.root.setPadding(
 			barsInsets.left,
@@ -75,8 +79,8 @@ class ReaderTapGridConfigActivity : BaseActivity<ActivityReaderTapActionsBinding
 		return super.onCreateOptionsMenu(menu)
 	}
 
-	override fun onOptionsItemSelected(item: MenuItem): Boolean {
-		return when (item.itemId) {
+	override fun onOptionsItemSelected(item: MenuItem): Boolean =
+		when (item.itemId) {
 			R.id.action_reset -> {
 				confirmReset()
 				true
@@ -87,9 +91,10 @@ class ReaderTapGridConfigActivity : BaseActivity<ActivityReaderTapActionsBinding
 				true
 			}
 
-			else -> super.onOptionsItemSelected(item)
+			else -> {
+				super.onOptionsItemSelected(item)
+			}
 		}
-	}
 
 	override fun onClick(v: View) {
 		val area = controls.findKeyByValue(v) ?: return
@@ -105,36 +110,44 @@ class ReaderTapGridConfigActivity : BaseActivity<ActivityReaderTapActionsBinding
 	private fun onContentChanged(content: Map<TapGridArea, ReaderTapGridConfigViewModel.TapActions>) {
 		controls.forEach { (area, view) ->
 			val actions = content[area]
-			view.text = buildSpannedString {
-				appendLine(getString(R.string.tap_action))
-				bold {
-					appendLine(actions?.tapAction.getText())
+			view.text =
+				buildSpannedString {
+					appendLine(getString(R.string.tap_action))
+					bold {
+						appendLine(actions?.tapAction.getText())
+					}
+					appendLine()
+					appendLine(getString(R.string.long_tap_action))
+					bold {
+						appendLine(actions?.longTapAction.getText())
+					}
 				}
-				appendLine()
-				appendLine(getString(R.string.long_tap_action))
-				bold {
-					appendLine(actions?.longTapAction.getText())
-				}
-			}
 			view.background = createBackground(actions?.tapAction)
 		}
 	}
 
 	// lint bug
-	private fun TapAction?.getText(): String = if (this != null) {
-		getString(nameStringResId)
-	} else {
-		getString(R.string.none)
-	}
-
-	private fun showActionSelector(area: TapGridArea, isLongTap: Boolean) {
-		val selectedItem = viewModel.content.value[area]?.run {
-			if (isLongTap) longTapAction else tapAction
-		}?.ordinal ?: -1
-		val listener = DialogInterface.OnClickListener { dialog, which ->
-			viewModel.setTapAction(area, isLongTap, TapAction.entries.getOrNull(which - 1))
-			dialog.dismiss()
+	private fun TapAction?.getText(): String =
+		if (this != null) {
+			getString(nameStringResId)
+		} else {
+			getString(R.string.none)
 		}
+
+	private fun showActionSelector(
+		area: TapGridArea,
+		isLongTap: Boolean,
+	) {
+		val selectedItem =
+			viewModel.content.value[area]
+				?.run {
+					if (isLongTap) longTapAction else tapAction
+				}?.ordinal ?: -1
+		val listener =
+			DialogInterface.OnClickListener { dialog, which ->
+				viewModel.setTapAction(area, isLongTap, TapAction.entries.getOrNull(which - 1))
+				dialog.dismiss()
+			}
 		val names = arrayOfNulls<String>(TapAction.entries.size + 1)
 		names[0] = getString(R.string.none)
 		TapAction.entries.forEachIndexed { index, action -> names[index + 1] = getString(action.nameStringResId) }

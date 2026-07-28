@@ -13,57 +13,61 @@ import kotlinx.coroutines.plus
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.util.ext.isNetworkError
-import tsuki.util.runCatchingCancellable
 import org.draken.usagi.scrobbling.discord.data.DiscordRepository
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
 @HiltViewModel
-class DiscordSettingsViewModel @Inject constructor(
-	private val settings: AppSettings,
-	private val repository: DiscordRepository,
-) : BaseViewModel() {
+class DiscordSettingsViewModel
+	@Inject
+	constructor(
+		private val settings: AppSettings,
+		private val repository: DiscordRepository,
+	) : BaseViewModel() {
+		val tokenState: StateFlow<Pair<TokenState, String?>> =
+			settings
+				.observe(
+					AppSettings.KEY_DISCORD_RPC,
+					AppSettings.KEY_DISCORD_TOKEN,
+				).flatMapLatest {
+					checkToken()
+				}.stateIn(
+					viewModelScope + Dispatchers.Default,
+					SharingStarted.Eagerly,
+					TokenState.CHECKING to null,
+				)
 
-	val tokenState: StateFlow<Pair<TokenState, String?>> = settings.observe(
-		AppSettings.KEY_DISCORD_RPC,
-		AppSettings.KEY_DISCORD_TOKEN,
-	).flatMapLatest {
-		checkToken()
-	}.stateIn(
-		viewModelScope + Dispatchers.Default,
-		SharingStarted.Eagerly,
-		TokenState.CHECKING to null,
-	)
-
-	private fun checkToken(): Flow<Pair<TokenState, String?>> = flow {
-		val token = settings.discordToken
-		if (!settings.isDiscordRpcEnabled) {
-			emit(
-				if (token == null) {
-					TokenState.EMPTY to null
-				} else {
-					TokenState.VALID to null
-				},
-			)
-			return@flow
-		}
-		if (token == null) {
-			emit(TokenState.REQUIRED to null)
-			return@flow
-		}
-		emit(TokenState.CHECKING to null)
-		runCatchingCancellable {
-			repository.checkToken(token)
-		}.fold(
-			onSuccess = { username ->
-				emit(TokenState.VALID to username)
-			},
-			onFailure = {
-				if (it.isNetworkError()) {
-					emit(TokenState.VALID to null)
-				} else {
-					emit(TokenState.INVALID to token)
+		private fun checkToken(): Flow<Pair<TokenState, String?>> =
+			flow {
+				val token = settings.discordToken
+				if (!settings.isDiscordRpcEnabled) {
+					emit(
+						if (token == null) {
+							TokenState.EMPTY to null
+						} else {
+							TokenState.VALID to null
+						},
+					)
+					return@flow
 				}
+				if (token == null) {
+					emit(TokenState.REQUIRED to null)
+					return@flow
+				}
+				emit(TokenState.CHECKING to null)
+				runCatchingCancellable {
+					repository.checkToken(token)
+				}.fold(
+					onSuccess = { username ->
+						emit(TokenState.VALID to username)
+					},
+					onFailure = {
+						if (it.isNetworkError()) {
+							emit(TokenState.VALID to null)
+						} else {
+							emit(TokenState.INVALID to token)
+						}
+					},
+				)
 			}
-		)
 	}
-}

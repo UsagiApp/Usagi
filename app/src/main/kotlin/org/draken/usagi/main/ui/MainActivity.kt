@@ -57,8 +57,8 @@ import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.os.VoiceInputContract
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.NavItem
-import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.ui.AppCrashActivity
+import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.ui.dialog.BigButtonsAlertDialog
 import org.draken.usagi.core.ui.util.FadingAppbarMediator
 import org.draken.usagi.core.ui.util.MenuInvalidator
@@ -90,23 +90,26 @@ import androidx.appcompat.R as appcompatR
 import com.google.android.material.R as materialR
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNavOwner,
+class MainActivity :
+	BaseActivity<ActivityMainBinding>(),
+	AppBarOwner,
+	BottomNavOwner,
 	View.OnClickListener,
 	SearchSuggestionItemCallback.SuggestionItemListener,
 	MainNavigationDelegate.OnFragmentChangedListener,
 	View.OnLayoutChangeListener,
 	SearchView.TransitionListener {
-
 	@Inject
 	lateinit var settings: AppSettings
 
 	private val viewModel by viewModels<MainViewModel>()
 	private val searchSuggestionViewModel by viewModels<SearchSuggestionViewModel>()
-	private val voiceInputLauncher = registerForActivityResult(VoiceInputContract()) { result ->
-		if (result != null) {
-			viewBinding.searchView.setText(result)
+	private val voiceInputLauncher =
+		registerForActivityResult(VoiceInputContract()) { result ->
+			if (result != null) {
+				viewBinding.searchView.setText(result)
+			}
 		}
-	}
 	private lateinit var navigationDelegate: MainNavigationDelegate
 	private lateinit var fadingAppbarMediator: FadingAppbarMediator
 	private var isFloatNav = false
@@ -126,15 +129,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		viewBinding.fab?.setOnClickListener(this)
 		viewBinding.fabFloating?.setOnClickListener(this)
 		viewBinding.fabFloating?.setContentDescriptionAndTooltip(R.string._continue)
-		viewBinding.navRail?.headerView?.findViewById<View>(R.id.railFab)?.setOnClickListener(this)
+		viewBinding.navRail
+			?.headerView
+			?.findViewById<View>(R.id.railFab)
+			?.setOnClickListener(this)
 		fadingAppbarMediator =
 			FadingAppbarMediator(viewBinding.appbar, viewBinding.layoutSearch ?: viewBinding.searchBar)
 
-		navigationDelegate = MainNavigationDelegate(
-			navBar = checkNotNull(bottomNav ?: viewBinding.navRail),
-			fragmentManager = supportFragmentManager,
-			settings = settings,
-		)
+		navigationDelegate =
+			MainNavigationDelegate(
+				navBar = checkNotNull(bottomNav ?: viewBinding.navRail),
+				fragmentManager = supportFragmentManager,
+				settings = settings,
+			)
 		navigationDelegate.addOnFragmentChangedListener(this)
 		isFloatNav = settings.isFloatingNav
 		viewBinding.bottomNav?.isVisible = !isFloatNav
@@ -157,7 +164,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		onBackPressedDispatcher.addCallback(exitCallback)
 		onBackPressedDispatcher.addCallback(navigationDelegate)
 
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || !resources.getBoolean(R.bool.is_predictive_back_enabled)) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+			!resources.getBoolean(R.bool.is_predictive_back_enabled)
+		) {
 			val legacySearchCallback = SearchViewLegacyBackCallback(viewBinding.searchView)
 			viewBinding.searchView.addTransitionListener(legacySearchCallback)
 			onBackPressedDispatcher.addCallback(legacySearchCallback)
@@ -184,10 +193,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 			viewBinding.bottomNav?.apply {
 				val primary = MaterialColors.getColor(this, appcompatR.attr.colorPrimary, Color.WHITE)
 				setBackgroundColor(Color.BLACK)
-				itemTextColor = ColorStateList(
-					arrayOf(intArrayOf(android.R.attr.state_selected), intArrayOf()),
-					intArrayOf(primary, "#99FFFFFF".toColorInt()),
-				).also { itemIconTintList = it }
+				itemTextColor =
+					ColorStateList(
+						arrayOf(intArrayOf(android.R.attr.state_selected), intArrayOf()),
+						intArrayOf(primary, "#99FFFFFF".toColorInt()),
+					).also { itemIconTintList = it }
 				itemActiveIndicatorColor = ColorStateList.valueOf(ColorUtils.setAlphaComponent(primary, 38))
 			}
 		}
@@ -202,7 +212,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		navigationDelegate.syncSelectedItem()
 	}
 
-	override fun onFragmentChanged(fragment: Fragment, fromUser: Boolean) {
+	override fun onFragmentChanged(
+		fragment: Fragment,
+		fromUser: Boolean,
+	) {
 		adjustFabVisibility(topFragment = fragment)
 		adjustAppbar(topFragment = fragment)
 		if (fromUser) {
@@ -211,7 +224,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		}
 	}
 
-	override fun addMenuProvider(provider: MenuProvider, owner: LifecycleOwner, state: Lifecycle.State) {
+	override fun addMenuProvider(
+		provider: MenuProvider,
+		owner: LifecycleOwner,
+		state: Lifecycle.State,
+	) {
 		if (provider !is MangaSearchMenuProvider) {
 			super.addMenuProvider(provider, owner, state)
 		}
@@ -223,17 +240,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		}
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		val barsInsets = insets.getInsets(typeMask)
 		val searchBarDefaultMargin = resources.getDimensionPixelOffset(materialR.dimen.m3_searchbar_margin_horizontal)
 		viewBinding.searchBar.updateLayoutParams<MarginLayoutParams> {
 			marginEnd = searchBarDefaultMargin + barsInsets.end(v)
-			marginStart = if (viewBinding.navRail != null) {
-				searchBarDefaultMargin
-			} else {
-				searchBarDefaultMargin + barsInsets.start(v)
-			}
+			marginStart =
+				if (viewBinding.navRail != null) {
+					searchBarDefaultMargin
+				} else {
+					searchBarDefaultMargin + barsInsets.start(v)
+				}
 		}
 		viewBinding.bottomNav?.updatePadding(
 			left = barsInsets.left,
@@ -246,7 +267,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 			bottomMargin = barsInsets.bottom
 		}
 		viewBinding.floatingNavContainer?.updateLayoutParams<MarginLayoutParams> {
-			bottomMargin = barsInsets.bottom + resources.getDimensionPixelOffset(R.dimen.margin_normal) + resources.getDimensionPixelOffset(R.dimen.margin_small)
+			bottomMargin =
+				barsInsets.bottom + resources.getDimensionPixelOffset(R.dimen.margin_normal) +
+				resources.getDimensionPixelOffset(R.dimen.margin_small)
 		}
 		updateMargin()
 		return insets.consume(v, typeMask, start = viewBinding.navRail != null).also {
@@ -299,7 +322,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 	override fun onSupportActionModeFinished(mode: ActionMode) {
 		super.onSupportActionModeFinished(mode)
 		adjustFabVisibility()
-		if (isFloatNav) { bottomNav?.hide() } else bottomNav?.show()
+		if (isFloatNav) {
+			bottomNav?.hide()
+		} else {
+			bottomNav?.show()
+		}
 		viewBinding.floatingNavContainer?.isVisible = isFloatNav
 		(viewBinding.layoutSearch ?: viewBinding.searchBar).isInvisible = false
 		updateMargin()
@@ -322,19 +349,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 
 	private fun onIncognitoModeChanged(isIncognito: Boolean) {
 		var options = viewBinding.searchView.getEditText().imeOptions
-		options = if (isIncognito) {
-			options or EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
-		} else {
-			options and EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING.inv()
-		}
+		options =
+			if (isIncognito) {
+				options or EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
+			} else {
+				options and EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING.inv()
+			}
 		viewBinding.searchView.getEditText().imeOptions = options
 		invalidateOptionsMenu()
 	}
 
 	private fun onLoadingStateChanged(isLoading: Boolean) {
-		val fab = (if (isFloatNav) viewBinding.fabFloating else viewBinding.fab)
-			?: viewBinding.navRail?.headerView
-			?: return
+		val fab =
+			(if (isFloatNav) viewBinding.fabFloating else viewBinding.fab)
+				?: viewBinding.navRail?.headerView
+				?: return
 		fab.isEnabled = !isLoading
 	}
 
@@ -342,25 +371,26 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		adjustFabVisibility(isResumeEnabled = isEnabled)
 	}
 
-	private fun onFirstStart() = try {
-		lifecycleScope.launch(Dispatchers.Main) {
-			withContext(Dispatchers.Default) {
-				LocalStorageCleanupWorker.enqueue(applicationContext)
-			}
-			withResumed {
-				MangaPrefetchService.prefetchLast(this@MainActivity)
-				requestNotificationsPermission()
-				startService(Intent(this@MainActivity, LocalIndexUpdateService::class.java))
-				startService(Intent(this@MainActivity, PeriodicalBackupService::class.java))
-				if (settings.isAdBlockEnabled) {
-					startService(Intent(this@MainActivity, AdListUpdateService::class.java))
+	private fun onFirstStart() =
+		try {
+			lifecycleScope.launch(Dispatchers.Main) {
+				withContext(Dispatchers.Default) {
+					LocalStorageCleanupWorker.enqueue(applicationContext)
 				}
-				viewModel.runAutoUpdate()
+				withResumed {
+					MangaPrefetchService.prefetchLast(this@MainActivity)
+					requestNotificationsPermission()
+					startService(Intent(this@MainActivity, LocalIndexUpdateService::class.java))
+					startService(Intent(this@MainActivity, PeriodicalBackupService::class.java))
+					if (settings.isAdBlockEnabled) {
+						startService(Intent(this@MainActivity, AdListUpdateService::class.java))
+					}
+					viewModel.runAutoUpdate()
+				}
 			}
+		} catch (e: IllegalStateException) {
+			throw e
 		}
-	} catch (e: IllegalStateException) {
-		throw e
-	}
 
 	private fun showUpdateDialog(version: AppVersion?) {
 		if (version == null) return
@@ -368,13 +398,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		if (viewModel.isUpdateDialogShown) return
 		viewModel.isUpdateDialogShown = true
 		if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
-		BigButtonsAlertDialog.Builder(this)
+		BigButtonsAlertDialog
+			.Builder(this)
 			.setIcon(R.drawable.ic_app_update)
 			.setTitle(R.string.update_available_message)
 			.setPositiveButton(R.string.update) { _, _ ->
 				router.openAppUpdate()
-			}
-			.setNegativeButton(android.R.string.cancel, null)
+			}.setNegativeButton(android.R.string.cancel, null)
 			.create()
 			.show()
 	}
@@ -395,7 +425,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		isSearchOpened: Boolean = viewBinding.searchView.isShowing,
 	) {
 		navigationDelegate.navRailHeader?.railFab?.isVisible = isResumeEnabled
-		val shouldShow = isResumeEnabled && !actionModeDelegate.isActionModeStarted && !isSearchOpened && topFragment is HistoryListFragment
+		val shouldShow =
+			isResumeEnabled && !actionModeDelegate.isActionModeStarted && !isSearchOpened && topFragment is HistoryListFragment
 		if (isFloatNav) {
 			viewBinding.fab?.isVisible = false
 			val fab = viewBinding.fabFloating
@@ -419,16 +450,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 	}
 
 	private fun adjustSearchUI(isOpened: Boolean) {
-		val appBarScrollFlags = if (isOpened) {
-			SCROLL_FLAG_NO_SCROLL
-		} else {
-			SCROLL_FLAG_SCROLL or SCROLL_FLAG_ENTER_ALWAYS or SCROLL_FLAG_SNAP
-		}
+		val appBarScrollFlags =
+			if (isOpened) {
+				SCROLL_FLAG_NO_SCROLL
+			} else {
+				SCROLL_FLAG_SCROLL or SCROLL_FLAG_ENTER_ALWAYS or SCROLL_FLAG_SNAP
+			}
 		viewBinding.insetsHolder.updateLayoutParams<AppBarLayout.LayoutParams> {
 			scrollFlags = appBarScrollFlags
 		}
 		adjustFabVisibility(isSearchOpened = isOpened)
-		if (isFloatNav) { bottomNav?.hide() } else bottomNav?.showOrHide(!isOpened)
+		if (isFloatNav) {
+			bottomNav?.hide()
+		} else {
+			bottomNav?.showOrHide(!isOpened)
+		}
 		viewBinding.floatingNavContainer?.isVisible = !isOpened && isFloatNav
 		updateMargin()
 	}
@@ -463,7 +499,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		viewBinding.recyclerViewSearch.adapter = adapter
 		viewBinding.searchView.editText.setOnEditorActionListener(listener)
 
-		viewBinding.searchView.observeState()
+		viewBinding.searchView
+			.observeState()
 			.map { it >= SearchView.TransitionState.SHOWING }
 			.distinctUntilChanged()
 			.flatMapLatest { isShowing ->
@@ -493,11 +530,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		}
 		for (view in viewBinding.appbar.children) {
 			val lp = view.layoutParams as? AppBarLayout.LayoutParams ?: continue
-			val scrollFlags = if (isPinned) {
-				lp.scrollFlags and SCROLL_FLAG_SCROLL.inv()
-			} else {
-				lp.scrollFlags or SCROLL_FLAG_SCROLL
-			}
+			val scrollFlags =
+				if (isPinned) {
+					lp.scrollFlags and SCROLL_FLAG_SCROLL.inv()
+				} else {
+					lp.scrollFlags or SCROLL_FLAG_SCROLL
+				}
 			if (scrollFlags != lp.scrollFlags) {
 				lp.scrollFlags = scrollFlags
 				view.layoutParams = lp
@@ -550,11 +588,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), AppBarOwner, BottomNav
 		}
 	}
 
-	private fun SearchView.observeState() = callbackFlow {
-		val listener = SearchView.TransitionListener { _, _, state ->
-			trySendBlocking(state)
+	private fun SearchView.observeState() =
+		callbackFlow {
+			val listener =
+				SearchView.TransitionListener { _, _, state ->
+					trySendBlocking(state)
+				}
+			addTransitionListener(listener)
+			awaitClose { removeTransitionListener(listener) }
 		}
-		addTransitionListener(listener)
-		awaitClose { removeTransitionListener(listener) }
-	}
 }

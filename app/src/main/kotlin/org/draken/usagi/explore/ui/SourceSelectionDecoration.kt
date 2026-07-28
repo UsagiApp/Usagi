@@ -17,14 +17,16 @@ import org.draken.usagi.explore.ui.model.MangaSourceItem
 import androidx.appcompat.R as appcompatR
 import com.google.android.material.R as materialR
 
-class SourceSelectionDecoration(context: Context) : AbstractSelectionItemDecoration() {
-
+class SourceSelectionDecoration(
+	context: Context,
+) : AbstractSelectionItemDecoration() {
 	private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 	private val strokeColor = context.getThemeColor(appcompatR.attr.colorPrimary, Color.RED)
-	private val fillColor = ColorUtils.setAlphaComponent(
-		ColorUtils.blendARGB(strokeColor, context.getThemeColor(materialR.attr.colorSurface), 0.8f),
-		0x74,
-	)
+	private val fillColor =
+		ColorUtils.setAlphaComponent(
+			ColorUtils.blendARGB(strokeColor, context.getThemeColor(materialR.attr.colorSurface), 0.8f),
+			0x74,
+		)
 	private val defaultRadius = context.resources.getDimension(R.dimen.list_selector_corner)
 
 	init {
@@ -34,7 +36,10 @@ class SourceSelectionDecoration(context: Context) : AbstractSelectionItemDecorat
 		paint.strokeWidth = context.resources.getDimension(R.dimen.selection_stroke_width)
 	}
 
-	override fun getItemId(parent: RecyclerView, child: View): Long {
+	override fun getItemId(
+		parent: RecyclerView,
+		child: View,
+	): Long {
 		val holder = parent.getChildViewHolder(child) ?: return NO_ID
 		val item = holder.getItem(MangaSourceItem::class.java) ?: return NO_ID
 		return item.id

@@ -10,7 +10,6 @@ data class VersionId(
 	val variantType: String,
 	val variantNumber: Int,
 ) : Comparable<VersionId> {
-
 	override fun compareTo(other: VersionId): Int {
 		var diff = major.compareTo(other.major)
 		if (diff != 0) {
@@ -31,13 +30,14 @@ data class VersionId(
 		return variantNumber.compareTo(other.variantNumber)
 	}
 
-	private fun variantWeight(variantType: String) = when (variantType.lowercase(Locale.ROOT)) {
-		"a", "alpha" -> 1
-		"b", "beta" -> 2
-		"rc" -> 4
-		"" -> 8
-		else -> 0
-	}
+	private fun variantWeight(variantType: String) =
+		when (variantType.lowercase(Locale.ROOT)) {
+			"a", "alpha" -> 1
+			"b", "beta" -> 2
+			"rc" -> 4
+			"" -> 8
+			else -> 0
+		}
 }
 
 val VersionId.isStable: Boolean
@@ -46,7 +46,8 @@ val VersionId.isStable: Boolean
 fun VersionId(versionName: String): VersionId {
 	if (versionName.startsWith('n', ignoreCase = true) ||
 		versionName.contains("nightly", ignoreCase = true) ||
-		versionName.contains("daily", ignoreCase = true)) {
+		versionName.contains("daily", ignoreCase = true)
+	) {
 		return VersionId(
 			major = 999,
 			minor = 0,

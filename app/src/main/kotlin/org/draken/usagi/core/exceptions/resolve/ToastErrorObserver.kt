@@ -9,9 +9,13 @@ class ToastErrorObserver(
 	host: View,
 	fragment: Fragment?,
 ) : ErrorObserver(host, fragment, null, null) {
-
 	override suspend fun emit(value: Throwable) {
-		val toast = Toast.makeText(host.context.applicationContext, value.getDisplayMessage(host.context.resources), Toast.LENGTH_SHORT)
+		val toast =
+			Toast.makeText(
+				host.context.applicationContext,
+				value.getDisplayMessage(host.context.resources),
+				Toast.LENGTH_SHORT,
+			)
 		toast.show()
 	}
 }

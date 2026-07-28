@@ -22,85 +22,95 @@ import org.draken.usagi.favourites.domain.model.Cover
 import tsuki.model.Manga
 import tsuki.model.MangaSource
 
-class CoverStackView @JvmOverloads constructor(
-	context: Context,
-	attrs: AttributeSet? = null,
-	@AttrRes defStyleAttr: Int = 0,
-) : StackLayout(context, attrs, defStyleAttr) {
+class CoverStackView
+	@JvmOverloads
+	constructor(
+		context: Context,
+		attrs: AttributeSet? = null,
+		@AttrRes defStyleAttr: Int = 0,
+	) : StackLayout(context, attrs, defStyleAttr) {
+		private val binding = ViewCoverStackBinding.inflate(LayoutInflater.from(context), this)
+		private val coverViews =
+			arrayOf(
+				binding.imageViewCover1,
+				binding.imageViewCover2,
+				binding.imageViewCover3,
+			)
+		private var hideEmptyView: Boolean = false
 
-	private val binding = ViewCoverStackBinding.inflate(LayoutInflater.from(context), this)
-	private val coverViews = arrayOf(
-		binding.imageViewCover1,
-		binding.imageViewCover2,
-		binding.imageViewCover3,
-	)
-	private var hideEmptyView: Boolean = false
-
-	init {
-		context.withStyledAttributes(attrs, R.styleable.CoverStackView, defStyleAttr) {
-			hideEmptyView = getBoolean(R.styleable.CoverStackView_hideEmptyViews, hideEmptyView)
-			children.forEach { it.isGone = hideEmptyView }
-			val coverSize = getDimension(R.styleable.CoverStackView_coverSize, 0f)
-			if (coverSize > 0f) {
-				setCoverSize(coverSize)
+		init {
+			context.withStyledAttributes(attrs, R.styleable.CoverStackView, defStyleAttr) {
+				hideEmptyView = getBoolean(R.styleable.CoverStackView_hideEmptyViews, hideEmptyView)
+				children.forEach { it.isGone = hideEmptyView }
+				val coverSize = getDimension(R.styleable.CoverStackView_coverSize, 0f)
+				if (coverSize > 0f) {
+					setCoverSize(coverSize)
+				}
+			}
+			val backgroundColor = context.getThemeColor(android.R.attr.colorBackground)
+			ImageViewCompat.setImageTintList(
+				binding.imageViewCover3,
+				ColorStateList.valueOf(ColorUtils.setAlphaComponent(backgroundColor, 153)),
+			)
+			ImageViewCompat.setImageTintList(
+				binding.imageViewCover2,
+				ColorStateList.valueOf(ColorUtils.setAlphaComponent(backgroundColor, 76)),
+			)
+			binding.imageViewCover2.backgroundTintList =
+				ColorStateList.valueOf(
+					ColorUtils.setAlphaComponent(backgroundColor, 76),
+				)
+			binding.imageViewCover3.backgroundTintList =
+				ColorStateList.valueOf(
+					ColorUtils.setAlphaComponent(backgroundColor, 153),
+				)
+			coverViews.forEachIndexed { index, view ->
+				view.crossfadeDurationFactor = index + 1f
 			}
 		}
-		val backgroundColor = context.getThemeColor(android.R.attr.colorBackground)
-		ImageViewCompat.setImageTintList(
-			binding.imageViewCover3,
-			ColorStateList.valueOf(ColorUtils.setAlphaComponent(backgroundColor, 153)),
-		)
-		ImageViewCompat.setImageTintList(
-			binding.imageViewCover2,
-			ColorStateList.valueOf(ColorUtils.setAlphaComponent(backgroundColor, 76)),
-		)
-		binding.imageViewCover2.backgroundTintList = ColorStateList.valueOf(
-			ColorUtils.setAlphaComponent(backgroundColor, 76),
-		)
-		binding.imageViewCover3.backgroundTintList = ColorStateList.valueOf(
-			ColorUtils.setAlphaComponent(backgroundColor, 153),
-		)
-		coverViews.forEachIndexed { index, view ->
-			view.crossfadeDurationFactor = index + 1f
-		}
-	}
 
-	fun setCoversAsync(covers: List<Cover>) {
-		coverViews.forEachIndexed { index, view ->
-			view.setImageAsync(covers.getOrNull(index))
-		}
-	}
-
-	@JvmName("setMangaCoversAsync")
-	fun setCoversAsync(manga: List<Manga>) {
-		coverViews.forEachIndexed { index, view ->
-			val m = manga.getOrNull(index)
-			view.setCoverOrHide(m?.coverUrl, m, m?.source)
-		}
-	}
-
-	fun setCoverSize(@Px coverSize: Float) {
-		val coverWidth = (coverSize * 13f).toInt()
-		val coverHeight = (coverSize * 18f).toInt()
-		children.forEach {
-			it.updateLayoutParams {
-				width = coverWidth
-				height = coverHeight
+		fun setCoversAsync(covers: List<Cover>) {
+			coverViews.forEachIndexed { index, view ->
+				view.setImageAsync(covers.getOrNull(index))
 			}
 		}
-	}
 
-	private fun CoverImageView.setCoverOrHide(url: String?, manga: Manga?, source: MangaSource?) {
-		if (url.isNullOrEmpty() && hideEmptyView) {
-			disposeImage()
-			isVisible = false
-		} else {
-			isVisible = true
-			if (manga != null) {
-				setImageAsync(url, manga)
+		@JvmName("setMangaCoversAsync")
+		fun setCoversAsync(manga: List<Manga>) {
+			coverViews.forEachIndexed { index, view ->
+				val m = manga.getOrNull(index)
+				view.setCoverOrHide(m?.coverUrl, m, m?.source)
+			}
+		}
+
+		fun setCoverSize(
+			@Px coverSize: Float,
+		) {
+			val coverWidth = (coverSize * 13f).toInt()
+			val coverHeight = (coverSize * 18f).toInt()
+			children.forEach {
+				it.updateLayoutParams {
+					width = coverWidth
+					height = coverHeight
+				}
+			}
+		}
+
+		private fun CoverImageView.setCoverOrHide(
+			url: String?,
+			manga: Manga?,
+			source: MangaSource?,
+		) {
+			if (url.isNullOrEmpty() && hideEmptyView) {
+				disposeImage()
+				isVisible = false
 			} else {
-				setImageAsync(url, source ?: UnknownMangaSource)
+				isVisible = true
+				if (manga != null) {
+					setImageAsync(url, manga)
+				} else {
+					setImageAsync(url, source ?: UnknownMangaSource)
+				}
 			}
 		}
 	}
-}

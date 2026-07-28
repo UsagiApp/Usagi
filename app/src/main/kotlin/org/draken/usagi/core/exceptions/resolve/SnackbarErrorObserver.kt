@@ -17,7 +17,6 @@ class SnackbarErrorObserver(
 	resolver: ExceptionResolver?,
 	onResolved: Consumer<Boolean>?,
 ) : ErrorObserver(host, fragment, resolver, onResolved) {
-
 	constructor(
 		host: View,
 		fragment: Fragment?,

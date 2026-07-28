@@ -27,22 +27,25 @@ import org.draken.usagi.settings.SettingsActivity
 
 @AndroidEntryPoint
 class ChangelogFragment : BaseFragment<FragmentChangelogBinding>() {
-
 	private val viewModel: ChangelogViewModel by viewModels()
 
 	override fun onCreateViewBinding(
 		inflater: LayoutInflater,
-		container: ViewGroup?
+		container: ViewGroup?,
 	) = FragmentChangelogBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: FragmentChangelogBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentChangelogBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		val markwon = Markwon.create(binding.root.context)
 		viewModel.isLoading.observe(viewLifecycleOwner) {
 			binding.progressBar.showOrHide(it)
 		}
 		viewModel.onError.observeEvent(viewLifecycleOwner, DialogErrorObserver(binding.root, this))
-		viewModel.changelog.filterNotNull()
+		viewModel.changelog
+			.filterNotNull()
 			.map { markwon.toMarkdown(it) }
 			.flowOn(Dispatchers.Default)
 			.observe(viewLifecycleOwner) {
@@ -57,7 +60,7 @@ class ChangelogFragment : BaseFragment<FragmentChangelogBinding>() {
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		val barsInsets = insets.getInsets(typeMask)

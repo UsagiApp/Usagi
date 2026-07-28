@@ -32,35 +32,42 @@ import org.draken.usagi.core.util.ext.parentView
 import org.draken.usagi.core.util.ext.showOrHide
 import org.draken.usagi.databinding.DialogDownloadBinding
 import org.draken.usagi.main.ui.owners.BottomNavOwner
-import tsuki.util.format
 import org.draken.usagi.settings.storage.DirectoryModel
+import tsuki.util.format
 
 @AndroidEntryPoint
-class DownloadDialogFragment : AlertDialogFragment<DialogDownloadBinding>(), View.OnClickListener {
-
+class DownloadDialogFragment :
+	AlertDialogFragment<DialogDownloadBinding>(),
+	View.OnClickListener {
 	private val viewModel by viewModels<DownloadDialogViewModel>()
 	private var optionViews: Array<out TwoLinesItemView>? = null
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?) =
-		DialogDownloadBinding.inflate(inflater, container, false)
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	) = DialogDownloadBinding.inflate(inflater, container, false)
 
-	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder {
-		return super.onBuildDialog(builder)
+	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder =
+		super
+			.onBuildDialog(builder)
 			.setTitle(R.string.save_manga)
 			.setCancelable(true)
-	}
 
-	override fun onViewBindingCreated(binding: DialogDownloadBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: DialogDownloadBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
-		optionViews = arrayOf(
-			binding.optionWholeManga,
-			binding.optionWholeBranch,
-			binding.optionFirstChapters,
-			binding.optionUnreadChapters,
-		).onEach {
-			it.setOnClickListener(this)
-			it.setOnButtonClickListener(this)
-		}
+		optionViews =
+			arrayOf(
+				binding.optionWholeManga,
+				binding.optionWholeBranch,
+				binding.optionFirstChapters,
+				binding.optionUnreadChapters,
+			).onEach {
+				it.setOnClickListener(this)
+				it.setOnButtonClickListener(this)
+			}
 		binding.buttonCancel.setOnClickListener(this)
 		binding.buttonConfirm.setOnClickListener(this)
 		binding.textViewMore.setOnClickListener(this)
@@ -99,8 +106,13 @@ class DownloadDialogFragment : AlertDialogFragment<DialogDownloadBinding>(), Vie
 
 	override fun onClick(v: View) {
 		when (v.id) {
-			R.id.button_cancel -> dialog?.cancel()
-			R.id.button_confirm -> router.askForDownloadOverMeteredNetwork(::schedule)
+			R.id.button_cancel -> {
+				dialog?.cancel()
+			}
+
+			R.id.button_confirm -> {
+				router.askForDownloadOverMeteredNetwork(::schedule)
+			}
 
 			R.id.textView_more -> {
 				val binding = viewBinding ?: return
@@ -108,14 +120,18 @@ class DownloadDialogFragment : AlertDialogFragment<DialogDownloadBinding>(), Vie
 				showMoreOptions(binding.textViewMore.isChecked)
 			}
 
-			R.id.button -> when (v.parentView?.id ?: return) {
-				R.id.option_whole_branch -> showBranchSelection(v)
-				R.id.option_first_chapters -> showFirstChaptersCountSelection(v)
-				R.id.option_unread_chapters -> showUnreadChaptersCountSelection(v)
+			R.id.button -> {
+				when (v.parentView?.id ?: return) {
+					R.id.option_whole_branch -> showBranchSelection(v)
+					R.id.option_first_chapters -> showFirstChaptersCountSelection(v)
+					R.id.option_unread_chapters -> showUnreadChaptersCountSelection(v)
+				}
 			}
 
-			else -> if (v is TwoLinesItemView) {
-				setCheckedOption(v.id)
+			else -> {
+				if (v is TwoLinesItemView) {
+					setCheckedOption(v.id)
+				}
 			}
 		}
 	}
@@ -125,13 +141,14 @@ class DownloadDialogFragment : AlertDialogFragment<DialogDownloadBinding>(), Vie
 			val options = viewModel.chaptersSelectOptions.value
 			viewModel.confirm(
 				startNow = switchStart.isChecked,
-				chaptersMacro = when {
-					optionWholeManga.isChecked -> options.wholeManga
-					optionWholeBranch.isChecked -> options.wholeBranch ?: return@run
-					optionFirstChapters.isChecked -> options.firstChapters ?: return@run
-					optionUnreadChapters.isChecked -> options.unreadChapters ?: return@run
-					else -> return@run
-				},
+				chaptersMacro =
+					when {
+						optionWholeManga.isChecked -> options.wholeManga
+						optionWholeBranch.isChecked -> options.wholeBranch ?: return@run
+						optionFirstChapters.isChecked -> options.firstChapters ?: return@run
+						optionUnreadChapters.isChecked -> options.unreadChapters ?: return@run
+						else -> return@run
+					},
 				format = DownloadFormat.entries.getOrNull(spinnerFormat.selectedItemPosition),
 				destination = viewModel.availableDestinations.value.getOrNull(spinnerDestination.selectedItemPosition),
 				allowMetered = allowMeteredNetwork,
@@ -169,60 +186,65 @@ class DownloadDialogFragment : AlertDialogFragment<DialogDownloadBinding>(), Vie
 	private fun onChapterSelectOptionsChanged(options: ChapterSelectOptions) {
 		with(viewBinding ?: return) {
 			// Whole manga
-			optionWholeManga.subtitle = if (options.wholeManga.chaptersCount > 0) {
-				resources.getQuantityStringSafe(
-					R.plurals.chapters,
-					options.wholeManga.chaptersCount,
-					options.wholeManga.chaptersCount,
-				)
-			} else {
-				null
-			}
-			// All chapters for branch
-			optionWholeBranch.isVisible = options.wholeBranch != null
-			options.wholeBranch?.let {
-				optionWholeBranch.title = resources.getString(
-					R.string.download_option_all_chapters,
-					it.selectedBranch,
-				)
-				optionWholeBranch.subtitle = if (it.chaptersCount > 0) {
+			optionWholeManga.subtitle =
+				if (options.wholeManga.chaptersCount > 0) {
 					resources.getQuantityStringSafe(
 						R.plurals.chapters,
-						it.chaptersCount,
-						it.chaptersCount,
+						options.wholeManga.chaptersCount,
+						options.wholeManga.chaptersCount,
 					)
 				} else {
 					null
 				}
+			// All chapters for branch
+			optionWholeBranch.isVisible = options.wholeBranch != null
+			options.wholeBranch?.let {
+				optionWholeBranch.title =
+					resources.getString(
+						R.string.download_option_all_chapters,
+						it.selectedBranch,
+					)
+				optionWholeBranch.subtitle =
+					if (it.chaptersCount > 0) {
+						resources.getQuantityStringSafe(
+							R.plurals.chapters,
+							it.chaptersCount,
+							it.chaptersCount,
+						)
+					} else {
+						null
+					}
 			}
 			// First N chapters
 			optionFirstChapters.isVisible = options.firstChapters != null
 			options.firstChapters?.let {
-				optionFirstChapters.title = resources.getString(
-					R.string.download_option_first_n_chapters,
-					resources.getQuantityStringSafe(
-						R.plurals.chapters,
-						it.chaptersCount,
-						it.chaptersCount,
-					),
-				)
-				optionFirstChapters.subtitle = it.branch
-			}
-			// Next N unread chapters
-			optionUnreadChapters.isVisible = options.unreadChapters != null
-			options.unreadChapters?.let {
-				optionUnreadChapters.title = if (it.chaptersCount == Int.MAX_VALUE) {
-					resources.getString(R.string.download_option_all_unread)
-				} else {
+				optionFirstChapters.title =
 					resources.getString(
-						R.string.download_option_next_unread_n_chapters,
+						R.string.download_option_first_n_chapters,
 						resources.getQuantityStringSafe(
 							R.plurals.chapters,
 							it.chaptersCount,
 							it.chaptersCount,
 						),
 					)
-				}
+				optionFirstChapters.subtitle = it.branch
+			}
+			// Next N unread chapters
+			optionUnreadChapters.isVisible = options.unreadChapters != null
+			options.unreadChapters?.let {
+				optionUnreadChapters.title =
+					if (it.chaptersCount == Int.MAX_VALUE) {
+						resources.getString(R.string.download_option_all_unread)
+					} else {
+						resources.getString(
+							R.string.download_option_next_unread_n_chapters,
+							resources.getQuantityStringSafe(
+								R.plurals.chapters,
+								it.chaptersCount,
+								it.chaptersCount,
+							),
+						)
+					}
 			}
 		}
 	}
@@ -234,12 +256,13 @@ class DownloadDialogFragment : AlertDialogFragment<DialogDownloadBinding>(), Vie
 		dismiss()
 	}
 
-	private fun showMoreOptions(isVisible: Boolean) = viewBinding?.apply {
-		cardFormat.isVisible = isVisible
-		textViewFormat.isVisible = isVisible
-		cardDestination.isVisible = isVisible
-		textViewDestination.isVisible = isVisible
-	}
+	private fun showMoreOptions(isVisible: Boolean) =
+		viewBinding?.apply {
+			cardFormat.isVisible = isVisible
+			textViewFormat.isVisible = isVisible
+			cardDestination.isVisible = isVisible
+			textViewDestination.isVisible = isVisible
+		}
 
 	private fun setCheckedOption(id: Int) {
 		for (optionView in optionViews ?: return) {
@@ -294,35 +317,40 @@ class DownloadDialogFragment : AlertDialogFragment<DialogDownloadBinding>(), Vie
 		menu.show()
 	}
 
-	private fun chaptersCount(max: Int) = sequence {
-		yield(1)
-		var seed = 5
-		var step = 5
-		while (seed + step <= max) {
-			yield(seed)
-			step = when {
-				seed < 20 -> 5
-				seed < 60 -> 10
-				else -> 20
+	private fun chaptersCount(max: Int) =
+		sequence {
+			yield(1)
+			var seed = 5
+			var step = 5
+			while (seed + step <= max) {
+				yield(seed)
+				step =
+					when {
+						seed < 20 -> 5
+						seed < 60 -> 10
+						else -> 20
+					}
+				seed += step
 			}
-			seed += step
+			if (seed < max) {
+				yield(max)
+			}
 		}
-		if (seed < max) {
-			yield(max)
-		}
-	}
 
 	private class SnackbarResultListener(
 		private val host: View,
 	) : FragmentResultListener {
-
-		override fun onFragmentResult(requestKey: String, result: Bundle) {
+		override fun onFragmentResult(
+			requestKey: String,
+			result: Bundle,
+		) {
 			val isStarted = result.getBoolean(ARG_STARTED, true)
-			val snackbar = Snackbar.make(
-				host,
-				if (isStarted) R.string.download_started else R.string.download_added,
-				Snackbar.LENGTH_LONG,
-			)
+			val snackbar =
+				Snackbar.make(
+					host,
+					if (isStarted) R.string.download_started else R.string.download_added,
+					Snackbar.LENGTH_LONG,
+				)
 			(host.context.findActivity() as? BottomNavOwner)?.let {
 				snackbar.anchorView = it.bottomNav
 			}
@@ -335,7 +363,6 @@ class DownloadDialogFragment : AlertDialogFragment<DialogDownloadBinding>(), Vie
 	}
 
 	companion object {
-
 		private const val RESULT_KEY = "DOWNLOAD_STARTED"
 		private const val ARG_STARTED = "started"
 		private const val KEY_CHECKED_OPTION = "checked_opt"
@@ -343,7 +370,7 @@ class DownloadDialogFragment : AlertDialogFragment<DialogDownloadBinding>(), Vie
 		fun registerCallback(
 			fm: FragmentManager,
 			lifecycleOwner: LifecycleOwner,
-			snackbarHost: View
+			snackbarHost: View,
 		) = fm.setFragmentResultListener(RESULT_KEY, lifecycleOwner, SnackbarResultListener(snackbarHost))
 
 		fun unregisterCallback(fm: FragmentManager) = fm.clearFragmentResultListener(RESULT_KEY)

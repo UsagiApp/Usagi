@@ -15,7 +15,6 @@ import org.draken.usagi.core.db.entity.TagEntity
 
 @Dao
 abstract class MangaDao {
-
 	@Transaction
 	@Query("SELECT * FROM manga WHERE manga_id = :id")
 	abstract suspend fun find(id: Long): MangaWithTags?
@@ -24,7 +23,10 @@ abstract class MangaDao {
 	abstract suspend operator fun contains(id: Long): Boolean
 
 	@Query("UPDATE manga SET source = :newKey WHERE source = :oldKey")
-	abstract suspend fun rewriteStoredSourceKey(oldKey: String, newKey: String)
+	abstract suspend fun rewriteStoredSourceKey(
+		oldKey: String,
+		newKey: String,
+	)
 
 	@Transaction
 	@Query("SELECT * FROM manga WHERE public_url = :publicUrl")
@@ -35,18 +37,37 @@ abstract class MangaDao {
 	abstract suspend fun findAllBySource(source: String): List<MangaWithTags>
 
 	@Query("SELECT author FROM manga WHERE author LIKE :query GROUP BY author ORDER BY COUNT(author) DESC LIMIT :limit")
-	abstract suspend fun findAuthors(query: String, limit: Int): List<String>
+	abstract suspend fun findAuthors(
+		query: String,
+		limit: Int,
+	): List<String>
 
-    @Query("SELECT author FROM manga WHERE manga.source = :source AND author IS NOT NULL AND author != '' GROUP BY author ORDER BY COUNT(author) DESC LIMIT :limit")
-    abstract suspend fun findAuthorsBySource(source: String, limit: Int): List<String>
+	@Query(
+		"SELECT author FROM manga WHERE manga.source = :source AND author IS NOT NULL AND author != '' GROUP BY author ORDER BY COUNT(author) DESC LIMIT :limit",
+	)
+	abstract suspend fun findAuthorsBySource(
+		source: String,
+		limit: Int,
+	): List<String>
 
 	@Transaction
-	@Query("SELECT * FROM manga WHERE (title LIKE :query OR alt_title LIKE :query) AND manga_id IN (SELECT manga_id FROM favourites UNION SELECT manga_id FROM history) LIMIT :limit")
-	abstract suspend fun searchByTitle(query: String, limit: Int): List<MangaWithTags>
+	@Query(
+		"SELECT * FROM manga WHERE (title LIKE :query OR alt_title LIKE :query) AND manga_id IN (SELECT manga_id FROM favourites UNION SELECT manga_id FROM history) LIMIT :limit",
+	)
+	abstract suspend fun searchByTitle(
+		query: String,
+		limit: Int,
+	): List<MangaWithTags>
 
 	@Transaction
-	@Query("SELECT * FROM manga WHERE (title LIKE :query OR alt_title LIKE :query) AND source = :source AND manga_id IN (SELECT manga_id FROM favourites UNION SELECT manga_id FROM history) LIMIT :limit")
-	abstract suspend fun searchByTitle(query: String, source: String, limit: Int): List<MangaWithTags>
+	@Query(
+		"SELECT * FROM manga WHERE (title LIKE :query OR alt_title LIKE :query) AND source = :source AND manga_id IN (SELECT manga_id FROM favourites UNION SELECT manga_id FROM history) LIMIT :limit",
+	)
+	abstract suspend fun searchByTitle(
+		query: String,
+		source: String,
+		limit: Int,
+	): List<MangaWithTags>
 
 	@Upsert
 	protected abstract suspend fun upsert(manga: MangaEntity)
@@ -78,15 +99,19 @@ abstract class MangaDao {
 	abstract suspend fun cleanup(idsToKeep: Set<Long>)
 
 	@Transaction
-	open suspend fun upsert(manga: MangaEntity, tags: Iterable<TagEntity>? = null) {
+	open suspend fun upsert(
+		manga: MangaEntity,
+		tags: Iterable<TagEntity>? = null,
+	) {
 		upsert(manga)
 		if (tags != null) {
 			clearTagRelation(manga.id)
-			tags.map {
-				MangaTagsEntity(manga.id, it.id)
-			}.forEach {
-				insertTagRelation(it)
-			}
+			tags
+				.map {
+					MangaTagsEntity(manga.id, it.id)
+				}.forEach {
+					insertTagRelation(it)
+				}
 		}
 	}
 }

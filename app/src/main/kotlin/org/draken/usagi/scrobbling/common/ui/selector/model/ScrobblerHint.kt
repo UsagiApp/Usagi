@@ -11,8 +11,5 @@ data class ScrobblerHint(
 	val error: Throwable?,
 	@StringRes val actionStringRes: Int,
 ) : ListModel {
-
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is ScrobblerHint && other.textPrimary == textPrimary
-	}
+	override fun areItemsTheSame(other: ListModel): Boolean = other is ScrobblerHint && other.textPrimary == textPrimary
 }

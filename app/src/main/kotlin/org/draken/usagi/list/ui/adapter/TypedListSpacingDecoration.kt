@@ -11,7 +11,6 @@ class TypedListSpacingDecoration(
 	context: Context,
 	private val addHorizontalPadding: Boolean,
 ) : ItemDecoration() {
-
 	private val spacingSmall = context.resources.getDimensionPixelOffset(R.dimen.list_spacing_small)
 	private val spacingNormal =
 		context.resources.getDimensionPixelOffset(R.dimen.list_spacing_normal)
@@ -23,9 +22,10 @@ class TypedListSpacingDecoration(
 		parent: RecyclerView,
 		state: RecyclerView.State,
 	) {
-		val itemType = parent.getChildViewHolder(view)?.itemViewType?.let {
-			ListItemType.entries.getOrNull(it)
-		}
+		val itemType =
+			parent.getChildViewHolder(view)?.itemViewType?.let {
+				ListItemType.entries.getOrNull(it)
+			}
 		when (itemType) {
 			ListItemType.FILTER_SORT,
 			ListItemType.FILTER_TAG,
@@ -43,21 +43,22 @@ class TypedListSpacingDecoration(
 			ListItemType.EXPANDABLE,
 			ListItemType.OPTION,
 			ListItemType.SORT_OPTION,
-				-> outRect.set(0)
+			-> outRect.set(0)
 
 			ListItemType.HEADER,
 			ListItemType.FEED,
 			ListItemType.EXPLORE_SOURCE_LIST,
 			ListItemType.MANGA_SCROBBLING,
 			ListItemType.MANGA_LIST,
-				-> outRect.set(0)
+			-> outRect.set(0)
 
 			ListItemType.DOWNLOAD,
 			ListItemType.HINT_EMPTY,
 			ListItemType.MANGA_LIST_DETAILED,
-				-> outRect.set(spacingNormal)
+			-> outRect.set(spacingNormal)
 
 			ListItemType.PAGE_THUMB -> outRect.set(spacingNormal)
+
 			ListItemType.MANGA_GRID -> outRect.set(0)
 
 			ListItemType.EXPLORE_BUTTONS -> outRect.set(spacingNormal)
@@ -76,7 +77,7 @@ class TypedListSpacingDecoration(
 			ListItemType.CHAPTER_LIST,
 			ListItemType.INFO,
 			null,
-				-> outRect.set(0)
+			-> outRect.set(0)
 
 			ListItemType.CHAPTER_GRID -> outRect.set(spacingSmall)
 
@@ -94,9 +95,10 @@ class TypedListSpacingDecoration(
 
 	private fun Rect.set(spacing: Int) = set(spacing, spacing, spacing, spacing)
 
-	private fun ListItemType?.isEdgeToEdge() = this == ListItemType.MANGA_NESTED_GROUP
-		|| this == ListItemType.FILTER_SORT
-		|| this == ListItemType.FILTER_TAG
-		|| this == ListItemType.CHAPTER_LIST
-		|| this == ListItemType.CHAPTER_GRID
+	private fun ListItemType?.isEdgeToEdge() =
+		this == ListItemType.MANGA_NESTED_GROUP ||
+			this == ListItemType.FILTER_SORT ||
+			this == ListItemType.FILTER_TAG ||
+			this == ListItemType.CHAPTER_LIST ||
+			this == ListItemType.CHAPTER_GRID
 }

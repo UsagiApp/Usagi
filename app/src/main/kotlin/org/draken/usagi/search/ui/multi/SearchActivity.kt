@@ -32,10 +32,10 @@ import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.list.ui.model.MangaListModel
 import org.draken.usagi.list.ui.size.DynamicItemSizeResolver
-import tsuki.model.Manga
-import tsuki.model.MangaTag
 import org.draken.usagi.search.domain.SearchKind
 import org.draken.usagi.search.ui.multi.adapter.SearchAdapter
+import tsuki.model.Manga
+import tsuki.model.MangaTag
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -43,7 +43,6 @@ class SearchActivity :
 	BaseActivity<ActivitySearchBinding>(),
 	MangaListListener,
 	ListSelectionController.Callback {
-
 	@Inject
 	lateinit var settings: AppSettings
 
@@ -53,40 +52,51 @@ class SearchActivity :
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(ActivitySearchBinding.inflate(layoutInflater))
-		title = when (viewModel.kind) {
-			SearchKind.SIMPLE,
-			SearchKind.TITLE -> viewModel.query
+		title =
+			when (viewModel.kind) {
+				SearchKind.SIMPLE,
+				SearchKind.TITLE,
+				-> {
+					viewModel.query
+				}
 
-			SearchKind.AUTHOR -> getString(
-				R.string.inline_preference_pattern,
-				getString(R.string.author),
-				viewModel.query,
-			)
+				SearchKind.AUTHOR -> {
+					getString(
+						R.string.inline_preference_pattern,
+						getString(R.string.author),
+						viewModel.query,
+					)
+				}
 
-			SearchKind.TAG -> getString(R.string.inline_preference_pattern, getString(R.string.genre), viewModel.query)
-		}
-
-		val itemClickListener = OnListItemClickListener<SearchResultsListModel> { item, view ->
-			if (item.listFilter == null) {
-				router.openSearch(item.source, viewModel.query)
-			} else {
-				router.openList(item.source, item.listFilter, item.sortOrder)
+				SearchKind.TAG -> {
+					getString(R.string.inline_preference_pattern, getString(R.string.genre), viewModel.query)
+				}
 			}
-		}
+
+		val itemClickListener =
+			OnListItemClickListener<SearchResultsListModel> { item, view ->
+				if (item.listFilter == null) {
+					router.openSearch(item.source, viewModel.query)
+				} else {
+					router.openList(item.source, item.listFilter, item.sortOrder)
+				}
+			}
 		val sizeResolver = DynamicItemSizeResolver(resources, this, settings, adjustWidth = true)
 		val selectionDecoration = MangaSelectionDecoration(this)
-		selectionController = ListSelectionController(
-			appCompatDelegate = delegate,
-			decoration = selectionDecoration,
-			registryOwner = this,
-			callback = this,
-		)
-		val adapter = SearchAdapter(
-			listener = this,
-			itemClickListener = itemClickListener,
-			sizeResolver = sizeResolver,
-			selectionDecoration = selectionDecoration,
-		)
+		selectionController =
+			ListSelectionController(
+				appCompatDelegate = delegate,
+				decoration = selectionDecoration,
+				registryOwner = this,
+				callback = this,
+			)
+		val adapter =
+			SearchAdapter(
+				listener = this,
+				itemClickListener = itemClickListener,
+				sizeResolver = sizeResolver,
+				selectionDecoration = selectionDecoration,
+			)
 		viewBinding.recyclerView.adapter = adapter
 		viewBinding.recyclerView.setHasFixedSize(true)
 		viewBinding.recyclerView.addItemDecoration(TypedListSpacingDecoration(this, true))
@@ -100,7 +110,10 @@ class SearchActivity :
 		viewModel.onError.observeEvent(this, SnackbarErrorObserver(viewBinding.recyclerView, null))
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		viewBinding.toolbar.updatePadding(
 			top = barsInsets.top,
@@ -116,27 +129,39 @@ class SearchActivity :
 		return insets.consumeAllSystemBarsInsets()
 	}
 
-	override fun onItemClick(item: MangaListModel, view: View) {
+	override fun onItemClick(
+		item: MangaListModel,
+		view: View,
+	) {
 		if (!selectionController.onItemClick(item.id)) {
 			router.openDetails(item.toMangaWithOverride())
 		}
 	}
 
-	override fun onItemLongClick(item: MangaListModel, view: View): Boolean {
-		return selectionController.onItemLongClick(view, item.id)
-	}
+	override fun onItemLongClick(
+		item: MangaListModel,
+		view: View,
+	): Boolean = selectionController.onItemLongClick(view, item.id)
 
-	override fun onItemContextClick(item: MangaListModel, view: View): Boolean {
-		return selectionController.onItemContextClick(view, item.id)
-	}
+	override fun onItemContextClick(
+		item: MangaListModel,
+		view: View,
+	): Boolean = selectionController.onItemContextClick(view, item.id)
 
-	override fun onReadClick(manga: Manga, view: View) {
+	override fun onReadClick(
+		manga: Manga,
+		view: View,
+	) {
 		if (!selectionController.onItemClick(manga.id)) {
 			router.openReader(manga)
 		}
 	}
 
-	override fun onTagClick(manga: Manga, tag: MangaTag, view: View) {
+	override fun onTagClick(
+		manga: Manga,
+		tag: MangaTag,
+		view: View,
+	) {
 		if (!selectionController.onItemClick(manga.id)) {
 			router.openList(tag)
 		}
@@ -152,7 +177,10 @@ class SearchActivity :
 
 	override fun onEmptyActionClick() = viewModel.continueSearch()
 
-	override fun onListHeaderClick(item: ListHeader, view: View) = Unit
+	override fun onListHeaderClick(
+		item: ListHeader,
+		view: View,
+	) = Unit
 
 	override fun onFooterButtonClick() = viewModel.continueSearch()
 
@@ -160,21 +188,28 @@ class SearchActivity :
 
 	override fun onSecondaryButtonClick(tipView: TipView) = Unit
 
-	override fun onSelectionChanged(controller: ListSelectionController, count: Int) {
+	override fun onSelectionChanged(
+		controller: ListSelectionController,
+		count: Int,
+	) {
 		viewBinding.recyclerView.invalidateNestedItemDecorations()
 	}
 
 	override fun onCreateActionMode(
 		controller: ListSelectionController,
 		menuInflater: MenuInflater,
-		menu: Menu
+		menu: Menu,
 	): Boolean {
 		menuInflater.inflate(R.menu.mode_remote, menu)
 		return true
 	}
 
-	override fun onActionItemClicked(controller: ListSelectionController, mode: ActionMode?, item: MenuItem): Boolean {
-		return when (item.itemId) {
+	override fun onActionItemClicked(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		item: MenuItem,
+	): Boolean =
+		when (item.itemId) {
 			R.id.action_share -> {
 				ShareHelper(this).shareMangaLinks(collectSelectedItems())
 				mode?.finish()
@@ -193,11 +228,10 @@ class SearchActivity :
 				true
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
-	}
 
-	private fun collectSelectedItems(): Set<Manga> {
-		return viewModel.getItems(selectionController.peekCheckedIds())
-	}
+	private fun collectSelectedItems(): Set<Manga> = viewModel.getItems(selectionController.peekCheckedIds())
 }

@@ -16,8 +16,11 @@ import org.draken.usagi.core.util.ext.getThemeColor
 import kotlin.math.abs
 import com.google.android.material.R as materialR
 
-class AnimatedPlaceholderDrawable(context: Context) : Drawable(), Animatable, TimeAnimator.TimeListener {
-
+class AnimatedPlaceholderDrawable(
+	context: Context,
+) : Drawable(),
+	Animatable,
+	TimeAnimator.TimeListener {
 	private val colorLow = context.getThemeColor(materialR.attr.colorSurfaceContainerLowest)
 	private val colorHigh = context.getThemeColor(materialR.attr.colorSurfaceContainerHighest)
 	private var currentColor: Int = colorLow
@@ -52,7 +55,11 @@ class AnimatedPlaceholderDrawable(context: Context) : Drawable(), Animatable, Ti
 
 	override fun setColorFilter(colorFilter: ColorFilter?) = Unit
 
-	override fun onTimeUpdate(animation: TimeAnimator?, totalTime: Long, deltaTime: Long) {
+	override fun onTimeUpdate(
+		animation: TimeAnimator?,
+		totalTime: Long,
+		deltaTime: Long,
+	) {
 		callback?.also {
 			updateColor()
 			it.invalidateDrawable(this)
@@ -75,10 +82,12 @@ class AnimatedPlaceholderDrawable(context: Context) : Drawable(), Animatable, Ti
 		}
 		val ph = period / 2
 		val fraction = abs((System.currentTimeMillis() % period) - ph) / ph.toFloat()
-		currentColor = ColorUtils.setAlphaComponent(
-			ArgbEvaluatorCompat.getInstance()
-				.evaluate(interpolator.getInterpolation(fraction), colorLow, colorHigh),
-			currentAlpha
-		)
+		currentColor =
+			ColorUtils.setAlphaComponent(
+				ArgbEvaluatorCompat
+					.getInstance()
+					.evaluate(interpolator.getInterpolation(fraction), colorLow, colorHigh),
+				currentAlpha,
+			)
 	}
 }

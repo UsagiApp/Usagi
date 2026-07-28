@@ -4,7 +4,6 @@ class CompositeResult private constructor(
 	private var successCount: Int,
 	private val errors: List<Throwable>,
 ) {
-
 	val size: Int
 		get() = successCount + errors.size
 
@@ -20,15 +19,17 @@ class CompositeResult private constructor(
 	val isAllFailed: Boolean
 		get() = successCount == 0 && errors.isNotEmpty()
 
-	operator fun plus(result: Result<*>): CompositeResult = CompositeResult(
-		successCount = successCount + if (result.isSuccess) 1 else 0,
-		errors = errors + listOfNotNull(result.exceptionOrNull()),
-	)
+	operator fun plus(result: Result<*>): CompositeResult =
+		CompositeResult(
+			successCount = successCount + if (result.isSuccess) 1 else 0,
+			errors = errors + listOfNotNull(result.exceptionOrNull()),
+		)
 
-	operator fun plus(other: CompositeResult): CompositeResult = CompositeResult(
-		successCount = successCount + other.successCount,
-		errors = errors + other.errors,
-	)
+	operator fun plus(other: CompositeResult): CompositeResult =
+		CompositeResult(
+			successCount = successCount + other.successCount,
+			errors = errors + other.errors,
+		)
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
@@ -49,7 +50,6 @@ class CompositeResult private constructor(
 	}
 
 	companion object {
-
 		val EMPTY = CompositeResult(0, emptyList())
 
 		fun success() = CompositeResult(1, emptyList())

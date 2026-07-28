@@ -8,16 +8,14 @@ import org.draken.usagi.search.domain.SearchKind
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionListener
 import org.draken.usagi.search.ui.suggestion.model.SearchSuggestionItem
 
-fun searchSuggestionQueryAD(
-	listener: SearchSuggestionListener,
-) =
+fun searchSuggestionQueryAD(listener: SearchSuggestionListener) =
 	adapterDelegateViewBinding<SearchSuggestionItem.RecentQuery, SearchSuggestionItem, ItemSearchSuggestionQueryBinding>(
 		{ inflater, parent -> ItemSearchSuggestionQueryBinding.inflate(inflater, parent, false) },
 	) {
-
-		val viewClickListener = View.OnClickListener { v ->
-			listener.onQueryClick(item.query, SearchKind.SIMPLE, v.id != R.id.button_complete)
-		}
+		val viewClickListener =
+			View.OnClickListener { v ->
+				listener.onQueryClick(item.query, SearchKind.SIMPLE, v.id != R.id.button_complete)
+			}
 
 		binding.root.setOnClickListener(viewClickListener)
 		binding.buttonComplete.setOnClickListener(viewClickListener)

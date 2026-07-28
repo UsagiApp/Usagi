@@ -6,8 +6,9 @@ import android.text.style.ClickableSpan
 import android.view.View
 import android.widget.TextView
 
-class AuthorSpan(private val listener: OnAuthorClickListener) : ClickableSpan() {
-
+class AuthorSpan(
+	private val listener: OnAuthorClickListener,
+) : ClickableSpan() {
 	override fun onClick(widget: View) {
 		val text = (widget as? TextView)?.text as? Spannable ?: return
 		val start = text.getSpanStart(this)
@@ -23,7 +24,6 @@ class AuthorSpan(private val listener: OnAuthorClickListener) : ClickableSpan() 
 	}
 
 	fun interface OnAuthorClickListener {
-
 		fun onAuthorClick(author: String)
 	}
 }

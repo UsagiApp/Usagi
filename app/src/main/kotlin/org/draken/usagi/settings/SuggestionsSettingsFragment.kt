@@ -16,9 +16,9 @@ import org.draken.usagi.suggestions.ui.SuggestionsWorker
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SuggestionsSettingsFragment : BasePreferenceFragment(R.string.suggestions),
+class SuggestionsSettingsFragment :
+	BasePreferenceFragment(R.string.suggestions),
 	SharedPreferences.OnSharedPreferenceChangeListener {
-
 	@Inject
 	lateinit var repository: SuggestionRepository
 
@@ -33,7 +33,10 @@ class SuggestionsSettingsFragment : BasePreferenceFragment(R.string.suggestions)
 		settings.subscribe(this)
 	}
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
 		addPreferencesFromResource(R.xml.pref_suggestions)
 
 		findPreference<MultiAutoCompleteTextViewPreference>(AppSettings.KEY_SUGGESTIONS_EXCLUDE_TAGS)?.run {
@@ -47,10 +50,15 @@ class SuggestionsSettingsFragment : BasePreferenceFragment(R.string.suggestions)
 		settings.unsubscribe(this)
 	}
 
-	override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-		if (settings.isSuggestionsEnabled && (key == AppSettings.KEY_SUGGESTIONS
-				|| key == AppSettings.KEY_SUGGESTIONS_EXCLUDE_TAGS
-				|| key == AppSettings.KEY_SUGGESTIONS_EXCLUDE_NSFW)
+	override fun onSharedPreferenceChanged(
+		sharedPreferences: SharedPreferences?,
+		key: String?,
+	) {
+		if (settings.isSuggestionsEnabled && (
+				key == AppSettings.KEY_SUGGESTIONS ||
+					key == AppSettings.KEY_SUGGESTIONS_EXCLUDE_TAGS ||
+					key == AppSettings.KEY_SUGGESTIONS_EXCLUDE_NSFW
+			)
 		) {
 			updateSuggestions()
 		}
