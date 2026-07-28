@@ -42,6 +42,7 @@ android {
 		release {
 			minifyEnabled true
 			shrinkResources true
+			crunchPngs true
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 		}
 	}
@@ -70,7 +71,9 @@ android {
 				'META-INF/**/*.txt',
 				'META-INF/**/*.md',
 				'**/*.kotlin_metadata',
-				'**/*.kotlin_module'
+				'**/*.kotlin_module',
+				'**/*.proto',
+				'META-INF/services/javax.annotation.processing.Processor'
 			]
 		}
 	}
