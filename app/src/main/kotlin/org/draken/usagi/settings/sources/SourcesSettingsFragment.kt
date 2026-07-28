@@ -69,6 +69,7 @@ class SourcesSettingsFragment :
 						it > 0 -> getString(R.string.available_d, it)
 						else -> null
 					}
+				shouldHideCatalog()
 			}
 		}
 		findPreference<TwoStatePreference>(AppSettings.KEY_HANDLE_LINKS)?.let { pref ->
@@ -125,5 +126,12 @@ class SourcesSettingsFragment :
 		val count = mangaDynamicRepository.get().size
 		findPreference<Preference>("plugins_manager")?.summary =
 			resources.getQuantityStringSafe(R.plurals.items, count, count)
+		shouldHideCatalog()
+	}
+
+	private fun shouldHideCatalog() {
+		val catalog = viewModel.availableSourcesCount.value
+		val imported = mangaDynamicRepository.get().size
+		findPreference<Preference>(AppSettings.KEY_REMOTE_SOURCES)?.isVisible = !(catalog == 0 && imported == 0)
 	}
 }
