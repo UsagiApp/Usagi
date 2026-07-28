@@ -24,7 +24,7 @@ class ScrollListener
 		var isHidden = false
 			private set
 
-		private var expandedWidth = 0
+		var expandedWidth = 0
 		private var animator: ValueAnimator? = null
 		private var animatorY: ViewPropertyAnimator? = null
 		private var fabAnimator: ViewPropertyAnimator? = null

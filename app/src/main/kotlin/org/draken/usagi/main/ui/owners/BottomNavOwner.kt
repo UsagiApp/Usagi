@@ -1,7 +1,7 @@
 package org.draken.usagi.main.ui.owners
 
-import org.draken.usagi.core.ui.widgets.SlidingBottomNavigationView
+import android.view.View
 
 interface BottomNavOwner {
-	val bottomNav: SlidingBottomNavigationView?
+	val bottomNav: View?
 }

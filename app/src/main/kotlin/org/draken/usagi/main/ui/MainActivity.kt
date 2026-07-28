@@ -62,7 +62,6 @@ import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.ui.dialog.BigButtonsAlertDialog
 import org.draken.usagi.core.ui.util.FadingAppbarMediator
 import org.draken.usagi.core.ui.util.MenuInvalidator
-import org.draken.usagi.core.ui.widgets.SlidingBottomNavigationView
 import org.draken.usagi.core.util.ext.consume
 import org.draken.usagi.core.util.ext.end
 import org.draken.usagi.core.util.ext.observe
@@ -117,8 +116,8 @@ class MainActivity :
 	override val appBar: AppBarLayout
 		get() = viewBinding.appbar
 
-	override val bottomNav: SlidingBottomNavigationView?
-		get() = viewBinding.bottomNav
+	override val bottomNav: View?
+		get() = if (isFloatNav) viewBinding.floatingNavContainer else viewBinding.bottomNav
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		sendBroadcast(Intent(AppCrashActivity.ACTION_FINISH_CRASH).setPackage(packageName))
@@ -138,7 +137,7 @@ class MainActivity :
 
 		navigationDelegate =
 			MainNavigationDelegate(
-				navBar = checkNotNull(bottomNav ?: viewBinding.navRail),
+				navBar = checkNotNull(viewBinding.bottomNav ?: viewBinding.navRail),
 				fragmentManager = supportFragmentManager,
 				settings = settings,
 			)
@@ -277,6 +276,11 @@ class MainActivity :
 		}
 	}
 
+	override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+		super.onConfigurationChanged(newConfig)
+		navigationDelegate.repopulate()
+	}
+
 	override fun onLayoutChange(
 		v: View?,
 		left: Int,
@@ -313,7 +317,7 @@ class MainActivity :
 	override fun onSupportActionModeStarted(mode: ActionMode) {
 		super.onSupportActionModeStarted(mode)
 		adjustFabVisibility()
-		bottomNav?.hide()
+		viewBinding.bottomNav?.hide()
 		viewBinding.floatingNavContainer?.isVisible = false
 		(viewBinding.layoutSearch ?: viewBinding.searchBar).isInvisible = true
 		updateMargin()
@@ -323,9 +327,9 @@ class MainActivity :
 		super.onSupportActionModeFinished(mode)
 		adjustFabVisibility()
 		if (isFloatNav) {
-			bottomNav?.hide()
+			viewBinding.bottomNav?.hide()
 		} else {
-			bottomNav?.show()
+			viewBinding.bottomNav?.show()
 		}
 		viewBinding.floatingNavContainer?.isVisible = isFloatNav
 		(viewBinding.layoutSearch ?: viewBinding.searchBar).isInvisible = false
@@ -461,9 +465,9 @@ class MainActivity :
 		}
 		adjustFabVisibility(isSearchOpened = isOpened)
 		if (isFloatNav) {
-			bottomNav?.hide()
+			viewBinding.bottomNav?.hide()
 		} else {
-			bottomNav?.showOrHide(!isOpened)
+			viewBinding.bottomNav?.showOrHide(!isOpened)
 		}
 		viewBinding.floatingNavContainer?.isVisible = !isOpened && isFloatNav
 		updateMargin()

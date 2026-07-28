@@ -434,6 +434,10 @@ class MainNavigationDelegate(
 		if (card != null) {
 			card.layoutParams = card.layoutParams.apply { height = (48 * density * scale).toInt() }
 			card.radius = 24 * density * scale
+			val grand = card.parent as? View
+			val lp = grand?.layoutParams as? androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams
+			val behavior = lp?.behavior as? org.draken.usagi.main.ui.nav.ScrollListener
+			behavior?.expandedWidth = 0
 		}
 		val start = (10 * density * scale).toInt()
 		val end = (10 * density * scale).toInt()
@@ -688,7 +692,15 @@ class MainNavigationDelegate(
 		}
 	}
 
-	private fun getScale(context: Context): Float = if (context.resources.displayMetrics.densityDpi >= 500) 1.2f else 1.0f
+	fun repopulate() {
+		floatContainer?.let { populate(it) }
+	}
+
+	private fun getScale(context: Context): Float {
+		val sw = context.resources.configuration.screenWidthDp
+		val base = if (context.resources.displayMetrics.densityDpi >= 500) 1.2f else 1.0f
+		return (base * (sw / 360f)).coerceIn(1.0f, 1.8f)
+	}
 
 	fun interface OnFragmentChangedListener {
 		fun onFragmentChanged(
