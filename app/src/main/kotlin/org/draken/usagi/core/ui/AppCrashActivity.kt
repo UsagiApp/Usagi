@@ -3,11 +3,10 @@ package org.draken.usagi.core.ui
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.BroadcastReceiver
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -18,9 +17,9 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsCompat
+import org.draken.usagi.BuildConfig
 import org.draken.usagi.R
 import org.draken.usagi.databinding.ActivityCrashBinding
 import org.draken.usagi.main.ui.MainActivity
@@ -43,11 +42,28 @@ class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 		super.onCreate(savedInstanceState)
 		setContentView(ActivityCrashBinding.inflate(layoutInflater))
 		val stackTrace = intent.getStringExtra(EXTRA_STACK_TRACE) ?: NO_TRACE
-		viewBinding.crashTextView.text = stackTrace
-		viewBinding.buttonCopy.setOnClickListener {
-			getSystemService<ClipboardManager>()?.setPrimaryClip(
-				ClipData.newPlainText("crash_log", stackTrace),
-			)
+		val report =
+			buildString {
+				appendLine("Android: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})")
+				appendLine("Device: ${Build.MANUFACTURER} ${Build.MODEL}")
+				appendLine("Version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+				appendLine("-------------------------------------")
+				append(stackTrace)
+			}
+		viewBinding.crashTextView.text = report
+		viewBinding.buttonReport.setOnClickListener {
+			runCatching {
+				val intent =
+					Intent(Intent.ACTION_SEND).apply {
+						type = "*/*"
+						putExtra(
+							Intent.EXTRA_SUBJECT,
+							"Usagi v${BuildConfig.VERSION_NAME} (${Build.MANUFACTURER} ${Build.MODEL}) w/ ${Build.VERSION.RELEASE}",
+						)
+						putExtra(Intent.EXTRA_TEXT, report)
+					}
+				startActivity(Intent.createChooser(intent, getString(R.string.report)))
+			}
 		}
 		viewBinding.buttonRestart.setOnClickListener {
 			startActivity(
@@ -69,7 +85,11 @@ class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 	override fun onApplyWindowInsets(
 		v: View,
 		insets: WindowInsetsCompat,
-	) = insets
+	): WindowInsetsCompat {
+		val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+		v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+		return insets
+	}
 
 	override fun onDestroy() {
 		headingRunnable?.let(handler::removeCallbacks)

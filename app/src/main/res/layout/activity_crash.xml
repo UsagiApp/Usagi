@@ -98,10 +98,10 @@
 			android:paddingVertical="8dp">
 
 			<Button
-				android:id="@+id/button_copy"
+				android:id="@+id/button_report"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:text="@string/copy" />
+				android:text="@string/report" />
 
 			<Button
 				android:id="@+id/button_restart"

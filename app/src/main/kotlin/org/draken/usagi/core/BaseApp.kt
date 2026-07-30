@@ -86,12 +86,10 @@ open class BaseApp :
 				.build()
 
 	override fun onCreate() {
+		GlobalExceptionHandler.install(this) { runCatching { settings }.getOrNull() }
 		super.onCreate()
 		AppInfo.initialize(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
 		PlatformRegistry.applicationContext = this // TODO replace with OkHttp.initialize
-		Thread.setDefaultUncaughtExceptionHandler(
-			GlobalExceptionHandler(this, settings, Thread.getDefaultUncaughtExceptionHandler()),
-		)
 		AppCompatDelegate.setDefaultNightMode(settings.theme)
 		// TLS 1.3 support for Android < 10
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
@@ -119,6 +117,7 @@ open class BaseApp :
 	}
 
 	override fun attachBaseContext(base: Context) {
+		GlobalExceptionHandler.install(base) { runCatching { settings }.getOrNull() }
 		super.attachBaseContext(base)
 	}
 
