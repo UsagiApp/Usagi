@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.R
 import org.draken.usagi.databinding.ActivityCrashBinding
@@ -87,7 +88,7 @@ class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-		v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+		viewBinding.mainLayout.updatePadding(bars.left, bars.top, bars.right, bars.bottom)
 		return insets
 	}
 
