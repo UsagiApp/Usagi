@@ -26,7 +26,8 @@
 -keep class org.draken.usagi.backups.ui.periodical.PeriodicalBackupSettingsFragment { *; }
 
 # General (for plugins / exts)
--keep class androidx.collection.Scatter* { public protected *; }
+-keepattributes Exceptions,Signature,InnerClasses,EnclosingMethod,*Annotation*
+-keep class androidx.collection.** { public protected *; }
 -keep class kotlinx.coroutines.** { public protected *; }
 -keep class kotlinx.serialization.** { public protected *; }
 -keep class kotlin.** { public protected *; }
