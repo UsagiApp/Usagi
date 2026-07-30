@@ -44,11 +44,15 @@
 -keep class okhttp3.** { public protected *; }
 
 # For Tsuki dependency and Kotatsu parsers
--keep class tsuki.** { public protected *; }
--keep class org.koitharu.kotatsu.parsers.** { public protected *; }
--keep class * implements tsuki.model.MangaSource { public protected *; }
--keep class * implements tsuki.MangaParser { public protected *; }
--keep class * extends tsuki.MangaLoaderContext { public protected *; }
+-keep class tsuki.** { *; }
+-keep interface tsuki.** { *; }
+-keep class org.koitharu.kotatsu.parsers.** { *; }
+-keep interface org.koitharu.kotatsu.parsers.** { *; }
+-keep class org.draken.usagi.core.parser.** { *; }
+-keep interface org.draken.usagi.core.parser.** { *; }
+-keep class * implements tsuki.model.MangaSource { *; }
+-keep class * implements tsuki.MangaParser { *; }
+-keep class * extends tsuki.MangaLoaderContext { *; }
 
 # For TsukiMix dependency, optimization is needed if possible
 -keep class androidx.preference.PreferenceCategory { public protected *; }
