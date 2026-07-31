@@ -17,6 +17,7 @@ import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.IdRes
 import androidx.annotation.OptIn
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.isEmpty
 import androidx.core.view.isVisible
@@ -61,6 +62,7 @@ import org.draken.usagi.favourites.ui.container.FavouritesContainerFragment
 import org.draken.usagi.history.ui.HistoryListFragment
 import org.draken.usagi.list.ui.config.ListConfigSection
 import org.draken.usagi.local.ui.LocalListFragment
+import org.draken.usagi.main.ui.nav.ScrollListener
 import org.draken.usagi.suggestions.ui.SuggestionsFragment
 import org.draken.usagi.tracker.ui.feed.FeedFragment
 import org.draken.usagi.tracker.ui.updates.UpdatesFragment
@@ -190,7 +192,11 @@ class MainNavigationDelegate(
 			val wrap = container.findViewById<FrameLayout>(buttonId) ?: continue
 			val button = wrap.getChildAt(0) ?: continue
 			BadgeUtils.detachBadgeDrawable(badge, button)
-			layoutListeners.remove(itemId)?.let { l -> button.removeOnLayoutChangeListener(l) }
+			layoutListeners.remove(itemId)?.let { l ->
+				button.removeOnLayoutChangeListener(l)
+				wrap.removeOnLayoutChangeListener(l)
+				container.removeOnLayoutChangeListener(l)
+			}
 		}
 		badges.clear()
 		layoutListeners.clear()
@@ -423,6 +429,19 @@ class MainNavigationDelegate(
 	private fun populate(container: LinearLayout) {
 		container.clipChildren = false
 		container.clipToPadding = false
+		for ((i, b) in badges) {
+			val btnId = itemToButton[i] ?: continue
+			val wrap = container.findViewById<FrameLayout>(btnId) ?: continue
+			val btn = wrap.getChildAt(0) ?: continue
+			BadgeUtils.detachBadgeDrawable(b, btn)
+			layoutListeners.remove(i)?.let { l ->
+				btn.removeOnLayoutChangeListener(l)
+				wrap.removeOnLayoutChangeListener(l)
+				container.removeOnLayoutChangeListener(l)
+			}
+		}
+		badges.clear()
+		layoutListeners.clear()
 		container.removeAllViews()
 		buttonToItem.clear()
 		itemToButton.clear()
@@ -435,9 +454,9 @@ class MainNavigationDelegate(
 			card.layoutParams = card.layoutParams.apply { height = (48 * density * scale).toInt() }
 			card.radius = 24 * density * scale
 			val grand = card.parent as? View
-			val lp = grand?.layoutParams as? androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams
-			val behavior = lp?.behavior as? org.draken.usagi.main.ui.nav.ScrollListener
-			behavior?.expandedWidth = 0
+			val lp = grand?.layoutParams as? CoordinatorLayout.LayoutParams
+			val behavior = lp?.behavior as? ScrollListener
+			behavior?.exWidth = 0
 		}
 		val start = (10 * density * scale).toInt()
 		val end = (10 * density * scale).toInt()
@@ -447,6 +466,7 @@ class MainNavigationDelegate(
 		val fab = parent?.findViewById<FloatingActionButton>(R.id.fabFloating)
 		if (fab != null) {
 			val size = (48 * density * scale).toInt()
+			parent.minimumHeight = maxOf(size, (48 * density).toInt())
 			fab.customSize = size
 			fab.layoutParams =
 				(fab.layoutParams as? ViewGroup.MarginLayoutParams)?.apply {
@@ -456,10 +476,15 @@ class MainNavigationDelegate(
 		val height = (32 * density * scale).toInt()
 		val horizontal = (4 * density * scale).toInt()
 		val isLabel = settings.isNavLabelsVisible
-		container.layoutParams =
-			container.layoutParams.apply {
-				width = if (isLabel) (230 * density * scale).toInt() else LinearLayout.LayoutParams.WRAP_CONTENT
-			}
+		container.updateLayoutParams<ViewGroup.LayoutParams> {
+			width =
+				if (isLabel) {
+					(230 * density).toInt()
+				} else {
+					LinearLayout.LayoutParams.WRAP_CONTENT
+				}
+		}
+		val float = mutableListOf<Pair<FrameLayout, MaterialButton>>()
 		for (item in items) {
 			val wrapper =
 				FrameLayout(context).apply {
@@ -510,8 +535,59 @@ class MainNavigationDelegate(
 				}
 			wrapper.addView(button)
 			container.addView(wrapper)
+			float.add(wrapper to button)
 		}
+		if (isLabel) refreshNav(container, float, start + end, horizontal, density, scale)
 		updateState()
+		for ((id, c) in floatCounters) {
+			setFloatCount(id, c)
+		}
+	}
+
+	private fun refreshNav(
+		container: LinearLayout,
+		float: List<Pair<FrameLayout, MaterialButton>>,
+		horizontalPadding: Int,
+		itemHorizontalMargin: Int,
+		density: Float,
+		scale: Float,
+	) {
+		val base = (230 * density).toInt()
+		val selectPad = (4 * density * scale).toInt() * 2
+		val iconPad = (4 * density).toInt()
+		val badgeEnd = (8 * density * scale).toInt()
+		val itemW =
+			float.map { (_, btn) ->
+				kotlin.math.ceil(btn.paint.measureText(btn.contentDescription?.toString().orEmpty())).toInt() +
+					btn.iconSize + iconPad + selectPad
+			}
+		val dw = horizontalPadding + itemW.sum() + float.size * itemHorizontalMargin * 2 + badgeEnd
+		val sideSpace =
+			container.resources.getDimensionPixelOffset(R.dimen.margin_normal) +
+				container.resources.getDimensionPixelOffset(R.dimen.margin_small)
+		val maxW = container.resources.displayMetrics.widthPixels - sideSpace * 2
+		val usageW = dw in (base + 1)..maxW
+		val target = if (usageW) dw else base
+		float.forEachIndexed { i, (wrapper, _) ->
+			wrapper.updateLayoutParams<LinearLayout.LayoutParams> {
+				rightMargin = itemHorizontalMargin + if (i == float.lastIndex) badgeEnd else 0
+				if (usageW) {
+					width = itemW[i]
+					weight = 0f
+				} else {
+					width = 0
+					weight = 1f
+				}
+			}
+		}
+		container.updateLayoutParams<ViewGroup.LayoutParams> {
+			width = target
+		}
+		val navBar = container.parent as? View
+		val root = navBar?.parent as? View
+		val lp = root?.layoutParams as? CoordinatorLayout.LayoutParams
+		val behavior = lp?.behavior as? ScrollListener
+		behavior?.exWidth = target
 	}
 
 	private fun onFloatingItemClicked(wrapperId: Int) {
@@ -674,21 +750,26 @@ class MainNavigationDelegate(
 			val badge =
 				badges.getOrPut(itemId) {
 					BadgeDrawable.create(container.context).apply {
-						val density = container.context.resources.displayMetrics.density
-						val scale = getScale(container.context)
-						horizontalOffset = (10 * density * scale).toInt()
-						verticalOffset = (10 * density * scale).toInt()
 						val listener =
 							View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
 								BadgeUtils.setBadgeDrawableBounds(this, button, wrapper)
 							}
 						button.addOnLayoutChangeListener(listener)
+						wrapper.addOnLayoutChangeListener(listener)
+						container.addOnLayoutChangeListener(listener)
 						layoutListeners[itemId] = listener
 						BadgeUtils.attachBadgeDrawable(this, button, wrapper)
 					}
 				}
+			val density = container.context.resources.displayMetrics.density
+			val scale = getScale(container.context)
+			badge.horizontalOffset = (10 * density * scale).toInt()
+			badge.verticalOffset = (10 * density * scale).toInt()
 			if (counter < 0) badge.clearNumber() else badge.number = counter
 			badge.isVisible = true
+			wrapper.post {
+				BadgeUtils.setBadgeDrawableBounds(badge, button, wrapper)
+			}
 		}
 	}
 
@@ -696,11 +777,11 @@ class MainNavigationDelegate(
 		floatContainer?.let { populate(it) }
 	}
 
-	private fun getScale(context: Context): Float {
-		val sw = context.resources.configuration.screenWidthDp
-		val base = if (context.resources.displayMetrics.densityDpi >= 500) 1.2f else 1.0f
-		return (base * (sw / 360f)).coerceIn(1.0f, 1.8f)
-	}
+	private fun getScale(context: Context): Float =
+		(
+			context.resources.configuration.screenWidthDp
+				.toFloat() / 360f
+		).coerceIn(0.92f, 1.18f)
 
 	fun interface OnFragmentChangedListener {
 		fun onFragmentChanged(

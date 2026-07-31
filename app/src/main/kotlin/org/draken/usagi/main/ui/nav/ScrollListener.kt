@@ -24,10 +24,11 @@ class ScrollListener
 		var isHidden = false
 			private set
 
-		var expandedWidth = 0
+		var exWidth = 0
 		private var animator: ValueAnimator? = null
 		private var animatorY: ViewPropertyAnimator? = null
 		private var fabAnimator: ViewPropertyAnimator? = null
+		private var isActive = false
 
 		override fun onStartNestedScroll(
 			coordinatorLayout: CoordinatorLayout,
@@ -123,6 +124,7 @@ class ScrollListener
 		fun reset(child: View) {
 			animator?.cancel()
 			animator = null
+			isActive = false
 			animatorY?.cancel()
 			animatorY = null
 			isHidden = false
@@ -130,12 +132,14 @@ class ScrollListener
 			if (navBar != null) {
 				navBar.visibility = View.VISIBLE
 				navBar.alpha = 1f
+				navBar.translationX = 0f
 				val layoutParams = navBar.layoutParams
 				if (layoutParams.width != ViewGroup.LayoutParams.WRAP_CONTENT) {
 					layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
 					navBar.layoutParams = layoutParams
 				}
 			}
+			child.findViewById<View>(R.id.fabFloating)?.translationX = 0f
 			child.translationY = 0f
 			update(child)
 		}
@@ -143,23 +147,21 @@ class ScrollListener
 		fun update(child: View) {
 			val fab = child.findViewById<View>(R.id.fabFloating) ?: return
 			val navBar = child.findViewById<View>(R.id.floatingNav)
+			if (isActive) return
 			if (fab.tag as? Boolean != true) {
 				animateFab(fab, false)
 				return
 			}
 			val isNavBarHidden = isHidden || navBar?.isVisible == false
-			val fitsSideBySide =
+			val sortSide =
 				if (isNavBarHidden) {
 					false
 				} else {
-					val w = (child.parent as? View)?.width ?: 0
-					val density = child.resources.displayMetrics.density
-					val nav = if (expandedWidth > 0) expandedWidth else (230 * density).toInt()
-					w !in 1..<(nav + (56 * density).toInt())
+					navBar != null && sortSide(child, navBar, fab)
 				}
-			val show = isNavBarHidden || fitsSideBySide
-			animateFab(fab, show)
+			val show = isNavBarHidden || sortSide
 			if (show) {
+				animateFab(fab, true)
 				fab.translationX = 0f
 				(fab.layoutParams as? ViewGroup.MarginLayoutParams)?.run {
 					val density = child.resources.displayMetrics.density
@@ -169,6 +171,10 @@ class ScrollListener
 						fab.layoutParams = this
 					}
 				}
+			} else if (navBar != null) {
+				fabAnimator?.cancel()
+				fabAnimator = null
+				prepareCompactFab(fab, navBar, child)
 			}
 		}
 
@@ -217,7 +223,11 @@ class ScrollListener
 			container: View,
 		) {
 			animator?.cancel()
-			if (expandedWidth <= 0) expandedWidth = navBar.width
+			fabAnimator?.cancel()
+			fabAnimator = null
+			isActive = true
+			if (exWidth <= 0) exWidth = navBar.width
+			val compact = !sortSide(container, navBar, fab)
 			val w = navBar.width
 			val a = navBar.alpha
 			val group = container as? ViewGroup
@@ -228,11 +238,14 @@ class ScrollListener
 			group?.clipChildren = true
 			(navBar as? ViewGroup)?.clipChildren = true
 			fab.visibility = View.VISIBLE
-			fab.alpha = 1f
+			fab.alpha = if (compact) 0f else 1f
+			val fabWidth = measure(fab, container)
+			navBar.translationX = 0f
 			fab.translationX = 0f
 			(fab.layoutParams as? ViewGroup.MarginLayoutParams)?.run {
-				if (marginStart != 0) {
-					marginStart = 0
+				val targetMargin = if (compact) -fabWidth else 0
+				if (marginStart != targetMargin) {
+					marginStart = targetMargin
 					fab.layoutParams = this
 				}
 			}
@@ -246,20 +259,93 @@ class ScrollListener
 						layout.width = (w - (w * p)).toInt()
 						navBar.layoutParams = layout
 						navBar.alpha = a * (1f - p)
+						if (compact) {
+							(fab.layoutParams as? ViewGroup.MarginLayoutParams)?.run {
+								marginStart = (-(fabWidth * (1f - p))).toInt()
+								fab.layoutParams = this
+							}
+							fab.alpha = p
+						}
 					}
 					addListener(
 						object : AnimatorListenerAdapter() {
 							override fun onAnimationEnd(animation: Animator) {
-								navBar.visibility = View.GONE
+								if (compact) {
+									layout.width = 0
+									navBar.layoutParams = layout
+									navBar.alpha = 0f
+								} else {
+									navBar.visibility = View.GONE
+								}
+								navBar.translationX = 0f
+								fab.translationX = 0f
+								fab.alpha = 1f
+								(fab.layoutParams as? ViewGroup.MarginLayoutParams)?.run {
+									if (marginStart != 0) {
+										marginStart = 0
+										fab.layoutParams = this
+									}
+								}
 								group?.post { group.layoutTransition = transition }
 								group?.clipChildren = clipChild
 								(navBar as? ViewGroup)?.clipChildren = cardClip
 								animator = null
+								isActive = false
 							}
 						},
 					)
 					start()
 				}
+		}
+
+		private fun measure(
+			view: View,
+			container: View,
+		): Int {
+			if (view.width > 0) return view.width
+			if (view.measuredWidth > 0) return view.measuredWidth
+			view.measure(
+				View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+				View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+			)
+			return view.measuredWidth.takeIf { it > 0 } ?: (48 * container.resources.displayMetrics.density).toInt()
+		}
+
+		private fun prepareCompactFab(
+			fab: View,
+			navBar: View,
+			container: View,
+		) {
+			fab.visibility = View.INVISIBLE
+			fab.alpha = 0f
+			fab.translationX = 0f
+			(fab.layoutParams as? ViewGroup.MarginLayoutParams)?.run {
+				val targetMargin = -measure(fab, container)
+				if (marginStart != targetMargin) {
+					marginStart = targetMargin
+					fab.layoutParams = this
+				}
+			}
+			navBar.translationX = 0f
+		}
+
+		private fun sortSide(
+			child: View,
+			navBar: View,
+			fab: View,
+		): Boolean {
+			val width = (child.parent as? View)?.width ?: 0
+			if (width <= 0) return true
+			val density = child.resources.displayMetrics.density
+			val nav =
+				if (exWidth > 0) {
+					exWidth
+				} else {
+					navBar.width.takeIf { it > 0 } ?: (230 * density).toInt()
+				}
+			val target = (8 * density).toInt()
+			val startM = maxOf((fab.layoutParams as? ViewGroup.MarginLayoutParams)?.marginStart ?: target, target)
+			return width >= nav + measure(fab, child) + startM
 		}
 
 		private fun animate(
@@ -268,13 +354,17 @@ class ScrollListener
 			container: View,
 		) {
 			animator?.cancel()
-			if (expandedWidth <= 0) {
+			fabAnimator?.cancel()
+			fabAnimator = null
+			isActive = true
+			if (exWidth <= 0) {
 				navBar.measure(
 					View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
 					View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
 				)
-				expandedWidth = navBar.measuredWidth
+				exWidth = navBar.measuredWidth
 			}
+			val compact = !sortSide(container, navBar, fab)
 			val group = container as? ViewGroup
 			val transition = group?.layoutTransition
 			group?.layoutTransition = null
@@ -283,8 +373,10 @@ class ScrollListener
 			group?.clipChildren = true
 			(navBar as? ViewGroup)?.clipChildren = true
 			navBar.visibility = View.VISIBLE
+			val fabWidth = measure(fab, container)
+			navBar.translationX = 0f
 			(fab.layoutParams as? ViewGroup.MarginLayoutParams)?.run {
-				val m = (8 * container.resources.displayMetrics.density).toInt()
+				val m = if (compact) 0 else (8 * container.resources.displayMetrics.density).toInt()
 				if (marginStart != m) {
 					marginStart = m
 					fab.layoutParams = this
@@ -292,7 +384,7 @@ class ScrollListener
 			}
 			val w = navBar.width
 			val alpha = navBar.alpha
-			val ex = expandedWidth
+			val ex = exWidth
 			val layout = navBar.layoutParams
 			animator =
 				ValueAnimator.ofFloat(0f, 1f).apply {
@@ -303,6 +395,13 @@ class ScrollListener
 						layout.width = w + ((ex - w) * p).toInt()
 						navBar.layoutParams = layout
 						navBar.alpha = alpha + ((1f - alpha) * p)
+						if (compact) {
+							(fab.layoutParams as? ViewGroup.MarginLayoutParams)?.run {
+								marginStart = (-(fabWidth * p)).toInt()
+								fab.layoutParams = this
+							}
+							fab.alpha = 1f - p
+						}
 					}
 					addListener(
 						object : AnimatorListenerAdapter() {
@@ -310,10 +409,16 @@ class ScrollListener
 								layout.width = ViewGroup.LayoutParams.WRAP_CONTENT
 								navBar.layoutParams = layout
 								navBar.alpha = 1f
+								navBar.translationX = 0f
+								if (compact) {
+									prepareCompactFab(fab, navBar, container)
+								}
+								fab.translationX = 0f
 								group?.post { group.layoutTransition = transition }
 								group?.clipChildren = clipChild
 								(navBar as? ViewGroup)?.clipChildren = cardClip
 								animator = null
+								isActive = false
 								update(container)
 							}
 						},
