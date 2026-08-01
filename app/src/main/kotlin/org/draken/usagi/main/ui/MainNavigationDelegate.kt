@@ -451,8 +451,8 @@ class MainNavigationDelegate(
 		val scale = getScale(context)
 		val card = container.parent as? com.google.android.material.card.MaterialCardView
 		if (card != null) {
-			card.layoutParams = card.layoutParams.apply { height = (48 * density * scale).toInt() }
-			card.radius = 24 * density * scale
+			card.layoutParams = card.layoutParams.apply { height = (52 * density * scale).toInt() }
+			card.radius = 26 * density * scale
 			val grand = card.parent as? View
 			val lp = grand?.layoutParams as? CoordinatorLayout.LayoutParams
 			val behavior = lp?.behavior as? ScrollListener
@@ -460,13 +460,13 @@ class MainNavigationDelegate(
 		}
 		val start = (10 * density * scale).toInt()
 		val end = (10 * density * scale).toInt()
-		val vertical = (8 * density * scale).toInt()
+		val vertical = (10 * density * scale).toInt()
 		container.setPadding(start, vertical, end, vertical)
 		val parent = card?.parent as? ViewGroup
 		val fab = parent?.findViewById<FloatingActionButton>(R.id.fabFloating)
 		if (fab != null) {
-			val size = (48 * density * scale).toInt()
-			parent.minimumHeight = maxOf(size, (48 * density).toInt())
+			val size = (52 * density * scale).toInt()
+			parent.minimumHeight = maxOf(size, (52 * density).toInt())
 			fab.customSize = size
 			fab.layoutParams =
 				(fab.layoutParams as? ViewGroup.MarginLayoutParams)?.apply {

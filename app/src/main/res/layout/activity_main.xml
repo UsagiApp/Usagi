@@ -104,12 +104,12 @@
 		<com.google.android.material.card.MaterialCardView
 			android:id="@+id/floatingNav"
 			android:layout_width="wrap_content"
-			android:layout_height="48dp"
+			android:layout_height="52dp"
 			android:outlineProvider="none"
 			android:clipChildren="false"
 			android:clipToPadding="false"
 			app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
-			app:cardCornerRadius="24dp"
+			app:cardCornerRadius="26dp"
 			app:cardElevation="2dp"
 			app:strokeWidth="0dp">
 
@@ -123,7 +123,7 @@
 				android:clipToPadding="false"
 				android:paddingStart="10dp"
 				android:paddingEnd="10dp"
-				android:paddingVertical="8dp" />
+				android:paddingVertical="10dp" />
 		</com.google.android.material.card.MaterialCardView>
 
 		<com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -136,7 +136,7 @@
 			app:elevation="0dp"
 			app:pressedTranslationZ="0dp"
 			app:hoveredFocusedTranslationZ="0dp"
-			app:fabCustomSize="48dp"
+			app:fabCustomSize="52dp"
 			app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Usagi.Circle"
 			app:srcCompat="@drawable/ic_read"
 			app:tint="?attr/colorOnSurface"
