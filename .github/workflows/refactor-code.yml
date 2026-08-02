@@ -39,17 +39,17 @@ jobs:
                 with:
                     gradle-version: '9.1.0'
 
-            -	name: Setup Android SDK 🚀
-            	uses: android-actions/setup-android@v3
+            -   name: Setup Android SDK 🚀
+                uses: android-actions/setup-android@v3
 
             -   name: Run spotless tasks 🚀
                 run: ./gradlew spotlessApply --rerun-tasks
                 continue-on-error: true
 
-            -	name: Commit & Push changes
-            	uses: stefanzweifel/git-auto-commit-action@v5
-            	with:
-            		commit_message: "chore: Refactor code using spotless"
-            		file_pattern: '.github/summary.yaml'
-            		commit_user_name: ${{ env.SIGNER_USERNAME }}
-            		commit_user_email: ${{ env.SIGNER_EMAIL }}
+            -   name: Commit & Push changes
+                uses: stefanzweifel/git-auto-commit-action@v5
+                with:
+                    commit_message: "chore: Refactor code using spotless"
+                    file_pattern: '.github/summary.yaml'
+                    commit_user_name: ${{ env.SIGNER_USERNAME }}
+                    commit_user_email: ${{ env.SIGNER_EMAIL }}
