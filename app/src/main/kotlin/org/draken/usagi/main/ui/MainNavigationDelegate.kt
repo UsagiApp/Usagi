@@ -762,7 +762,7 @@ class MainNavigationDelegate(
 				}
 			val density = container.context.resources.displayMetrics.density
 			val scale = getScale(container.context)
-			badge.horizontalOffset = (10 * density * scale).toInt()
+			badge.horizontalOffset = (18 * density * scale).toInt() // crazy glitched red dot
 			badge.verticalOffset = (10 * density * scale).toInt()
 			if (counter < 0) badge.clearNumber() else badge.number = counter
 			badge.isVisible = true
