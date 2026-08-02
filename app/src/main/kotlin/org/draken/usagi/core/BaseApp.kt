@@ -1,8 +1,10 @@
 package org.draken.usagi.core
 
+import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
 import android.os.Build
+import android.os.Process
 import androidx.annotation.WorkerThread
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
@@ -86,6 +88,7 @@ open class BaseApp :
 				.build()
 
 	override fun onCreate() {
+		if (isCrashProcess()) return
 		GlobalExceptionHandler.install(this) { runCatching { settings }.getOrNull() }
 		super.onCreate()
 		AppInfo.initialize(BuildConfig.VERSION_CODE, BuildConfig.VERSION_NAME)
@@ -117,7 +120,7 @@ open class BaseApp :
 	}
 
 	override fun attachBaseContext(base: Context) {
-		GlobalExceptionHandler.install(base) { runCatching { settings }.getOrNull() }
+		if (!isCrashProcess(base)) GlobalExceptionHandler.install(base) { runCatching { settings }.getOrNull() }
 		super.attachBaseContext(base)
 	}
 
@@ -134,4 +137,15 @@ open class BaseApp :
 			registerActivityLifecycleCallbacks(it)
 		}
 	}
+
+	private fun isCrashProcess(context: Context = this): Boolean =
+		runCatching {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+				getProcessName().endsWith(":crash")
+			} else {
+				val pid = Process.myPid()
+				val am = context.getSystemService(ACTIVITY_SERVICE) as? ActivityManager
+				am?.runningAppProcesses?.any { it.pid == pid && it.processName.endsWith(":crash") } == true
+			}
+		}.getOrDefault(false)
 }

@@ -134,8 +134,9 @@ class ScrollListener
 				navBar.alpha = 1f
 				navBar.translationX = 0f
 				val layoutParams = navBar.layoutParams
-				if (layoutParams.width != ViewGroup.LayoutParams.WRAP_CONTENT) {
-					layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+				val w = if (exWidth > 0) exWidth else ViewGroup.LayoutParams.WRAP_CONTENT
+				if (layoutParams.width != w) {
+					layoutParams.width = w
 					navBar.layoutParams = layoutParams
 				}
 			}

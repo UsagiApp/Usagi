@@ -120,7 +120,6 @@ class MainActivity :
 		get() = if (isFloatNav) viewBinding.floatingNavContainer else viewBinding.bottomNav
 
 	override fun onCreate(savedInstanceState: Bundle?) {
-		sendBroadcast(Intent(AppCrashActivity.ACTION_FINISH_CRASH).setPackage(packageName))
 		super.onCreate(savedInstanceState)
 		setContentView(ActivityMainBinding.inflate(layoutInflater))
 		setSupportActionBar(viewBinding.searchBar)

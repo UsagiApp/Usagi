@@ -2,10 +2,7 @@ package org.draken.usagi.core.ui
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -16,7 +13,6 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -30,13 +26,6 @@ import com.google.android.material.R as materialR
 class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 	private var headingRunnable: Runnable? = null
 	private val handler = Handler(Looper.getMainLooper())
-	private val finishReceiver =
-		object : BroadcastReceiver() {
-			override fun onReceive(
-				context: Context?,
-				intent: Intent?,
-			) = finishAndRemoveTask()
-		}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		applyTheme()
@@ -73,12 +62,6 @@ class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 			)
 			finishAndRemoveTask()
 		}
-		ContextCompat.registerReceiver(
-			this,
-			finishReceiver,
-			IntentFilter(ACTION_FINISH_CRASH),
-			ContextCompat.RECEIVER_NOT_EXPORTED,
-		)
 		setupView()
 		setupText()
 	}
@@ -94,7 +77,6 @@ class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 
 	override fun onDestroy() {
 		headingRunnable?.let(handler::removeCallbacks)
-		runCatching { unregisterReceiver(finishReceiver) }
 		super.onDestroy()
 		if (isFinishing) killProcess(myPid())
 	}
@@ -158,7 +140,6 @@ class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 		const val EXTRA_THEME_STYLE = "theme_style"
 		const val EXTRA_THEME_AMOLED = "theme_amoled"
 		const val EXTRA_THEME_NIGHT_MODE = "theme_night_mode"
-		const val ACTION_FINISH_CRASH = "org.draken.usagi.ACTION_FINISH_CRASH"
 		private const val NO_TRACE = "noStackTrace"
 		private const val SWAP_DELAY = 7_500L
 		private const val FADE_DURATION = 300L

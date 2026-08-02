@@ -50,7 +50,7 @@ class GlobalExceptionHandler(
 			putExtra(AppCrashActivity.EXTRA_THEME_STYLE, styleRes)
 			putExtra(AppCrashActivity.EXTRA_THEME_AMOLED, isAmoled)
 			putExtra(AppCrashActivity.EXTRA_THEME_NIGHT_MODE, nightMode)
-			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 		}
 	}
 
