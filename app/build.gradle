@@ -42,7 +42,6 @@ android {
 		release {
 			minifyEnabled true
 			shrinkResources true
-			crunchPngs true
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 		}
 	}
