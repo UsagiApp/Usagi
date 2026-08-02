@@ -17,56 +17,62 @@ import org.draken.usagi.databinding.ItemSourceConfigBinding
 import org.draken.usagi.databinding.ItemTipBinding
 import org.draken.usagi.settings.sources.model.SourceConfigItem
 
-fun sourceConfigItemDelegate2(
-	listener: SourceConfigListener,
-) = adapterDelegateViewBinding<SourceConfigItem.SourceItem, SourceConfigItem, ItemSourceConfigBinding>(
-	{ layoutInflater, parent ->
-		ItemSourceConfigBinding.inflate(
-			layoutInflater,
-			parent,
-			false,
-		)
-	},
-) {
+fun sourceConfigItemDelegate2(listener: SourceConfigListener) =
+	adapterDelegateViewBinding<SourceConfigItem.SourceItem, SourceConfigItem, ItemSourceConfigBinding>(
+		{ layoutInflater, parent ->
+			ItemSourceConfigBinding.inflate(
+				layoutInflater,
+				parent,
+				false,
+			)
+		},
+	) {
+		val iconPinned = ContextCompat.getDrawable(context, R.drawable.ic_pin_small)
+		val eventListener =
+			View.OnClickListener { v ->
+				when (v.id) {
+					R.id.imageView_add -> listener.onItemEnabledChanged(item, true)
+					R.id.imageView_remove -> listener.onItemEnabledChanged(item, false)
+					R.id.imageView_menu -> showSourceMenu(v, item, listener)
+				}
+			}
+		binding.imageViewRemove.setOnClickListener(eventListener)
+		binding.imageViewAdd.setOnClickListener(eventListener)
+		binding.imageViewMenu.setOnClickListener(eventListener)
 
-	val iconPinned = ContextCompat.getDrawable(context, R.drawable.ic_pin_small)
-	val eventListener = View.OnClickListener { v ->
-		when (v.id) {
-			R.id.imageView_add -> listener.onItemEnabledChanged(item, true)
-			R.id.imageView_remove -> listener.onItemEnabledChanged(item, false)
-			R.id.imageView_menu -> showSourceMenu(v, item, listener)
+		bind {
+			binding.textViewTitle.text = item.source.getTitle(context)
+			binding.imageViewAdd.isGone = item.isEnabled || !item.isAvailable
+			binding.imageViewRemove.isVisible = item.isEnabled && item.isDisableAvailable
+			binding.imageViewMenu.isVisible = item.isEnabled
+			binding.textViewTitle.drawableStart = if (item.isPinned) iconPinned else null
+		
+			val summary = item.source.getSummary(context)
+			val pluginSource = item.source as? org.draken.usagi.core.model.PluginMangaSource
+			if (pluginSource != null) {
+				binding.textViewDescription.text =
+					if (summary == null) pluginSource.jarName else "$summary • ${pluginSource.jarName}"
+			} else {
+				binding.textViewDescription.text = summary
+			}
+		
+			binding.imageViewIcon.setImageAsync(item.source)
 		}
 	}
-	binding.imageViewRemove.setOnClickListener(eventListener)
-	binding.imageViewAdd.setOnClickListener(eventListener)
-	binding.imageViewMenu.setOnClickListener(eventListener)
 
-	bind {
-		binding.textViewTitle.text = item.source.getTitle(context)
-		binding.imageViewAdd.isGone = item.isEnabled || !item.isAvailable
-		binding.imageViewRemove.isVisible = item.isEnabled && item.isDisableAvailable
-		binding.imageViewMenu.isVisible = item.isEnabled
-		binding.textViewTitle.drawableStart = if (item.isPinned) iconPinned else null
-		binding.textViewDescription.text = item.source.getSummary(context)
-		binding.imageViewIcon.setImageAsync(item.source)
+fun sourceConfigTipDelegate(listener: OnTipCloseListener<SourceConfigItem.Tip>) =
+	adapterDelegateViewBinding<SourceConfigItem.Tip, SourceConfigItem, ItemTipBinding>(
+		{ layoutInflater, parent -> ItemTipBinding.inflate(layoutInflater, parent, false) },
+	) {
+		binding.buttonClose.setOnClickListener {
+			listener.onCloseTip(item)
+		}
+
+		bind {
+			binding.imageViewIcon.setImageResource(item.iconResId)
+			binding.textView.setText(item.textResId)
+		}
 	}
-}
-
-fun sourceConfigTipDelegate(
-	listener: OnTipCloseListener<SourceConfigItem.Tip>,
-) = adapterDelegateViewBinding<SourceConfigItem.Tip, SourceConfigItem, ItemTipBinding>(
-	{ layoutInflater, parent -> ItemTipBinding.inflate(layoutInflater, parent, false) },
-) {
-
-	binding.buttonClose.setOnClickListener {
-		listener.onCloseTip(item)
-	}
-
-	bind {
-		binding.imageViewIcon.setImageResource(item.iconResId)
-		binding.textView.setText(item.textResId)
-	}
-}
 
 fun sourceConfigEmptySearchDelegate() =
 	adapterDelegate<SourceConfigItem.EmptySearchResult, SourceConfigItem>(
@@ -80,7 +86,8 @@ private fun showSourceMenu(
 ) {
 	val menu = PopupMenu(anchor.context, anchor)
 	menu.inflate(R.menu.popup_source_config)
-	menu.menu.findItem(R.id.action_shortcut)
+	menu.menu
+		.findItem(R.id.action_shortcut)
 		?.isVisible = ShortcutManagerCompat.isRequestPinShortcutSupported(anchor.context)
 	menu.menu.findItem(R.id.action_pin)?.isVisible = item.isEnabled
 	menu.menu.findItem(R.id.action_pin)?.isChecked = item.isPinned

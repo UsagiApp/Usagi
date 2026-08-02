@@ -5,7 +5,6 @@ import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 
 class PasswordSummaryProvider : Preference.SummaryProvider<EditTextPreference> {
-
 	private val delegate = EditTextPreference.SimpleSummaryProvider.getInstance()
 
 	override fun provideSummary(preference: EditTextPreference): CharSequence? {

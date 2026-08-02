@@ -38,6 +38,14 @@
 		<item name="colorOnErrorContainer">@color/onErrorContainer</item>
 		<item name="colorOutline">@color/usagi_outline</item>
 		<item name="colorOutlineVariant">@color/usagi_outline</item>
+		<item name="colorControlNormal">@color/usagi_onSurface</item>
+		<item name="colorControlActivated">@color/usagi_primary</item>
+		<item name="colorControlHighlight">@color/selector_overlay</item>
+		<item name="android:colorControlNormal">@color/usagi_onSurface</item>
+		<item name="android:colorControlActivated">@color/usagi_primary</item>
+		<item name="android:colorControlHighlight">@color/selector_overlay</item>
+		<item name="android:textColorPrimary">@color/usagi_onSurface</item>
+		<item name="android:textColorSecondary">@color/usagi_onSurfaceVariant</item>
 
 		<!-- Drawables (icons) -->
 		<item name="actionModeCloseDrawable">@drawable/abc_ic_clear_material</item>
@@ -45,9 +53,9 @@
 		<item name="expandCollapseIndicator">@drawable/m3_split_button_chevron_avd</item>
 
 		<!-- Base attributes -->
-		<item name="android:windowLightStatusBar">@bool/light_status_bar</item>
-		<item name="android:statusBarColor">@android:color/transparent</item>
-		<item name="android:navigationBarColor">@color/dim</item>
+		<item name="android:windowLightStatusBar" tools:targetApi="M">@bool/light_status_bar</item>
+		<item name="android:statusBarColor">@color/dim</item>
+		<item name="android:navigationBarColor">@color/surface_amoled</item>
 		<item name="android:navigationBarDividerColor" tools:targetApi="o_mr1">@null</item>
 		<item name="android:enforceNavigationBarContrast" tools:targetApi="Q">false</item>
 		<item name="android:enforceStatusBarContrast" tools:targetApi="Q">false</item>
@@ -92,8 +100,7 @@
 
 		<item name="appBarLayoutStyle">@style/Widget.Material3Expressive.AppBarLayout</item>
 		<item name="collapsingToolbarLayoutStyle">@style/Widget.Material3Expressive.CollapsingToolbar</item>
-		<item name="collapsingToolbarLayoutMediumStyle">@style/Widget.Material3Expressive.CollapsingToolbar.Medium
-		</item>
+		<item name="collapsingToolbarLayoutMediumStyle">@style/Widget.Usagi.CollapsingToolbar.Medium.Expressive</item>
 		<item name="collapsingToolbarLayoutLargeStyle">@style/Widget.Material3Expressive.CollapsingToolbar.Large</item>
 
 		<item name="materialSearchBarStyle">@style/Widget.Material3Expressive.SearchBar</item>
@@ -128,16 +135,36 @@
 		<item name="materialButtonGroupStyle">@style/Widget.Material3Expressive.MaterialButtonGroup</item>
 		<item name="materialButtonToggleGroupStyle">@style/Widget.Material3Expressive.MaterialButtonToggleGroup</item>
 
-		<item name="bottomNavigationStyle">@style/Widget.Material3Expressive.BottomNavigationView</item>
+		<item name="bottomNavigationStyle">@style/Widget.Usagi.BottomNavigationView.Expressive</item>
 		<item name="navigationRailStyle">@style/Widget.Material3Expressive.NavigationRailView</item>
 
 		<item name="toolbarStyle">@style/Widget.Material3Expressive.Toolbar</item>
 		<item name="toolbarSurfaceStyle">@style/Widget.Material3Expressive.Toolbar.Surface</item>
 
-		<item name="linearProgressIndicatorStyle">@style/Widget.Material3Expressive.LinearProgressIndicator</item>
-		<item name="circularProgressIndicatorStyle">@style/Widget.Material3Expressive.CircularProgressIndicator</item>
+		<item name="linearProgressIndicatorStyle">@style/Widget.Usagi.LinearProgressIndicator.Expressive</item>
+		<item name="circularProgressIndicatorStyle">@style/Widget.Material3Expressive.CircularProgressIndicator.Wavy</item>
 
-		<item name="sliderStyle">@style/Widget.Material3Expressive.Slider.Xsmall</item>
+		<item name="expandedTitleTextAppearance">?attr/textAppearanceHeadlineSmall</item>
+
+		<item name="shapeAppearanceCornerExtraExtraLarge">@style/ShapeAppearance.Material3.Corner.ExtraExtraLarge</item>
+
+		<item name="textAppearanceDisplayLarge">?attr/textAppearanceDisplayLargeEmphasized</item>
+		<item name="textAppearanceDisplayMedium">?attr/textAppearanceDisplayMediumEmphasized</item>
+		<item name="textAppearanceDisplaySmall">?attr/textAppearanceDisplaySmallEmphasized</item>
+		<item name="textAppearanceHeadlineLarge">?attr/textAppearanceHeadlineLargeEmphasized</item>
+		<item name="textAppearanceHeadlineMedium">?attr/textAppearanceHeadlineMediumEmphasized</item>
+		<item name="textAppearanceHeadlineSmall">?attr/textAppearanceHeadlineSmallEmphasized</item>
+		<item name="textAppearanceTitleLarge">?attr/textAppearanceTitleLargeEmphasized</item>
+		<item name="textAppearanceTitleMedium">?attr/textAppearanceTitleMediumEmphasized</item>
+		<item name="textAppearanceTitleSmall">?attr/textAppearanceTitleSmallEmphasized</item>
+		<item name="textAppearanceBodyLarge">?attr/textAppearanceBodyLargeEmphasized</item>
+		<item name="textAppearanceBodyMedium">?attr/textAppearanceBodyMediumEmphasized</item>
+		<item name="textAppearanceBodySmall">?attr/textAppearanceBodySmallEmphasized</item>
+		<item name="textAppearanceLabelLarge">?attr/textAppearanceLabelLargeEmphasized</item>
+		<item name="textAppearanceLabelMedium">?attr/textAppearanceLabelMediumEmphasized</item>
+		<item name="textAppearanceLabelSmall">?attr/textAppearanceLabelSmallEmphasized</item>
+
+		<item name="sliderStyle">@style/Widget.Material3Expressive.Slider.Medium</item>
 
 		<item name="collapsingToolbarLayoutMediumSize">@dimen/m3_comp_app_bar_medium_flexible_container_height</item>
 		<item name="collapsingToolbarLayoutLargeSize">@dimen/m3_comp_app_bar_large_flexible_container_height</item>

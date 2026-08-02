@@ -10,13 +10,15 @@ import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterNotNull
+import org.draken.tsukimix.core.parser.tachiyomi.addLangToPref
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.SnackbarErrorObserver
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.EmptyMangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
+import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.core.ui.BasePreferenceFragment
@@ -24,13 +26,18 @@ import org.draken.usagi.core.ui.util.ReversibleActionObserver
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.withArgs
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import java.io.File
+import tsuki.model.MangaSource
+import javax.inject.Inject
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
 
 @AndroidEntryPoint
-class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenceChangeListener {
-
+class SourceSettingsFragment :
+	BasePreferenceFragment(0),
+	Preference.OnPreferenceChangeListener {
 	private val viewModel: SourceSettingsViewModel by viewModels()
+
+	@Inject
+	lateinit var externalManager: ExternalManager
 
 	override fun onResume() {
 		super.onResume()
@@ -40,32 +47,42 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 		viewModel.onResume()
 	}
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-		preferenceManager.sharedPreferencesName = viewModel.source.name.replace(File.separatorChar, '$')
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
+		preferenceManager.sharedPreferencesName = SourceSettings.prefsName(viewModel.source)
 		addPreferencesFromResource(R.xml.pref_source)
 		addPreferencesFromRepository(viewModel.repository)
+		(viewModel.repository as? ExternalMangaRepository)?.source?.let {
+			externalManager.addLangToPref(preferenceScreen, it, getString(R.string.language), viewModel::publish)
+		}
 		val isValidSource = viewModel.repository !is EmptyMangaRepository
 
 		findPreference<SwitchPreferenceCompat>(KEY_ENABLE)?.run {
-			isVisible = isValidSource && !settings.isAllSourcesEnabled
+			isVisible = isValidSource && !settings.isAllSourcesEnabled && viewModel.repository !is ExternalMangaRepository
 			onPreferenceChangeListener = this@SourceSettingsFragment
 		}
 		findPreference<Preference>(KEY_AUTH)?.run {
-			val authProvider = (viewModel.repository as? ParserMangaRepository)?.getAuthProvider()
+			val authProvider = (viewModel.repository as? MangaParserRepository)?.getAuthProvider()
 			isVisible = authProvider != null
 		}
 		findPreference<Preference>(SourceSettings.KEY_SLOWDOWN)?.isVisible = isValidSource
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		viewModel.isAuthorized.filterNotNull().observe(viewLifecycleOwner) { isAuthorized ->
 			findPreference<Preference>(KEY_AUTH)?.isEnabled = !isAuthorized
 		}
 		viewModel.username.observe(viewLifecycleOwner) { username ->
-			findPreference<Preference>(KEY_AUTH)?.summary = username?.let {
-				getString(R.string.logged_in_as, it)
-			}
+			findPreference<Preference>(KEY_AUTH)?.summary =
+				username?.let {
+					getString(R.string.logged_in_as, it)
+				}
 		}
 		viewModel.onError.observeEvent(
 			viewLifecycleOwner,
@@ -111,12 +128,14 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 				true
 			}
 
-			else -> super.onPreferenceTreeClick(preference)
+			else -> {
+				super.onPreferenceTreeClick(preference)
+			}
 		}
 	}
 
 	override fun onDisplayPreferenceDialog(preference: Preference) {
-		if (preference.key == SourceSettings.KEY_DOMAIN) {
+		if (preference is EditTextPreference && preference.key == SourceSettings.KEY_DOMAIN) {
 			if (parentFragmentManager.findFragmentByTag(DomainDialogFragment.DIALOG_FRAGMENT_TAG) != null) {
 				return
 			}
@@ -129,7 +148,10 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 		super.onDisplayPreferenceDialog(preference)
 	}
 
-	override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
+	override fun onPreferenceChange(
+		preference: Preference,
+		newValue: Any?,
+	): Boolean {
 		when (preference.key) {
 			KEY_ENABLE -> viewModel.setEnabled(newValue == true)
 			else -> return false
@@ -138,7 +160,6 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 	}
 
 	class DomainDialogFragment : EditTextPreferenceDialogFragmentCompat() {
-
 		override fun onPrepareDialogBuilder(builder: AlertDialog.Builder) {
 			super.onPrepareDialogBuilder(builder)
 			builder.setNeutralButton(R.string.reset) { _, _ ->
@@ -154,22 +175,22 @@ class SourceSettingsFragment : BasePreferenceFragment(0), Preference.OnPreferenc
 		}
 
 		companion object {
-
 			const val DIALOG_FRAGMENT_TAG: String = "androidx.preference.PreferenceFragment.DIALOG"
 
-			fun newInstance(key: String) = DomainDialogFragment().withArgs(1) {
-				putString(ARG_KEY, key)
-			}
+			fun newInstance(key: String) =
+				DomainDialogFragment().withArgs(1) {
+					putString(ARG_KEY, key)
+				}
 		}
 	}
 
 	companion object {
-
 		private const val KEY_AUTH = "auth"
 		private const val KEY_ENABLE = "enable"
 
-		fun newInstance(source: MangaSource) = SourceSettingsFragment().withArgs(1) {
-			putString(AppRouter.KEY_SOURCE, source.name)
-		}
+		fun newInstance(source: MangaSource) =
+			SourceSettingsFragment().withArgs(1) {
+				putString(AppRouter.KEY_SOURCE, source.name)
+			}
 	}
 }

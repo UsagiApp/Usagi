@@ -11,7 +11,6 @@ class StatisticBackup(
 	@SerialName("duration") val duration: Long,
 	@SerialName("pages") val pages: Int,
 ) {
-
 	constructor(entity: StatsEntity) : this(
 		mangaId = entity.mangaId,
 		startedAt = entity.startedAt,
@@ -19,10 +18,11 @@ class StatisticBackup(
 		pages = entity.pages,
 	)
 
-	fun toEntity() = StatsEntity(
-		mangaId = mangaId,
-		startedAt = startedAt,
-		duration = duration,
-		pages = pages,
-	)
+	fun toEntity() =
+		StatsEntity(
+			mangaId = mangaId,
+			startedAt = startedAt,
+			duration = duration,
+			pages = pages,
+		)
 }

@@ -11,12 +11,13 @@
     <string name="list">Liste</string>
     <string name="detailed_list">Detailed list</string>
     <string name="grid">Grid</string>
+    <string name="cover_only">Cover only</string>
     <string name="list_mode">List mode</string>
     <string name="settings">Settings</string>
     <string name="remote_sources">Manga sources</string>
     <string name="loading_">Loading…</string>
     <string name="computing_">Computing…</string>
-    <string name="chapter_d_of_d">Chapter %1$d of %2$d</string>
+	<string name="chapter_d_of_d">Chapter %1$d of %2$d</string>
     <string name="close">Close</string>
     <string name="try_again">Try again</string>
     <!-- Should be short -->
@@ -63,13 +64,18 @@
     <string name="_import">Import</string>
     <string name="delete">Delete</string>
     <string name="operation_not_supported">This operation is not supported</string>
-    <string name="text_file_not_supported">Either pick a ZIP or CBZ file.</string>
+    <string name="text_file_not_supported">Either pick a ZIP, PDF or CBZ file.</string>
     <string name="no_description">No description</string>
     <string name="clear_pages_cache">Clear page cache</string>
     <string name="text_file_sizes">B|kB|MB|GB|TB</string>
     <string name="standard">Standard</string>
     <string name="webtoon">Webtoon</string>
     <string name="read_mode">Read mode</string>
+    <string name="downscale_image">Downscale image</string>
+    <string name="downscale_off">Off</string>
+	<string name="downscale_2x" translatable="false">2x</string>
+	<string name="downscale_4x" translatable="false">4x</string>
+	<string name="downscale_8x" translatable="false">8x</string>
     <string name="grid_size">Grid size</string>
     <string name="search_on_s">Search on %s</string>
     <string name="delete_manga">Delete manga</string>
@@ -268,6 +274,8 @@
     <string name="disable_battery_optimization">Disable battery optimization</string>
     <string name="disable_battery_optimization_summary">Helps with background updates checks</string>
     <string name="crash_text">Something went wrong. Please submit a bug report to the developers to help us fix it.</string>
+    <string name="crash_oops">Whoops!</string>
+    <string name="restart_app">Restart the application</string>
     <string name="send">Send</string>
     <string name="status_planned">Planned</string>
     <string name="status_reading">Reading</string>
@@ -377,7 +385,7 @@
     <string name="sources_reorder_tip">Tap and hold on an item to reorder them</string>
     <string name="user_agent">UserAgent header</string>
     <string name="settings_apply_restart_required">Please restart the application to apply these changes</string>
-    <string name="comics_archive_import_description">You can select one or more .cbz or .zip files, each file will be recognized as a separate manga.</string>
+    <string name="comics_archive_import_description">You can select one or more .cbz, .pdf or .zip files, each file will be recognized as a separate manga.</string>
     <string name="folder_with_images_import_description">You can select a directory with archives or images. Each archive (or subdirectory) will be recognized as a chapter.</string>
     <string name="speed">Speed</string>
     <string name="show_on_shelf">Show on the Shelf</string>
@@ -416,6 +424,9 @@
     <string name="address">Address</string>
     <string name="port">Port</string>
     <string name="proxy">Proxy</string>
+    <string name="proxy_bypass_enabled">Bypass internet censorship</string>
+	<string name="proxy_bypass_enabled_summary">Route app traffic through the built-in bypass tunnel for blocked networks (beta)</string>
+	<string name="proxy_webview_unavailable">Proxy for WebView is not supported</string>
     <string name="invalid_value_message">Invalid value</string>
     <string name="kitsu" translatable="false">Kitsu</string>
     <string name="email_password_enter_hint">Enter your email and password to continue</string>
@@ -543,7 +554,7 @@
     <string name="error_filter_states_genre_not_supported">Filtering by both genres and states is not supported by this source</string>
     <string name="genres_search_hint">Start typing the genre name</string>
     <string name="disable_battery_optimization_summary_downloads">Might help with getting the download started if you have any issues with it</string>
-    <string name="welcome_text">Please select which content sources you would like to enable. This can also be configured later in settings</string>
+    <string name="welcome_text">This is the beginning of Usagi, let\'s get acquainted. You can restore your old data using the quick options below. None of the content is currently available in Usagi, but you can customize the content you want to read in app settings later.</string>
     <string name="sync_auth">Login to sync account</string>
     <string name="restore">Restore</string>
     <string name="backup_date_">Backup date: %s</string>
@@ -663,7 +674,9 @@
     <string name="new_chapters_pattern" translatable="false">%1$s: %2$d</string>
     <string name="pin_navigation_ui">Pin navigation UI</string>
     <string name="pin_navigation_ui_summary">Do not hide navigation bar and search view on scroll</string>
-    <string name="search_suggestions">Search suggestions</string>
+	<string name="floating_navigation_bar">Floating navigation bar</string>
+	<string name="floating_navigation_bar_summary">Display main screen navigation as a floating bar (like Google Photos)</string>
+	<string name="search_suggestions">Search suggestions</string>
     <string name="recent_queries">Recent queries</string>
     <string name="suggested_queries">Suggested queries</string>
     <string name="authors">Authors</string>
@@ -920,4 +933,34 @@
 	<string name="details_appearance">Details screen appearance</string>
 	<string name="details_appearance_summary">Screen style, backdrop image and blur effect</string>
 	<string name="preview">Preview</string>
+	<string name="reader_appearance">Reader interface</string>
+	<string name="reader_appearance_summary">Customize layout, gestures and opacity in reader interface</string>
+	<string name="reader_top_bar_opacity">Title bar opacity</string>
+	<string name="reader_bottom_bar_opacity">Action bar opacity</string>
+	<string name="is_float_bar">Floating action bar</string>
+	<string name="is_float_bar_summary">Display the reader action bar (at the bottom) as a floating bar instead of a dock bar</string>
+	<!--Plugins-->
+	<string name="confirm_delete_plugin">Are you sure you want to delete %1$s?</string>
+	<string name="delete_plugin">Delete plugin</string>
+	<string name="import_from_github">Import from GitHub</string>
+	<string name="import_github_summary">You can enter a full GitHub URL or Username/Repository. Usagi will automatically find and install the plugin from the latest release.</string>
+	<string name="load_failed">Failed to load plugin</string>
+	<string name="load_from_storage">Import from local storage</string>
+	<string name="load_storage_summary">You can select a JAR file from local storage, that file will be recognized as a plugin.</string>
+	<string name="load_success">Plugin imported and loaded successfully</string>
+	<string name="manage_plugins">Manage plugins</string>
+	<string name="no_plugins">No plugins installed</string>
+	<string name="no_plugins_summary">Click + above to add external plugins</string>
+	<string name="overwrite_plugin">Overwrite plugin?</string>
+	<string name="overwrite_plugin_summary">A plugin file named %1$s is already installed. Replace it with this one?</string>
+	<string name="plugin_name">Plugin name</string>
+	<string name="set_plugin_name">Set name for this plugin</string>
+	<string name="updates_remind">Notify about app updates</string>
+	<string name="updates_remind_summary">Show a dialog on app start when an update is available</string>
+	<string name="update_available_message">A new version of Usagi is available. Do you want to update it now?</string>
+	<string name="check_app_update">Automatically check for updates</string>
+	<string name="check_app_update_summary">Check for app updates automatically at startup</string>
+	<string name="auto_update_plugins">Auto update plugins</string>
+	<string name="auto_update_plugins_summary">Automatically refresh and update all installed plugins at startup</string>
+	<string name="no_filters_available">This source has no filters</string>
 </resources>

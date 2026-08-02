@@ -21,14 +21,13 @@ class ReversedPageHolder(
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
 ) : PageHolder(
-	owner = owner,
-	binding = binding,
-	loader = loader,
-	readerSettingsProducer = readerSettingsProducer,
-	networkState = networkState,
-	exceptionResolver = exceptionResolver,
-) {
-
+		owner = owner,
+		binding = binding,
+		loader = loader,
+		readerSettingsProducer = readerSettingsProducer,
+		networkState = networkState,
+		exceptionResolver = exceptionResolver,
+	) {
 	init {
 		(binding.textViewNumber.layoutParams as FrameLayout.LayoutParams)
 			.gravity = Gravity.START or Gravity.BOTTOM
@@ -36,10 +35,11 @@ class ReversedPageHolder(
 
 	override fun onReady() {
 		with(binding.ssiv) {
-			maxScale = 2f * maxOf(
-				width / sWidth.toFloat(),
-				height / sHeight.toFloat(),
-			)
+			maxScale = 2f *
+				maxOf(
+					width / sWidth.toFloat(),
+					height / sHeight.toFloat(),
+				)
 			binding.ssiv.colorFilter = settings.colorFilter?.toColorFilter()
 			when (settings.zoomMode) {
 				ZoomMode.FIT_CENTER -> {

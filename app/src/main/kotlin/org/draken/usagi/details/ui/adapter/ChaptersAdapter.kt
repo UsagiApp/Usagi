@@ -12,8 +12,8 @@ import org.draken.usagi.list.ui.model.ListModel
 
 class ChaptersAdapter(
 	onItemClickListener: OnListItemClickListener<ChapterListItem>,
-) : BaseListAdapter<ListModel>(), FastScroller.SectionIndexer {
-
+) : BaseListAdapter<ListModel>(),
+	FastScroller.SectionIndexer {
 	private var hasVolumes = false
 
 	init {
@@ -27,7 +27,10 @@ class ChaptersAdapter(
 		hasVolumes = value != null && value.any { it is ListHeader }
 	}
 
-	override fun getSectionText(context: Context, position: Int): CharSequence? {
+	override fun getSectionText(
+		context: Context,
+		position: Int,
+	): CharSequence? {
 		return if (hasVolumes) {
 			findHeader(position)?.getText(context)
 		} else {

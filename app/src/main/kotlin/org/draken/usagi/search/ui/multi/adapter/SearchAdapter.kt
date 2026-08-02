@@ -22,8 +22,8 @@ class SearchAdapter(
 	itemClickListener: OnListItemClickListener<SearchResultsListModel>,
 	sizeResolver: ItemSizeResolver,
 	selectionDecoration: MangaSelectionDecoration,
-) : BaseListAdapter<ListModel>(), FastScroller.SectionIndexer {
-
+) : BaseListAdapter<ListModel>(),
+	FastScroller.SectionIndexer {
 	init {
 		val pool = RecycledViewPool()
 		addDelegate(
@@ -43,7 +43,8 @@ class SearchAdapter(
 		addDelegate(ListItemType.FOOTER_BUTTON, buttonFooterAD(listener))
 	}
 
-	override fun getSectionText(context: Context, position: Int): CharSequence? {
-		return (items.getOrNull(position) as? SearchResultsListModel)?.getTitle(context)
-	}
+	override fun getSectionText(
+		context: Context,
+		position: Int,
+	): CharSequence? = (items.getOrNull(position) as? SearchResultsListModel)?.getTitle(context)
 }

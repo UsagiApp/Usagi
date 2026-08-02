@@ -10,12 +10,7 @@ data class ScrobblerManga(
 	val url: String,
 	val isBestMatch: Boolean,
 ) : ListModel {
+	override fun areItemsTheSame(other: ListModel): Boolean = other is ScrobblerManga && other.id == id
 
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is ScrobblerManga && other.id == id
-	}
-
-	override fun toString(): String {
-		return "ScrobblerManga #$id \"$name\" $url"
-	}
+	override fun toString(): String = "ScrobblerManga #$id \"$name\" $url"
 }

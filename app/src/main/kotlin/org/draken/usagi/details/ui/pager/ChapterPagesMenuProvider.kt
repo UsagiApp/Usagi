@@ -25,12 +25,17 @@ class ChapterPagesMenuProvider(
 	private val sheet: BaseAdaptiveSheet<*>,
 	private val pager: ViewPager2,
 	private val settings: AppSettings,
-) : OnBackPressedCallback(false), MenuProvider, SearchView.OnQueryTextListener, MenuItem.OnActionExpandListener,
+) : OnBackPressedCallback(false),
+	MenuProvider,
+	SearchView.OnQueryTextListener,
+	MenuItem.OnActionExpandListener,
 	Slider.OnChangeListener {
-
 	private var expandedItemRef: WeakReference<MenuItem>? = null
 
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		val tab = getCurrentTab()
 		when (tab) {
 			TAB_CHAPTERS -> {
@@ -58,24 +63,27 @@ class ChapterPagesMenuProvider(
 		}
 	}
 
-	override fun onMenuItemSelected(menuItem: MenuItem): Boolean = when (menuItem.itemId) {
-		R.id.action_reversed -> {
-			viewModel.setChaptersReversed(!menuItem.isChecked)
-			true
-		}
+	override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+		when (menuItem.itemId) {
+			R.id.action_reversed -> {
+				viewModel.setChaptersReversed(!menuItem.isChecked)
+				true
+			}
 
-		R.id.action_grid_view -> {
-			viewModel.setChaptersInGridView(!menuItem.isChecked)
-			true
-		}
+			R.id.action_grid_view -> {
+				viewModel.setChaptersInGridView(!menuItem.isChecked)
+				true
+			}
 
-		R.id.action_downloaded -> {
-			viewModel.isDownloadedOnly.value = !menuItem.isChecked
-			true
-		}
+			R.id.action_downloaded -> {
+				viewModel.isDownloadedOnly.value = !menuItem.isChecked
+				true
+			}
 
-		else -> false
-	}
+			else -> {
+				false
+			}
+		}
 
 	override fun handleOnBackPressed() {
 		expandedItemRef?.get()?.collapseActionView()
@@ -104,7 +112,11 @@ class ChapterPagesMenuProvider(
 		return true
 	}
 
-	override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
+	override fun onValueChange(
+		slider: Slider,
+		value: Float,
+		fromUser: Boolean,
+	) {
 		if (fromUser) {
 			settings.gridSizePages = value.toInt()
 		}

@@ -4,7 +4,6 @@ import org.draken.usagi.R
 import org.draken.usagi.core.util.EditTextValidator
 
 class PortNumberValidator : EditTextValidator() {
-
 	override fun validate(text: String): ValidationResult {
 		val trimmed = text.trim()
 		if (trimmed.isEmpty()) {

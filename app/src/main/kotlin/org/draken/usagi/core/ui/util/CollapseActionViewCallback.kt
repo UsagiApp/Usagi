@@ -5,9 +5,9 @@ import android.view.MenuItem.OnActionExpandListener
 import androidx.activity.OnBackPressedCallback
 
 class CollapseActionViewCallback(
-	private val menuItem: MenuItem
-) : OnBackPressedCallback(menuItem.isActionViewExpanded), OnActionExpandListener {
-
+	private val menuItem: MenuItem,
+) : OnBackPressedCallback(menuItem.isActionViewExpanded),
+	OnActionExpandListener {
 	override fun handleOnBackPressed() {
 		menuItem.collapseActionView()
 	}

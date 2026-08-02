@@ -299,7 +299,6 @@
     <string name="other_cache">Diğer önbellekler</string>
     <string name="storage_usage">Depolama kullanımı</string>
     <string name="available">Mevcut</string>
-    <string name="memory_usage_pattern">%1$s - %2$s</string>
     <string name="options">Seçenekler</string>
     <string name="incognito_mode">Gizli mod</string>
     <string name="no_chapters">Bölüm yok</string>

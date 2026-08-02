@@ -17,12 +17,12 @@ import org.draken.usagi.core.exceptions.CloudFlareException
 import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.network.proxy.ProxyProvider
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
 import org.draken.usagi.core.util.ext.configureForParser
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.MangaSource
+import tsuki.util.runCatchingCancellable
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Provider
@@ -31,104 +31,114 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @Singleton
-class WebViewExecutor @Inject constructor(
-	@ApplicationContext private val context: Context,
-	private val proxyProvider: ProxyProvider,
-	private val cookieJar: MutableCookieJar,
-	private val mangaRepositoryFactoryProvider: Provider<MangaRepository.Factory>,
-) {
+class WebViewExecutor
+	@Inject
+	constructor(
+		@ApplicationContext private val context: Context,
+		private val proxyProvider: ProxyProvider,
+		private val cookieJar: MutableCookieJar,
+		private val mangaRepositoryFactoryProvider: Provider<MangaRepository.Factory>,
+	) {
+		private var webViewCached: WeakReference<WebView>? = null
+		private val mutex = Mutex()
 
-	private var webViewCached: WeakReference<WebView>? = null
-	private val mutex = Mutex()
-
-	val defaultUserAgent: String? by lazy {
-		try {
-			WebSettings.getDefaultUserAgent(context)
-		} catch (e: AndroidRuntimeException) {
-			e.printStackTraceDebug()
-			// Probably WebView is not available
-			null
-		}
-	}
-
-	suspend fun evaluateJs(baseUrl: String?, script: String): String? = mutex.withLock {
-		withContext(Dispatchers.Main.immediate) {
-			val webView = obtainWebView()
+		val defaultUserAgent: String? by lazy {
 			try {
-				if (!baseUrl.isNullOrEmpty()) {
-					suspendCoroutine { cont ->
-						webView.webViewClient = ContinuationResumeWebViewClient(cont)
-						webView.loadDataWithBaseURL(baseUrl, " ", "text/html", null, null)
-					}
-				}
-				suspendCoroutine { cont ->
-					webView.evaluateJavascript(script) { result ->
-						cont.resume(result?.takeUnless { it == "null" })
-					}
-				}
-			} finally {
-				webView.reset()
+				WebSettings.getDefaultUserAgent(context)
+			} catch (e: AndroidRuntimeException) {
+				e.printStackTraceDebug()
+				// Probably WebView is not available
+				null
 			}
 		}
-	}
 
-	suspend fun tryResolveCaptcha(exception: CloudFlareException, timeout: Long): Boolean = mutex.withLock {
-		runCatchingCancellable {
-			withContext(Dispatchers.Main.immediate) {
-				val webView = obtainWebView()
-				try {
-					exception.source.getUserAgent()?.let {
-						webView.settings.userAgentString = it
+		suspend fun evaluateJs(
+			baseUrl: String?,
+			script: String,
+		): String? =
+			mutex.withLock {
+				withContext(Dispatchers.Main.immediate) {
+					val webView = obtainWebView()
+					try {
+						if (!baseUrl.isNullOrEmpty()) {
+							suspendCoroutine { cont ->
+								webView.webViewClient = ContinuationResumeWebViewClient(cont)
+								webView.loadDataWithBaseURL(baseUrl, " ", "text/html", null, null)
+							}
+						}
+						suspendCoroutine { cont ->
+							webView.evaluateJavascript(script) { result ->
+								cont.resume(result?.takeUnless { it == "null" })
+							}
+						}
+					} finally {
+						webView.reset()
 					}
-					withTimeout(timeout) {
-						suspendCancellableCoroutine { cont ->
-							webView.webViewClient = CaptchaContinuationClient(
-								cookieJar = cookieJar,
-								targetUrl = exception.url,
-								continuation = cont,
-							)
-							webView.loadUrl(exception.url)
+				}
+			}
+
+		suspend fun tryResolveCaptcha(
+			exception: CloudFlareException,
+			timeout: Long,
+		): Boolean =
+			mutex.withLock {
+				runCatchingCancellable {
+					withContext(Dispatchers.Main.immediate) {
+						val webView = obtainWebView()
+						try {
+							exception.source.getUserAgent()?.let {
+								webView.settings.userAgentString = it
+							}
+							withTimeout(timeout) {
+								suspendCancellableCoroutine { cont ->
+									webView.webViewClient =
+										CaptchaContinuationClient(
+											cookieJar = cookieJar,
+											targetUrl = exception.url,
+											continuation = cont,
+										)
+									webView.loadUrl(exception.url)
+								}
+							}
+						} finally {
+							webView.reset()
 						}
 					}
-				} finally {
-					webView.reset()
+				}.onFailure { e ->
+					exception.addSuppressed(e)
+					e.printStackTraceDebug()
+				}.isSuccess
+			}
+
+		private suspend fun obtainWebView(): WebView {
+			webViewCached?.get()?.let {
+				return it
+			}
+			return withContext(Dispatchers.Main.immediate) {
+				webViewCached?.get()?.let {
+					return@withContext it
+				}
+				WebView(context).also {
+					it.configureForParser(null)
+					webViewCached = WeakReference(it)
+					proxyProvider.applyWebViewConfig()
+					it.onResume()
+					it.resumeTimers()
 				}
 			}
-		}.onFailure { e ->
-			exception.addSuppressed(e)
-			e.printStackTraceDebug()
-		}.isSuccess
-	}
-
-	private suspend fun obtainWebView(): WebView {
-		webViewCached?.get()?.let {
-			return it
 		}
-		return withContext(Dispatchers.Main.immediate) {
-			webViewCached?.get()?.let {
-				return@withContext it
-			}
-			WebView(context).also {
-				it.configureForParser(null)
-				webViewCached = WeakReference(it)
-				proxyProvider.applyWebViewConfig()
-				it.onResume()
-				it.resumeTimers()
-			}
+
+		private fun MangaSource.getUserAgent(): String? {
+			val repository = mangaRepositoryFactoryProvider.get().create(this) as? MangaParserRepository
+			return repository?.getRequestHeaders()?.get(CommonHeaders.USER_AGENT)
+		}
+
+		@MainThread
+		private fun WebView.reset() {
+			stopLoading()
+			webViewClient = WebViewClient()
+			settings.userAgentString = defaultUserAgent
+			loadDataWithBaseURL(null, " ", "text/html", null, null)
+			clearHistory()
 		}
 	}
-
-	private fun MangaSource.getUserAgent(): String? {
-		val repository = mangaRepositoryFactoryProvider.get().create(this) as? ParserMangaRepository
-		return repository?.getRequestHeaders()?.get(CommonHeaders.USER_AGENT)
-	}
-
-	@MainThread
-	private fun WebView.reset() {
-		stopLoading()
-		webViewClient = WebViewClient()
-		settings.userAgentString = defaultUserAgent
-		loadDataWithBaseURL(null, " ", "text/html", null, null)
-		clearHistory()
-	}
-}

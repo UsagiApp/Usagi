@@ -250,7 +250,6 @@
     <string name="other_cache">Iba pang cache</string>
     <string name="storage_usage">Paggamit ng storage</string>
     <string name="available">Magagamit na</string>
-    <string name="memory_usage_pattern">%1$s - %2$s</string>
     <string name="removed_from_favourites">Inalis sa mga paborito</string>
     <string name="options">Mga pagpipilian</string>
     <string name="incognito_mode">Incognito na mode</string>
@@ -834,8 +833,8 @@
     <string name="show_floating_control_button">Ipakita ang lumulutang na control button</string>
     <string name="invalid_token">Imbalidong token: %s</string>
     <string name="rpc_skip_nsfw_summary">Huwag gamitin ang RPC para sa pangmatandang content</string>
-    <string name="read_on_s">Basahin sa %s</string>
     <string name="reading_s">Binabasa ng %s</string>
+    <string name="read_on_s">Basahin sa %s</string>
     <string name="discord_rpc_description">Bumamasa ng manga sa Usagi - isang manga reader app</string>
     <string name="obtain">Kumuha</string>
     <string name="discord_rpc_summary">Ipakita ng status ng pagbabasa sa Discord</string>

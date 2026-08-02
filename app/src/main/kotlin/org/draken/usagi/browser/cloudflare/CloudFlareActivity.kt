@@ -23,18 +23,19 @@ import org.draken.usagi.core.exceptions.resolve.CaptchaHandler
 import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.network.cookies.MutableCookieJar
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.MangaSource
+import tsuki.network.CloudFlareHelper
+import tsuki.util.ifNullOrEmpty
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class CloudFlareActivity : BaseBrowserActivity(), CloudFlareCallback {
-
+class CloudFlareActivity :
+	BaseBrowserActivity(),
+	CloudFlareCallback {
 	private var pendingResult = RESULT_CANCELED
 
 	@Inject
@@ -45,7 +46,11 @@ class CloudFlareActivity : BaseBrowserActivity(), CloudFlareCallback {
 
 	private lateinit var cfClient: CloudFlareClient
 
-	override fun onCreate2(savedInstanceState: Bundle?, source: MangaSource, repository: ParserMangaRepository?) {
+	override fun onCreate2(
+		savedInstanceState: Bundle?,
+		source: MangaSource,
+		repository: MangaParserRepository?,
+	) {
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = true)
 		val url = intent?.dataString
 		if (url.isNullOrEmpty()) {
@@ -72,20 +77,23 @@ class CloudFlareActivity : BaseBrowserActivity(), CloudFlareCallback {
 		return super.onCreateOptionsMenu(menu)
 	}
 
-	override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-		android.R.id.home -> {
-			viewBinding.webView.stopLoading()
-			finishAfterTransition()
-			true
-		}
+	override fun onOptionsItemSelected(item: MenuItem): Boolean =
+		when (item.itemId) {
+			android.R.id.home -> {
+				viewBinding.webView.stopLoading()
+				finishAfterTransition()
+				true
+			}
 
-		R.id.action_retry -> {
-			restartCheck()
-			true
-		}
+			R.id.action_retry -> {
+				restartCheck()
+				true
+			}
 
-		else -> super.onOptionsItemSelected(item)
-	}
+			else -> {
+				super.onOptionsItemSelected(item)
+			}
+		}
 
 	override fun finish() {
 		setResult(pendingResult)
@@ -117,9 +125,17 @@ class CloudFlareActivity : BaseBrowserActivity(), CloudFlareCallback {
 		}
 	}
 
-	override fun onTitleChanged(title: CharSequence, subtitle: CharSequence?) {
+	override fun onTitleChanged(
+		title: CharSequence,
+		subtitle: CharSequence?,
+	) {
 		setTitle(title)
-		supportActionBar?.subtitle = subtitle?.toString()?.toHttpUrlOrNull()?.host.ifNullOrEmpty { subtitle }
+		supportActionBar?.subtitle =
+			subtitle
+				?.toString()
+				?.toHttpUrlOrNull()
+				?.host
+				.ifNullOrEmpty { subtitle }
 	}
 
 	private fun restartCheck() {
@@ -135,24 +151,26 @@ class CloudFlareActivity : BaseBrowserActivity(), CloudFlareCallback {
 		}
 	}
 
-	private suspend fun clearCfCookies(url: HttpUrl) = runInterruptible(Dispatchers.Default) {
-		cookieJar.removeCookies(url) { cookie ->
-			CloudFlareHelper.isCloudFlareCookie(cookie.name)
+	private suspend fun clearCfCookies(url: HttpUrl) =
+		runInterruptible(Dispatchers.Default) {
+			cookieJar.removeCookies(url) { cookie ->
+				CloudFlareHelper.isCloudFlareCookie(cookie.name)
+			}
 		}
-	}
 
 	class Contract : ActivityResultContract<CloudFlareProtectedException, Boolean>() {
-		override fun createIntent(context: Context, input: CloudFlareProtectedException): Intent {
-			return AppRouter.cloudFlareResolveIntent(context, input)
-		}
+		override fun createIntent(
+			context: Context,
+			input: CloudFlareProtectedException,
+		): Intent = AppRouter.cloudFlareResolveIntent(context, input)
 
-		override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
-			return resultCode == RESULT_OK
-		}
+		override fun parseResult(
+			resultCode: Int,
+			intent: Intent?,
+		): Boolean = resultCode == RESULT_OK
 	}
 
 	companion object {
-
 		const val TAG = "CloudFlareActivity"
 	}
 }

@@ -27,7 +27,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
 abstract class BaseViewModel : ViewModel() {
-
 	@JvmField
 	protected val loadingCounter = MutableStateFlow(0)
 
@@ -37,45 +36,51 @@ abstract class BaseViewModel : ViewModel() {
 	val onError: EventFlow<Throwable>
 		get() = errorEvent
 
-	val isLoading: StateFlow<Boolean> = loadingCounter.map { it > 0 }
-		.stateIn(viewModelScope, SharingStarted.Lazily, loadingCounter.value > 0)
+	val isLoading: StateFlow<Boolean> =
+		loadingCounter
+			.map { it > 0 }
+			.stateIn(viewModelScope, SharingStarted.Lazily, loadingCounter.value > 0)
 
 	protected fun launchJob(
 		context: CoroutineContext = EmptyCoroutineContext,
 		start: CoroutineStart = CoroutineStart.DEFAULT,
-		block: suspend CoroutineScope.() -> Unit
+		block: suspend CoroutineScope.() -> Unit,
 	): Job = viewModelScope.launch(context.withDefaultExceptionHandler(), start, block)
 
 	protected fun launchLoadingJob(
 		context: CoroutineContext = EmptyCoroutineContext,
 		start: CoroutineStart = CoroutineStart.DEFAULT,
-		block: suspend CoroutineScope.() -> Unit
-	): Job = viewModelScope.launch(context.withDefaultExceptionHandler(), start) {
-		loadingCounter.increment()
+		block: suspend CoroutineScope.() -> Unit,
+	): Job =
+		viewModelScope.launch(context.withDefaultExceptionHandler(), start) {
+			loadingCounter.increment()
+			try {
+				block()
+			} finally {
+				loadingCounter.decrement()
+			}
+		}
+
+	protected fun <T> Flow<T>.withLoading() =
+		onStart {
+			loadingCounter.increment()
+		}.onCompletion {
+			loadingCounter.decrement()
+		}
+
+	protected fun <T> Flow<T>.withErrorHandling() =
+		catch { error ->
+			error.printStackTraceDebug()
+			errorEvent.call(error)
+		}
+
+	protected inline fun <T> withLoading(block: () -> T): T =
 		try {
+			loadingCounter.increment()
 			block()
 		} finally {
 			loadingCounter.decrement()
 		}
-	}
-
-	protected fun <T> Flow<T>.withLoading() = onStart {
-		loadingCounter.increment()
-	}.onCompletion {
-		loadingCounter.decrement()
-	}
-
-	protected fun <T> Flow<T>.withErrorHandling() = catch { error ->
-		error.printStackTraceDebug()
-		errorEvent.call(error)
-	}
-
-	protected inline fun <T> withLoading(block: () -> T): T = try {
-		loadingCounter.increment()
-		block()
-	} finally {
-		loadingCounter.decrement()
-	}
 
 	protected fun MutableStateFlow<Int>.increment() = update { it + 1 }
 
@@ -89,7 +94,6 @@ abstract class BaseViewModel : ViewModel() {
 		}
 
 	protected object SkipErrors : AbstractCoroutineContextElement(Key) {
-
 		private object Key : CoroutineContext.Key<SkipErrors>
 	}
 
@@ -97,8 +101,10 @@ abstract class BaseViewModel : ViewModel() {
 		private val event: MutableEventFlow<Throwable>,
 	) : AbstractCoroutineContextElement(CoroutineExceptionHandler),
 		CoroutineExceptionHandler {
-
-		override fun handleException(context: CoroutineContext, exception: Throwable) {
+		override fun handleException(
+			context: CoroutineContext,
+			exception: Throwable,
+		) {
 			exception.printStackTraceDebug()
 			if (context[SkipErrors.key] == null && exception !is CancellationException) {
 				event.call(exception)

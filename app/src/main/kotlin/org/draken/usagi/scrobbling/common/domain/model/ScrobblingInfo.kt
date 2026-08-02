@@ -16,14 +16,12 @@ data class ScrobblingInfo(
 	val description: CharSequence?,
 	val externalUrl: String,
 ) : ListModel {
+	override fun areItemsTheSame(other: ListModel): Boolean = other is ScrobblingInfo && other.scrobbler == scrobbler
 
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is ScrobblingInfo && other.scrobbler == scrobbler
-	}
-
-	override fun getChangePayload(previousState: ListModel): Any? = when {
-		previousState !is ScrobblingInfo -> null
-		previousState.status != status || previousState.rating != rating -> ListModelDiffCallback.PAYLOAD_ANYTHING_CHANGED
-		else -> super.getChangePayload(previousState)
-	}
+	override fun getChangePayload(previousState: ListModel): Any? =
+		when {
+			previousState !is ScrobblingInfo -> null
+			previousState.status != status || previousState.rating != rating -> ListModelDiffCallback.PAYLOAD_ANYTHING_CHANGED
+			else -> super.getChangePayload(previousState)
+		}
 }

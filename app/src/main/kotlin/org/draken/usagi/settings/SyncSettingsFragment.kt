@@ -12,33 +12,44 @@ import org.draken.usagi.sync.ui.SyncHostDialogFragment
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SyncSettingsFragment : BasePreferenceFragment(R.string.sync_settings), FragmentResultListener {
-
+class SyncSettingsFragment :
+	BasePreferenceFragment(R.string.sync_settings),
+	FragmentResultListener {
 	@Inject
 	lateinit var syncSettings: SyncSettings
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
 		addPreferencesFromResource(R.xml.pref_sync)
 		bindHostSummary()
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		childFragmentManager.setFragmentResultListener(SyncHostDialogFragment.REQUEST_KEY, viewLifecycleOwner, this)
 	}
 
-	override fun onPreferenceTreeClick(preference: Preference): Boolean {
-		return when (preference.key) {
+	override fun onPreferenceTreeClick(preference: Preference): Boolean =
+		when (preference.key) {
 			SyncSettings.KEY_SYNC_URL -> {
 				SyncHostDialogFragment.show(childFragmentManager, null)
 				true
 			}
 
-			else -> super.onPreferenceTreeClick(preference)
+			else -> {
+				super.onPreferenceTreeClick(preference)
+			}
 		}
-	}
 
-	override fun onFragmentResult(requestKey: String, result: Bundle) {
+	override fun onFragmentResult(
+		requestKey: String,
+		result: Bundle,
+	) {
 		bindHostSummary()
 	}
 

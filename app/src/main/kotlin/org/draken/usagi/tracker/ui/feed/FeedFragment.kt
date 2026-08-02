@@ -33,9 +33,9 @@ import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.list.ui.model.MangaListModel
 import org.draken.usagi.list.ui.size.StaticItemSizeResolver
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaTag
 import org.draken.usagi.tracker.ui.feed.adapter.FeedAdapter
+import tsuki.model.Manga
+import tsuki.model.MangaTag
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -45,7 +45,6 @@ class FeedFragment :
 	RecyclerViewOwner,
 	MangaListListener,
 	SwipeRefreshLayout.OnRefreshListener {
-
 	@Inject
 	lateinit var coil: ImageLoader
 
@@ -59,13 +58,17 @@ class FeedFragment :
 		container: ViewGroup?,
 	) = FragmentListBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: FragmentListBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentListBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		val sizeResolver = StaticItemSizeResolver(resources.getDimensionPixelSize(R.dimen.smaller_grid_width))
-		val feedAdapter = FeedAdapter(this, sizeResolver) { item, v ->
-			viewModel.onItemClick(item)
-			router.openDetails(item.toMangaWithOverride())
-		}
+		val feedAdapter =
+			FeedAdapter(this, sizeResolver) { item, v ->
+				viewModel.onItemClick(item)
+				router.openDetails(item.toMangaWithOverride())
+			}
 		with(binding.recyclerView) {
 			val paddingVertical = resources.getDimensionPixelSize(R.dimen.list_spacing_normal)
 			setPadding(0, paddingVertical, 0, paddingVertical)
@@ -86,7 +89,10 @@ class FeedFragment :
 		viewModel.isRunning.observe(viewLifecycleOwner, this::onIsTrackerRunningChanged)
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		val barsInsets = insets.getInsets(typeMask)
 		val paddingVertical = resources.getDimensionPixelSize(R.dimen.list_spacing_normal)
@@ -115,7 +121,10 @@ class FeedFragment :
 
 	override fun onSecondaryButtonClick(tipView: TipView) = Unit
 
-	override fun onListHeaderClick(item: ListHeader, view: View) {
+	override fun onListHeaderClick(
+		item: ListHeader,
+		view: View,
+	) {
 		router.openMangaUpdates()
 	}
 
@@ -127,11 +136,21 @@ class FeedFragment :
 		viewModel.requestMoreItems()
 	}
 
-	override fun onItemClick(item: MangaListModel, view: View) {
+	override fun onItemClick(
+		item: MangaListModel,
+		view: View,
+	) {
 		router.openDetails(item.toMangaWithOverride())
 	}
 
-	override fun onReadClick(manga: Manga, view: View) = Unit
+	override fun onReadClick(
+		manga: Manga,
+		view: View,
+	) = Unit
 
-	override fun onTagClick(manga: Manga, tag: MangaTag, view: View) = Unit
+	override fun onTagClick(
+		manga: Manga,
+		tag: MangaTag,
+		view: View,
+	) = Unit
 }

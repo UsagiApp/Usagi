@@ -1,0 +1,15 @@
+* text=auto eol=lf
+gradlew text eol=lf
+*.sh text eol=lf
+*.png -text
+*.jpg -text
+*.gif -text
+*.webp -text
+*.jar -text
+*.jks -text
+
+*.kt text eol=lf
+*.java text eol=lf
+*.xml text eol=lf
+*.gradle text eol=lf
+*.md text eol=lf

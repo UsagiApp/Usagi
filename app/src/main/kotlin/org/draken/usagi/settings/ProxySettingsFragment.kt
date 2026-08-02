@@ -22,26 +22,29 @@ import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.viewLifecycleScope
-import org.koitharu.kotatsu.parsers.util.await
 import org.draken.usagi.settings.utils.EditTextBindListener
 import org.draken.usagi.settings.utils.PasswordSummaryProvider
 import org.draken.usagi.settings.utils.validation.DomainValidator
 import org.draken.usagi.settings.utils.validation.PortNumberValidator
+import tsuki.util.await
 import java.net.Proxy
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
 @AndroidEntryPoint
-class ProxySettingsFragment : BasePreferenceFragment(R.string.proxy),
+class ProxySettingsFragment :
+	BasePreferenceFragment(R.string.proxy),
 	SharedPreferences.OnSharedPreferenceChangeListener {
-
 	private var testJob: Job? = null
 
 	@Inject
 	@BaseHttpClient
 	lateinit var okHttpClient: OkHttpClient
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
 		addPreferencesFromResource(R.xml.pref_proxy)
 		@Suppress("UsePropertyAccessSyntax")
 		findPreference<EditTextPreference>(AppSettings.KEY_PROXY_ADDRESS)?.setOnBindEditTextListener(
@@ -73,7 +76,10 @@ class ProxySettingsFragment : BasePreferenceFragment(R.string.proxy),
 		updateDependencies()
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		settings.subscribe(this)
 	}
@@ -83,16 +89,22 @@ class ProxySettingsFragment : BasePreferenceFragment(R.string.proxy),
 		super.onDestroyView()
 	}
 
-	override fun onPreferenceTreeClick(preference: Preference): Boolean = when (preference.key) {
-		AppSettings.KEY_PROXY_TEST -> {
-			testConnection()
-			true
+	override fun onPreferenceTreeClick(preference: Preference): Boolean =
+		when (preference.key) {
+			AppSettings.KEY_PROXY_TEST -> {
+				testConnection()
+				true
+			}
+
+			else -> {
+				super.onPreferenceTreeClick(preference)
+			}
 		}
 
-		else -> super.onPreferenceTreeClick(preference)
-	}
-
-	override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+	override fun onSharedPreferenceChanged(
+		sharedPreferences: SharedPreferences?,
+		key: String?,
+	) {
 		when (key) {
 			AppSettings.KEY_PROXY_TYPE -> updateDependencies()
 		}
@@ -110,35 +122,38 @@ class ProxySettingsFragment : BasePreferenceFragment(R.string.proxy),
 
 	private fun testConnection() {
 		testJob?.cancel()
-		testJob = viewLifecycleScope.launch {
-			val pref = findPreference<Preference>(AppSettings.KEY_PROXY_TEST)
-			pref?.run {
-				setSummary(R.string.loading_)
-				isEnabled = false
-			}
-			try {
-				withContext(Dispatchers.Default) {
-					val request = Request.Builder()
-						.get()
-						.url("http://neverssl.com")
-						.build()
-					okHttpClient.newCall(request).await().use { response ->
-						check(response.isSuccessful) { response.message }
+		testJob =
+			viewLifecycleScope.launch {
+				val pref = findPreference<Preference>(AppSettings.KEY_PROXY_TEST)
+				pref?.run {
+					setSummary(R.string.loading_)
+					isEnabled = false
+				}
+				try {
+					withContext(Dispatchers.Default) {
+						val request =
+							Request
+								.Builder()
+								.get()
+								.url("http://neverssl.com")
+								.build()
+						okHttpClient.newCall(request).await().use { response ->
+							check(response.isSuccessful) { response.message }
+						}
+					}
+					showTestResult(null)
+				} catch (e: CancellationException) {
+					throw e
+				} catch (e: Throwable) {
+					e.printStackTraceDebug()
+					showTestResult(e)
+				} finally {
+					pref?.run {
+						isEnabled = true
+						summary = null
 					}
 				}
-				showTestResult(null)
-			} catch (e: CancellationException) {
-				throw e
-			} catch (e: Throwable) {
-				e.printStackTraceDebug()
-				showTestResult(e)
-			} finally {
-				pref?.run {
-					isEnabled = true
-					summary = null
-				}
 			}
-		}
 	}
 
 	private fun showTestResult(error: Throwable?) {

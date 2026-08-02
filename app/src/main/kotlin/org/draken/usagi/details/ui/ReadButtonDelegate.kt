@@ -32,8 +32,9 @@ class ReadButtonDelegate(
 	private val splitButton: MaterialSplitButton,
 	private val viewModel: DetailsViewModel,
 	private val router: AppRouter,
-) : View.OnClickListener, PopupMenu.OnMenuItemClickListener, PopupMenu.OnDismissListener {
-
+) : View.OnClickListener,
+	PopupMenu.OnMenuItemClickListener,
+	PopupMenu.OnDismissListener {
 	private val buttonRead = splitButton[0] as MaterialButton
 	private val buttonMenu = splitButton[1] as MaterialButton
 
@@ -49,8 +50,14 @@ class ReadButtonDelegate(
 
 	override fun onMenuItemClick(item: MenuItem): Boolean {
 		when (item.itemId) {
-			R.id.action_incognito -> openReader(isIncognitoMode = true)
-			R.id.action_forget -> viewModel.removeFromHistory()
+			R.id.action_incognito -> {
+				openReader(isIncognitoMode = true)
+			}
+
+			R.id.action_forget -> {
+				viewModel.removeFromHistory()
+			}
+
 			R.id.action_download -> {
 				router.showDownloadDialog(
 					manga = setOf(viewModel.getMangaOrNull() ?: return false),
@@ -63,7 +70,9 @@ class ReadButtonDelegate(
 				viewModel.setSelectedBranch(branch.name)
 			}
 
-			else -> return false
+			else -> {
+				return false
+			}
 		}
 		return true
 	}
@@ -108,12 +117,15 @@ class ReadButtonDelegate(
 	private fun openReader(isIncognitoMode: Boolean) {
 		val manga = viewModel.getMangaOrNull() ?: return
 		if (viewModel.historyInfo.value.isChapterMissing) {
-			Snackbar.make(buttonRead, R.string.chapter_is_missing, Snackbar.LENGTH_SHORT)
+			Snackbar
+				.make(buttonRead, R.string.chapter_is_missing, Snackbar.LENGTH_SHORT)
 				.show() // TODO
 		} else {
-			val intentBuilder = ReaderIntent.Builder(context)
-				.manga(manga)
-				.branch(viewModel.selectedBranchValue)
+			val intentBuilder =
+				ReaderIntent
+					.Builder(context)
+					.manga(manga)
+					.branch(viewModel.selectedBranchValue)
 			if (isIncognitoMode) {
 				intentBuilder.incognito()
 			}
@@ -124,7 +136,10 @@ class ReadButtonDelegate(
 		}
 	}
 
-	private fun onHistoryChanged(isLoading: Boolean, info: HistoryInfo) {
+	private fun onHistoryChanged(
+		isLoading: Boolean,
+		info: HistoryInfo,
+	) {
 		val isChaptersLoading = isLoading && (info.totalChapters <= 0 || info.isChapterMissing)
 		buttonRead.setText(
 			when {
@@ -143,34 +158,35 @@ class ReadButtonDelegate(
 			return
 		}
 		for ((i, branch) in branches.withIndex()) {
-			val title = buildSpannedString {
-				if (branch.isCurrent) {
-					inSpans(
-						ImageSpan(
-							context,
-							R.drawable.ic_current_chapter,
-							DynamicDrawableSpan.ALIGN_BASELINE,
-						),
-					) {
+			val title =
+				buildSpannedString {
+					if (branch.isCurrent) {
+						inSpans(
+							ImageSpan(
+								context,
+								R.drawable.ic_current_chapter,
+								DynamicDrawableSpan.ALIGN_BASELINE,
+							),
+						) {
+							append(' ')
+						}
 						append(' ')
 					}
+					append(branch.name ?: context.getString(R.string.system_default))
 					append(' ')
-				}
-				append(branch.name ?: context.getString(R.string.system_default))
-				append(' ')
-				append(' ')
-				inSpans(
-					ForegroundColorSpan(
-						context.getThemeColor(
-							android.R.attr.textColorSecondary,
-							Color.LTGRAY,
+					append(' ')
+					inSpans(
+						ForegroundColorSpan(
+							context.getThemeColor(
+								android.R.attr.textColorSecondary,
+								Color.LTGRAY,
+							),
 						),
-					),
-					RelativeSizeSpan(0.74f),
-				) {
-					append(branch.count.toString())
+						RelativeSizeSpan(0.74f),
+					) {
+						append(branch.count.toString())
+					}
 				}
-			}
 			val item = add(R.id.group_branches, Menu.NONE, i, title)
 			item.isCheckable = true
 			item.isChecked = branch.isSelected

@@ -1,12 +1,39 @@
 <div align="center">
 
 <a href="#">
-    <img src="./.github/assets/icon.png" alt="Usagi" title="Usagi" width=25%>
+    <img src="./.github/assets/icon.png" alt="Usagi" title="Usagi" width=20%>
 </a>
 
-**[Usagi](https://github.com/UsagiApp/Usagi) is a free and open-source manga reader for Android.**
+<br>
 
-![Android 6.0](https://img.shields.io/badge/android-6.0+-brightgreen) [![weblate](https://hosted.weblate.org/widgets/usagi/-/strings/svg-badge.svg)](https://hosted.weblate.org/engage/usagi/) [![Discord](https://img.shields.io/discord/1484655684879519885?color=5865f2&label=discord)](https://discord.gg/TN68cNCjKX) [![Telegram](https://img.shields.io/badge/chat-telegram-60ACFF?)](https://t.me/usagiapp)
+**[Usagi](https://github.com/UsagiApp/Usagi) is a free and open-source manga reader for Android, inspired by [Kotatsu](https://github.com/UsagiApp/Usagi)**
+
+![Android 5.0](https://img.shields.io/badge/android-5.0+-brightgreen) ![Downloads count](https://img.shields.io/github/downloads/UsagiApp/Usagi/total?color=1976d2) [![weblate](https://hosted.weblate.org/widgets/usagi/-/strings/svg-badge.svg)](https://hosted.weblate.org/engage/usagi/) [![Discord](https://img.shields.io/discord/1484655684879519885?color=5865f2&label=discord)](https://discord.gg/4AHskjwtj4) [![Telegram](https://img.shields.io/badge/chat-telegram-60ACFF?)](https://t.me/usagiapp)
+
+### Download
+
+<table>
+  <thead>
+    <tr>
+      <th align="center">GitHub</th>
+      <th align="center">F-Droid</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center">
+        <a href="https://github.com/UsagiApp/Usagi/releases/latest/">
+          <img src="./.github/assets/badge_github.png" height="70" alt="Usagi on GitHub">
+        </a>
+      </td>
+      <td align="center">
+        <a href="https://f-droid.org/en/packages/org.draken.usagi/">
+          <img src="./.github/assets/badge_fdroid.png" height="70" alt="Usagi on F-Droid">
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ### Features
 
@@ -17,12 +44,14 @@
 
 #### All features from Usagi, include:
 
-* Added bug fixes for previously existing features in Kotatsu
-* Added some new features that requested by users / community
+* Bypass internet firewalls with tunnels built into the app, expanding access to more content.
 * Integrate more new user interface styles (Modern, Classic, etc.)
-* The ability to customize the manga display user interface (style, backdrop, etc.)
+* Improve the ability to customize / read offline / downloaded manga.
 * The accompanying services are regularly updated (Sync server / client, bot, proxy, etc.)
-* Optimized for low-end devices / phones
+* Optimized for low-end devices / phones, continue to maintain / support for Android 5.0+
+* Providing access to content with external plugins / extensions.
+* Provides bug fixes for features that previously existed in Kotatsu.
+* Provides more options to customize the user interface (style, background, etc.).
 
 </div>
 </details>
@@ -32,7 +61,7 @@
 
 <div align="left">
 
-#### All features from Kotatsu (original), include:
+#### All features from Kotatsu (original application), include:
 
 * Search manga by name, genres and more filters
 * Favorites organized by user-defined categories
@@ -49,21 +78,49 @@
 </div>
 </details>
 
+### In-App Screenshots
+
+<div align="center">
+    <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" alt="Mobile view" width="250"/>
+    <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" alt="Mobile view" width="250"/>
+    <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" alt="Mobile view" width="250"/>
+    <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" alt="Mobile view" width="250"/>
+    <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" alt="Mobile view" width="250"/>
+    <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" alt="Mobile view" width="250"/>
+</div>
+
+<br>
+
+<div align="center">
+    <img src="./fastlane/metadata/android/en-US/images/tenInchScreenshots/1.png" alt="Tablet view" width="400"/>
+    <img src="./fastlane/metadata/android/en-US/images/tenInchScreenshots/2.png" alt="Tablet view" width="400"/>
+</div>
+
 ### Contributing
 
 <details>
-  <summary>App development</summary>
+  <summary>Application / Library Development</summary>
+
+  <br>
+  
+  **This project includes 2 main repositories. [This repository](#) contains the entire source code of the main application, [core-exts](https://github.com/UsagiApp/core-exts) is the repository containing all the classes compatible with external plugins / extensions for Usagi.**
 
   <br>
 
   <a href="https://github.com/UsagiApp/Usagi">
     <picture>
-      <source srcset="https://github-readme-stats.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&bg_color=0d1117&text_color=1976d2&title_color=1976d2&icon_color=0877d2&border_radius=10&description_lines_count=2&show_owner=true" media="(prefers-color-scheme: dark)">
-      <img src="https://github-readme-stats.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&text_color=1976d2&title_color=1976d2&icon_color=0877d2&border_radius=10&description_lines_count=2&show_owner=true" alt="Usagi GitHub Repository">
+      <source srcset="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&theme=github_dark" media="(prefers-color-scheme: dark)">
+      <img src="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=Usagi" alt="Usagi GitHub Repository">
+    </picture>
+  </a>
+  <a href="https://github.com/UsagiApp/core-exts">
+    <picture>
+      <source srcset="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=core-exts&theme=github_dark" media="(prefers-color-scheme: dark)">
+      <img src="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=core-exts" alt="core-exts GitHub Repository">
     </picture>
   </a>
   
-  <br>
+  <br></br>
 
   **📌 Pull requests are welcome, if you want:
   See [CONTRIBUTING.md](https://github.com/UsagiApp/Usagi/blob/devel/CONTRIBUTING.md) for the guidelines**
@@ -111,6 +168,6 @@ All programs from Yumemi™ project are free, open-source programs under the GPL
 
 <div align="left">
 
-The developer(s) of this application does not have any affiliation with the content providers available. If there is any content, it's provided by external libraries (added / imported by users); the application itself doesn't include any built-in content.
+The developer(s) of this application does not have any affiliation with the content providers available. If there is any content, it's provided by external libraries (added / imported by users); Usagi itself doesn't include any built-in content.
 
 </div>

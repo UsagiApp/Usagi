@@ -23,17 +23,20 @@ class ChaptersSelectionCallback(
 	private val router: AppRouter,
 	recyclerView: RecyclerView,
 ) : BaseListSelectionCallback(recyclerView) {
-
 	override fun onCreateActionMode(
 		controller: ListSelectionController,
 		menuInflater: MenuInflater,
-		menu: Menu
+		menu: Menu,
 	): Boolean {
 		menuInflater.inflate(R.menu.mode_chapters, menu)
 		return true
 	}
 
-	override fun onPrepareActionMode(controller: ListSelectionController, mode: ActionMode?, menu: Menu): Boolean {
+	override fun onPrepareActionMode(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		menu: Menu,
+	): Boolean {
 		val selectedIds = controller.peekCheckedIds()
 		val allItems = viewModel.chapters.value
 		val items = allItems.withIndex().filter { it.value.chapter.id in selectedIds }
@@ -59,7 +62,11 @@ class ChaptersSelectionCallback(
 		return true
 	}
 
-	override fun onActionItemClicked(controller: ListSelectionController, mode: ActionMode?, item: MenuItem): Boolean {
+	override fun onActionItemClicked(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		item: MenuItem,
+	): Boolean {
 		return when (item.itemId) {
 			R.id.action_save -> {
 				val snapshot = controller.snapshot()
@@ -76,23 +83,31 @@ class ChaptersSelectionCallback(
 				val ids = controller.peekCheckedIds()
 				val manga = viewModel.getMangaOrNull()
 				when {
-					ids.isEmpty() || manga == null -> Unit
-					ids.size == manga.chapters?.size -> viewModel.deleteLocal()
+					ids.isEmpty() || manga == null -> {
+						Unit
+					}
+
+					ids.size == manga.chapters?.size -> {
+						viewModel.deleteLocal()
+					}
+
 					else -> {
 						LocalChaptersRemoveService.start(recyclerView.context, manga, ids.toSet())
 						try {
-							Snackbar.make(
-								recyclerView,
-								R.string.chapters_will_removed_background,
-								Snackbar.LENGTH_LONG,
-							).show()
+							Snackbar
+								.make(
+									recyclerView,
+									R.string.chapters_will_removed_background,
+									Snackbar.LENGTH_LONG,
+								).show()
 						} catch (e: IllegalArgumentException) {
 							e.printStackTraceDebug()
-							Toast.makeText(
-								recyclerView.context,
-								R.string.chapters_will_removed_background,
-								Toast.LENGTH_SHORT,
-							).show()
+							Toast
+								.makeText(
+									recyclerView.context,
+									R.string.chapters_will_removed_background,
+									Toast.LENGTH_SHORT,
+								).show()
 						}
 					}
 				}
@@ -121,9 +136,10 @@ class ChaptersSelectionCallback(
 			}
 
 			R.id.action_select_all -> {
-				val ids = viewModel.chapters.value.map {
-					it.chapter.id
-				}
+				val ids =
+					viewModel.chapters.value.map {
+						it.chapter.id
+					}
 				controller.addAll(ids)
 				true
 			}
@@ -139,7 +155,9 @@ class ChaptersSelectionCallback(
 				true
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
 	}
 }

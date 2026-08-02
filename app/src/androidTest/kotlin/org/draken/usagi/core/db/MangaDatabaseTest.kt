@@ -10,12 +10,12 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class MangaDatabaseTest {
-
 	@get:Rule
-	val helper: MigrationTestHelper = MigrationTestHelper(
-		InstrumentationRegistry.getInstrumentation(),
-		MangaDatabase::class.java,
-	)
+	val helper: MigrationTestHelper =
+		MigrationTestHelper(
+			InstrumentationRegistry.getInstrumentation(),
+			MangaDatabase::class.java,
+		)
 
 	private val migrations = getDatabaseMigrations(InstrumentationRegistry.getInstrumentation().targetContext)
 
@@ -33,12 +33,13 @@ class MangaDatabaseTest {
 	fun migrateAll() {
 		helper.createDatabase(TEST_DB, 1).close()
 		for (migration in migrations) {
-			helper.runMigrationsAndValidate(
-				TEST_DB,
-				migration.endVersion,
-				true,
-				migration,
-			).close()
+			helper
+				.runMigrationsAndValidate(
+					TEST_DB,
+					migration.endVersion,
+					true,
+					migration,
+				).close()
 		}
 	}
 
@@ -51,7 +52,6 @@ class MangaDatabaseTest {
 	}
 
 	private companion object {
-
 		const val TEST_DB = "test-db"
 	}
 }

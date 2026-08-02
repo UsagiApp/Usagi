@@ -10,19 +10,19 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ReversedReaderFragment : BasePagerReaderFragment() {
-
 	@Inject
 	lateinit var settings: AppSettings
 
 	override fun onCreateAdvancedTransformer(): ViewPager2.PageTransformer = ReversedPageAnimTransformer()
 
-	override fun onCreateAdapter() = ReversedPagesAdapter(
-		lifecycleOwner = viewLifecycleOwner,
-		loader = pageLoader,
-		readerSettingsProducer = viewModel.readerSettingsProducer,
-		networkState = networkState,
-		exceptionResolver = exceptionResolver,
-	)
+	override fun onCreateAdapter() =
+		ReversedPagesAdapter(
+			lifecycleOwner = viewLifecycleOwner,
+			loader = pageLoader,
+			readerSettingsProducer = viewModel.readerSettingsProducer,
+			networkState = networkState,
+			exceptionResolver = exceptionResolver,
+		)
 
 	override fun onWheelScroll(axisValue: Float) {
 		val value = if (settings.isReaderControlAlwaysLTR) -axisValue else axisValue
@@ -33,11 +33,17 @@ class ReversedReaderFragment : BasePagerReaderFragment() {
 		super.switchPageBy(-delta)
 	}
 
-	override fun switchPageTo(position: Int, smooth: Boolean) {
+	override fun switchPageTo(
+		position: Int,
+		smooth: Boolean,
+	) {
 		super.switchPageTo(reversed(position), smooth)
 	}
 
-	override suspend fun onPagesChanged(pages: List<ReaderPage>, pendingState: ReaderState?) {
+	override suspend fun onPagesChanged(
+		pages: List<ReaderPage>,
+		pendingState: ReaderState?,
+	) {
 		super.onPagesChanged(pages.reversed(), pendingState)
 	}
 
@@ -46,7 +52,5 @@ class ReversedReaderFragment : BasePagerReaderFragment() {
 		viewModel.onCurrentPageChanged(pos, pos)
 	}
 
-	private fun reversed(position: Int): Int {
-		return ((readerAdapter?.itemCount ?: 0) - position - 1).coerceAtLeast(0)
-	}
+	private fun reversed(position: Int): Int = ((readerAdapter?.itemCount ?: 0) - position - 1).coerceAtLeast(0)
 }

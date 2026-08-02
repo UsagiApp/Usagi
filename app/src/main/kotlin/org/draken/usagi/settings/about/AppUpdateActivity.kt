@@ -41,20 +41,22 @@ import org.draken.usagi.core.util.ext.textAndVisible
 import org.draken.usagi.databinding.ActivityAppUpdateBinding
 
 @AndroidEntryPoint
-class AppUpdateActivity : BaseActivity<ActivityAppUpdateBinding>(), View.OnClickListener {
-
+class AppUpdateActivity :
+	BaseActivity<ActivityAppUpdateBinding>(),
+	View.OnClickListener {
 	private val viewModel: AppUpdateViewModel by viewModels()
 	private lateinit var downloadReceiver: UpdateDownloadReceiver
 
-	private val permissionRequest = registerForActivityResult(
-		ActivityResultContracts.RequestPermission(),
-	) {
-		if (it) {
-			viewModel.startDownload()
-		} else {
-			openInBrowser()
+	private val permissionRequest =
+		registerForActivityResult(
+			ActivityResultContracts.RequestPermission(),
+		) {
+			if (it) {
+				viewModel.startDownload()
+			} else {
+				openInBrowser()
+			}
 		}
-	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -90,7 +92,7 @@ class AppUpdateActivity : BaseActivity<ActivityAppUpdateBinding>(), View.OnClick
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		viewBinding.root.updatePadding(top = barsInsets.top)
@@ -120,16 +122,17 @@ class AppUpdateActivity : BaseActivity<ActivityAppUpdateBinding>(), View.OnClick
 			return
 		}
 		val markwon = Markwon.create(this)
-		val message = withContext(Dispatchers.Default) {
-			buildSpannedString {
-				append(getString(R.string.new_version_s, version.name))
-				appendLine()
-				append(getString(R.string.size_s, FileSize.BYTES.format(this@AppUpdateActivity, version.apkSize)))
-				appendLine()
-				appendLine()
-				append(markwon.toMarkdown(version.description))
+		val message =
+			withContext(Dispatchers.Default) {
+				buildSpannedString {
+					append(getString(R.string.new_version_s, version.name))
+					appendLine()
+					append(getString(R.string.size_s, FileSize.BYTES.format(this@AppUpdateActivity, version.apkSize)))
+					appendLine()
+					appendLine()
+					append(markwon.toMarkdown(version.description))
+				}
 			}
-		}
 		markwon.setParsedMarkdown(viewBinding.textViewContent, message)
 	}
 
@@ -168,11 +171,12 @@ class AppUpdateActivity : BaseActivity<ActivityAppUpdateBinding>(), View.OnClick
 	}
 
 	private fun onDownloadStateChanged(state: Int) {
-		val message = when (state) {
-			DownloadManager.STATUS_FAILED -> R.string.error_occurred
-			DownloadManager.STATUS_PAUSED -> R.string.downloads_paused
-			else -> 0
-		}
+		val message =
+			when (state) {
+				DownloadManager.STATUS_FAILED -> R.string.error_occurred
+				DownloadManager.STATUS_PAUSED -> R.string.downloads_paused
+				else -> 0
+			}
 		viewBinding.textViewError.setTextAndVisible(message)
 	}
 
@@ -183,8 +187,10 @@ class AppUpdateActivity : BaseActivity<ActivityAppUpdateBinding>(), View.OnClick
 	private class UpdateDownloadReceiver(
 		private val viewModel: AppUpdateViewModel,
 	) : BroadcastReceiver() {
-
-		override fun onReceive(context: Context, intent: Intent) {
+		override fun onReceive(
+			context: Context,
+			intent: Intent,
+		) {
 			when (intent.action) {
 				DownloadManager.ACTION_DOWNLOAD_COMPLETE -> {
 					viewModel.onDownloadComplete(intent)

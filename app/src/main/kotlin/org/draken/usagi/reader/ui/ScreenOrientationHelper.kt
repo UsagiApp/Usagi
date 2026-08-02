@@ -17,68 +17,77 @@ import org.draken.usagi.core.prefs.AppSettings
 import javax.inject.Inject
 
 @ActivityScoped
-class ScreenOrientationHelper @Inject constructor(
-	private val activity: Activity,
-	private val settings: AppSettings,
-) {
+class ScreenOrientationHelper
+	@Inject
+	constructor(
+		private val activity: Activity,
+		private val settings: AppSettings,
+	) {
+		val isAutoRotationEnabled: Boolean
+			get() =
+				Settings.System.getInt(
+					activity.contentResolver,
+					Settings.System.ACCELEROMETER_ROTATION,
+					0,
+				) == 1
 
-	val isAutoRotationEnabled: Boolean
-		get() = Settings.System.getInt(
-			activity.contentResolver,
-			Settings.System.ACCELEROMETER_ROTATION,
-			0,
-		) == 1
+		var isLandscape: Boolean
+			get() = activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+			set(value) {
+				activity.requestedOrientation =
+					if (value) {
+						ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+					} else {
+						ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+					}
+			}
 
-	var isLandscape: Boolean
-		get() = activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-		set(value) {
-			activity.requestedOrientation = if (value) {
-				ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+		var isLocked: Boolean
+			get() = activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LOCKED
+			set(value) {
+				activity.requestedOrientation =
+					if (value) {
+						ActivityInfo.SCREEN_ORIENTATION_LOCKED
+					} else {
+						ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+					}
+			}
+
+		fun applySettings() {
+			if (activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
+				// https://developer.android.com/reference/android/R.attr.html#screenOrientation
+				activity.requestedOrientation = settings.readerScreenOrientation
+			}
+		}
+
+		fun observeAutoOrientation() =
+			callbackFlow {
+				val observer =
+					object : ContentObserver(Handler(activity.mainLooper)) {
+						override fun onChange(selfChange: Boolean) {
+							trySendBlocking(isAutoRotationEnabled)
+						}
+					}
+				activity.contentResolver.registerContentObserver(
+					Settings.System.CONTENT_URI,
+					true,
+					observer,
+				)
+				awaitClose {
+					activity.contentResolver.unregisterContentObserver(observer)
+				}
+			}.onStart {
+				emit(isAutoRotationEnabled)
+			}.distinctUntilChanged()
+				.conflate()
+
+		fun toggleScreenOrientation(): Boolean =
+			if (isAutoRotationEnabled) {
+				val newValue = !isLocked
+				isLocked = newValue
+				true
 			} else {
-				ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+				isLandscape = !isLandscape
+				false
 			}
-		}
-
-	var isLocked: Boolean
-		get() = activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LOCKED
-		set(value) {
-			activity.requestedOrientation = if (value) {
-				ActivityInfo.SCREEN_ORIENTATION_LOCKED
-			} else {
-				ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-			}
-		}
-
-	fun applySettings() {
-		if (activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
-			// https://developer.android.com/reference/android/R.attr.html#screenOrientation
-			activity.requestedOrientation = settings.readerScreenOrientation
-		}
 	}
-
-	fun observeAutoOrientation() = callbackFlow {
-		val observer = object : ContentObserver(Handler(activity.mainLooper)) {
-			override fun onChange(selfChange: Boolean) {
-				trySendBlocking(isAutoRotationEnabled)
-			}
-		}
-		activity.contentResolver.registerContentObserver(
-			Settings.System.CONTENT_URI, true, observer,
-		)
-		awaitClose {
-			activity.contentResolver.unregisterContentObserver(observer)
-		}
-	}.onStart {
-		emit(isAutoRotationEnabled)
-	}.distinctUntilChanged()
-		.conflate()
-
-	fun toggleScreenOrientation(): Boolean = if (isAutoRotationEnabled) {
-		val newValue = !isLocked
-		isLocked = newValue
-		true
-	} else {
-		isLandscape = !isLandscape
-		false
-	}
-}

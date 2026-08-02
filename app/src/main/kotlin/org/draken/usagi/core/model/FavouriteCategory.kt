@@ -16,17 +16,17 @@ data class FavouriteCategory(
 	val createdAt: Instant,
 	val isTrackingEnabled: Boolean,
 	val isVisibleInLibrary: Boolean,
-) : Parcelable, ListModel {
-
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is FavouriteCategory && id == other.id
-	}
+) : Parcelable,
+	ListModel {
+	override fun areItemsTheSame(other: ListModel): Boolean = other is FavouriteCategory && id == other.id
 
 	override fun getChangePayload(previousState: ListModel): Any? {
 		if (previousState !is FavouriteCategory) {
 			return null
 		}
-		return if (isTrackingEnabled != previousState.isTrackingEnabled || isVisibleInLibrary != previousState.isVisibleInLibrary) {
+		return if (isTrackingEnabled != previousState.isTrackingEnabled ||
+			isVisibleInLibrary != previousState.isVisibleInLibrary
+		) {
 			ListModelDiffCallback.PAYLOAD_CHECKED_CHANGED
 		} else {
 			null

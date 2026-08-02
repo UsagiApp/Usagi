@@ -25,26 +25,33 @@ import org.draken.usagi.sync.domain.SyncController
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
+class ServicesSettingsFragment :
+	BasePreferenceFragment(R.string.services),
 	SharedPreferences.OnSharedPreferenceChangeListener {
-
 	@Inject
 	lateinit var syncController: SyncController
 
 	@Inject
 	lateinit var scrobblerAuthHelper: ScrobblerAuthHelper
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
 		addPreferencesFromResource(R.xml.pref_services)
 		findPreference<SplitSwitchPreference>(AppSettings.KEY_STATS_ENABLED)?.let {
-			it.onContainerClickListener = Preference.OnPreferenceClickListener {
-				router.openStatistic()
-				true
-			}
+			it.onContainerClickListener =
+				Preference.OnPreferenceClickListener {
+					router.openStatistic()
+					true
+				}
 		}
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		bindSuggestionsSummary()
 		bindStatsSummary()
@@ -65,16 +72,18 @@ class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
 		bindSyncSummary()
 	}
 
-	override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
+	override fun onSharedPreferenceChanged(
+		prefs: SharedPreferences?,
+		key: String?,
+	) {
 		when (key) {
 			AppSettings.KEY_SUGGESTIONS -> bindSuggestionsSummary()
 			AppSettings.KEY_STATS_ENABLED -> bindStatsSummary()
 		}
 	}
 
-
-	override fun onPreferenceTreeClick(preference: Preference): Boolean {
-		return when (preference.key) {
+	override fun onPreferenceTreeClick(preference: Preference): Boolean =
+		when (preference.key) {
 			AppSettings.KEY_SHIKIMORI -> {
 				handleScrobblerClick(ScrobblerService.SHIKIMORI)
 				true
@@ -109,13 +118,14 @@ class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
 				true
 			}
 
-			else -> super.onPreferenceTreeClick(preference)
+			else -> {
+				super.onPreferenceTreeClick(preference)
+			}
 		}
-	}
 
 	private fun bindScrobblerSummary(
 		key: String,
-		scrobblerService: ScrobblerService
+		scrobblerService: ScrobblerService,
 	) {
 		val pref = findPreference<Preference>(key) ?: return
 		if (!scrobblerAuthHelper.isAuthorized(scrobblerService)) {
@@ -128,15 +138,16 @@ class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
 		} else {
 			pref.setSummary(R.string.loading_)
 			viewLifecycleScope.launch {
-				pref.summary = withContext(Dispatchers.Default) {
-					runCatching {
-						val user = scrobblerAuthHelper.getUser(scrobblerService)
-						getString(R.string.logged_in_as, user.nickname)
-					}.getOrElse {
-						it.printStackTraceDebug()
-						it.getDisplayMessage(resources)
+				pref.summary =
+					withContext(Dispatchers.Default) {
+						runCatching {
+							val user = scrobblerAuthHelper.getUser(scrobblerService)
+							getString(R.string.logged_in_as, user.nickname)
+						}.getOrElse {
+							it.printStackTraceDebug()
+							it.getDisplayMessage(resources)
+						}
 					}
-				}
 			}
 		}
 	}
@@ -151,16 +162,18 @@ class ServicesSettingsFragment : BasePreferenceFragment(R.string.services),
 
 	private fun bindSyncSummary() {
 		viewLifecycleScope.launch {
-			val account = withContext(Dispatchers.Default) {
-				val type = getString(R.string.account_type_sync)
-				AccountManager.get(requireContext()).getAccountsByType(type).firstOrNull()
-			}
-			findPreference<Preference>(AppSettings.KEY_SYNC)?.run {
-				summary = when {
-					account == null -> getString(R.string.sync_title)
-					syncController.isEnabled(account) -> account.name
-					else -> getString(R.string.disabled)
+			val account =
+				withContext(Dispatchers.Default) {
+					val type = getString(R.string.account_type_sync)
+					AccountManager.get(requireContext()).getAccountsByType(type).firstOrNull()
 				}
+			findPreference<Preference>(AppSettings.KEY_SYNC)?.run {
+				summary =
+					when {
+						account == null -> getString(R.string.sync_title)
+						syncController.isEnabled(account) -> account.name
+						else -> getString(R.string.disabled)
+					}
 			}
 			findPreference<Preference>(AppSettings.KEY_SYNC_SETTINGS)?.isEnabled = account != null
 		}

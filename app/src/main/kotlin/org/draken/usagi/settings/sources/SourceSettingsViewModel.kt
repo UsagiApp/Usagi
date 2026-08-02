@@ -9,105 +9,135 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.HttpUrl
 import org.draken.usagi.R
 import org.draken.usagi.core.model.MangaSource
+import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.parser.CachingMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
+import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
 import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.util.ReversibleAction
 import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.explore.data.MangaSourcesRepository
-import org.koitharu.kotatsu.parsers.MangaParserAuthProvider
-import org.koitharu.kotatsu.parsers.exception.AuthRequiredException
+import tsuki.MangaParserAuthProvider
+import tsuki.exception.AuthRequiredException
 import javax.inject.Inject
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 
 @HiltViewModel
-class SourceSettingsViewModel @Inject constructor(
-	savedStateHandle: SavedStateHandle,
-	mangaRepositoryFactory: MangaRepository.Factory,
-	private val cookieJar: MutableCookieJar,
-	private val mangaSourcesRepository: MangaSourcesRepository,
-) : BaseViewModel(), SharedPreferences.OnSharedPreferenceChangeListener {
+class SourceSettingsViewModel
+	@Inject
+	constructor(
+		savedStateHandle: SavedStateHandle,
+		mangaRepositoryFactory: MangaRepository.Factory,
+		private val cookieJar: MutableCookieJar,
+		private val mangaSourcesRepository: MangaSourcesRepository,
+		private val externalManager: ExternalManager,
+	) : BaseViewModel(),
+		SharedPreferences.OnSharedPreferenceChangeListener {
+		val source = MangaSource(savedStateHandle.get<String>(AppRouter.KEY_SOURCE))
+		val repository = mangaRepositoryFactory.create(source)
 
-	val source = MangaSource(savedStateHandle.get<String>(AppRouter.KEY_SOURCE))
-	val repository = mangaRepositoryFactory.create(source)
+		val onActionDone = MutableEventFlow<ReversibleAction>()
+		val username = MutableStateFlow<String?>(null)
+		val isAuthorized = MutableStateFlow<Boolean?>(null)
+		val browserUrl = MutableStateFlow<String?>(null)
+		val isEnabled = mangaSourcesRepository.observeIsEnabled(source)
+		private var usernameLoadJob: Job? = null
 
-	val onActionDone = MutableEventFlow<ReversibleAction>()
-	val username = MutableStateFlow<String?>(null)
-	val isAuthorized = MutableStateFlow<Boolean?>(null)
-	val browserUrl = MutableStateFlow<String?>(null)
-	val isEnabled = mangaSourcesRepository.observeIsEnabled(source)
-	private var usernameLoadJob: Job? = null
+		init {
+			when (repository) {
+				is MangaParserRepository -> {
+					browserUrl.value = "https://${repository.domain}"
+					repository.getConfig().subscribe(this)
+					loadUsername(repository.getAuthProvider())
+				}
 
-	init {
-		when (repository) {
-			is ParserMangaRepository -> {
-				browserUrl.value = "https://${repository.domain}"
-				repository.getConfig().subscribe(this)
+				is ExternalMangaRepository -> {
+					browserUrl.value = repository.getBrowserUrl()
+					repository.getSettingsPreferences().registerOnSharedPreferenceChangeListener(this)
+				}
+			}
+		}
+
+		override fun onCleared() {
+			when (repository) {
+				is MangaParserRepository -> {
+					repository.getConfig().unsubscribe(this)
+				}
+
+				is ExternalMangaRepository -> {
+					repository.getSettingsPreferences().unregisterOnSharedPreferenceChangeListener(this)
+				}
+			}
+			super.onCleared()
+		}
+
+		override fun onSharedPreferenceChanged(
+			sharedPreferences: SharedPreferences?,
+			key: String?,
+		) {
+			if (repository is CachingMangaRepository) {
+				if (key != SourceSettings.KEY_SLOWDOWN && key != SourceSettings.KEY_SORT_ORDER) {
+					repository.invalidateCache()
+				}
+			}
+			if (repository is MangaParserRepository) {
+				if (key == SourceSettings.KEY_DOMAIN) {
+					browserUrl.value = "https://${repository.domain}"
+				}
+			}
+			if (repository is ExternalMangaRepository && key == SourceSettings.KEY_DOMAIN) {
+				repository.refreshDomainOverride()
+				browserUrl.value = repository.getBrowserUrl()
+			}
+		}
+
+		fun onResume() {
+			if (usernameLoadJob?.isActive != true && repository is MangaParserRepository) {
 				loadUsername(repository.getAuthProvider())
 			}
 		}
-	}
 
-	override fun onCleared() {
-		when (repository) {
-			is ParserMangaRepository -> {
-				repository.getConfig().unsubscribe(this)
+		fun clearCookies() {
+			if (repository !is MangaParserRepository) return
+			launchLoadingJob(Dispatchers.Default) {
+				val url =
+					HttpUrl
+						.Builder()
+						.scheme("https")
+						.host(repository.domain)
+						.build()
+				cookieJar.removeCookies(url, null)
+				onActionDone.call(ReversibleAction(R.string.cookies_cleared, null))
+				loadUsername(repository.getAuthProvider())
 			}
 		}
-		super.onCleared()
-	}
 
-	override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-		if (repository is CachingMangaRepository) {
-			if (key != SourceSettings.KEY_SLOWDOWN && key != SourceSettings.KEY_SORT_ORDER) {
-				repository.invalidateCache()
+		fun setEnabled(value: Boolean) {
+			launchJob(Dispatchers.Default) {
+				mangaSourcesRepository.setSourcesEnabled(setOf(source), value)
 			}
 		}
-		if (repository is ParserMangaRepository) {
-			if (key == SourceSettings.KEY_DOMAIN) {
-				browserUrl.value = "https://${repository.domain}"
-			}
-		}
-	}
 
-	fun onResume() {
-		if (usernameLoadJob?.isActive != true && repository is ParserMangaRepository) {
-			loadUsername(repository.getAuthProvider())
+		fun publish() {
+			val e = MangaSourceRegistry.sources.filterNot { it is ExternalSource }
+			MangaSourceRegistry.publish(e + externalManager.getActiveSources())
 		}
-	}
 
-	fun clearCookies() {
-		if (repository !is ParserMangaRepository) return
-		launchLoadingJob(Dispatchers.Default) {
-			val url = HttpUrl.Builder()
-				.scheme("https")
-				.host(repository.domain)
-				.build()
-			cookieJar.removeCookies(url, null)
-			onActionDone.call(ReversibleAction(R.string.cookies_cleared, null))
-			loadUsername(repository.getAuthProvider())
-		}
-	}
-
-	fun setEnabled(value: Boolean) {
-		launchJob(Dispatchers.Default) {
-			mangaSourcesRepository.setSourcesEnabled(setOf(source), value)
-		}
-	}
-
-	private fun loadUsername(authProvider: MangaParserAuthProvider?) {
-		launchLoadingJob(Dispatchers.Default) {
-			try {
-				username.value = null
-				isAuthorized.value = null
-				isAuthorized.value = authProvider?.isAuthorized()
-				username.value = authProvider?.getUsername()
-			} catch (_: AuthRequiredException) {
+		private fun loadUsername(authProvider: MangaParserAuthProvider?) {
+			launchLoadingJob(Dispatchers.Default) {
+				try {
+					username.value = null
+					isAuthorized.value = null
+					isAuthorized.value = authProvider?.isAuthorized()
+					username.value = authProvider?.getUsername()
+				} catch (_: AuthRequiredException) {
+				}
 			}
 		}
 	}
-}

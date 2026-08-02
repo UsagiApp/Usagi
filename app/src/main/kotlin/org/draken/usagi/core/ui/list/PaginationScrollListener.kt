@@ -2,9 +2,10 @@ package org.draken.usagi.core.ui.list
 
 import androidx.recyclerview.widget.RecyclerView
 
-class PaginationScrollListener(offset: Int, private val callback: Callback) :
-	BoundsScrollListener(0, offset) {
-
+class PaginationScrollListener(
+	offset: Int,
+	private val callback: Callback,
+) : BoundsScrollListener(0, offset) {
 	override fun onScrolledToStart(recyclerView: RecyclerView) = Unit
 
 	override fun onScrolledToEnd(recyclerView: RecyclerView) {
@@ -12,7 +13,6 @@ class PaginationScrollListener(offset: Int, private val callback: Callback) :
 	}
 
 	interface Callback {
-
 		fun onScrolledToEnd()
 	}
 }

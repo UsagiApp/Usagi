@@ -6,17 +6,18 @@ import okhttp3.Response
 import okhttp3.internal.closeQuietly
 import okio.IOException
 import org.draken.usagi.core.network.CommonHeaders
-import org.koitharu.kotatsu.parsers.util.mimeType
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
-import org.koitharu.kotatsu.parsers.util.parseHtml
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import org.draken.usagi.scrobbling.common.data.ScrobblerStorage
 import org.draken.usagi.scrobbling.common.domain.ScrobblerAuthRequiredException
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblerService
+import tsuki.util.mimeType
+import tsuki.util.nullIfEmpty
+import tsuki.util.parseHtml
+import tsuki.util.runCatchingCancellable
 import java.net.HttpURLConnection
 
-class KitsuInterceptor(private val storage: ScrobblerStorage) : Interceptor {
-
+class KitsuInterceptor(
+	private val storage: ScrobblerStorage,
+) : Interceptor {
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val sourceRequest = chain.request()
 		val request = sourceRequest.newBuilder()
@@ -34,18 +35,18 @@ class KitsuInterceptor(private val storage: ScrobblerStorage) : Interceptor {
 			throw ScrobblerAuthRequiredException(ScrobblerService.KITSU)
 		}
 		if (response.mimeType?.toMediaTypeOrNull()?.subtype == SUBTYPE_HTML) {
-			val message = runCatchingCancellable {
-				response.parseHtml().title().nullIfEmpty()
-			}.onFailure {
-				response.closeQuietly()
-			}.getOrNull() ?: "Invalid response (${response.code})"
+			val message =
+				runCatchingCancellable {
+					response.parseHtml().title().nullIfEmpty()
+				}.onFailure {
+					response.closeQuietly()
+				}.getOrNull() ?: "Invalid response (${response.code})"
 			throw IOException(message)
 		}
 		return response
 	}
 
 	companion object {
-
 		const val VND_JSON = "application/vnd.api+json"
 		const val SUBTYPE_HTML = "html"
 	}

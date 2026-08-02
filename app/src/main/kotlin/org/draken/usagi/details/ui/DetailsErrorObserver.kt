@@ -8,8 +8,8 @@ import org.draken.usagi.core.exceptions.resolve.ExceptionResolver
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.isNetworkError
 import org.draken.usagi.core.util.ext.isSerializable
-import org.koitharu.kotatsu.parsers.exception.NotFoundException
-import org.koitharu.kotatsu.parsers.exception.ParseException
+import tsuki.exception.NotFoundException
+import tsuki.exception.ParseException
 
 class DetailsErrorObserver(
 	override val activity: androidx.fragment.app.FragmentActivity,
@@ -18,14 +18,15 @@ class DetailsErrorObserver(
 	private val viewModel: DetailsViewModel,
 	resolver: ExceptionResolver?,
 ) : ErrorObserver(
-	snackbarHost, null, resolver,
-	{ isResolved ->
-		if (isResolved) {
-			viewModel.reload()
-		}
-	},
-) {
-
+		snackbarHost,
+		null,
+		resolver,
+		{ isResolved ->
+			if (isResolved) {
+				viewModel.reload()
+			}
+		},
+	) {
 	override suspend fun emit(value: Throwable) {
 		val snackbar = Snackbar.make(host, value.getDisplayMessage(host.context.resources), Snackbar.LENGTH_SHORT)
 		snackbar.setAnchorView(bottomSheet)

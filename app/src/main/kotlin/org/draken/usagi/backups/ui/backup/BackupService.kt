@@ -36,7 +36,6 @@ import androidx.appcompat.R as appcompatR
 @AndroidEntryPoint
 @SuppressLint("InlinedApi")
 class BackupService : BaseBackupRestoreService() {
-
 	override val notificationTag = TAG
 	override val isRestoreService = false
 
@@ -53,15 +52,16 @@ class BackupService : BaseBackupRestoreService() {
 		val destination = intent.getStringExtra(AppRouter.KEY_DATA)?.toUriOrNull() ?: throw FileNotFoundException()
 		powerManager.withPartialWakeLock(TAG) {
 			val progress = MutableStateFlow(Progress.INDETERMINATE)
-			val progressUpdateJob = if (checkNotificationPermission(CHANNEL_ID)) {
-				launch {
-					progress.collect {
-						notificationManager.notify(FOREGROUND_NOTIFICATION_ID, buildNotification(it))
+			val progressUpdateJob =
+				if (checkNotificationPermission(CHANNEL_ID)) {
+					launch {
+						progress.collect {
+							notificationManager.notify(FOREGROUND_NOTIFICATION_ID, buildNotification(it))
+						}
 					}
+				} else {
+					null
 				}
-			} else {
-				null
-			}
 			try {
 				ZipOutputStream(contentResolver.openOutputStream(destination)).use { output ->
 					repository.createBackup(output, progress)
@@ -83,8 +83,9 @@ class BackupService : BaseBackupRestoreService() {
 		}
 	}
 
-	private fun IntentJobContext.buildNotification(progress: Progress): Notification {
-		return NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+	private fun IntentJobContext.buildNotification(progress: Progress): Notification =
+		NotificationCompat
+			.Builder(applicationContext, CHANNEL_ID)
 			.setContentTitle(getString(R.string.creating_backup))
 			.setPriority(NotificationCompat.PRIORITY_HIGH)
 			.setDefaults(0)
@@ -94,15 +95,13 @@ class BackupService : BaseBackupRestoreService() {
 				progress.total.coerceAtLeast(0),
 				progress.progress.coerceAtLeast(0),
 				progress.isIndeterminate,
-			)
-			.setContentText(
+			).setContentText(
 				if (progress.isIndeterminate) {
 					getString(R.string.processing_)
 				} else {
 					getString(R.string.fraction_pattern, progress.progress, progress.total)
 				},
-			)
-			.setSmallIcon(android.R.drawable.stat_sys_upload)
+			).setSmallIcon(android.R.drawable.stat_sys_upload)
 			.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
 			.setCategory(NotificationCompat.CATEGORY_PROGRESS)
 			.addAction(
@@ -110,22 +109,24 @@ class BackupService : BaseBackupRestoreService() {
 				applicationContext.getString(android.R.string.cancel),
 				getCancelIntent(),
 			).build()
-	}
 
 	companion object {
-
 		private const val TAG = "BACKUP"
 		private const val FOREGROUND_NOTIFICATION_ID = 33
 
 		@CheckResult
-		fun start(context: Context, uri: Uri): Boolean = try {
-			val intent = Intent(context, BackupService::class.java)
-			intent.putExtra(AppRouter.KEY_DATA, uri.toString())
-			ContextCompat.startForegroundService(context, intent)
-			true
-		} catch (e: Exception) {
-			e.printStackTraceDebug()
-			false
-		}
+		fun start(
+			context: Context,
+			uri: Uri,
+		): Boolean =
+			try {
+				val intent = Intent(context, BackupService::class.java)
+				intent.putExtra(AppRouter.KEY_DATA, uri.toString())
+				ContextCompat.startForegroundService(context, intent)
+				true
+			} catch (e: Exception) {
+				e.printStackTraceDebug()
+				false
+			}
 	}
 }

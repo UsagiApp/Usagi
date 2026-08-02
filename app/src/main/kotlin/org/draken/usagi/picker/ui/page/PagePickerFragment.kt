@@ -30,15 +30,14 @@ import org.draken.usagi.list.ui.GridSpanResolver
 import org.draken.usagi.list.ui.adapter.ListItemType
 import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
 import org.draken.usagi.picker.ui.PageImagePickActivity
+import tsuki.util.ifNullOrEmpty
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class PagePickerFragment :
 	BaseFragment<FragmentPagesBinding>(),
 	OnListItemClickListener<PageThumbnail> {
-
 	@Inject
 	lateinit var settings: AppSettings
 
@@ -50,16 +49,21 @@ class PagePickerFragment :
 
 	private val spanSizeLookup = SpanSizeLookup()
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPagesBinding {
-		return FragmentPagesBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): FragmentPagesBinding = FragmentPagesBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: FragmentPagesBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentPagesBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		spanResolver = GridSpanResolver(binding.root.resources)
-		thumbnailsAdapter = PageThumbnailAdapter(
-			clickListener = this@PagePickerFragment,
-		)
+		thumbnailsAdapter =
+			PageThumbnailAdapter(
+				clickListener = this@PagePickerFragment,
+			)
 		viewModel.gridScale.observe(viewLifecycleOwner, ::onGridScaleChanged) // before rv initialization
 		with(binding.recyclerView) {
 			addItemDecoration(TypedListSpacingDecoration(context, false))
@@ -91,7 +95,10 @@ class PagePickerFragment :
 		super.onDestroyView()
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeBask = WindowInsetsCompat.Type.systemBars()
 		val barsInsets = insets.getInsets(typeBask)
 		viewBinding?.recyclerView?.setPadding(
@@ -103,14 +110,23 @@ class PagePickerFragment :
 		return insets.consumeAll(typeBask)
 	}
 
-	override fun onItemClick(item: PageThumbnail, view: View) {
+	override fun onItemClick(
+		item: PageThumbnail,
+		view: View,
+	) {
 		val manga = viewModel.manga.value?.toManga() ?: return
 		(activity as PageImagePickActivity).onPagePicked(manga, item.page)
 	}
 
-	override fun onItemLongClick(item: PageThumbnail, view: View): Boolean = false
+	override fun onItemLongClick(
+		item: PageThumbnail,
+		view: View,
+	): Boolean = false
 
-	override fun onItemContextClick(item: PageThumbnail, view: View): Boolean = false
+	override fun onItemContextClick(
+		item: PageThumbnail,
+		view: View,
+	): Boolean = false
 
 	private suspend fun onThumbnailsChanged(list: List<ListModel>) {
 		val adapter = thumbnailsAdapter ?: return
@@ -134,7 +150,6 @@ class PagePickerFragment :
 	}
 
 	private inner class ScrollListener : BoundsScrollListener(3, 3) {
-
 		override fun onScrolledToStart(recyclerView: RecyclerView) = Unit
 
 		override fun onScrolledToEnd(recyclerView: RecyclerView) {
@@ -143,7 +158,6 @@ class PagePickerFragment :
 	}
 
 	private inner class SpanSizeLookup : GridLayoutManager.SpanSizeLookup() {
-
 		init {
 			isSpanIndexCacheEnabled = true
 			isSpanGroupIndexCacheEnabled = true

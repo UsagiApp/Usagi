@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import org.draken.usagi.core.model.getLocalizedTitle
 import org.draken.usagi.core.ui.model.DateTimeAgo
-import org.koitharu.kotatsu.parsers.model.MangaChapter
+import tsuki.model.MangaChapter
 
 data class ListHeader private constructor(
 	private val textRaw: Any,
@@ -12,7 +12,6 @@ data class ListHeader private constructor(
 	val payload: Any?,
 	val badge: String?,
 ) : ListModel {
-
 	constructor(
 		text: CharSequence,
 		@StringRes buttonTextRes: Int = 0,
@@ -41,15 +40,14 @@ data class ListHeader private constructor(
 		badge: String? = null,
 	) : this(textRaw = dateTimeAgo, buttonTextRes, payload, badge)
 
-	fun getText(context: Context): CharSequence? = when (textRaw) {
-		is CharSequence -> textRaw
-		is Int -> if (textRaw != 0) context.getString(textRaw) else null
-		is DateTimeAgo -> textRaw.format(context)
-		is MangaChapter -> textRaw.getLocalizedTitle(context.resources)
-		else -> null
-	}
+	fun getText(context: Context): CharSequence? =
+		when (textRaw) {
+			is CharSequence -> textRaw
+			is Int -> if (textRaw != 0) context.getString(textRaw) else null
+			is DateTimeAgo -> textRaw.format(context)
+			is MangaChapter -> textRaw.getLocalizedTitle(context.resources)
+			else -> null
+		}
 
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is ListHeader && textRaw == other.textRaw
-	}
+	override fun areItemsTheSame(other: ListModel): Boolean = other is ListHeader && textRaw == other.textRaw
 }

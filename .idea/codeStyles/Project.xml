@@ -3,6 +3,7 @@
     <option name="OTHER_INDENT_OPTIONS">
       <value />
     </option>
+    <option name="LINE_SEPARATOR" value="&#10;" />
     <AndroidXmlCodeStyleSettings>
       <option name="LAYOUT_SETTINGS">
         <value>

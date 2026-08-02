@@ -2,37 +2,41 @@ package org.draken.usagi.download.ui.dialog
 
 import androidx.collection.ArraySet
 import androidx.collection.LongLongMap
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.util.mapNotNullToSet
+import tsuki.model.MangaChapter
+import tsuki.util.mapNotNullToSet
 
 interface ChaptersSelectMacro {
-
-	fun getChaptersIds(mangaId: Long, chapters: List<MangaChapter>): Set<Long>?
+	fun getChaptersIds(
+		mangaId: Long,
+		chapters: List<MangaChapter>,
+	): Set<Long>?
 
 	class WholeManga(
 		val chaptersCount: Int,
 	) : ChaptersSelectMacro {
-
-		override fun getChaptersIds(mangaId: Long, chapters: List<MangaChapter>): Set<Long>? = null
+		override fun getChaptersIds(
+			mangaId: Long,
+			chapters: List<MangaChapter>,
+		): Set<Long>? = null
 	}
 
 	class WholeBranch(
 		val branches: Map<String?, Int>,
 		val selectedBranch: String?,
 	) : ChaptersSelectMacro {
-
 		val chaptersCount: Int = branches[selectedBranch] ?: 0
 
 		override fun getChaptersIds(
 			mangaId: Long,
-			chapters: List<MangaChapter>
-		): Set<Long> = chapters.mapNotNullToSet { c ->
-			if (c.branch == selectedBranch) {
-				c.id
-			} else {
-				null
+			chapters: List<MangaChapter>,
+		): Set<Long> =
+			chapters.mapNotNullToSet { c ->
+				if (c.branch == selectedBranch) {
+					c.id
+				} else {
+					null
+				}
 			}
-		}
 
 		fun copy(branch: String?) = WholeBranch(branches, branch)
 	}
@@ -42,8 +46,10 @@ interface ChaptersSelectMacro {
 		val maxAvailableCount: Int,
 		val branch: String?,
 	) : ChaptersSelectMacro {
-
-		override fun getChaptersIds(mangaId: Long, chapters: List<MangaChapter>): Set<Long> {
+		override fun getChaptersIds(
+			mangaId: Long,
+			chapters: List<MangaChapter>,
+		): Set<Long> {
 			val result = ArraySet<Long>(minOf(chaptersCount, chapters.size))
 			for (c in chapters) {
 				if (c.branch == branch) {
@@ -64,8 +70,10 @@ interface ChaptersSelectMacro {
 		val maxAvailableCount: Int,
 		private val currentChaptersIds: LongLongMap,
 	) : ChaptersSelectMacro {
-
-		override fun getChaptersIds(mangaId: Long, chapters: List<MangaChapter>): Set<Long>? {
+		override fun getChaptersIds(
+			mangaId: Long,
+			chapters: List<MangaChapter>,
+		): Set<Long>? {
 			if (chapters.isEmpty()) {
 				return null
 			}

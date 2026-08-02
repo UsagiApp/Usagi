@@ -9,14 +9,13 @@ import org.draken.usagi.core.util.ext.printStackTraceDebug
 
 @Suppress("unused")
 class ActivityListPreference : ListPreference {
-
 	var activityIntent: Intent? = null
 
 	constructor(
 		context: Context,
 		attrs: AttributeSet?,
 		defStyleAttr: Int,
-		defStyleRes: Int
+		defStyleRes: Int,
 	) : super(context, attrs, defStyleAttr, defStyleRes)
 
 	constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)

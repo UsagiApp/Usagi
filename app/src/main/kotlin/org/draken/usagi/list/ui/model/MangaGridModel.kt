@@ -4,7 +4,7 @@ import org.draken.usagi.core.ui.model.MangaOverride
 import org.draken.usagi.list.domain.ReadingProgress
 import org.draken.usagi.list.ui.ListModelDiffCallback.Companion.PAYLOAD_ANYTHING_CHANGED
 import org.draken.usagi.list.ui.ListModelDiffCallback.Companion.PAYLOAD_PROGRESS_CHANGED
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 data class MangaGridModel(
 	override val manga: Manga,
@@ -13,15 +13,18 @@ data class MangaGridModel(
 	val progress: ReadingProgress?,
 	val isFavorite: Boolean,
 	val isSaved: Boolean,
+	val isTitleHidden: Boolean = false,
 ) : MangaListModel() {
+	override fun getChangePayload(previousState: ListModel): Any? =
+		when {
+			previousState !is MangaGridModel || previousState.manga != manga -> null
 
-	override fun getChangePayload(previousState: ListModel): Any? = when {
-		previousState !is MangaGridModel || previousState.manga != manga -> null
+			previousState.progress != progress -> PAYLOAD_PROGRESS_CHANGED
 
-		previousState.progress != progress -> PAYLOAD_PROGRESS_CHANGED
-		previousState.isFavorite != isFavorite ||
-			previousState.isSaved != isSaved -> PAYLOAD_ANYTHING_CHANGED
+			previousState.isFavorite != isFavorite ||
+				previousState.isSaved != isSaved ||
+				previousState.isTitleHidden != isTitleHidden -> PAYLOAD_ANYTHING_CHANGED
 
-		else -> super.getChangePayload(previousState)
-	}
+			else -> super.getChangePayload(previousState)
+		}
 }

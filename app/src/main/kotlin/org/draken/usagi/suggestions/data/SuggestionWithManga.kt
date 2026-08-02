@@ -11,13 +11,13 @@ data class SuggestionWithManga(
 	@Embedded val suggestion: SuggestionEntity,
 	@Relation(
 		parentColumn = "manga_id",
-		entityColumn = "manga_id"
+		entityColumn = "manga_id",
 	)
 	val manga: MangaEntity,
 	@Relation(
 		parentColumn = "manga_id",
 		entityColumn = "tag_id",
-		associateBy = Junction(MangaTagsEntity::class)
+		associateBy = Junction(MangaTagsEntity::class),
 	)
 	val tags: List<TagEntity>,
 )

@@ -7,14 +7,16 @@ import androidx.core.graphics.ColorUtils
 import com.google.android.material.R
 import com.google.android.material.color.MaterialColors
 import org.draken.usagi.core.util.ext.getThemeColor
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import kotlin.math.absoluteValue
 
 object UsagiColors {
-
 	@ColorInt
 	@Deprecated("")
-	fun segmentColor(context: Context, @AttrRes resId: Int): Int {
+	fun segmentColor(
+		context: Context,
+		@AttrRes resId: Int,
+	): Int {
 		val colorHex = String.format("%06x", context.getThemeColor(resId))
 		val hue = getHue(colorHex)
 		val color = ColorUtils.HSLToColor(floatArrayOf(hue, 0.5f, 0.5f))
@@ -23,7 +25,10 @@ object UsagiColors {
 	}
 
 	@ColorInt
-	fun segmentColorRandom(context: Context, seed: Any): Int {
+	fun segmentColorRandom(
+		context: Context,
+		seed: Any,
+	): Int {
 		val color = random(seed)
 		val backgroundColor = context.getThemeColor(R.attr.colorSurfaceContainerHigh)
 		return MaterialColors.harmonize(color, backgroundColor)
@@ -36,13 +41,17 @@ object UsagiColors {
 	}
 
 	@ColorInt
-	fun ofManga(context: Context, manga: Manga?): Int {
-		val color = if (manga != null) {
-			val hue = (manga.id.absoluteValue % 360).toFloat()
-			ColorUtils.HSLToColor(floatArrayOf(hue, 0.5f, 0.5f))
-		} else {
-			context.getThemeColor(R.attr.colorOutline)
-		}
+	fun ofManga(
+		context: Context,
+		manga: Manga?,
+	): Int {
+		val color =
+			if (manga != null) {
+				val hue = (manga.id.absoluteValue % 360).toFloat()
+				ColorUtils.HSLToColor(floatArrayOf(hue, 0.5f, 0.5f))
+			} else {
+				context.getThemeColor(R.attr.colorOutline)
+			}
 		val backgroundColor = context.getThemeColor(R.attr.colorSurfaceContainerHigh)
 		return MaterialColors.harmonize(color, backgroundColor)
 	}

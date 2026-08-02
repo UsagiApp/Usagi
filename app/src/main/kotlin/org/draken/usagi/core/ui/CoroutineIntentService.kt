@@ -25,16 +25,22 @@ import kotlinx.coroutines.withContext
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 
 abstract class CoroutineIntentService : BaseService() {
-
 	private val mutex = Mutex()
 
-	final override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+	final override fun onStartCommand(
+		intent: Intent?,
+		flags: Int,
+		startId: Int,
+	): Int {
 		super.onStartCommand(intent, flags, startId)
 		launchCoroutine(intent, startId)
 		return START_REDELIVER_INTENT
 	}
 
-	private fun launchCoroutine(intent: Intent?, startId: Int) = lifecycleScope.launch {
+	private fun launchCoroutine(
+		intent: Intent?,
+		startId: Int,
+	) = lifecycleScope.launch {
 		val intentJobContext = IntentJobContextImpl(startId, this)
 		mutex.withLock {
 			try {
@@ -61,19 +67,22 @@ abstract class CoroutineIntentService : BaseService() {
 	protected abstract fun IntentJobContext.onError(error: Throwable)
 
 	interface IntentJobContext : CoroutineScope {
-
 		val startId: Int
 
 		fun getCancelIntent(): PendingIntent?
 
-		fun setForeground(id: Int, notification: Notification, serviceType: Int)
+		fun setForeground(
+			id: Int,
+			notification: Notification,
+			serviceType: Int,
+		)
 	}
 
 	protected inner class IntentJobContextImpl(
 		override val startId: Int,
 		private val scope: CoroutineScope,
-	) : IntentJobContext, CoroutineScope by scope {
-
+	) : IntentJobContext,
+		CoroutineScope by scope {
 		private var cancelReceiver: CancelReceiver? = null
 		private var isStopped = false
 		private var isForeground = false
@@ -89,7 +98,11 @@ abstract class CoroutineIntentService : BaseService() {
 			)
 		}
 
-		override fun setForeground(id: Int, notification: Notification, serviceType: Int) {
+		override fun setForeground(
+			id: Int,
+			notification: Notification,
+			serviceType: Int,
+		) {
 			ServiceCompat.startForeground(this@CoroutineIntentService, id, notification, serviceType)
 			isForeground = true
 		}
@@ -132,30 +145,36 @@ abstract class CoroutineIntentService : BaseService() {
 	}
 
 	private class CancelReceiver(
-		private val job: Job
+		private val job: Job,
 	) : BroadcastReceiver() {
-
-		override fun onReceive(context: Context?, intent: Intent?) {
+		override fun onReceive(
+			context: Context?,
+			intent: Intent?,
+		) {
 			job.cancel()
 		}
 	}
 
 	private companion object {
-
 		private const val SCHEME = "startid"
 		private const val ACTION_SUFFIX_CANCEL = ".ACTION_CANCEL"
 
-		fun createIntentFilter(service: CoroutineIntentService, startId: Int): IntentFilter {
+		fun createIntentFilter(
+			service: CoroutineIntentService,
+			startId: Int,
+		): IntentFilter {
 			val intentFilter = IntentFilter(cancelAction(service))
 			intentFilter.addDataScheme(SCHEME)
 			intentFilter.addDataPath(startId.toString(), PatternMatcher.PATTERN_LITERAL)
 			return intentFilter
 		}
 
-		fun createCancelIntent(service: CoroutineIntentService, startId: Int): Intent {
-			return Intent(cancelAction(service))
+		fun createCancelIntent(
+			service: CoroutineIntentService,
+			startId: Int,
+		): Intent =
+			Intent(cancelAction(service))
 				.setData("$SCHEME://$startId".toUri())
-		}
 
 		private fun cancelAction(service: CoroutineIntentService) = service.javaClass.name + ACTION_SUFFIX_CANCEL
 	}

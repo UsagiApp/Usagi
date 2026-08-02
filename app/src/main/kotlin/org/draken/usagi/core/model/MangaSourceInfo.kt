@@ -1,6 +1,6 @@
 package org.draken.usagi.core.model
 
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 data class MangaSourceInfo(
 	val mangaSource: MangaSource,

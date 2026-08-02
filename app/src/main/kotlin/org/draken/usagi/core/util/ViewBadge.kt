@@ -12,8 +12,8 @@ import com.google.android.material.badge.ExperimentalBadgeUtils
 class ViewBadge(
 	private val anchor: View,
 	lifecycleOwner: LifecycleOwner,
-) : View.OnLayoutChangeListener, DefaultLifecycleObserver {
-
+) : View.OnLayoutChangeListener,
+	DefaultLifecycleObserver {
 	private var badgeDrawable: BadgeDrawable? = null
 	private var maxCharacterCount: Int = -1
 

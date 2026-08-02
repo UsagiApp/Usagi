@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.LayoutParams
 
 class FitHeightLinearLayoutManager : LinearLayoutManager {
-
 	constructor(context: Context) : super(context)
 	constructor(
 		context: Context,
@@ -25,7 +24,13 @@ class FitHeightLinearLayoutManager : LinearLayoutManager {
 		@StyleRes defStyleRes: Int,
 	) : super(context, attrs, defStyleAttr, defStyleRes)
 
-	override fun layoutDecoratedWithMargins(child: View, left: Int, top: Int, right: Int, bottom: Int) {
+	override fun layoutDecoratedWithMargins(
+		child: View,
+		left: Int,
+		top: Int,
+		right: Int,
+		bottom: Int,
+	) {
 		if (orientation == RecyclerView.VERTICAL && child.layoutParams.height == LayoutParams.MATCH_PARENT) {
 			val parentBottom = height - paddingBottom
 			val offset = parentBottom - bottom

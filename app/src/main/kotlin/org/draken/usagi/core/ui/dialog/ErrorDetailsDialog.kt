@@ -23,8 +23,9 @@ import org.draken.usagi.databinding.DialogErrorDetailsBinding
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ErrorDetailsDialog : AlertDialogFragment<DialogErrorDetailsBinding>(), View.OnClickListener {
-
+class ErrorDetailsDialog :
+	AlertDialogFragment<DialogErrorDetailsBinding>(),
+	View.OnClickListener {
 	private lateinit var exception: Throwable
 
 	@Inject
@@ -36,11 +37,15 @@ class ErrorDetailsDialog : AlertDialogFragment<DialogErrorDetailsBinding>(), Vie
 		exception = args.requireSerializable(AppRouter.KEY_ERROR)
 	}
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): DialogErrorDetailsBinding {
-		return DialogErrorDetailsBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): DialogErrorDetailsBinding = DialogErrorDetailsBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: DialogErrorDetailsBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: DialogErrorDetailsBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		binding.buttonBrowser.setOnClickListener(this)
 		binding.textViewSummary.text = exception.message
@@ -60,13 +65,15 @@ class ErrorDetailsDialog : AlertDialogFragment<DialogErrorDetailsBinding>(), Vie
 
 	@Suppress("NAME_SHADOWING")
 	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder {
-		val builder = super.onBuildDialog(builder)
-			.setCancelable(true)
-			.setNegativeButton(R.string.close, null)
-			.setTitle(R.string.error_details)
-			.setNeutralButton(androidx.preference.R.string.copy) { _, _ ->
-				context?.copyToClipboard(getString(R.string.error), exception.stackTraceToString())
-			}
+		val builder =
+			super
+				.onBuildDialog(builder)
+				.setCancelable(true)
+				.setNegativeButton(R.string.close, null)
+				.setTitle(R.string.error_details)
+				.setNeutralButton(androidx.preference.R.string.copy) { _, _ ->
+					context?.copyToClipboard(getString(R.string.error), exception.stackTraceToString())
+				}
 		if (appUpdateRepository.isUpdateAvailable) {
 			builder.setPositiveButton(R.string.update) { _, _ ->
 				router.openAppUpdate()

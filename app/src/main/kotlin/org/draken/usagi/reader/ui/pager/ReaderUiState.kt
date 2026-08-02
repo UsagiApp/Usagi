@@ -2,7 +2,7 @@ package org.draken.usagi.reader.ui.pager
 
 import android.content.res.Resources
 import org.draken.usagi.core.model.getLocalizedTitle
-import org.koitharu.kotatsu.parsers.model.MangaChapter
+import tsuki.model.MangaChapter
 
 data class ReaderUiState(
 	val mangaName: String?,
@@ -14,7 +14,6 @@ data class ReaderUiState(
 	val percent: Float,
 	val incognito: Boolean,
 ) {
-
 	val chapterNumber: Int
 		get() = chapterIndex + 1
 

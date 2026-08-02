@@ -3,7 +3,10 @@ package org.draken.usagi.reader.ui
 import android.app.assist.AssistContent
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.KeyEvent
@@ -13,6 +16,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
@@ -27,6 +31,7 @@ import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -62,532 +67,726 @@ import org.draken.usagi.core.util.ext.toUriOrNull
 import org.draken.usagi.core.util.ext.zipWithPrevious
 import org.draken.usagi.databinding.ActivityReaderBinding
 import org.draken.usagi.details.ui.pager.pages.PagesSavedObserver
-import org.koitharu.kotatsu.parsers.model.MangaChapter
 import org.draken.usagi.reader.data.TapGridSettings
 import org.draken.usagi.reader.domain.TapGridArea
 import org.draken.usagi.reader.ui.config.ReaderConfigSheet
 import org.draken.usagi.reader.ui.pager.ReaderPage
 import org.draken.usagi.reader.ui.pager.ReaderUiState
 import org.draken.usagi.reader.ui.tapgrid.TapGridDispatcher
+import tsuki.model.MangaChapter
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import androidx.appcompat.R as appcompatR
+import com.google.android.material.R as materialR
 
 @AndroidEntryPoint
 class ReaderActivity :
-    BaseFullscreenActivity<ActivityReaderBinding>(),
-    TapGridDispatcher.OnGridTouchListener,
-    ReaderConfigSheet.Callback,
-    ReaderControlDelegate.OnInteractionListener,
-    ReaderNavigationCallback,
-    IdlingDetector.Callback,
-    ZoomControl.ZoomControlListener,
-    View.OnClickListener,
-    ScrollTimerControlView.OnVisibilityChangeListener {
+	BaseFullscreenActivity<ActivityReaderBinding>(),
+	TapGridDispatcher.OnGridTouchListener,
+	ReaderConfigSheet.Callback,
+	ReaderControlDelegate.OnInteractionListener,
+	ReaderNavigationCallback,
+	IdlingDetector.Callback,
+	ZoomControl.ZoomControlListener,
+	View.OnClickListener,
+	ScrollTimerControlView.OnVisibilityChangeListener {
+	@Inject
+	lateinit var settings: AppSettings
 
-    @Inject
-    lateinit var settings: AppSettings
+	@Inject
+	lateinit var tapGridSettings: TapGridSettings
 
-    @Inject
-    lateinit var tapGridSettings: TapGridSettings
+	@Inject
+	lateinit var pageSaveHelperFactory: PageSaveHelper.Factory
 
-    @Inject
-    lateinit var pageSaveHelperFactory: PageSaveHelper.Factory
+	@Inject
+	lateinit var scrollTimerFactory: ScrollTimer.Factory
 
-    @Inject
-    lateinit var scrollTimerFactory: ScrollTimer.Factory
+	@Inject
+	lateinit var screenOrientationHelper: ScreenOrientationHelper
 
-    @Inject
-    lateinit var screenOrientationHelper: ScreenOrientationHelper
+	private val idlingDetector = IdlingDetector(TimeUnit.SECONDS.toMillis(10), this)
 
-    private val idlingDetector = IdlingDetector(TimeUnit.SECONDS.toMillis(10), this)
+	private val viewModel: ReaderViewModel by viewModels()
 
-    private val viewModel: ReaderViewModel by viewModels()
+	override val readerMode: ReaderMode?
+		get() = readerManager.currentMode
 
-    override val readerMode: ReaderMode?
-        get() = readerManager.currentMode
+	private lateinit var scrollTimer: ScrollTimer
+	private lateinit var pageSaveHelper: PageSaveHelper
+	private lateinit var touchHelper: TapGridDispatcher
+	private lateinit var controlDelegate: ReaderControlDelegate
+	private var gestureInsets: Insets = Insets.NONE
+	private lateinit var readerManager: ReaderManager
+	private val hideUiRunnable = Runnable { setUiIsVisible(false) }
 
-    private lateinit var scrollTimer: ScrollTimer
-    private lateinit var pageSaveHelper: PageSaveHelper
-    private lateinit var touchHelper: TapGridDispatcher
-    private lateinit var controlDelegate: ReaderControlDelegate
-    private var gestureInsets: Insets = Insets.NONE
-    private lateinit var readerManager: ReaderManager
-    private val hideUiRunnable = Runnable { setUiIsVisible(false) }
+	// Tracks whether the foldable device is in an unfolded state (half-opened or flat)
+	private var isFoldUnfolded: Boolean = false
 
-    // Tracks whether the foldable device is in an unfolded state (half-opened or flat)
-    private var isFoldUnfolded: Boolean = false
+	private var systemBarsBottomInset: Int = 0
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(ActivityReaderBinding.inflate(layoutInflater))
-        readerManager = ReaderManager(supportFragmentManager, viewBinding.container, settings)
-        setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
-        touchHelper = TapGridDispatcher(viewBinding.root, this)
-        scrollTimer = scrollTimerFactory.create(resources, this, this)
-        pageSaveHelper = pageSaveHelperFactory.create(this)
-        controlDelegate = ReaderControlDelegate(resources, settings, tapGridSettings, this)
-        viewBinding.zoomControl.listener = this
-        viewBinding.actionsView.listener = this
-        viewBinding.buttonTimer?.setOnClickListener(this)
-        idlingDetector.bindToLifecycle(this)
-        screenOrientationHelper.applySettings()
-        viewModel.isBookmarkAdded.observe(this) { viewBinding.actionsView.isBookmarkAdded = it }
-        scrollTimer.isActive.observe(this) {
-            updateScrollTimerButton()
-            viewBinding.actionsView.setTimerActive(it)
-        }
-        viewBinding.timerControl.onVisibilityChangeListener = this
-        viewBinding.timerControl.attach(scrollTimer, this)
-        if (resources.getBoolean(R.bool.is_tablet)) {
-            viewBinding.timerControl.updateLayoutParams<CoordinatorLayout.LayoutParams> {
-                topMargin = marginEnd + getThemeDimensionPixelOffset(appcompatR.attr.actionBarSize)
-            }
-        }
+	private var lastSystemBarsInsets: Insets = Insets.NONE
 
-        viewModel.onLoadingError.observeEvent(
-            this,
-            DialogErrorObserver(
-                host = viewBinding.container,
-                fragment = null,
-                resolver = exceptionResolver,
-                onResolved = { isResolved ->
-                    if (isResolved) {
-                        viewModel.reload()
-                    } else if (viewModel.content.value.pages.isEmpty()) {
-                        dispatchNavigateUp()
-                    }
-                },
-            ),
-        )
-        viewModel.onError.observeEvent(
-            this,
-            SnackbarErrorObserver(
-                host = viewBinding.container,
-                fragment = null,
-                resolver = exceptionResolver,
-                onResolved = null,
-            ),
-        )
-        viewModel.readerMode.observe(this, Lifecycle.State.STARTED, this::onInitReader)
-        viewModel.onPageSaved.observeEvent(this, PagesSavedObserver(viewBinding.container))
-        viewModel.uiState.zipWithPrevious().observe(this, this::onUiStateChanged)
-        combine(
-            viewModel.isLoading,
-            viewModel.content.map { it.pages.isNotEmpty() }.distinctUntilChanged(),
-            ::Pair,
-        ).flowOn(Dispatchers.Default)
-            .observe(this, this::onLoadingStateChanged)
-        viewModel.isKeepScreenOnEnabled.observe(this, this::setKeepScreenOn)
-        viewModel.isInfoBarTransparent.observe(this) { viewBinding.infoBar.drawBackground = !it }
-        viewModel.isInfoBarEnabled.observe(this, ::onReaderBarChanged)
-        viewModel.isBookmarkAdded.observe(this, MenuInvalidator(this))
-        viewModel.onAskNsfwIncognito.observeEvent(this) { askForIncognitoMode() }
-        viewModel.onShowToast.observeEvent(this) { msgId ->
-            Snackbar.make(viewBinding.container, msgId, Snackbar.LENGTH_SHORT)
-                .setAnchorView(viewBinding.toolbarDocked)
-                .show()
-        }
-        viewModel.readerSettingsProducer.observe(this) {
-            viewBinding.infoBar.applyColorScheme(isBlackOnWhite = it.background.isLight(this))
-        }
-        viewModel.isZoomControlsEnabled.observe(this) {
-            viewBinding.zoomControl.isVisible = it
-        }
-        addMenuProvider(ReaderMenuProvider(viewModel))
+	private var lastToastBottomMargin: Int = -1
 
-        observeWindowLayout()
+	private var isToolbarDockedShown: Boolean = false
 
-        // Apply initial double-mode considering foldable setting
-        applyDoubleModeAuto()
-    }
+	private val updateToastPositionRunnable = Runnable { updateChapterToastPosition() }
 
-    override fun getParentActivityIntent(): Intent? {
-        val manga = viewModel.getMangaOrNull() ?: return null
-        return AppRouter.detailsIntent(this, manga)
-    }
+	private var afterUiRevealRunnable: Runnable? = null
 
-    override fun onUserInteraction() {
-        super.onUserInteraction()
-        if (!viewBinding.timerControl.isVisible) {
-            scrollTimer.onUserInteraction()
-        }
-        idlingDetector.onUserInteraction()
-    }
+	private val readerBarsPrefListener =
+		SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+			when (key) {
+				AppSettings.KEY_READER_TOP_BAR_OPACITY,
+				AppSettings.KEY_READER_BOTTOM_BAR_OPACITY,
+				AppSettings.KEY_READER_IS_FLOAT_BAR,
+				-> applyReaderBarsAppearance()
+			}
+		}
 
-    override fun onPause() {
-        super.onPause()
-        viewModel.onPause()
-    }
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		setContentView(ActivityReaderBinding.inflate(layoutInflater))
+		readerManager = ReaderManager(supportFragmentManager, viewBinding.container, settings)
+		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
+		touchHelper = TapGridDispatcher(viewBinding.root, this)
+		viewBinding.root.isFocusableInTouchMode = true
+		scrollTimer = scrollTimerFactory.create(resources, this, this)
+		pageSaveHelper = pageSaveHelperFactory.create(this)
+		controlDelegate = ReaderControlDelegate(resources, settings, tapGridSettings, this)
+		viewBinding.zoomControl.listener = this
+		viewBinding.actionsView.listener = this
+		viewBinding.buttonTimer?.setOnClickListener(this)
+		idlingDetector.bindToLifecycle(this)
+		screenOrientationHelper.applySettings()
+		applyReaderBarsAppearance()
+		settings.subscribe(readerBarsPrefListener)
+		viewModel.isBookmarkAdded.observe(this) { viewBinding.actionsView.isBookmarkAdded = it }
+		scrollTimer.isActive.observe(this) {
+			updateScrollTimerButton()
+			viewBinding.actionsView.setTimerActive(it)
+		}
+		viewBinding.timerControl.onVisibilityChangeListener = this
+		viewBinding.timerControl.attach(scrollTimer, this)
+		if (resources.getBoolean(R.bool.is_tablet)) {
+			viewBinding.timerControl.updateLayoutParams<CoordinatorLayout.LayoutParams> {
+				topMargin = marginEnd + getThemeDimensionPixelOffset(appcompatR.attr.actionBarSize)
+			}
+		}
 
-    override fun onStop() {
-        super.onStop()
-        viewModel.onStop()
-    }
+		viewModel.onLoadingError.observeEvent(
+			this,
+			DialogErrorObserver(
+				host = viewBinding.container,
+				fragment = null,
+				resolver = exceptionResolver,
+				onResolved = { isResolved ->
+					if (isResolved) {
+						viewModel.reload()
+					} else if (viewModel.content.value.pages
+							.isEmpty()
+					) {
+						dispatchNavigateUp()
+					}
+				},
+			),
+		)
+		viewModel.onError.observeEvent(
+			this,
+			SnackbarErrorObserver(
+				host = viewBinding.container,
+				fragment = null,
+				resolver = exceptionResolver,
+				onResolved = null,
+			),
+		)
+		viewModel.readerMode.observe(this, Lifecycle.State.STARTED, this::onInitReader)
+		viewModel.onPageSaved.observeEvent(this, PagesSavedObserver(viewBinding.container))
+		viewModel.uiState.zipWithPrevious().observe(this, this::onUiStateChanged)
+		combine(
+			viewModel.isLoading,
+			viewModel.content.map { it.pages.isNotEmpty() }.distinctUntilChanged(),
+			::Pair,
+		).flowOn(Dispatchers.Default)
+			.observe(this, this::onLoadingStateChanged)
+		viewModel.isKeepScreenOnEnabled.observe(this, this::setKeepScreenOn)
+		viewModel.isInfoBarTransparent.observe(this) { viewBinding.infoBar.drawBackground = !it }
+		viewModel.isInfoBarEnabled.observe(this, ::onReaderBarChanged)
+		viewModel.isBookmarkAdded.observe(this, MenuInvalidator(this))
+		viewModel.onAskNsfwIncognito.observeEvent(this) { askForIncognitoMode() }
+		viewModel.onShowToast.observeEvent(this) { msgId ->
+			Snackbar
+				.make(viewBinding.container, msgId, Snackbar.LENGTH_SHORT)
+				.setAnchorView(viewBinding.toolbarDocked)
+				.show()
+		}
+		viewModel.readerSettingsProducer.observe(this) {
+			viewBinding.infoBar.applyColorScheme(isBlackOnWhite = it.background.isLight(this))
+		}
+		viewModel.isZoomControlsEnabled.observe(this) {
+			viewBinding.zoomControl.isVisible = it
+		}
+		addMenuProvider(ReaderMenuProvider(viewModel))
 
-    override fun onProvideAssistContent(outContent: AssistContent) {
-        super.onProvideAssistContent(outContent)
-        viewModel.getMangaOrNull()?.publicUrl?.toUriOrNull()?.let { outContent.webUri = it }
-    }
+		observeWindowLayout()
 
-    override fun isNsfwContent(): Flow<Boolean> = viewModel.isMangaNsfw
+		// Apply initial double-mode considering foldable setting
+		applyDoubleModeAuto()
+	}
 
-    override fun onIdle() {
-        viewModel.saveCurrentState(readerManager.currentReader?.getCurrentState())
-        viewModel.onIdle()
-    }
+	override fun getParentActivityIntent(): Intent? {
+		val manga = viewModel.getMangaOrNull() ?: return null
+		return AppRouter.detailsIntent(this, manga)
+	}
 
-    override fun onVisibilityChanged(v: View, visibility: Int) {
-        updateScrollTimerButton()
-    }
+	override fun onUserInteraction() {
+		super.onUserInteraction()
+		if (!viewBinding.timerControl.isVisible) {
+			scrollTimer.onUserInteraction()
+		}
+		idlingDetector.onUserInteraction()
+	}
 
-    override fun onZoomIn() {
-        readerManager.currentReader?.onZoomIn()
-    }
+	override fun onDestroy() {
+		settings.unsubscribe(readerBarsPrefListener)
+		viewBinding.root.removeCallbacks(updateToastPositionRunnable)
+		afterUiRevealRunnable?.let { viewBinding.root.removeCallbacks(it) }
+		super.onDestroy()
+	}
 
-    override fun onZoomOut() {
-        readerManager.currentReader?.onZoomOut()
-    }
+	override fun onPause() {
+		super.onPause()
+		viewModel.onPause()
+	}
 
-    override fun onClick(v: View) {
-        when (v.id) {
-            R.id.button_timer -> onScrollTimerClick(isLongClick = false)
-        }
-    }
+	override fun onStop() {
+		super.onStop()
+		viewModel.onStop()
+	}
 
-    private fun onInitReader(mode: ReaderMode?) {
-        if (mode == null) {
-            return
-        }
-        if (readerManager.currentMode != mode) {
-            readerManager.replace(mode)
-        }
-        if (viewBinding.appbarTop.isVisible) {
-            lifecycle.postDelayed(TimeUnit.SECONDS.toMillis(1), hideUiRunnable)
-        }
-        viewBinding.actionsView.setSliderReversed(mode == ReaderMode.REVERSED)
-        viewBinding.timerControl.onReaderModeChanged(mode)
-    }
+	override fun onProvideAssistContent(outContent: AssistContent) {
+		super.onProvideAssistContent(outContent)
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			viewModel
+				.getMangaOrNull()
+				?.publicUrl
+				?.toUriOrNull()
+				?.let { outContent.webUri = it }
+		}
+	}
 
-    private fun onLoadingStateChanged(value: Pair<Boolean, Boolean>) {
-        val (isLoading, hasPages) = value
-        val showLoadingLayout = isLoading && !hasPages
-        if (viewBinding.layoutLoading.isVisible != showLoadingLayout) {
-            val transition = Fade().addTarget(viewBinding.layoutLoading)
-            TransitionManager.beginDelayedTransition(viewBinding.root, transition)
-            viewBinding.layoutLoading.isVisible = showLoadingLayout
-        }
-        if (isLoading && hasPages) {
-            viewBinding.toastView.show(R.string.loading_)
-        } else {
-            viewBinding.toastView.hide()
-        }
-        invalidateOptionsMenu()
-    }
+	override fun isNsfwContent(): Flow<Boolean> = viewModel.isMangaNsfw
 
-    override fun onGridTouch(area: TapGridArea): Boolean {
-        return isReaderResumed() && controlDelegate.onGridTouch(area)
-    }
+	override fun onIdle() {
+		viewModel.saveCurrentState(readerManager.currentReader?.getCurrentState())
+		viewModel.onIdle()
+	}
 
-    override fun onGridLongTouch(area: TapGridArea) {
-        if (isReaderResumed()) {
-            controlDelegate.onGridLongTouch(area)
-        }
-    }
+	override fun onVisibilityChanged(
+		v: View,
+		visibility: Int,
+	) {
+		updateScrollTimerButton()
+	}
 
-    override fun onProcessTouch(rawX: Int, rawY: Int): Boolean {
-        return if (
-            rawX <= gestureInsets.left ||
-            rawY <= gestureInsets.top ||
-            rawX >= viewBinding.root.width - gestureInsets.right ||
-            rawY >= viewBinding.root.height - gestureInsets.bottom ||
-            viewBinding.appbarTop.hasGlobalPoint(rawX, rawY) ||
-            viewBinding.toolbarDocked?.hasGlobalPoint(rawX, rawY) == true
-        ) {
-            false
-        } else {
-            val touchables = window.peekDecorView()?.touchables
-            touchables?.none { it.hasGlobalPoint(rawX, rawY) } != false
-        }
-    }
+	override fun onZoomIn() {
+		readerManager.currentReader?.onZoomIn()
+	}
 
-    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        touchHelper.dispatchTouchEvent(ev)
-        if (!viewBinding.timerControl.hasGlobalPoint(ev.rawX.toInt(), ev.rawY.toInt())) {
-            scrollTimer.onTouchEvent(ev)
-        }
-        return super.dispatchTouchEvent(ev)
-    }
+	override fun onZoomOut() {
+		readerManager.currentReader?.onZoomOut()
+	}
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        return controlDelegate.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event)
-    }
+	override fun onClick(v: View) {
+		when (v.id) {
+			R.id.button_timer -> onScrollTimerClick(isLongClick = false)
+		}
+	}
 
-    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        return controlDelegate.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event)
-    }
+	private fun onInitReader(mode: ReaderMode?) {
+		if (mode == null) {
+			return
+		}
+		if (readerManager.currentMode != mode) {
+			readerManager.replace(mode)
+		}
+		if (viewBinding.appbarTop.isVisible) {
+			lifecycle.postDelayed(TimeUnit.SECONDS.toMillis(1), hideUiRunnable)
+		}
+		viewBinding.actionsView.setSliderReversed(mode == ReaderMode.REVERSED)
+		viewBinding.timerControl.onReaderModeChanged(mode)
+	}
 
-    override fun onChapterSelected(chapter: MangaChapter): Boolean {
-        viewModel.switchChapter(chapter.id, 0)
-        return true
-    }
+	private fun onLoadingStateChanged(value: Pair<Boolean, Boolean>) {
+		val (isLoading, hasPages) = value
+		val showLoadingLayout = isLoading && !hasPages
+		if (viewBinding.layoutLoading.isVisible != showLoadingLayout) {
+			val transition = Fade().addTarget(viewBinding.layoutLoading)
+			TransitionManager.beginDelayedTransition(viewBinding.root, transition)
+			viewBinding.layoutLoading.isVisible = showLoadingLayout
+		}
+		if (isLoading && hasPages) {
+			viewBinding.toastView.show(R.string.loading_)
+		} else {
+			viewBinding.toastView.hide()
+		}
+		invalidateOptionsMenu()
+	}
 
-    override fun onPageSelected(page: ReaderPage): Boolean {
-        lifecycleScope.launch(Dispatchers.Default) {
-            val pages = viewModel.content.value.pages
-            val index = pages.indexOfFirst { it.chapterId == page.chapterId && it.id == page.id }
-            if (index != -1) {
-                withContext(Dispatchers.Main) {
-                    readerManager.currentReader?.switchPageTo(index, true)
-                }
-            } else {
-                viewModel.switchChapter(page.chapterId, page.index)
-            }
-        }
-        return true
-    }
+	override fun onGridTouch(area: TapGridArea): Boolean = isReaderResumed() && controlDelegate.onGridTouch(area)
 
-    override fun onReaderModeChanged(mode: ReaderMode) {
-        viewModel.saveCurrentState(readerManager.currentReader?.getCurrentState())
-        viewModel.switchMode(mode)
-        viewBinding.timerControl.onReaderModeChanged(mode)
-    }
+	override fun onGridLongTouch(area: TapGridArea) {
+		if (isReaderResumed()) {
+			controlDelegate.onGridLongTouch(area)
+		}
+	}
 
-    override fun onDoubleModeChanged(isEnabled: Boolean) {
-        // Combine manual toggle with foldable auto setting
-        applyDoubleModeAuto(isEnabled)
-    }
+	override fun onProcessTouch(
+		rawX: Int,
+		rawY: Int,
+	): Boolean {
+		val root = viewBinding.root
+		val w = root.width
+		val h = root.height
+		if (w <= 0 || h <= 0) return false
+		val loc = rootLocBuffer
+		root.getLocationOnScreen(loc)
+		val x = rawX - loc[0]
+		val y = rawY - loc[1]
+		if (x !in 0 until w || y !in 0 until h) return false
+		val inset = gestureInsets.forRootSize(w, h)
+		if (x < inset.left || y < inset.top || x >= w - inset.right || y >= h - inset.bottom) return false
+		return readerTouchBlockers.none { it.hasGlobalPoint(rawX, rawY) }
+	}
 
-    private fun applyDoubleModeAuto(manualEnabled: Boolean? = null) {
-        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        // Auto double-page on foldable when device is unfolded (half-opened or flat)
-        val autoFoldable = settings.isReaderDoubleOnFoldable && isFoldUnfolded
-        val manualLandscape = (manualEnabled ?: settings.isReaderDoubleOnLandscape) && isLandscape
-        val autoEnabled = autoFoldable || manualLandscape
-        readerManager.setDoubleReaderMode(autoEnabled)
-    }
+	private val readerTouchBlockers: List<View>
+		get() =
+			listOfNotNull(
+				viewBinding.appbarTop,
+				viewBinding.toolbarDocked,
+				viewBinding.buttonTimer,
+				viewBinding.zoomControl,
+				viewBinding.timerControl,
+				viewBinding.infoBar,
+			)
 
-    private fun setKeepScreenOn(isKeep: Boolean) {
-        if (isKeep) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        } else {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-    }
+	override fun onWindowFocusChanged(hasFocus: Boolean) {
+		super.onWindowFocusChanged(hasFocus)
+		if (hasFocus) viewBinding.root.requestFocus()
+	}
 
-    private fun setUiIsVisible(isUiVisible: Boolean) {
-        if (viewBinding.appbarTop.isVisible != isUiVisible) {
-            if (isAnimationsEnabled) {
-                val transition = TransitionSet()
-                    .setOrdering(TransitionSet.ORDERING_TOGETHER)
-                    .addTransition(Slide(Gravity.TOP).addTarget(viewBinding.appbarTop))
-                    .addTransition(Fade().addTarget(viewBinding.infoBar))
-                viewBinding.toolbarDocked?.let {
-                    transition.addTransition(Slide(Gravity.BOTTOM).addTarget(it))
-                }
-                TransitionManager.beginDelayedTransition(viewBinding.root, transition)
-            }
-            val isFullscreen = settings.isReaderFullscreenEnabled
-            viewBinding.appbarTop.isVisible = isUiVisible
-            viewBinding.toolbarDocked?.isVisible = isUiVisible
-            viewBinding.infoBar.isGone = isUiVisible || (!viewModel.isInfoBarEnabled.value)
-            viewBinding.infoBar.isTimeVisible = isFullscreen
-            updateScrollTimerButton()
-            systemUiController.setSystemUiVisible(isUiVisible || !isFullscreen)
-            viewBinding.root.requestApplyInsets()
-        }
-    }
+	override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+		touchHelper.dispatchTouchEvent(ev)
+		if (!viewBinding.timerControl.hasGlobalPoint(ev.rawX.toInt(), ev.rawY.toInt())) {
+			scrollTimer.onTouchEvent(ev)
+		}
+		return super.dispatchTouchEvent(ev)
+	}
 
-    override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
-        gestureInsets = insets.getInsets(WindowInsetsCompat.Type.systemGestures())
-        val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-        viewBinding.toolbar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-            topMargin = systemBars.top
-            rightMargin = systemBars.right
-            leftMargin = systemBars.left
-        }
-        if (viewBinding.toolbarDocked != null) {
-            viewBinding.actionsView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = systemBars.bottom
-                rightMargin = systemBars.right
-                leftMargin = systemBars.left
-            }
-        }
-        viewBinding.infoBar.updatePadding(
-            top = systemBars.top,
-        )
-        val innerInsets = Insets.of(
-            systemBars.left,
-            if (viewBinding.appbarTop.isVisible) viewBinding.appbarTop.height else systemBars.top,
-            systemBars.right,
-            viewBinding.toolbarDocked?.takeIf { it.isVisible }?.height ?: systemBars.bottom,
-        )
-        return WindowInsetsCompat.Builder(insets)
-            .setInsets(WindowInsetsCompat.Type.systemBars(), innerInsets)
-            .build()
-    }
+	override fun onKeyDown(
+		keyCode: Int,
+		event: KeyEvent?,
+	): Boolean = controlDelegate.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event)
 
-    override fun switchPageBy(delta: Int) {
-        readerManager.currentReader?.switchPageBy(delta)
-    }
+	override fun onKeyUp(
+		keyCode: Int,
+		event: KeyEvent?,
+	): Boolean = controlDelegate.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event)
 
-    override fun switchChapterBy(delta: Int) {
-        viewModel.switchChapterBy(delta)
-    }
+	override fun onChapterSelected(chapter: MangaChapter): Boolean {
+		viewModel.switchChapter(chapter.id, 0)
+		return true
+	}
 
-    override fun openMenu() {
-        viewModel.saveCurrentState(readerManager.currentReader?.getCurrentState())
-        val currentMode = readerManager.currentMode ?: return
-        router.showReaderConfigSheet(currentMode)
-    }
+	override fun onPageSelected(page: ReaderPage): Boolean {
+		lifecycleScope.launch(Dispatchers.Default) {
+			val pages = viewModel.content.value.pages
+			val index = pages.indexOfFirst { it.chapterId == page.chapterId && it.id == page.id }
+			if (index != -1) {
+				withContext(Dispatchers.Main) {
+					readerManager.currentReader?.switchPageTo(index, true)
+				}
+			} else {
+				viewModel.switchChapter(page.chapterId, page.index)
+			}
+		}
+		return true
+	}
 
-    override fun scrollBy(delta: Int, smooth: Boolean): Boolean {
-        return readerManager.currentReader?.scrollBy(delta, smooth) == true
-    }
+	override fun onReaderModeChanged(mode: ReaderMode) {
+		viewModel.saveCurrentState(readerManager.currentReader?.getCurrentState())
+		viewModel.switchMode(mode)
+		viewBinding.timerControl.onReaderModeChanged(mode)
+	}
 
-    override fun toggleUiVisibility() {
-        setUiIsVisible(!viewBinding.appbarTop.isVisible)
-    }
+	override fun onDoubleModeChanged(isEnabled: Boolean) {
+		// Combine manual toggle with foldable auto setting
+		applyDoubleModeAuto(isEnabled)
+	}
 
-    override fun isReaderResumed(): Boolean {
-        val reader = readerManager.currentReader ?: return false
-        return reader.isResumed && supportFragmentManager.fragments.lastOrNull() === reader
-    }
+	private fun applyDoubleModeAuto(manualEnabled: Boolean? = null) {
+		val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+		// Auto double-page on foldable when device is unfolded (half-opened or flat)
+		val autoFoldable = settings.isReaderDoubleOnFoldable && isFoldUnfolded
+		val manualLandscape = (manualEnabled ?: settings.isReaderDoubleOnLandscape) && isLandscape
+		val autoEnabled = autoFoldable || manualLandscape
+		readerManager.setDoubleReaderMode(autoEnabled)
+	}
 
-    override fun onBookmarkClick() {
-        viewModel.toggleBookmark()
-    }
+	private fun setKeepScreenOn(isKeep: Boolean) {
+		if (isKeep) {
+			window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+		} else {
+			window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+		}
+	}
 
-    override fun onSavePageClick() {
-        viewModel.saveCurrentPage(pageSaveHelper)
-    }
+	private fun setUiIsVisible(isUiVisible: Boolean) {
+		if (viewBinding.appbarTop.isVisible != isUiVisible) {
+			if (isAnimationsEnabled) {
+				val transition =
+					TransitionSet()
+						.setOrdering(TransitionSet.ORDERING_TOGETHER)
+						.addTransition(Slide(Gravity.TOP).addTarget(viewBinding.appbarTop))
+						.addTransition(Fade().addTarget(viewBinding.infoBar))
+				viewBinding.toolbarDocked?.let {
+					transition.addTransition(Slide(Gravity.BOTTOM).addTarget(it))
+				}
+				TransitionManager.beginDelayedTransition(viewBinding.root, transition)
+			}
+			val isFullscreen = settings.isReaderFullscreenEnabled
+			viewBinding.appbarTop.isVisible = isUiVisible
+			viewBinding.toolbarDocked?.isVisible = isUiVisible
+			isToolbarDockedShown = isUiVisible
+			viewBinding.infoBar.isGone = isUiVisible || (!viewModel.isInfoBarEnabled.value)
+			viewBinding.infoBar.isTimeVisible = isFullscreen
+			updateScrollTimerButton()
+			systemUiController.setSystemUiVisible(isUiVisible || !isFullscreen)
+			viewBinding.root.requestApplyInsets()
+			val animDuration =
+				if (isAnimationsEnabled) {
+					resources.getInteger(R.integer.config_shorterAnimTime).toLong()
+				} else {
+					0L
+				}
+			lastToastBottomMargin = -1
+			afterUiRevealRunnable?.let { viewBinding.root.removeCallbacks(it) }
+			val revealRunnable = Runnable { viewBinding.root.post(updateToastPositionRunnable) }
+			afterUiRevealRunnable = revealRunnable
+			viewBinding.root.postDelayed(revealRunnable, animDuration + 16L)
+		}
+	}
 
-    override fun onScrollTimerClick(isLongClick: Boolean) {
-        if (isLongClick) {
-            scrollTimer.setActive(!scrollTimer.isActive.value)
-        } else {
-            viewBinding.timerControl.showOrHide()
-        }
-    }
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
+		gestureInsets = insets.getInsets(WindowInsetsCompat.Type.systemGestures())
+		val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+		val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+		lastSystemBarsInsets = systemBars
+		systemBarsBottomInset = navigationBars.bottom
+		viewBinding.toolbar.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+			topMargin = systemBars.top
+			rightMargin = systemBars.right
+			leftMargin = systemBars.left
+		}
+		if (viewBinding.toolbarDocked != null) {
+			applyBottomBarLayout()
+			viewBinding.root.post(updateToastPositionRunnable)
+		}
+		viewBinding.infoBar.updatePadding(
+			top = systemBars.top,
+		)
+		val bottomInset =
+			viewBinding.toolbarDocked?.takeIf { it.isVisible }?.let { card ->
+				val lp = card.layoutParams as? CoordinatorLayout.LayoutParams
+				card.height + (lp?.bottomMargin ?: 0)
+			} ?: systemBars.bottom
+		val innerInsets =
+			Insets.of(
+				systemBars.left,
+				if (viewBinding.appbarTop.isVisible) viewBinding.appbarTop.height else systemBars.top,
+				systemBars.right,
+				bottomInset,
+			)
+		return WindowInsetsCompat
+			.Builder(insets)
+			.setInsets(WindowInsetsCompat.Type.systemBars(), innerInsets)
+			.build()
+	}
 
-    override fun toggleScreenOrientation() {
-        if (screenOrientationHelper.toggleScreenOrientation()) {
-            Snackbar.make(
-                viewBinding.container,
-                if (screenOrientationHelper.isLocked) {
-                    R.string.screen_rotation_locked
-                } else {
-                    R.string.screen_rotation_unlocked
-                },
-                Snackbar.LENGTH_SHORT,
-            ).setAnchorView(viewBinding.toolbarDocked)
-                .show()
-        }
-    }
+	override fun switchPageBy(delta: Int) {
+		readerManager.currentReader?.switchPageBy(delta)
+	}
 
-    override fun switchPageTo(index: Int) {
-        val pages = viewModel.getCurrentChapterPages()
-        val page = pages?.getOrNull(index) ?: return
-        val chapterId = viewModel.getCurrentState()?.chapterId ?: return
-        onPageSelected(ReaderPage(page, index, chapterId))
-    }
+	override fun switchChapterBy(delta: Int) {
+		viewModel.switchChapterBy(delta)
+	}
 
-    private fun onReaderBarChanged(isBarEnabled: Boolean) {
-        viewBinding.infoBar.isVisible = isBarEnabled && viewBinding.appbarTop.isGone
-    }
+	override fun openMenu() {
+		viewModel.saveCurrentState(readerManager.currentReader?.getCurrentState())
+		val currentMode = readerManager.currentMode ?: return
+		router.showReaderConfigSheet(currentMode)
+	}
 
-    private fun onUiStateChanged(pair: Pair<ReaderUiState?, ReaderUiState?>) {
-        val (previous: ReaderUiState?, uiState: ReaderUiState?) = pair
-        title = uiState?.mangaName ?: getString(R.string.loading_)
-        viewBinding.infoBar.update(uiState)
-        if (uiState == null) {
-            supportActionBar?.subtitle = null
-            viewBinding.actionsView.setSliderValue(0, 1)
-            viewBinding.actionsView.isSliderEnabled = false
-            return
-        }
-        val chapterTitle = uiState.getChapterTitle(resources)
-        supportActionBar?.subtitle = when {
-            uiState.incognito -> getString(R.string.incognito_mode)
-            else -> chapterTitle
-        }
-        if (
-            settings.isReaderChapterToastEnabled &&
-            chapterTitle != previous?.getChapterTitle(resources) &&
-            chapterTitle.isNotEmpty()
-        ) {
-            viewBinding.toastView.showTemporary(chapterTitle, TOAST_DURATION)
-        }
-        if (uiState.isSliderAvailable()) {
-            viewBinding.actionsView.setSliderValue(
-                value = uiState.currentPage,
-                max = uiState.totalPages - 1,
-            )
-        } else {
-            viewBinding.actionsView.setSliderValue(0, 1)
-        }
-        viewBinding.actionsView.isSliderEnabled = uiState.isSliderAvailable()
-        viewBinding.actionsView.isNextEnabled = uiState.hasNextChapter()
-        viewBinding.actionsView.isPrevEnabled = uiState.hasPreviousChapter()
-    }
+	override fun scrollBy(
+		delta: Int,
+		smooth: Boolean,
+	): Boolean = readerManager.currentReader?.scrollBy(delta, smooth) == true
 
-    private fun updateScrollTimerButton() {
-        val button = viewBinding.buttonTimer ?: return
-        val isButtonVisible = scrollTimer.isActive.value
-            && settings.isReaderAutoscrollFabVisible
-            && !viewBinding.appbarTop.isVisible
-            && !viewBinding.timerControl.isVisible
-        if (button.isVisible != isButtonVisible) {
-            val transition = Fade().addTarget(button)
-            TransitionManager.beginDelayedTransition(viewBinding.root, transition)
-            button.isVisible = isButtonVisible
-        }
-    }
+	override fun toggleUiVisibility() {
+		setUiIsVisible(!viewBinding.appbarTop.isVisible)
+	}
 
-    // Observe foldable window layout to auto-enable double-page if configured
-    private fun observeWindowLayout() {
-        WindowInfoTracker.getOrCreate(this)
-            .windowLayoutInfo(this)
-            .onEach { info ->
-                val fold = info.displayFeatures.filterIsInstance<FoldingFeature>().firstOrNull()
-                val unfolded = when (fold?.state) {
-                    FoldingFeature.State.HALF_OPENED, FoldingFeature.State.FLAT -> true
-                    else -> false
-                }
-                if (unfolded != isFoldUnfolded) {
-                    isFoldUnfolded = unfolded
-                    applyDoubleModeAuto()
-                }
-            }
-            .launchIn(lifecycleScope)
-    }
+	override fun isReaderResumed(): Boolean {
+		val reader = readerManager.currentReader ?: return false
+		return reader.isResumed && supportFragmentManager.fragments.lastOrNull() === reader
+	}
 
-    private fun askForIncognitoMode() {
-        buildAlertDialog(this, isCentered = true) {
-            var dontAskAgain = false
-            val listener = DialogInterface.OnClickListener { _, which ->
-                if (which == DialogInterface.BUTTON_NEUTRAL) {
-                    finishAfterTransition()
-                } else {
-                    viewModel.setIncognitoMode(which == DialogInterface.BUTTON_POSITIVE, dontAskAgain)
-                }
-            }
-            setCheckbox(R.string.dont_ask_again, dontAskAgain) { _, isChecked ->
-                dontAskAgain = isChecked
-            }
-            setIcon(R.drawable.ic_incognito)
-            setTitle(R.string.incognito_mode)
-            setMessage(R.string.incognito_mode_hint_nsfw)
-            setPositiveButton(R.string.incognito, listener)
-            setNegativeButton(R.string.disable, listener)
-            setNeutralButton(android.R.string.cancel, listener)
-            setOnCancelListener { finishAfterTransition() }
-            setCancelable(true)
-        }.show()
-    }
+	override fun onBookmarkClick() {
+		viewModel.toggleBookmark()
+	}
 
-    companion object {
+	override fun onSavePageClick() {
+		viewModel.saveCurrentPage(pageSaveHelper)
+	}
 
-        private const val TOAST_DURATION = 2000L
-    }
+	override fun onScrollTimerClick(isLongClick: Boolean) {
+		if (isLongClick) {
+			scrollTimer.setActive(!scrollTimer.isActive.value)
+		} else {
+			viewBinding.timerControl.showOrHide()
+		}
+	}
+
+	override fun toggleScreenOrientation() {
+		if (screenOrientationHelper.toggleScreenOrientation()) {
+			Snackbar
+				.make(
+					viewBinding.container,
+					if (screenOrientationHelper.isLocked) {
+						R.string.screen_rotation_locked
+					} else {
+						R.string.screen_rotation_unlocked
+					},
+					Snackbar.LENGTH_SHORT,
+				).setAnchorView(viewBinding.toolbarDocked)
+				.show()
+		}
+	}
+
+	override fun switchPageTo(index: Int) {
+		val pages = viewModel.getCurrentChapterPages()
+		val page = pages?.getOrNull(index) ?: return
+		val chapterId = viewModel.getCurrentState()?.chapterId ?: return
+		onPageSelected(ReaderPage(page, index, chapterId))
+	}
+
+	private fun onReaderBarChanged(isBarEnabled: Boolean) {
+		viewBinding.infoBar.isVisible = isBarEnabled && viewBinding.appbarTop.isGone
+	}
+
+	private fun applyReaderBarsAppearance() {
+		lastToastBottomMargin = -1
+		val barColor = MaterialColors.getColor(viewBinding.root, materialR.attr.colorSurfaceContainer)
+		val topColored = ColorUtils.setAlphaComponent(barColor, readerBarBgAlpha(settings.topBarOpacity))
+		viewBinding.appbarTop.setBackgroundColor(topColored)
+		viewBinding.toolbar.setBackgroundColor(Color.TRANSPARENT)
+		applyBottomBarLayout()
+		viewBinding.root.removeCallbacks(updateToastPositionRunnable)
+		viewBinding.root.post(updateToastPositionRunnable)
+	}
+
+	private fun applyBottomBarLayout() {
+		val card = viewBinding.toolbarDocked ?: return
+		val floatGap = resources.getDimensionPixelSize(R.dimen.reader_toolbar_float_gap)
+		val floating = settings.isFloatBar
+		val bgAlpha = readerBarBgAlpha(settings.bottomBarOpacity)
+		val barColor = MaterialColors.getColor(card, materialR.attr.colorSurfaceContainer)
+		card.setCardBackgroundColor(ColorUtils.setAlphaComponent(barColor, bgAlpha))
+		viewBinding.actionsView.setBarBackgroundAlpha(bgAlpha)
+		val lp = card.layoutParams as? CoordinatorLayout.LayoutParams ?: return
+		if (floating) {
+			val marginH = resources.getDimensionPixelSize(R.dimen.reader_toolbar_float_margin_h)
+			lp.leftMargin = marginH
+			lp.rightMargin = marginH
+			lp.bottomMargin = systemBarsBottomInset + floatGap
+			card.radius = resources.getDimension(R.dimen.reader_toolbar_corner_radius)
+			card.elevation =
+				if (bgAlpha >= 255) {
+					resources.getDimension(R.dimen.reader_toolbar_float_elevation)
+				} else {
+					0f
+				}
+		} else {
+			lp.leftMargin = 0
+			lp.rightMargin = 0
+			lp.bottomMargin = 0
+			card.radius = 0f
+			card.elevation = 0f
+		}
+		card.layoutParams = lp
+		val actionBarSize = getThemeDimensionPixelOffset(appcompatR.attr.actionBarSize)
+		viewBinding.actionsView.minimumHeight = actionBarSize
+		viewBinding.actionsView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+			topMargin = 0
+			rightMargin = if (floating) 0 else lastSystemBarsInsets.right
+			leftMargin = if (floating) 0 else lastSystemBarsInsets.left
+			this.bottomMargin = if (floating) 0 else lastSystemBarsInsets.bottom
+		}
+	}
+
+	private fun showChapterToast(message: CharSequence) {
+		lastToastBottomMargin = -1
+		viewBinding.root.post {
+			updateChapterToastPosition()
+			viewBinding.toastView.showTemporary(message, TOAST_DURATION)
+		}
+	}
+
+	private fun updateChapterToastPosition() {
+		val card = viewBinding.toolbarDocked
+		val toastLp = viewBinding.toastView.layoutParams as? CoordinatorLayout.LayoutParams ?: return
+		val gap = resources.getDimensionPixelSize(R.dimen.reader_toast_above_bar_gap)
+		val newMargin =
+			if (card != null && isToolbarDockedShown) {
+				val cardLp = card.layoutParams as? CoordinatorLayout.LayoutParams
+				val cardHeight = if (card.height > 0) card.height else card.measuredHeight
+				(cardLp?.bottomMargin ?: 0) + cardHeight + gap
+			} else {
+				gap + systemBarsBottomInset
+			}
+		if (newMargin == lastToastBottomMargin) return
+		lastToastBottomMargin = newMargin
+		toastLp.anchorId = View.NO_ID
+		toastLp.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+		toastLp.bottomMargin = newMargin
+		viewBinding.toastView.layoutParams = toastLp
+		viewBinding.toastView.bringToFront()
+	}
+
+	private fun onUiStateChanged(pair: Pair<ReaderUiState?, ReaderUiState?>) {
+		val (previous: ReaderUiState?, uiState: ReaderUiState?) = pair
+		title = uiState?.mangaName ?: getString(R.string.loading_)
+		viewBinding.infoBar.update(uiState)
+		if (uiState == null) {
+			supportActionBar?.subtitle = null
+			viewBinding.actionsView.setSliderValue(0, 1)
+			viewBinding.actionsView.isSliderEnabled = false
+			return
+		}
+		val chapterTitle = uiState.getChapterTitle(resources)
+		supportActionBar?.subtitle =
+			when {
+				uiState.incognito -> getString(R.string.incognito_mode)
+				else -> chapterTitle
+			}
+		if (
+			settings.isReaderChapterToastEnabled &&
+			chapterTitle != previous?.getChapterTitle(resources) &&
+			chapterTitle.isNotEmpty()
+		) {
+			showChapterToast(chapterTitle)
+		}
+		if (uiState.isSliderAvailable()) {
+			viewBinding.actionsView.setSliderValue(
+				value = uiState.currentPage,
+				max = uiState.totalPages - 1,
+			)
+		} else {
+			viewBinding.actionsView.setSliderValue(0, 1)
+		}
+		viewBinding.actionsView.isSliderEnabled = uiState.isSliderAvailable()
+		viewBinding.actionsView.isNextEnabled = uiState.hasNextChapter()
+		viewBinding.actionsView.isPrevEnabled = uiState.hasPreviousChapter()
+	}
+
+	private fun updateScrollTimerButton() {
+		val button = viewBinding.buttonTimer ?: return
+		val isButtonVisible =
+			scrollTimer.isActive.value &&
+				settings.isReaderAutoscrollFabVisible &&
+				!viewBinding.appbarTop.isVisible &&
+				!viewBinding.timerControl.isVisible
+		if (button.isVisible != isButtonVisible) {
+			val transition = Fade().addTarget(button)
+			TransitionManager.beginDelayedTransition(viewBinding.root, transition)
+			button.isVisible = isButtonVisible
+		}
+	}
+
+	// Observe foldable window layout to auto-enable double-page if configured
+	private fun observeWindowLayout() {
+		WindowInfoTracker
+			.getOrCreate(this)
+			.windowLayoutInfo(this)
+			.onEach { info ->
+				val fold = info.displayFeatures.filterIsInstance<FoldingFeature>().firstOrNull()
+				val unfolded =
+					when (fold?.state) {
+						FoldingFeature.State.HALF_OPENED, FoldingFeature.State.FLAT -> true
+						else -> false
+					}
+				if (unfolded != isFoldUnfolded) {
+					isFoldUnfolded = unfolded
+					applyDoubleModeAuto()
+				}
+			}.launchIn(lifecycleScope)
+	}
+
+	private fun askForIncognitoMode() {
+		buildAlertDialog(this, isCentered = true) {
+			var dontAskAgain = false
+			val listener =
+				DialogInterface.OnClickListener { _, which ->
+					if (which == DialogInterface.BUTTON_NEUTRAL) {
+						finishAfterTransition()
+					} else {
+						viewModel.setIncognitoMode(which == DialogInterface.BUTTON_POSITIVE, dontAskAgain)
+					}
+				}
+			setCheckbox(R.string.dont_ask_again, dontAskAgain) { _, isChecked ->
+				dontAskAgain = isChecked
+			}
+			setIcon(R.drawable.ic_incognito)
+			setTitle(R.string.incognito_mode)
+			setMessage(R.string.incognito_mode_hint_nsfw)
+			setPositiveButton(R.string.incognito, listener)
+			setNegativeButton(R.string.disable, listener)
+			setNeutralButton(android.R.string.cancel, listener)
+			setOnCancelListener { finishAfterTransition() }
+			setCancelable(true)
+		}.show()
+	}
+
+	private fun readerBarBgAlpha(transparency: Int): Int {
+		val t = transparency.coerceIn(50, 100)
+		return (255 - (t - 50) * 127f / 50f).toInt()
+	}
+
+	private fun Insets.forRootSize(
+		width: Int,
+		height: Int,
+	): Insets {
+		var l = left
+		var r = right
+		var t = top
+		var b = bottom
+		if (l + r >= width) {
+			l = 0
+			r = 0
+		}
+		if (t + b >= height) {
+			t = 0
+			b = 0
+		}
+		return Insets.of(l, t, r, b)
+	}
+
+	companion object {
+		private val rootLocBuffer = IntArray(2)
+		private const val TOAST_DURATION = 2000L
+	}
 }

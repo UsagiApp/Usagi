@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 abstract class LifecycleAwareViewHolder(
 	itemView: View,
 	private val parentLifecycleOwner: LifecycleOwner,
-) : RecyclerView.ViewHolder(itemView), LifecycleOwner {
-
+) : RecyclerView.ViewHolder(itemView),
+	LifecycleOwner {
 	@Suppress("LeakingThis")
 	final override val lifecycle = LifecycleRegistry(this)
 	private var isCurrent = false
@@ -59,12 +59,9 @@ abstract class LifecycleAwareViewHolder(
 		}
 	}
 
-	protected fun isResumed(): Boolean {
-		return lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
-	}
+	protected fun isResumed(): Boolean = lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
 
 	private inner class ParentLifecycleObserver : DefaultLifecycleObserver {
-
 		override fun onCreate(owner: LifecycleOwner) = this@LifecycleAwareViewHolder.onCreate()
 
 		override fun onStart(owner: LifecycleOwner) = this@LifecycleAwareViewHolder.onStart()

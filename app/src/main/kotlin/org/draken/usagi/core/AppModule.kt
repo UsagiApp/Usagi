@@ -36,9 +36,11 @@ import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.exceptions.resolve.CaptchaHandler
 import org.draken.usagi.core.image.AvifImageDecoder
 import org.draken.usagi.core.image.CbzFetcher
+import org.draken.usagi.core.image.ExternalSourceFetcher
 import org.draken.usagi.core.image.MangaSourceHeaderInterceptor
 import org.draken.usagi.core.network.MangaHttpClient
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor
+import org.draken.usagi.core.network.webview.WebViewExecutor
 import org.draken.usagi.core.os.AppShortcutManager
 import org.draken.usagi.core.os.NetworkState
 import org.draken.usagi.core.parser.MangaLoaderContextImpl
@@ -46,7 +48,6 @@ import org.draken.usagi.core.parser.favicon.FaviconFetcher
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.image.CoilImageGetter
 import org.draken.usagi.core.ui.util.ActivityRecreationHandle
-import org.draken.usagi.core.util.AcraScreenLogger
 import org.draken.usagi.core.util.FileSize
 import org.draken.usagi.core.util.ext.connectivityManager
 import org.draken.usagi.core.util.ext.isLowRamDevice
@@ -61,25 +62,29 @@ import org.draken.usagi.local.domain.model.LocalManga
 import org.draken.usagi.main.domain.CoverRestoreInterceptor
 import org.draken.usagi.main.ui.protect.AppProtectHelper
 import org.draken.usagi.main.ui.protect.ScreenshotPolicyHelper
-import org.koitharu.kotatsu.parsers.MangaLoaderContext
 import org.draken.usagi.search.ui.MangaSuggestionsProvider
 import org.draken.usagi.sync.domain.SyncController
 import org.draken.usagi.widget.WidgetUpdater
+import tsuki.MangaLoaderContext
+import tsuki.network.UserAgents
 import javax.inject.Provider
 import javax.inject.Singleton
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionLoader as Loader
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as Manager
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiInjektBridge as Bridge
 
 @Module
 @InstallIn(SingletonComponent::class)
 interface AppModule {
-
 	@Binds
+	@Suppress("unused")
 	fun bindMangaLoaderContext(mangaLoaderContextImpl: MangaLoaderContextImpl): MangaLoaderContext
 
 	@Binds
+	@Suppress("unused")
 	fun bindImageGetter(coilImageGetter: CoilImageGetter): Html.ImageGetter
 
 	companion object {
-
 		@Provides
 		@LocalizedAppContext
 		fun provideLocalizedContext(
@@ -113,20 +118,28 @@ interface AppModule {
 		): ImageLoader {
 			val diskCacheFactory = {
 				val rootDir = context.externalCacheDir ?: context.cacheDir
-				DiskCache.Builder()
+				DiskCache
+					.Builder()
 					.directory(rootDir.resolve(CacheDir.THUMBS.dir))
 					.build()
 			}
-			val okHttpClientLazy = lazy {
-				okHttpClientProvider.get().newBuilder().cache(null).build()
-			}
-			return ImageLoader.Builder(context)
+			val okHttpClientLazy =
+				lazy {
+					okHttpClientProvider
+						.get()
+						.newBuilder()
+						.cache(null)
+						.build()
+				}
+			return ImageLoader
+				.Builder(context)
 				.interceptorCoroutineContext(Dispatchers.Default)
 				.diskCache(diskCacheFactory)
 				.logger(if (BuildConfig.DEBUG) DebugLogger() else null)
 				.allowRgb565(context.isLowRamDevice())
 				.eventListener(captchaHandler)
 				.components {
+					add(ExternalSourceFetcher.Factory())
 					add(
 						OkHttpNetworkFetcherFactory(
 							callFactory = okHttpClientLazy::value,
@@ -162,26 +175,26 @@ interface AppModule {
 			appShortcutManager: AppShortcutManager,
 			backupObserver: BackupObserver,
 			syncController: SyncController,
-		): Set<@JvmSuppressWildcards InvalidationTracker.Observer> = arraySetOf(
-			widgetUpdater,
-			appShortcutManager,
-			backupObserver,
-			syncController,
-		)
+		): Set<@JvmSuppressWildcards InvalidationTracker.Observer> =
+			arraySetOf(
+				widgetUpdater,
+				appShortcutManager,
+				backupObserver,
+				syncController,
+			)
 
 		@Provides
 		@ElementsIntoSet
 		fun provideActivityLifecycleCallbacks(
 			appProtectHelper: AppProtectHelper,
 			activityRecreationHandle: ActivityRecreationHandle,
-			acraScreenLogger: AcraScreenLogger,
 			screenshotPolicyHelper: ScreenshotPolicyHelper,
-		): Set<@JvmSuppressWildcards Application.ActivityLifecycleCallbacks> = arraySetOf(
-			appProtectHelper,
-			activityRecreationHandle,
-			acraScreenLogger,
-			screenshotPolicyHelper,
-		)
+		): Set<@JvmSuppressWildcards Application.ActivityLifecycleCallbacks> =
+			arraySetOf(
+				appProtectHelper,
+				activityRecreationHandle,
+				screenshotPolicyHelper,
+			)
 
 		@Provides
 		@Singleton
@@ -222,5 +235,35 @@ interface AppModule {
 			defaultSize = FileSize.MEGABYTES.convert(8, FileSize.BYTES),
 			minSize = FileSize.MEGABYTES.convert(2, FileSize.BYTES),
 		)
+
+		@Provides
+		@Singleton
+		fun provideInjektBridge(
+			@ApplicationContext context: Context,
+			@MangaHttpClient httpClient: OkHttpClient,
+			webViewExecutor: WebViewExecutor,
+		): Bridge =
+			Bridge(
+				context = context,
+				httpClient = httpClient,
+				defaultUserAgentProvider = {
+					webViewExecutor.defaultUserAgent
+						?.replace(Regex("; Android .*?\\)"), "; Android 16; K)")
+						?.replace(Regex("Version/.* Chrome/"), "Chrome/")
+						?: UserAgents.CHROME_MOBILE
+				},
+				javaScriptEvaluator = { script -> webViewExecutor.evaluateJs(null, script) },
+			)
+
+		@Provides
+		@Singleton
+		fun provideExternalLoader(injektBridge: Provider<Bridge>): Loader = Loader { injektBridge.get() }
+
+		@Provides
+		@Singleton
+		fun provideExternalManager(
+			@ApplicationContext context: Context,
+			loader: Loader,
+		): Manager = Manager(context, loader)
 	}
 }

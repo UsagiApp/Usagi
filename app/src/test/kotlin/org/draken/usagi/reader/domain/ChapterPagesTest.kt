@@ -1,14 +1,13 @@
 package org.draken.usagi.reader.domain
 
+import org.draken.usagi.core.model.TestMangaSource
+import org.draken.usagi.reader.ui.pager.ReaderPage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.draken.usagi.core.model.TestMangaSource
-import org.draken.usagi.reader.ui.pager.ReaderPage
 import kotlin.random.Random
 
 class ChapterPagesTest {
-
 	@Test
 	fun getChaptersSize() {
 		val pages = ChapterPages()
@@ -67,12 +66,13 @@ class ChapterPagesTest {
 		assertEquals(subList.size, pages.size(2L))
 	}
 
-	private fun page(chapterId: Long) = ReaderPage(
-		id = Random.nextLong(),
-		url = "http://localhost",
-		preview = null,
-		chapterId = chapterId,
-		index = Random.nextInt(),
-		source = TestMangaSource,
-	)
+	private fun page(chapterId: Long) =
+		ReaderPage(
+			id = Random.nextLong(),
+			url = "http://localhost",
+			preview = null,
+			chapterId = chapterId,
+			index = Random.nextInt(),
+			source = TestMangaSource,
+		)
 }

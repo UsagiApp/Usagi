@@ -7,12 +7,11 @@ import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.model.withOverride
 import org.draken.usagi.core.ui.model.MangaOverride
 import org.draken.usagi.list.ui.ListModelDiffCallback.Companion.PAYLOAD_ANYTHING_CHANGED
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
+import tsuki.model.Manga
+import tsuki.model.MangaSource
+import tsuki.util.ifNullOrEmpty
 
 sealed class MangaListModel : ListModel {
-
 	abstract val override: MangaOverride?
 	abstract val manga: Manga
 	abstract val counter: Int
@@ -31,25 +30,25 @@ sealed class MangaListModel : ListModel {
 
 	fun toMangaWithOverride() = manga.withOverride(override)
 
-	open fun getSummary(context: Context): CharSequence = buildSpannedString {
-		bold {
-			append(manga.title)
-		}
-		appendLine()
-		if (manga.tags.isNotEmpty()) {
-			manga.tags.joinTo(this) { it.title }
+	open fun getSummary(context: Context): CharSequence =
+		buildSpannedString {
+			bold {
+				append(manga.title)
+			}
 			appendLine()
+			if (manga.tags.isNotEmpty()) {
+				manga.tags.joinTo(this) { it.title }
+				appendLine()
+			}
+			append(manga.source.getTitle(context))
 		}
-		append(manga.source.getTitle(context))
-	}
 
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is MangaListModel && other.javaClass == javaClass && id == other.id
-	}
+	override fun areItemsTheSame(other: ListModel): Boolean = other is MangaListModel && other.javaClass == javaClass && id == other.id
 
-	override fun getChangePayload(previousState: ListModel): Any? = when {
-		previousState !is MangaListModel || previousState.manga != manga -> null
-		previousState.counter != counter -> PAYLOAD_ANYTHING_CHANGED
-		else -> null
-	}
+	override fun getChangePayload(previousState: ListModel): Any? =
+		when {
+			previousState !is MangaListModel || previousState.manga != manga -> null
+			previousState.counter != counter -> PAYLOAD_ANYTHING_CHANGED
+			else -> null
+		}
 }

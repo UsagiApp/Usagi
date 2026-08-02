@@ -13,21 +13,24 @@ class SearchMenuProvider(
 	private val activity: SearchActivity,
 	private val viewModel: SearchViewModel,
 ) : MenuProvider {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		menuInflater.inflate(R.menu.opt_search_kind, menu)
 	}
 
 	override fun onPrepareMenu(menu: Menu) {
 		super.onPrepareMenu(menu)
-		menu.findItem(
-			when (viewModel.kind) {
-				SearchKind.SIMPLE -> R.id.action_kind_simple
-				SearchKind.TITLE -> R.id.action_kind_title
-				SearchKind.AUTHOR -> R.id.action_kind_author
-				SearchKind.TAG -> R.id.action_kind_tag
-			},
-		)?.isChecked = true
+		menu
+			.findItem(
+				when (viewModel.kind) {
+					SearchKind.SIMPLE -> R.id.action_kind_simple
+					SearchKind.TITLE -> R.id.action_kind_title
+					SearchKind.AUTHOR -> R.id.action_kind_author
+					SearchKind.TAG -> R.id.action_kind_tag
+				},
+			)?.isChecked = true
 	}
 
 	override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -45,13 +48,14 @@ class SearchMenuProvider(
 			}
 		}
 
-		val newKind = when (menuItem.itemId) {
-			R.id.action_kind_simple -> SearchKind.SIMPLE
-			R.id.action_kind_title -> SearchKind.TITLE
-			R.id.action_kind_author -> SearchKind.AUTHOR
-			R.id.action_kind_tag -> SearchKind.TAG
-			else -> return false
-		}
+		val newKind =
+			when (menuItem.itemId) {
+				R.id.action_kind_simple -> SearchKind.SIMPLE
+				R.id.action_kind_title -> SearchKind.TITLE
+				R.id.action_kind_author -> SearchKind.AUTHOR
+				R.id.action_kind_tag -> SearchKind.TAG
+				else -> return false
+			}
 		if (newKind != viewModel.kind) {
 			activity.router.openSearch(
 				query = viewModel.query,

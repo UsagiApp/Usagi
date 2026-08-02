@@ -13,7 +13,6 @@ class AppWidgetConfig(
 	cls: Class<out AppWidgetProvider>,
 	val widgetId: Int,
 ) {
-
 	private val prefs = context.getSharedPreferences("appwidget_${cls.simpleName}_$widgetId", Context.MODE_PRIVATE)
 
 	var categoryId: Long

@@ -19,7 +19,6 @@ import org.draken.usagi.databinding.DialogProgressBinding
 
 @AndroidEntryPoint
 class BackupDialogFragment : AlertDialogFragment<DialogProgressBinding>() {
-
 	private val viewModel by viewModels<BackupViewModel>()
 
 	override fun onCreateViewBinding(
@@ -27,7 +26,10 @@ class BackupDialogFragment : AlertDialogFragment<DialogProgressBinding>() {
 		container: ViewGroup?,
 	) = DialogProgressBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: DialogProgressBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: DialogProgressBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		binding.textViewTitle.setText(R.string.create_backup)
 		binding.textViewSubtitle.setText(R.string.processing_)
@@ -37,11 +39,11 @@ class BackupDialogFragment : AlertDialogFragment<DialogProgressBinding>() {
 		viewModel.onError.observeEvent(viewLifecycleOwner, this::onError)
 	}
 
-	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder {
-		return super.onBuildDialog(builder)
+	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder =
+		super
+			.onBuildDialog(builder)
 			.setCancelable(false)
 			.setNegativeButton(android.R.string.cancel, null)
-	}
 
 	private fun onError(e: Throwable) {
 		MaterialAlertDialogBuilder(context ?: return)

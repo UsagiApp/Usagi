@@ -8,7 +8,6 @@ import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
 class PausingHandle : AbstractCoroutineContextElement(PausingHandle) {
-
 	private val paused = MutableStateFlow(false)
 	private val skipError = MutableStateFlow(false)
 
@@ -58,9 +57,9 @@ class PausingHandle : AbstractCoroutineContextElement(PausingHandle) {
 	fun skipCurrentError(): Boolean = skipError.compareAndSet(expect = true, update = false)
 
 	companion object : CoroutineContext.Key<PausingHandle> {
-
-		suspend fun current() = checkNotNull(currentCoroutineContext()[this]) {
-			"PausingHandle not found in current context"
-		}
+		suspend fun current() =
+			checkNotNull(currentCoroutineContext()[this]) {
+				"PausingHandle not found in current context"
+			}
 	}
 }

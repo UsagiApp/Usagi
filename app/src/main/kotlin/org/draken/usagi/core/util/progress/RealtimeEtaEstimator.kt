@@ -7,14 +7,16 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToLong
 
 class RealtimeEtaEstimator {
-
 	private val ticks = CircularArray<Tick>(MAX_TICKS)
 
 	@Volatile
 	private var lastChange = 0L
 
 	@AnyThread
-	fun onProgressChanged(value: Int, total: Int) {
+	fun onProgressChanged(
+		value: Int,
+		total: Int,
+	) {
 		if (total <= 0 || value > total) {
 			reset()
 			return
@@ -36,10 +38,11 @@ class RealtimeEtaEstimator {
 	}
 
 	@AnyThread
-	fun reset() = synchronized(this) {
-		ticks.clear()
-		lastChange = 0L
-	}
+	fun reset() =
+		synchronized(this) {
+			ticks.clear()
+			lastChange = 0L
+		}
 
 	@AnyThread
 	fun getEta(): Long {
@@ -48,31 +51,32 @@ class RealtimeEtaEstimator {
 	}
 
 	@AnyThread
-	fun isStuck(): Boolean = synchronized(this) {
-		return ticks.size() >= MIN_ESTIMATE_TICKS && (SystemClock.elapsedRealtime() - lastChange) > STUCK_DELAY
-	}
+	fun isStuck(): Boolean =
+		synchronized(this) {
+			return ticks.size() >= MIN_ESTIMATE_TICKS && (SystemClock.elapsedRealtime() - lastChange) > STUCK_DELAY
+		}
 
-	private fun getEstimatedTimeLeft(): Long = synchronized(this) {
-		val ticksCount = ticks.size()
-		if (ticksCount < MIN_ESTIMATE_TICKS) {
-			return NO_TIME
+	private fun getEstimatedTimeLeft(): Long =
+		synchronized(this) {
+			val ticksCount = ticks.size()
+			if (ticksCount < MIN_ESTIMATE_TICKS) {
+				return NO_TIME
+			}
+			val percentDiff = ticks.last.percent - ticks.first.percent
+			val timeDiff = ticks.last.timestamp - ticks.first.timestamp
+			if (percentDiff <= 0 || timeDiff <= 0) {
+				return NO_TIME
+			}
+			val averageTime = timeDiff / percentDiff
+			val percentLeft = 1.0 - ticks.last.percent
+			return (percentLeft * averageTime).roundToLong()
 		}
-		val percentDiff = ticks.last.percent - ticks.first.percent
-		val timeDiff = ticks.last.timestamp - ticks.first.timestamp
-		if (percentDiff <= 0 || timeDiff <= 0) {
-			return NO_TIME
-		}
-		val averageTime = timeDiff / percentDiff
-		val percentLeft = 1.0 - ticks.last.percent
-		return (percentLeft * averageTime).roundToLong()
-	}
 
 	private class Tick(
 		@JvmField val value: Int,
 		@JvmField val total: Int,
 		@JvmField val timestamp: Long,
 	) {
-
 		init {
 			require(total > 0) { "total = $total" }
 			require(value >= 0) { "value = $value" }
@@ -84,7 +88,6 @@ class RealtimeEtaEstimator {
 	}
 
 	private companion object {
-
 		const val MAX_TICKS = 20
 		const val MIN_ESTIMATE_TICKS = 4
 		const val NO_TIME = -1L

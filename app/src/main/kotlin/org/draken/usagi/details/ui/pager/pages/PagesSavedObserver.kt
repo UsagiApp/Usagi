@@ -10,13 +10,13 @@ import org.draken.usagi.core.util.ShareHelper
 class PagesSavedObserver(
 	private val snackbarHost: View,
 ) : FlowCollector<Collection<Uri>> {
-
 	override suspend fun emit(value: Collection<Uri>) {
-		val msg = when (value.size) {
-			0 -> R.string.nothing_found
-			1 -> R.string.page_saved
-			else -> R.string.pages_saved
-		}
+		val msg =
+			when (value.size) {
+				0 -> R.string.nothing_found
+				1 -> R.string.page_saved
+				else -> R.string.pages_saved
+			}
 		val snackbar = Snackbar.make(snackbarHost, msg, Snackbar.LENGTH_LONG)
 		value.singleOrNull()?.let { uri ->
 			snackbar.setAction(R.string.share) {

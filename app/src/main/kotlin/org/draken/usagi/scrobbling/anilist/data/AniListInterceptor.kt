@@ -10,8 +10,9 @@ import java.net.HttpURLConnection
 
 private const val JSON = "application/json"
 
-class AniListInterceptor(private val storage: ScrobblerStorage) : Interceptor {
-
+class AniListInterceptor(
+	private val storage: ScrobblerStorage,
+) : Interceptor {
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val sourceRequest = chain.request()
 		val request = sourceRequest.newBuilder()

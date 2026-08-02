@@ -4,30 +4,36 @@ import android.content.Context
 import androidx.annotation.AnyThread
 import androidx.collection.ArrayMap
 import dagger.hilt.android.qualifiers.ApplicationContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import org.draken.usagi.core.cache.MemoryContentCache
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.MangaSourceInfo
+import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.model.TestMangaSource
 import org.draken.usagi.core.model.UnknownMangaSource
+import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.parser.external.ExternalMangaRepository
 import org.draken.usagi.core.parser.external.ExternalMangaSource
 import org.draken.usagi.local.data.LocalMangaRepository
-import org.koitharu.kotatsu.parsers.MangaLoaderContext
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaListFilterCapabilities
-import org.koitharu.kotatsu.parsers.model.MangaListFilterOptions
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.SortOrder
+import tsuki.MangaLoaderContext
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaListFilterCapabilities
+import tsuki.model.MangaListFilterOptions
+import tsuki.model.MangaPage
+import tsuki.model.MangaSource
+import tsuki.model.SortOrder
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
+import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
+import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as ExternalRepository
 
 interface MangaRepository {
-
 	val source: MangaSource
 
 	val sortOrders: Set<SortOrder>
@@ -36,7 +42,11 @@ interface MangaRepository {
 
 	val filterCapabilities: MangaListFilterCapabilities
 
-	suspend fun getList(offset: Int, order: SortOrder?, filter: MangaListFilter?): List<Manga>
+	suspend fun getList(
+		offset: Int,
+		order: SortOrder?,
+		filter: MangaListFilter?,
+	): List<Manga>
 
 	suspend fun getDetails(manga: Manga): Manga
 
@@ -44,7 +54,17 @@ interface MangaRepository {
 
 	suspend fun getPageUrl(page: MangaPage): String
 
+	suspend fun getPageRequest(page: MangaPage): Request = createPageRequest(getPageUrl(page), page.source)
+
+	suspend fun getPageResponse(
+		page: MangaPage,
+		okHttp: OkHttpClient,
+		interceptor: Interceptor,
+	): Response = interceptor.interceptPageRequest(getPageRequest(page), okHttp)
+
 	suspend fun getFilterOptions(): MangaListFilterOptions
+
+	suspend fun getExternalFilters(): Any? = null
 
 	suspend fun getRelated(seed: Manga): List<Manga>
 
@@ -54,59 +74,107 @@ interface MangaRepository {
 	}
 
 	@Singleton
-	class Factory @Inject constructor(
-		@ApplicationContext private val context: Context,
-		private val localMangaRepository: LocalMangaRepository,
-		private val loaderContext: MangaLoaderContext,
-		private val contentCache: MemoryContentCache,
-		private val mirrorSwitcher: MirrorSwitcher,
-	) {
+	class Factory
+		@Inject
+		constructor(
+			@ApplicationContext private val context: Context,
+			private val localMangaRepository: LocalMangaRepository,
+			private val loaderContext: MangaLoaderContext,
+			private val contentCache: MemoryContentCache,
+			private val mirrorSwitcher: MirrorSwitcher,
+		) {
+			private val cache = ArrayMap<MangaSource, WeakReference<MangaRepository>>()
+			private var cacheVersion = -1
 
-		private val cache = ArrayMap<MangaSource, WeakReference<MangaRepository>>()
+			@AnyThread
+			fun create(source: MangaSource): MangaRepository {
+				val currentVersion = MangaSourceRegistry.version
+				if (cacheVersion != currentVersion) {
+					synchronized(cache) {
+						if (cacheVersion != currentVersion) {
+							cache.clear()
+							cacheVersion = currentVersion
+						}
+					}
+				}
 
-		@AnyThread
-		fun create(source: MangaSource): MangaRepository {
-			when (source) {
-				is MangaSourceInfo -> return create(source.mangaSource)
-				LocalMangaSource -> return localMangaRepository
-				UnknownMangaSource -> return EmptyMangaRepository(source)
-			}
-			cache[source]?.get()?.let { return it }
-			return synchronized(cache) {
+				when (source) {
+					is MangaSourceInfo -> return create(source.mangaSource)
+					LocalMangaSource -> return localMangaRepository
+					UnknownMangaSource -> return EmptyMangaRepository(source)
+				}
 				cache[source]?.get()?.let { return it }
-				val repository = createRepository(source)
-				if (repository != null) {
-					cache[source] = WeakReference(repository)
-					repository
-				} else {
-					EmptyMangaRepository(source)
+				return synchronized(cache) {
+					cache[source]?.get()?.let { return it }
+					val repository = createRepository(source)
+					if (repository != null) {
+						cache[source] = WeakReference(repository)
+						repository
+					} else {
+						EmptyMangaRepository(source)
+					}
 				}
 			}
+
+			private fun createRepository(source: MangaSource): MangaRepository? =
+				when (source) {
+					TestMangaSource -> {
+						TestMangaRepository(
+							loaderContext = loaderContext,
+							cache = contentCache,
+						)
+					}
+
+					is ExternalMangaSource -> {
+						if (source.isAvailable(context)) {
+							ExternalMangaRepository(
+								contentResolver = context.contentResolver,
+								source = source,
+								cache = contentCache,
+							)
+						} else {
+							EmptyMangaRepository(source)
+						}
+					}
+
+					is ExternalSource -> {
+						try {
+							ExternalRepository(
+								context = context,
+								source = source,
+								cache = contentCache,
+							)
+						} catch (_: Throwable) {
+							EmptyMangaRepository(source)
+						}
+					}
+
+					else -> {
+						try {
+							MangaParserRepository(
+								compoundSource = source,
+								parser = loaderContext.newParserInstance(source),
+								cache = contentCache,
+								mirrorSwitcher = mirrorSwitcher,
+							)
+						} catch (_: Throwable) {
+							EmptyMangaRepository(source)
+						}
+					}
+				}
 		}
 
-		private fun createRepository(source: MangaSource): MangaRepository? = when (source) {
-			is MangaParserSource -> ParserMangaRepository(
-				parser = loaderContext.newParserInstance(source),
-				cache = contentCache,
-				mirrorSwitcher = mirrorSwitcher,
-			)
-
-			TestMangaSource -> TestMangaRepository(
-				loaderContext = loaderContext,
-				cache = contentCache,
-			)
-
-			is ExternalMangaSource -> if (source.isAvailable(context)) {
-				ExternalMangaRepository(
-					contentResolver = context.contentResolver,
-					source = source,
-					cache = contentCache,
-				)
-			} else {
-				EmptyMangaRepository(source)
-			}
-
-			else -> null
-		}
+	companion object {
+		fun createPageRequest(
+			pageUrl: String,
+			mangaSource: MangaSource,
+		) = Request
+			.Builder()
+			.url(pageUrl)
+			.get()
+			.header(CommonHeaders.ACCEPT, "image/webp,image/png;q=0.9,image/jpeg,*/*;q=0.8")
+			.cacheControl(CommonHeaders.CACHE_CONTROL_NO_STORE)
+			.tag(MangaSource::class.java, mangaSource)
+			.build()
 	}
 }

@@ -110,7 +110,7 @@
     <string name="downloads">Жүктелген</string>
     <string name="operation_not_supported">Қолжетімсіз амал</string>
     <string name="delete">Жою</string>
-    <string name="text_file_not_supported">CBZ не ZIP пішімде таңдаңыз.</string>
+    <string name="text_file_not_supported">ZIP, PDF немесе CBZ файлын таңдаңыз.</string>
     <string name="clear_pages_cache">Бет кәшін тазалау</string>
     <string name="read_mode">Оқу режімі</string>
     <string name="text_delete_local_manga">“%s” құрылғыдан біржолата жоямысыз?</string>
@@ -377,7 +377,7 @@
     <string name="show_suspicious_content">Күмәнді контентті көрсету</string>
     <string name="reader_info_bar_summary">Экранның үстінгі жағында уақыт пен оқу прогрессін көрсету</string>
     <string name="allow_unstable_updates_summary">Тұрақсыз нұсқа туралы мәлімдеме алу</string>
-    <string name="comics_archive_import_description">Бір не одан көп .cbz я .zip файлын таңдай аласыз, әр файыл бөлек маңга болып анықталады.</string>
+    <string name="comics_archive_import_description">Бір немесе бірнеше .cbz, .pdf не .zip файлын таңдай аласыз. Әр файл жеке манга ретінде танылады.</string>
     <string name="downloads_paused">Жүктеп алу тоқтап қалды</string>
     <string name="too_many_requests_message">Тым көп сұрату. Біраздан соң қайталап көріңіз</string>
     <string name="downloads_wifi_only">Wi-Fi арқылы ғана жүктеу</string>
@@ -466,7 +466,6 @@
     <string name="invert_colors">Түстерді терістету</string>
     <string name="color_theme">Түс схемасы</string>
     <string name="brightness">Ашықтық</string>
-    <string name="memory_usage_pattern">%s - %s</string>
     <string name="exit_confirmation_summary">Шығып кету үшін «Кері» батырмасын екі рет басыңыз</string>
     <string name="bookmarks_removed">Бетбелгілер жойылды</string>
     <string name="theme_name_mion">Мион</string>
@@ -543,4 +542,13 @@
     <string name="nsfw_16">16+</string>
     <string name="hide_broken_sources">Бұзылған дереккөздерді жасыру</string>
     <string name="hide_broken_sources_summary">Дереккөз тізімдерінен бұзылған деп белгіленген дереккөздерді жасыру</string>
+    <string name="cover_only">Тек мұқаба</string>
+    <string name="saved_filters">Сақталған сүзгілер</string>
+    <string name="enter_name">Атауын енгізіңіз</string>
+    <string name="pinned_sources_only">Тек бекітілген дереккөздер</string>
+    <string name="hide_empty_sources">Бос дереккөздерді жасыру</string>
+    <string name="invalid_server_address_message">Жарамсыз сервер мекенжайы</string>
+    <string name="theme_name_expressive">Экспрессивті (сынақ нұсқасы)</string>
+    <string name="proxy_bypass_enabled">Интернет цензурасын айналып өту</string>
+    <string name="proxy_bypass_enabled_summary">Бұғатталған желілерде қолданба трафигін кіріктірілген айналып өту туннелі арқылы бағыттау (бета).</string>
 </resources>

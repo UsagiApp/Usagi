@@ -12,24 +12,37 @@ import org.draken.usagi.core.util.ext.textAndVisible
 import org.draken.usagi.databinding.ItemStorageConfigBinding
 import org.draken.usagi.settings.storage.DirectoryModel
 
-class DestinationsAdapter(context: Context, dataset: List<DirectoryModel>) :
-	ArrayAdapter<DirectoryModel>(context, android.R.layout.simple_spinner_dropdown_item, android.R.id.text1, dataset) {
-
+class DestinationsAdapter(
+	context: Context,
+	dataset: List<DirectoryModel>,
+) : ArrayAdapter<DirectoryModel>(context, android.R.layout.simple_spinner_dropdown_item, android.R.id.text1, dataset) {
 	init {
 		setDropDownViewResource(R.layout.item_storage_config)
 	}
 
-	override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-		val view = convertView ?: LayoutInflater.from(parent.context)
-			.inflate(android.R.layout.simple_spinner_dropdown_item, parent, false)
+	override fun getView(
+		position: Int,
+		convertView: View?,
+		parent: ViewGroup,
+	): View {
+		val view =
+			convertView ?: LayoutInflater
+				.from(parent.context)
+				.inflate(android.R.layout.simple_spinner_dropdown_item, parent, false)
 		val item = getItem(position) ?: return view
 		view.findViewById<TextView>(android.R.id.text1).text = item.title ?: view.context.getString(item.titleRes)
 		return view
 	}
 
-	override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-		val view = convertView ?: LayoutInflater.from(parent.context)
-			.inflate(R.layout.item_storage_config, parent, false)
+	override fun getDropDownView(
+		position: Int,
+		convertView: View?,
+		parent: ViewGroup,
+	): View {
+		val view =
+			convertView ?: LayoutInflater
+				.from(parent.context)
+				.inflate(R.layout.item_storage_config, parent, false)
 		val item = getItem(position) ?: return view
 		val binding =
 			view.tag as? ItemStorageConfigBinding ?: ItemStorageConfigBinding.bind(view).also { view.tag = it }

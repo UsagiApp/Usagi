@@ -10,25 +10,23 @@ import androidx.core.net.toUri
 import org.draken.usagi.BuildConfig
 
 class MangaSuggestionsProvider : SearchRecentSuggestionsProvider() {
-
 	init {
 		setupSuggestions(AUTHORITY, MODE)
 	}
 
 	companion object {
-
 		private const val AUTHORITY = "${BuildConfig.APPLICATION_ID}.MangaSuggestionsProvider"
 		private const val MODE = DATABASE_MODE_QUERIES
 
-		fun createSuggestions(context: Context): SearchRecentSuggestions {
-			return SearchRecentSuggestions(context, AUTHORITY, MODE)
-		}
+		fun createSuggestions(context: Context): SearchRecentSuggestions = SearchRecentSuggestions(context, AUTHORITY, MODE)
 
-		val QUERY_URI: Uri = Uri.Builder()
-			.scheme(ContentResolver.SCHEME_CONTENT)
-			.authority(AUTHORITY)
-			.appendPath(SearchManager.SUGGEST_URI_PATH_QUERY)
-			.build()
+		val QUERY_URI: Uri =
+			Uri
+				.Builder()
+				.scheme(ContentResolver.SCHEME_CONTENT)
+				.authority(AUTHORITY)
+				.appendPath(SearchManager.SUGGEST_URI_PATH_QUERY)
+				.build()
 
 		val URI: Uri = "content://$AUTHORITY/suggestions".toUri()
 	}

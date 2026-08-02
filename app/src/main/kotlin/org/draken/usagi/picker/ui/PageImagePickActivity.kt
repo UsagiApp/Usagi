@@ -24,19 +24,19 @@ import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.databinding.ActivityPickerBinding
 import org.draken.usagi.main.ui.owners.AppBarOwner
 import org.draken.usagi.main.ui.owners.SnackbarOwner
-import org.koitharu.kotatsu.parsers.model.Manga
 import org.draken.usagi.picker.ui.manga.MangaPickerFragment
 import org.draken.usagi.picker.ui.page.PagePickerFragment
 import org.draken.usagi.reader.ui.PageSaveHelper
 import org.draken.usagi.reader.ui.pager.ReaderPage
+import tsuki.model.Manga
 import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PageImagePickActivity : BaseActivity<ActivityPickerBinding>(),
+class PageImagePickActivity :
+	BaseActivity<ActivityPickerBinding>(),
 	AppBarOwner,
 	SnackbarOwner {
-
 	@Inject
 	lateinit var pageSaveHelperFactory: PageSaveHelper.Factory
 
@@ -70,7 +70,10 @@ class PageImagePickActivity : BaseActivity<ActivityPickerBinding>(),
 		}
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		val bars = insets.getInsets(typeMask)
 		viewBinding.appbar.updatePadding(
@@ -91,13 +94,17 @@ class PageImagePickActivity : BaseActivity<ActivityPickerBinding>(),
 		}
 	}
 
-	fun onPagePicked(manga: Manga, page: ReaderPage) {
-		val task = PageSaveHelper.Task(
-			manga = manga,
-			chapterId = page.chapterId,
-			pageNumber = page.index + 1,
-			page = page.toMangaPage(),
-		)
+	fun onPagePicked(
+		manga: Manga,
+		page: ReaderPage,
+	) {
+		val task =
+			PageSaveHelper.Task(
+				manga = manga,
+				chapterId = page.chapterId,
+				pageNumber = page.index + 1,
+				page = page.toMangaPage(),
+			)
 		viewModel.savePageToTempFile(pageSaveHelper, task)
 	}
 

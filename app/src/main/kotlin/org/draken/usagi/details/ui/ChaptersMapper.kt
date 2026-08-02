@@ -8,7 +8,7 @@ import org.draken.usagi.details.ui.model.ChapterListItem
 import org.draken.usagi.details.ui.model.toListItem
 import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.util.mapToSet
+import tsuki.util.mapToSet
 
 fun MangaDetails.mapChapters(
 	currentChapterId: Long,
@@ -25,16 +25,18 @@ fun MangaDetails.mapChapters(
 	}
 	val bookmarked = bookmarks.mapToSet { it.chapterId }
 	val newFrom = if (newCount == 0 || remoteChapters.isEmpty()) Int.MAX_VALUE else remoteChapters.size - newCount
-	val ids = buildSet(maxOf(remoteChapters.size, localChapters.size)) {
-		remoteChapters.mapTo(this) { it.id }
-		localChapters.mapTo(this) { it.id }
-	}
+	val ids =
+		buildSet(maxOf(remoteChapters.size, localChapters.size)) {
+			remoteChapters.mapTo(this) { it.id }
+			localChapters.mapTo(this) { it.id }
+		}
 	val result = ArrayList<ChapterListItem>(ids.size)
-	val localMap = if (localChapters.isNotEmpty()) {
-		localChapters.associateByTo(LinkedHashMap(localChapters.size)) { it.id }
-	} else {
-		null
-	}
+	val localMap =
+		if (localChapters.isNotEmpty()) {
+			localChapters.associateByTo(LinkedHashMap(localChapters.size)) { it.id }
+		} else {
+			null
+		}
 	var isUnread = currentChapterId !in ids
 	if (!isDownloadedOnly || local?.manga?.chapters == null) {
 		for (chapter in remoteChapters) {
@@ -42,14 +44,15 @@ fun MangaDetails.mapChapters(
 			if (chapter.id == currentChapterId) {
 				isUnread = true
 			}
-			result += (local ?: chapter).toListItem(
-				isCurrent = chapter.id == currentChapterId,
-				isUnread = isUnread,
-				isNew = isUnread && result.size >= newFrom,
-				isDownloaded = local != null,
-				isBookmarked = chapter.id in bookmarked,
-				isGrid = isGrid,
-			)
+			result +=
+				(local ?: chapter).toListItem(
+					isCurrent = chapter.id == currentChapterId,
+					isUnread = isUnread,
+					isNew = isUnread && result.size >= newFrom,
+					isDownloaded = local != null,
+					isBookmarked = chapter.id in bookmarked,
+					isGrid = isGrid,
+				)
 		}
 	}
 	if (!localMap.isNullOrEmpty()) {
@@ -57,14 +60,15 @@ fun MangaDetails.mapChapters(
 			if (chapter.id == currentChapterId) {
 				isUnread = true
 			}
-			result += chapter.toListItem(
-				isCurrent = chapter.id == currentChapterId,
-				isUnread = isUnread,
-				isNew = false,
-				isDownloaded = !isLocal,
-				isBookmarked = chapter.id in bookmarked,
-				isGrid = isGrid,
-			)
+			result +=
+				chapter.toListItem(
+					isCurrent = chapter.id == currentChapterId,
+					isUnread = isUnread,
+					isNew = false,
+					isDownloaded = !isLocal,
+					isBookmarked = chapter.id in bookmarked,
+					isGrid = isGrid,
+				)
 		}
 	}
 	return result
@@ -76,11 +80,12 @@ fun List<ChapterListItem>.withVolumeHeaders(context: Context): MutableList<ListM
 	for (item in this) {
 		val chapter = item.chapter
 		if (chapter.volume != prevVolume) {
-			val text = if (chapter.volume == 0) {
-				context.getString(R.string.volume_unknown)
-			} else {
-				context.getString(R.string.volume_, chapter.volume)
-			}
+			val text =
+				if (chapter.volume == 0) {
+					context.getString(R.string.volume_unknown)
+				} else {
+					context.getString(R.string.volume_, chapter.volume)
+				}
 			result.add(ListHeader(text))
 			prevVolume = chapter.volume
 		}

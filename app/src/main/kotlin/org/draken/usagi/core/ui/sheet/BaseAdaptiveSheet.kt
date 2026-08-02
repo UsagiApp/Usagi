@@ -31,9 +31,11 @@ import org.draken.usagi.core.ui.BaseActivityEntryPoint
 import org.draken.usagi.core.ui.util.ActionModeDelegate
 import com.google.android.material.R as materialR
 
-abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
-	OnApplyWindowInsetsListener {
+private const val HALF_EXPANDED_RATIO = 0.62f
 
+abstract class BaseAdaptiveSheet<B : ViewBinding> :
+	AppCompatDialogFragment(),
+	OnApplyWindowInsetsListener {
 	private var waitingForDismissAllowingStateLoss = false
 	private var isFitToContentsDisabled = false
 
@@ -75,7 +77,10 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 		return binding.root
 	}
 
-	final override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	final override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		ViewCompat.setOnApplyWindowInsetsListener(view, this)
 		val binding = requireViewBinding()
@@ -93,14 +98,16 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 
 	override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 		val context = requireContext()
-		val dialog = if (context.resources.getBoolean(R.bool.is_tablet)) {
-			SideSheetDialogImpl(context, theme)
-		} else {
-			BottomSheetDialogImpl(context, theme)
-		}
-		actionModeDelegate = ActionModeDelegate().also {
-			dialog.onBackPressedDispatcher.addCallback(it)
-		}
+		val dialog =
+			if (context.resources.getBoolean(R.bool.is_tablet)) {
+				SideSheetDialogImpl(context, theme)
+			} else {
+				BottomSheetDialogImpl(context, theme)
+			}
+		actionModeDelegate =
+			ActionModeDelegate().also {
+				dialog.onBackPressedDispatcher.addCallback(it)
+			}
 		return dialog
 	}
 
@@ -114,12 +121,16 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 		actionModeDelegate?.onSupportActionModeFinished(mode, dialog?.window)
 	}
 
-	fun addSheetCallback(callback: AdaptiveSheetCallback, lifecycleOwner: LifecycleOwner): Boolean {
+	fun addSheetCallback(
+		callback: AdaptiveSheetCallback,
+		lifecycleOwner: LifecycleOwner,
+	): Boolean {
 		val b = behavior ?: return false
 		b.addCallback(callback)
-		val rootView = dialog?.findViewById(materialR.id.design_bottom_sheet)
-			?: dialog?.findViewById(materialR.id.coordinator)
-			?: view
+		val rootView =
+			dialog?.findViewById(materialR.id.design_bottom_sheet)
+				?: dialog?.findViewById(materialR.id.coordinator)
+				?: view
 		if (rootView != null) {
 			callback.onStateChanged(rootView, b.state)
 		}
@@ -127,17 +138,27 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 		return true
 	}
 
-	protected abstract fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): B
+	protected abstract fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): B
 
-	protected open fun onViewBindingCreated(binding: B, savedInstanceState: Bundle?) = Unit
+	protected open fun onViewBindingCreated(
+		binding: B,
+		savedInstanceState: Bundle?,
+	) = Unit
 
+	@Suppress("unused")
 	fun startSupportActionMode(callback: ActionMode.Callback): ActionMode? {
 		val delegate =
 			(dialog as? AppCompatDialog)?.delegate ?: (activity as? AppCompatActivity)?.delegate ?: return null
 		return delegate.startSupportActionMode(callback)
 	}
 
-	protected fun setExpanded(isExpanded: Boolean, isLocked: Boolean) {
+	protected fun setExpanded(
+		isExpanded: Boolean,
+		isLocked: Boolean,
+	) {
 		this.isLocked = isLocked
 		if (!isLocked) {
 			lockCounter = 0
@@ -150,11 +171,12 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 			b.isFitToContents = !isFitToContentsDisabled && !isExpanded
 			val rootView = dialog?.findViewById<View>(materialR.id.design_bottom_sheet)
 			rootView?.updateLayoutParams {
-				height = if (isFitToContentsDisabled || isExpanded) {
-					LayoutParams.MATCH_PARENT
-				} else {
-					LayoutParams.WRAP_CONTENT
-				}
+				height =
+					if (isFitToContentsDisabled || isExpanded) {
+						LayoutParams.MATCH_PARENT
+					} else {
+						LayoutParams.WRAP_CONTENT
+					}
 			}
 		}
 		b.isDraggable = !isLocked
@@ -166,6 +188,22 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 		b.isFitToContents = false
 		dialog?.findViewById<View>(materialR.id.design_bottom_sheet)?.updateLayoutParams {
 			height = LayoutParams.MATCH_PARENT
+		}
+	}
+
+	protected fun setHalfExpanded() {
+		val sheetDialog = dialog as? BottomSheetDialog ?: return
+		view?.updateLayoutParams { height = LayoutParams.MATCH_PARENT }
+		dialog?.findViewById<View>(materialR.id.design_bottom_sheet)?.updateLayoutParams {
+			height = LayoutParams.MATCH_PARENT
+		}
+		sheetDialog.behavior.apply {
+			isFitToContents = false
+			isHideable = true
+			isDraggableOnNestedScroll = false
+			skipCollapsed = true
+			halfExpandedRatio = HALF_EXPANDED_RATIO
+			state = BottomSheetBehavior.STATE_HALF_EXPANDED
 		}
 	}
 
@@ -183,9 +221,10 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 		}
 	}
 
-	fun requireViewBinding(): B = checkNotNull(viewBinding) {
-		"Fragment $this did not return a ViewBinding from onCreateView() or this was called before onCreateView()."
-	}
+	fun requireViewBinding(): B =
+		checkNotNull(viewBinding) {
+			"Fragment $this did not return a ViewBinding from onCreateView() or this was called before onCreateView()."
+		}
 
 	override fun dismiss() {
 		if (!tryDismissWithAnimation(false)) {
@@ -204,11 +243,12 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 	 * false otherwise.
 	 */
 	private fun tryDismissWithAnimation(allowingStateLoss: Boolean): Boolean {
-		val shouldDismissWithAnimation = when (val dialog = dialog) {
-			is BottomSheetDialog -> dialog.dismissWithAnimation
-			is SideSheetDialog -> dialog.isDismissWithSheetAnimationEnabled
-			else -> false
-		}
+		val shouldDismissWithAnimation =
+			when (val dialog = dialog) {
+				is BottomSheetDialog -> dialog.dismissWithAnimation
+				is SideSheetDialog -> dialog.isDismissWithSheetAnimationEnabled
+				else -> false
+			}
 		val behavior = behavior ?: return false
 		return if (shouldDismissWithAnimation && behavior.isHideable) {
 			dismissWithAnimation(behavior, allowingStateLoss)
@@ -218,7 +258,10 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 		}
 	}
 
-	private fun dismissWithAnimation(behavior: AdaptiveSheetBehavior, allowingStateLoss: Boolean) {
+	private fun dismissWithAnimation(
+		behavior: AdaptiveSheetBehavior,
+		allowingStateLoss: Boolean,
+	) {
 		waitingForDismissAllowingStateLoss = allowingStateLoss
 		if (behavior.state == AdaptiveSheetBehavior.STATE_HIDDEN) {
 			dismissAfterAnimation()
@@ -237,17 +280,25 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 	}
 
 	private inner class SheetDismissCallback : AdaptiveSheetCallback {
-		override fun onStateChanged(sheet: View, newState: Int) {
+		override fun onStateChanged(
+			sheet: View,
+			newState: Int,
+		) {
 			if (newState == BottomSheetBehavior.STATE_HIDDEN) {
 				dismissAfterAnimation()
 			}
 		}
 
-		override fun onSlide(sheet: View, slideOffset: Float) {}
+		override fun onSlide(
+			sheet: View,
+			slideOffset: Float,
+		) {}
 	}
 
-	private inner class SideSheetDialogImpl(context: Context, theme: Int) : SideSheetDialog(context, theme) {
-
+	private inner class SideSheetDialogImpl(
+		context: Context,
+		theme: Int,
+	) : SideSheetDialog(context, theme) {
 		override fun onSupportActionModeStarted(mode: ActionMode?) {
 			super.onSupportActionModeStarted(mode)
 			if (mode != null) {
@@ -263,8 +314,10 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 		}
 	}
 
-	private inner class BottomSheetDialogImpl(context: Context, theme: Int) : BottomSheetDialog(context, theme) {
-
+	private inner class BottomSheetDialogImpl(
+		context: Context,
+		theme: Int,
+	) : BottomSheetDialog(context, theme) {
 		override fun onSupportActionModeStarted(mode: ActionMode?) {
 			super.onSupportActionModeStarted(mode)
 			if (mode != null) {
@@ -284,7 +337,6 @@ abstract class BaseAdaptiveSheet<B : ViewBinding> : AppCompatDialogFragment(),
 		private val behavior: AdaptiveSheetBehavior,
 		private val callback: AdaptiveSheetCallback,
 	) : DefaultLifecycleObserver {
-
 		override fun onDestroy(owner: LifecycleOwner) {
 			super.onDestroy(owner)
 			owner.lifecycle.removeObserver(this)

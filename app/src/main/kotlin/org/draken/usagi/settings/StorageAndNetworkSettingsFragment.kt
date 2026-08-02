@@ -15,63 +15,73 @@ import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
-import org.koitharu.kotatsu.parsers.util.names
 import org.draken.usagi.settings.userdata.storage.StorageUsagePreference
+import tsuki.util.names
 import java.net.Proxy
 
 class StorageAndNetworkSettingsFragment :
-    BasePreferenceFragment(R.string.storage_and_network),
-    SharedPreferences.OnSharedPreferenceChangeListener {
+	BasePreferenceFragment(R.string.storage_and_network),
+	SharedPreferences.OnSharedPreferenceChangeListener {
+	private val viewModel by viewModels<StorageAndNetworkSettingsViewModel>()
 
-    private val viewModel by viewModels<StorageAndNetworkSettingsViewModel>()
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
+		addPreferencesFromResource(R.xml.pref_network_storage)
+		findPreference<ListPreference>(AppSettings.KEY_DOH)?.run {
+			entryValues = DoHProvider.entries.names()
+			setDefaultValueCompat(DoHProvider.NONE.name)
+		}
+		bindProxySummary()
+	}
 
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        addPreferencesFromResource(R.xml.pref_network_storage)
-        findPreference<ListPreference>(AppSettings.KEY_DOH)?.run {
-            entryValues = DoHProvider.entries.names()
-            setDefaultValueCompat(DoHProvider.NONE.name)
-        }
-        bindProxySummary()
-    }
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
+		super.onViewCreated(view, savedInstanceState)
+		viewModel.onError.observeEvent(viewLifecycleOwner, SnackbarErrorObserver(listView, this))
+		settings.subscribe(this)
+		findPreference<StorageUsagePreference>(AppSettings.KEY_STORAGE_USAGE)?.let { pref ->
+			viewModel.storageUsage.observe(viewLifecycleOwner, pref)
+		}
+	}
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel.onError.observeEvent(viewLifecycleOwner, SnackbarErrorObserver(listView, this))
-        settings.subscribe(this)
-        findPreference<StorageUsagePreference>(AppSettings.KEY_STORAGE_USAGE)?.let { pref ->
-            viewModel.storageUsage.observe(viewLifecycleOwner, pref)
-        }
-    }
+	override fun onDestroyView() {
+		settings.unsubscribe(this)
+		super.onDestroyView()
+	}
 
-    override fun onDestroyView() {
-        settings.unsubscribe(this)
-        super.onDestroyView()
-    }
+	override fun onSharedPreferenceChanged(
+		prefs: SharedPreferences?,
+		key: String?,
+	) {
+		when (key) {
+			AppSettings.KEY_SSL_BYPASS -> {
+				Snackbar.make(listView, R.string.settings_apply_restart_required, Snackbar.LENGTH_INDEFINITE).show()
+			}
 
-    override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
-        when (key) {
-            AppSettings.KEY_SSL_BYPASS -> {
-                Snackbar.make(listView, R.string.settings_apply_restart_required, Snackbar.LENGTH_INDEFINITE).show()
-            }
+			AppSettings.KEY_PROXY_TYPE,
+			AppSettings.KEY_PROXY_ADDRESS,
+			AppSettings.KEY_PROXY_PORT,
+			-> {
+				bindProxySummary()
+			}
+		}
+	}
 
-            AppSettings.KEY_PROXY_TYPE,
-            AppSettings.KEY_PROXY_ADDRESS,
-            AppSettings.KEY_PROXY_PORT -> {
-                bindProxySummary()
-            }
-        }
-    }
-
-    private fun bindProxySummary() {
-        findPreference<Preference>(AppSettings.KEY_PROXY)?.run {
-            val type = settings.proxyType
-            val address = settings.proxyAddress
-            val port = settings.proxyPort
-            summary = when {
-                type == Proxy.Type.DIRECT -> context.getString(R.string.disabled)
-                address.isNullOrEmpty() || port == 0 -> context.getString(R.string.invalid_proxy_configuration)
-                else -> "$address:$port"
-            }
-        }
-    }
+	private fun bindProxySummary() {
+		findPreference<Preference>(AppSettings.KEY_PROXY)?.run {
+			val type = settings.proxyType
+			val address = settings.proxyAddress
+			val port = settings.proxyPort
+			summary =
+				when {
+					type == Proxy.Type.DIRECT -> context.getString(R.string.disabled)
+					address.isNullOrEmpty() || port == 0 -> context.getString(R.string.invalid_proxy_configuration)
+					else -> "$address:$port"
+				}
+		}
+	}
 }

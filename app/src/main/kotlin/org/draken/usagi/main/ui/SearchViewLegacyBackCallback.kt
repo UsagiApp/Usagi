@@ -7,9 +7,9 @@ import com.google.android.material.search.SearchView
 
 @DeprecatedSinceApi(Build.VERSION_CODES.TIRAMISU)
 class SearchViewLegacyBackCallback(
-	private val searchView: SearchView
-) : OnBackPressedCallback(searchView.isShowing), SearchView.TransitionListener {
-
+	private val searchView: SearchView,
+) : OnBackPressedCallback(searchView.isShowing),
+	SearchView.TransitionListener {
 	override fun handleOnBackPressed() {
 		searchView.hide()
 	}
@@ -17,7 +17,7 @@ class SearchViewLegacyBackCallback(
 	override fun onStateChanged(
 		searchView: SearchView,
 		previousState: SearchView.TransitionState,
-		newState: SearchView.TransitionState
+		newState: SearchView.TransitionState,
 	) {
 		isEnabled = newState >= SearchView.TransitionState.SHOWING
 	}

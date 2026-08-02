@@ -9,7 +9,6 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class AndroidCookieJar : MutableCookieJar {
-
 	private val cookieManager = CookieManager.getInstance()
 
 	@WorkerThread
@@ -21,7 +20,10 @@ class AndroidCookieJar : MutableCookieJar {
 	}
 
 	@WorkerThread
-	override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+	override fun saveFromResponse(
+		url: HttpUrl,
+		cookies: List<Cookie>,
+	) {
 		if (cookies.isEmpty()) {
 			return
 		}
@@ -31,7 +33,10 @@ class AndroidCookieJar : MutableCookieJar {
 		}
 	}
 
-	override fun removeCookies(url: HttpUrl, predicate: Predicate<Cookie>?) {
+	override fun removeCookies(
+		url: HttpUrl,
+		predicate: Predicate<Cookie>?,
+	) {
 		val cookies = loadForRequest(url)
 		if (cookies.isEmpty()) {
 			return
@@ -41,14 +46,17 @@ class AndroidCookieJar : MutableCookieJar {
 			if (predicate != null && !predicate.test(c)) {
 				continue
 			}
-			val nc = c.newBuilder()
-				.expiresAt(System.currentTimeMillis() - 100000)
-				.build()
+			val nc =
+				c
+					.newBuilder()
+					.expiresAt(System.currentTimeMillis() - 100000)
+					.build()
 			cookieManager.setCookie(urlString, nc.toString())
 		}
 	}
 
-	override suspend fun clear() = suspendCoroutine<Boolean> { continuation ->
-		cookieManager.removeAllCookies(continuation::resume)
-	}
+	override suspend fun clear() =
+		suspendCoroutine<Boolean> { continuation ->
+			cookieManager.removeAllCookies(continuation::resume)
+		}
 }

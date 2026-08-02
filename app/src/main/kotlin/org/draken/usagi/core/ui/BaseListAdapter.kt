@@ -19,17 +19,23 @@ import org.draken.usagi.list.ui.model.ListHeader
 import org.draken.usagi.list.ui.model.ListModel
 import kotlin.coroutines.suspendCoroutine
 
-open class BaseListAdapter<T : ListModel> : AsyncListDifferDelegationAdapter<T>(
-	AsyncDifferConfig.Builder(ListModelDiffCallback<T>())
-		.setBackgroundThreadExecutor(Dispatchers.Default.limitedParallelism(2).asExecutor())
-		.build(),
-), FlowCollector<List<T>?> {
+open class BaseListAdapter<T : ListModel> :
+	AsyncListDifferDelegationAdapter<T>(
+		AsyncDifferConfig
+			.Builder(ListModelDiffCallback<T>())
+			.setBackgroundThreadExecutor(Dispatchers.Default.limitedParallelism(2).asExecutor())
+			.build(),
+	),
+	FlowCollector<List<T>?> {
+	override suspend fun emit(value: List<T>?) =
+		suspendCoroutine { cont ->
+			setItems(value.orEmpty(), ContinuationResumeRunnable(cont))
+		}
 
-	override suspend fun emit(value: List<T>?) = suspendCoroutine { cont ->
-		setItems(value.orEmpty(), ContinuationResumeRunnable(cont))
-	}
-
-	fun addDelegate(type: ListItemType, delegate: AdapterDelegate<List<T>>): BaseListAdapter<T> {
+	fun addDelegate(
+		type: ListItemType,
+		delegate: AdapterDelegate<List<T>>,
+	): BaseListAdapter<T> {
 		delegatesManager.addDelegate(type.ordinal, delegate)
 		return this
 	}
@@ -54,13 +60,15 @@ open class BaseListAdapter<T : ListModel> : AsyncListDifferDelegationAdapter<T>(
 		return null
 	}
 
-	fun observeItems(): Flow<List<T>> = callbackFlow {
-		val listListener = ListListener<T> { _, list ->
-			trySendBlocking(list)
+	fun observeItems(): Flow<List<T>> =
+		callbackFlow {
+			val listListener =
+				ListListener<T> { _, list ->
+					trySendBlocking(list)
+				}
+			addListListener(listListener)
+			awaitClose { removeListListener(listListener) }
+		}.onStart {
+			emit(items)
 		}
-		addListListener(listListener)
-		awaitClose { removeListListener(listListener) }
-	}.onStart {
-		emit(items)
-	}
 }

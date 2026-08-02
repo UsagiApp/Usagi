@@ -1,12 +1,11 @@
 package org.draken.usagi.core.github
 
+import org.draken.usagi.BuildConfig
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.draken.usagi.BuildConfig
 
 class VersionIdTest {
-
 	@Test
 	fun testVersionIdParse() {
 		val version = VersionId("2.0")
@@ -35,7 +34,7 @@ class VersionIdTest {
 		val version2 = VersionId("2.0.0")
 		assertTrue(version1 < version2)
 	}
-	
+
 	@Test
 	fun testVersionIdVariantCompare() {
 		val version1 = VersionId("2.0.1-a2")

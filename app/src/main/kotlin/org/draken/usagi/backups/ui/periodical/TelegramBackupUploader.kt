@@ -15,82 +15,96 @@ import org.draken.usagi.R
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.network.BaseHttpClient
 import org.draken.usagi.core.prefs.AppSettings
-import org.koitharu.kotatsu.parsers.util.await
-import org.koitharu.kotatsu.parsers.util.json.getBooleanOrDefault
-import org.koitharu.kotatsu.parsers.util.json.getStringOrNull
-import org.koitharu.kotatsu.parsers.util.parseJson
+import tsuki.util.await
+import tsuki.util.json.getBooleanOrDefault
+import tsuki.util.json.getStringOrNull
+import tsuki.util.parseJson
 import java.io.File
 import javax.inject.Inject
+import kotlin.io.encoding.Base64
 
-class TelegramBackupUploader @Inject constructor(
-	private val settings: AppSettings,
-	@BaseHttpClient private val client: OkHttpClient,
-	@ApplicationContext private val context: Context,
-) {
+class TelegramBackupUploader
+	@Inject
+	constructor(
+		private val settings: AppSettings,
+		@BaseHttpClient private val client: OkHttpClient,
+		@ApplicationContext private val context: Context,
+	) {
+		private val botToken = Base64.decode(context.getString(R.string.tg_backup_bot_token)).decodeToString()
 
-	private val botToken = context.getString(R.string.tg_backup_bot_token)
+		val isAvailable: Boolean
+			get() = botToken.isNotEmpty()
 
-	val isAvailable: Boolean
-		get() = botToken.isNotEmpty()
-
-	suspend fun uploadBackup(file: File) {
-		val requestBody = file.asRequestBody("application/zip".toMediaTypeOrNull())
-		val multipartBody = MultipartBody.Builder()
-			.setType(MultipartBody.FORM)
-			.addFormDataPart("chat_id", requireChatId())
-			.addFormDataPart("document", file.name, requestBody)
-			.build()
-		val request = Request.Builder()
-			.url(urlOf("sendDocument").build())
-			.post(multipartBody)
-			.build()
-		client.newCall(request).await().consume()
-	}
-
-	suspend fun sendTestMessage() {
-		val request = Request.Builder()
-			.url(urlOf("getMe").build())
-			.build()
-		client.newCall(request).await().consume()
-		sendMessage(context.getString(R.string.backup_tg_echo))
-	}
-
-	@CheckResult
-	fun openBotInApp(router: AppRouter): Boolean {
-		val botUsername = context.getString(R.string.tg_backup_bot_name)
-		return router.openExternalBrowser("tg://resolve?domain=$botUsername") ||
-			router.openExternalBrowser("https://t.me/$botUsername")
-	}
-
-	private suspend fun sendMessage(message: String) {
-		val url = urlOf("sendMessage")
-			.addQueryParameter("chat_id", requireChatId())
-			.addQueryParameter("text", message)
-			.build()
-		val request = Request.Builder()
-			.url(url)
-			.build()
-		client.newCall(request).await().consume()
-	}
-
-	private fun requireChatId() = checkNotNull(settings.backupTelegramChatId) {
-		"Telegram chat ID not set in settings"
-	}
-
-	private fun Response.consume() {
-		if (isSuccessful) {
-			closeQuietly()
-			return
+		suspend fun uploadBackup(file: File) {
+			val requestBody = file.asRequestBody("application/zip".toMediaTypeOrNull())
+			val multipartBody =
+				MultipartBody
+					.Builder()
+					.setType(MultipartBody.FORM)
+					.addFormDataPart("chat_id", requireChatId())
+					.addFormDataPart("document", file.name, requestBody)
+					.build()
+			val request =
+				Request
+					.Builder()
+					.url(urlOf("sendDocument").build())
+					.post(multipartBody)
+					.build()
+			client.newCall(request).await().consume()
 		}
-		val jo = parseJson()
-		if (!jo.getBooleanOrDefault("ok", true)) {
-			throw RuntimeException(jo.getStringOrNull("description"))
-		}
-	}
 
-	private fun urlOf(method: String) = HttpUrl.Builder()
-		.scheme("https")
-		.host("api.telegram.org")
-		.addPathSegment("bot$botToken")
-		.addPathSegment(method)
-}
+		suspend fun sendTestMessage() {
+			val request =
+				Request
+					.Builder()
+					.url(urlOf("getMe").build())
+					.build()
+			client.newCall(request).await().consume()
+			sendMessage(context.getString(R.string.backup_tg_echo))
+		}
+
+		@CheckResult
+		fun openBotInApp(router: AppRouter): Boolean {
+			val botUsername = context.getString(R.string.tg_backup_bot_name)
+			return router.openExternalBrowser("tg://resolve?domain=$botUsername") ||
+				router.openExternalBrowser("https://t.me/$botUsername")
+		}
+
+		private suspend fun sendMessage(message: String) {
+			val url =
+				urlOf("sendMessage")
+					.addQueryParameter("chat_id", requireChatId())
+					.addQueryParameter("text", message)
+					.build()
+			val request =
+				Request
+					.Builder()
+					.url(url)
+					.build()
+			client.newCall(request).await().consume()
+		}
+
+		private fun requireChatId() =
+			checkNotNull(settings.backupTelegramChatId) {
+				"Telegram chat ID not set in settings"
+			}
+
+		private fun Response.consume() {
+			if (isSuccessful) {
+				closeQuietly()
+				return
+			}
+			val jo = parseJson()
+			if (!jo.getBooleanOrDefault("ok", true)) {
+				throw RuntimeException(jo.getStringOrNull("description"))
+			}
+		}
+
+		private fun urlOf(method: String) =
+			HttpUrl
+				.Builder()
+				.scheme("https")
+				.host("api.telegram.org")
+				.addPathSegment("bot$botToken")
+				.addPathSegment(method)
+	}

@@ -17,21 +17,21 @@ import org.draken.usagi.list.domain.ListFilterOption
 
 @Dao
 abstract class SuggestionDao : MangaQueryBuilder.ConditionCallback {
-
 	@Transaction
 	@Query("SELECT * FROM suggestions ORDER BY relevance DESC")
 	abstract fun observeAll(): Flow<List<SuggestionWithManga>>
 
 	fun observeAll(
 		limit: Int,
-		filterOptions: Collection<ListFilterOption>
-	): Flow<List<SuggestionWithManga>> = observeAllImpl(
-		MangaQueryBuilder("suggestions", this)
-			.filters(filterOptions)
-			.orderBy("relevance DESC")
-			.limit(limit)
-			.build(),
-	)
+		filterOptions: Collection<ListFilterOption>,
+	): Flow<List<SuggestionWithManga>> =
+		observeAllImpl(
+			MangaQueryBuilder("suggestions", this)
+				.filters(filterOptions)
+				.orderBy("relevance DESC")
+				.limit(limit)
+				.build(),
+		)
 
 	@Transaction
 	@Query("SELECT manga.* FROM suggestions LEFT JOIN manga ON manga.manga_id = suggestions.manga_id ORDER BY relevance DESC LIMIT :limit")
@@ -81,15 +81,26 @@ abstract class SuggestionDao : MangaQueryBuilder.ConditionCallback {
 	@RawQuery(observedEntities = [SuggestionEntity::class])
 	protected abstract fun observeAllImpl(query: SupportSQLiteQuery): Flow<List<SuggestionWithManga>>
 
-	override fun getCondition(option: ListFilterOption): String? = when (option) {
-		ListFilterOption.Macro.NSFW -> "(SELECT nsfw FROM manga WHERE manga.manga_id = suggestions.manga_id) = 1"
-		is ListFilterOption.Tag -> "EXISTS(SELECT * FROM manga_tags WHERE manga_tags.manga_id = suggestions.manga_id AND tag_id = ${option.tagId})"
-		is ListFilterOption.Source -> "(SELECT source FROM manga WHERE manga.manga_id = suggestions.manga_id) = ${
-			sqlEscapeString(
-				option.mangaSource.name,
-			)
-		}"
+	override fun getCondition(option: ListFilterOption): String? =
+		when (option) {
+			ListFilterOption.Macro.NSFW -> {
+				"(SELECT nsfw FROM manga WHERE manga.manga_id = suggestions.manga_id) = 1"
+			}
 
-		else -> null
-	}
+			is ListFilterOption.Tag -> {
+				"EXISTS(SELECT * FROM manga_tags WHERE manga_tags.manga_id = suggestions.manga_id AND tag_id = ${option.tagId})"
+			}
+
+			is ListFilterOption.Source -> {
+				"(SELECT source FROM manga WHERE manga.manga_id = suggestions.manga_id) = ${
+					sqlEscapeString(
+						option.mangaSource.name,
+					)
+				}"
+			}
+
+			else -> {
+				null
+			}
+		}
 }

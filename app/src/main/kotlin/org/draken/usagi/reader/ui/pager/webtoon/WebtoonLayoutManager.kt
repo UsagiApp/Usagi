@@ -8,7 +8,6 @@ import kotlin.math.sign
 
 @Suppress("unused")
 class WebtoonLayoutManager : LinearLayoutManager {
-
 	private var scrollDirection: Int = 0
 
 	constructor(context: Context) : super(context)
@@ -25,12 +24,19 @@ class WebtoonLayoutManager : LinearLayoutManager {
 		defStyleRes: Int,
 	) : super(context, attrs, defStyleAttr, defStyleRes)
 
-	override fun scrollVerticallyBy(dy: Int, recycler: RecyclerView.Recycler?, state: RecyclerView.State): Int {
+	override fun scrollVerticallyBy(
+		dy: Int,
+		recycler: RecyclerView.Recycler?,
+		state: RecyclerView.State,
+	): Int {
 		scrollDirection = dy.sign
 		return super.scrollVerticallyBy(dy, recycler, state)
 	}
 
-	override fun calculateExtraLayoutSpace(state: RecyclerView.State, extraLayoutSpace: IntArray) {
+	override fun calculateExtraLayoutSpace(
+		state: RecyclerView.State,
+		extraLayoutSpace: IntArray,
+	) {
 		if (state.hasTargetScrollPosition()) {
 			super.calculateExtraLayoutSpace(state, extraLayoutSpace)
 			return

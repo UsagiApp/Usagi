@@ -17,7 +17,6 @@ class ReaderControlDelegate(
 	private val tapGridSettings: TapGridSettings,
 	private val listener: OnInteractionListener,
 ) : View.OnClickListener {
-
 	private var minScrollDelta = resources.getDimensionPixelSize(R.dimen.reader_scroll_delta_min)
 
 	override fun onClick(v: View) {
@@ -28,70 +27,108 @@ class ReaderControlDelegate(
 	}
 
 	fun onGridTouch(area: TapGridArea): Boolean {
-		val action = tapGridSettings.getTapAction(
-			area = area,
-			isLongTap = false,
-		) ?: return false
+		val action =
+			tapGridSettings.getTapAction(
+				area = area,
+				isLongTap = false,
+			) ?: return false
 		processAction(action)
 		return true
 	}
 
 	fun onGridLongTouch(area: TapGridArea) {
-		val action = tapGridSettings.getTapAction(
-			area = area,
-			isLongTap = true,
-		) ?: return
+		val action =
+			tapGridSettings.getTapAction(
+				area = area,
+				isLongTap = true,
+			) ?: return
 		processAction(action)
 	}
 
-	fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+	fun onKeyDown(
+		keyCode: Int,
+		event: KeyEvent?,
+	): Boolean {
 		when (keyCode) {
 			KeyEvent.KEYCODE_NAVIGATE_NEXT,
-			KeyEvent.KEYCODE_SPACE -> switchBy(1, event, false)
-
-			KeyEvent.KEYCODE_PAGE_DOWN -> switchBy(1, event, false)
-
-
-			KeyEvent.KEYCODE_NAVIGATE_PREVIOUS -> switchBy(-1, event, false)
-			KeyEvent.KEYCODE_PAGE_UP -> switchBy(-1, event, false)
-
-			KeyEvent.KEYCODE_R -> switchBy(1, null, false)
-
-			KeyEvent.KEYCODE_L -> switchBy(-1, null, false)
-
-			KeyEvent.KEYCODE_VOLUME_UP -> if (settings.isReaderVolumeButtonsEnabled) {
-				switchBy(if (settings.isReaderNavigationInverted) 1 else -1, event, false)
-			} else {
-				return false
+			KeyEvent.KEYCODE_SPACE,
+			-> {
+				switchBy(1, event, false)
 			}
 
-			KeyEvent.KEYCODE_VOLUME_DOWN -> if (settings.isReaderVolumeButtonsEnabled) {
-				switchBy(if (settings.isReaderNavigationInverted) -1 else 1, event, false)
-			} else {
-				return false
+			KeyEvent.KEYCODE_PAGE_DOWN -> {
+				switchBy(1, event, false)
 			}
 
-			KeyEvent.KEYCODE_DPAD_RIGHT -> switchByRelative(if (settings.isReaderNavigationInverted) -1 else 1, event)
+			KeyEvent.KEYCODE_NAVIGATE_PREVIOUS -> {
+				switchBy(-1, event, false)
+			}
 
-			KeyEvent.KEYCODE_DPAD_LEFT -> switchByRelative(if (settings.isReaderNavigationInverted) 1 else -1, event)
+			KeyEvent.KEYCODE_PAGE_UP -> {
+				switchBy(-1, event, false)
+			}
 
-			KeyEvent.KEYCODE_DPAD_CENTER -> listener.toggleUiVisibility()
+			KeyEvent.KEYCODE_R -> {
+				switchBy(1, null, false)
+			}
+
+			KeyEvent.KEYCODE_L -> {
+				switchBy(-1, null, false)
+			}
+
+			KeyEvent.KEYCODE_VOLUME_UP -> {
+				if (settings.isReaderVolumeButtonsEnabled) {
+					switchBy(if (settings.isReaderNavigationInverted) 1 else -1, event, false)
+				} else {
+					return false
+				}
+			}
+
+			KeyEvent.KEYCODE_VOLUME_DOWN -> {
+				if (settings.isReaderVolumeButtonsEnabled) {
+					switchBy(if (settings.isReaderNavigationInverted) -1 else 1, event, false)
+				} else {
+					return false
+				}
+			}
+
+			KeyEvent.KEYCODE_DPAD_RIGHT -> {
+				switchByRelative(if (settings.isReaderNavigationInverted) -1 else 1, event)
+			}
+
+			KeyEvent.KEYCODE_DPAD_LEFT -> {
+				switchByRelative(if (settings.isReaderNavigationInverted) 1 else -1, event)
+			}
+
+			KeyEvent.KEYCODE_DPAD_CENTER -> {
+				listener.toggleUiVisibility()
+			}
 
 			KeyEvent.KEYCODE_SYSTEM_NAVIGATION_UP,
-			KeyEvent.KEYCODE_DPAD_UP -> switchBy(if (settings.isReaderNavigationInverted) 1 else -1, event, true)
+			KeyEvent.KEYCODE_DPAD_UP,
+			-> {
+				switchBy(if (settings.isReaderNavigationInverted) 1 else -1, event, true)
+			}
 
 			KeyEvent.KEYCODE_SYSTEM_NAVIGATION_DOWN,
-			KeyEvent.KEYCODE_DPAD_DOWN -> switchBy(if (settings.isReaderNavigationInverted) -1 else 1, event, true)
+			KeyEvent.KEYCODE_DPAD_DOWN,
+			-> {
+				switchBy(if (settings.isReaderNavigationInverted) -1 else 1, event, true)
+			}
 
-			else -> return false
+			else -> {
+				return false
+			}
 		}
 		return true
 	}
 
-	fun onKeyUp(keyCode: Int, @Suppress("UNUSED_PARAMETER") event: KeyEvent?): Boolean {
-		return (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
-			&& settings.isReaderVolumeButtonsEnabled
-	}
+	fun onKeyUp(
+		keyCode: Int,
+		@Suppress("UNUSED_PARAMETER") event: KeyEvent?,
+	): Boolean =
+		(keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) &&
+			settings.isReaderVolumeButtonsEnabled
 
 	private fun processAction(action: TapAction) {
 		when (action) {
@@ -104,11 +141,13 @@ class ReaderControlDelegate(
 		}
 	}
 
-	private fun isReaderTapsReversed(): Boolean {
-		return settings.isReaderControlAlwaysLTR && listener.readerMode == ReaderMode.REVERSED
-	}
+	private fun isReaderTapsReversed(): Boolean = settings.isReaderControlAlwaysLTR && listener.readerMode == ReaderMode.REVERSED
 
-	private fun switchBy(delta: Int, event: KeyEvent?, scroll: Boolean) {
+	private fun switchBy(
+		delta: Int,
+		event: KeyEvent?,
+		scroll: Boolean,
+	) {
 		if (event?.isCtrlPressed == true) {
 			listener.switchChapterBy(delta)
 		} else if (scroll) {
@@ -120,12 +159,12 @@ class ReaderControlDelegate(
 		}
 	}
 
-	private fun switchByRelative(delta: Int, event: KeyEvent?) {
-		return switchBy(if (isReaderTapsReversed()) -delta else delta, event, scroll = false)
-	}
+	private fun switchByRelative(
+		delta: Int,
+		event: KeyEvent?,
+	) = switchBy(if (isReaderTapsReversed()) -delta else delta, event, scroll = false)
 
 	interface OnInteractionListener {
-
 		val readerMode: ReaderMode?
 
 		fun switchPageBy(delta: Int)
@@ -134,7 +173,10 @@ class ReaderControlDelegate(
 
 		fun switchChapterBy(delta: Int)
 
-		fun scrollBy(delta: Int, smooth: Boolean): Boolean
+		fun scrollBy(
+			delta: Int,
+			smooth: Boolean,
+		): Boolean
 
 		fun toggleUiVisibility()
 

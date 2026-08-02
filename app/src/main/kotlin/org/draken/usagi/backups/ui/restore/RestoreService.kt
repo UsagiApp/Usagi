@@ -33,7 +33,6 @@ import androidx.appcompat.R as appcompatR
 @AndroidEntryPoint
 @SuppressLint("InlinedApi")
 class RestoreService : BaseBackupRestoreService() {
-
 	override val notificationTag = TAG
 	override val isRestoreService = true
 
@@ -52,25 +51,28 @@ class RestoreService : BaseBackupRestoreService() {
 			requireNotNull(intent.getSerializableExtraCompat<Array<BackupSection>>(AppRouter.KEY_ENTRIES)?.toSet())
 		powerManager.withPartialWakeLock(TAG) {
 			val progress = MutableStateFlow(Progress.INDETERMINATE)
-			val progressUpdateJob = if (checkNotificationPermission(CHANNEL_ID)) {
-				launch {
-					progress.collect {
-						notificationManager.notify(FOREGROUND_NOTIFICATION_ID, buildNotification(it))
+			val progressUpdateJob =
+				if (checkNotificationPermission(CHANNEL_ID)) {
+					launch {
+						progress.collect {
+							notificationManager.notify(FOREGROUND_NOTIFICATION_ID, buildNotification(it))
+						}
 					}
+				} else {
+					null
 				}
-			} else {
-				null
-			}
-			val result = ZipInputStream(contentResolver.openInputStream(source)).use { input ->
-				repository.restoreBackup(input, sections, progress)
-			}
+			val result =
+				ZipInputStream(contentResolver.openInputStream(source)).use { input ->
+					repository.restoreBackup(input, sections, progress)
+				}
 			progressUpdateJob?.cancelAndJoin()
 			showResultNotification(source, result)
 		}
 	}
 
-	private fun IntentJobContext.buildNotification(progress: Progress): Notification {
-		return NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+	private fun IntentJobContext.buildNotification(progress: Progress): Notification =
+		NotificationCompat
+			.Builder(applicationContext, CHANNEL_ID)
 			.setContentTitle(getString(R.string.restoring_backup))
 			.setPriority(NotificationCompat.PRIORITY_HIGH)
 			.setDefaults(0)
@@ -80,15 +82,13 @@ class RestoreService : BaseBackupRestoreService() {
 				progress.total.coerceAtLeast(0),
 				progress.progress.coerceAtLeast(0),
 				progress.isIndeterminate,
-			)
-			.setContentText(
+			).setContentText(
 				if (progress.isIndeterminate) {
 					getString(R.string.processing_)
 				} else {
 					getString(R.string.fraction_pattern, progress.progress, progress.total)
 				},
-			)
-			.setSmallIcon(android.R.drawable.stat_sys_upload)
+			).setSmallIcon(android.R.drawable.stat_sys_upload)
 			.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
 			.setCategory(NotificationCompat.CATEGORY_PROGRESS)
 			.addAction(
@@ -96,23 +96,26 @@ class RestoreService : BaseBackupRestoreService() {
 				applicationContext.getString(android.R.string.cancel),
 				getCancelIntent(),
 			).build()
-	}
 
 	companion object {
-
 		private const val TAG = "RESTORE"
 		private const val FOREGROUND_NOTIFICATION_ID = 39
 
 		@CheckResult
-		fun start(context: Context, uri: Uri, sections: Set<BackupSection>): Boolean = try {
-			val intent = Intent(context, RestoreService::class.java)
-			intent.putExtra(AppRouter.KEY_DATA, uri.toString())
-			intent.putExtra(AppRouter.KEY_ENTRIES, sections.toTypedArray())
-			ContextCompat.startForegroundService(context, intent)
-			true
-		} catch (e: Exception) {
-			e.printStackTraceDebug()
-			false
-		}
+		fun start(
+			context: Context,
+			uri: Uri,
+			sections: Set<BackupSection>,
+		): Boolean =
+			try {
+				val intent = Intent(context, RestoreService::class.java)
+				intent.putExtra(AppRouter.KEY_DATA, uri.toString())
+				intent.putExtra(AppRouter.KEY_ENTRIES, sections.toTypedArray())
+				ContextCompat.startForegroundService(context, intent)
+				true
+			} catch (e: Exception) {
+				e.printStackTraceDebug()
+				false
+			}
 	}
 }

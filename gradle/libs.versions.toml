@@ -1,10 +1,13 @@
 [versions]
-acra = "5.13.1"
-activity = "1.12.2"
+#noinspection GradleDependency
+activity = "1.11.0"
 adapterdelegates = "4.3.2"
 appcompat = "1.7.1"
-avifDecoder = "1.1.1.14d8e3c4"
-biometric = "1.4.0-alpha05"
+avifDecoder = "1.3.0.841110fd"
+#noinspection GradleDependency
+biometric = "1.4.0-alpha04"
+# 3.4.0 cause crashes on A5
+#noinspection NewerVersionAvailable
 coil = "3.3.0"
 collections = "1.5.0"
 # https://github.com/google/conscrypt/issues/1268
@@ -14,19 +17,20 @@ constraintlayout = "2.2.1"
 coreKtx = "1.17.0"
 coroutines = "1.10.2"
 dagger = "2.57.2"
-decoroutinator = "2.5.7"
 desugar = "2.1.5"
 diskLruCache = "1.5"
 documentfile = "1.1.0"
 fragment = "1.8.9"
-gradle = "8.13.0"
+gradle = "8.13.2"
 guava = "33.5.0-android"
-hilt = "1.3.0"
+#noinspection GradleDependency
+hilt = "1.2.0"
 json = "20251224"
+#noinspection NewerVersionAvailable
+jsoup = "1.17.2"
 junit = "4.13.2"
 junitKtx = "1.3.0"
 kotlin = "2.2.10"
-kizzyRpc = "ad8f2e32eb"
 ksp = "2.2.10-2.0.2"
 leakcanary = "3.0-alpha-8"
 lifecycle = "2.9.4"
@@ -34,26 +38,32 @@ markwon = "4.6.2"
 material = "1.14.0-alpha08"
 moshi = "1.15.2"
 okhttp = "5.3.2"
-okio = "3.16.4"
-parsers = "ff0d4e5a64"
+okio = "3.17.0"
 preference = "1.2.1"
 recyclerview = "1.4.0"
 room = "2.7.2"
-serialization = "1.9.0"
+rxjava = "1.3.8"
+serialization = "1.11.0"
+injekt = "4135455a2a"
 ssiv = "376930523c"
 swiperefreshlayout = "1.1.0"
 testRules = "1.7.0"
 testRunner = "1.7.0"
 transition = "1.6.0"
+tsuki = "1.0.5"
+tsukimix = "1.0.5"
+usagiRpc = "1.0.2"
+usagiSerialization = "ae2bb90a3b"
 viewpager2 = "1.1.0"
-webkit = "1.15.0"
-workRuntime = "2.11.0"
+#noinspection GradleDependency
+webkit = "1.14.0"
+#noinspection GradleDependency
+workRuntime = "2.10.5"
 workinspector = "1.2"
 window = "1.3.0"
+spotless = "8.9.0"
 
 [libraries]
-acra-dialog = { module = "ch.acra:acra-dialog", version.ref = "acra" }
-acra-http = { module = "ch.acra:acra-http", version.ref = "acra" }
 adapterdelegates = { module = "com.hannesdorfmann:adapterdelegates4-kotlin-dsl", version.ref = "adapterdelegates" }
 adapterdelegates-viewbinding = { module = "com.hannesdorfmann:adapterdelegates4-kotlin-dsl-viewbinding", version.ref = "adapterdelegates" }
 androidx-activity = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
@@ -96,14 +106,15 @@ hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", ve
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "dagger" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "dagger" }
 json = { module = "org.json:json", version.ref = "json" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit = { module = "junit:junit", version.ref = "junit" }
-kizzyrpc = { module = "com.github.dead8309:KizzyRPC", version.ref = "kizzyRpc" }
-kotatsu-parsers = { module = "com.github.YakaTeam:kotatsu-parsers", version.ref = "parsers" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm", version.ref = "serialization" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "serialization" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+kotlinx-serialization-json-okio = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-okio", version.ref = "serialization" }
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
 lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "lifecycle" }
@@ -115,14 +126,23 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-dnsoverhttps = { module = "com.squareup.okhttp3:okhttp-dnsoverhttps", version.ref = "okhttp" }
 okhttp-tls = { module = "com.squareup.okhttp3:okhttp-tls", version.ref = "okhttp" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+rxjava = { module = "io.reactivex:rxjava", version.ref = "rxjava" }
+injekt-core = { module = "com.github.null2264.injekt:injekt-core", version.ref = "injekt" }
 ssiv = { module = "com.github.UsagiApp:subsampling-scale-image-view", version.ref = "ssiv" }
+usagi-rpc = { module = "com.github.UsagiApp:OAuth2-RPC", version.ref = "usagiRpc" }
+tsuki = { module = "com.github.UsagiApp:Tsuki", version.ref = "tsuki" }
+tsukimix = { module = "com.github.UsagiApp:TsukiMix", version.ref = "tsukimix" }
 workinspector = { module = "com.github.UsagiApp:WorkInspector", version.ref = "workinspector" }
 androidx-window = { module = "androidx.window:window", version.ref = "window" }
+usagi-serialization-library = { module = "com.github.UsagiApp.serialization:library", version.ref = "usagiSerialization" }
+usagi-serialization-plugin = { module = "com.github.UsagiApp.serialization:plugin", version.ref = "usagiSerialization" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "gradle" }
+android-library = { id = "com.android.library", version.ref = "gradle" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinx-serizliation = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

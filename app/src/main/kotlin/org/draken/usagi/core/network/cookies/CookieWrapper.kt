@@ -7,11 +7,9 @@ import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
-
 data class CookieWrapper(
 	val cookie: Cookie,
 ) {
-
 	constructor(encodedString: String) : this(
 		ObjectInputStream(ByteArrayInputStream(Base64.decode(encodedString, Base64.NO_WRAP))).use {
 			val name = it.readUTF()
@@ -23,25 +21,27 @@ data class CookieWrapper(
 			val httpOnly = it.readBoolean()
 			val persistent = it.readBoolean()
 			val hostOnly = it.readBoolean()
-			Cookie.Builder().also { c ->
-				c.name(name)
-				c.value(value)
-				if (persistent) {
-					c.expiresAt(expiresAt)
-				}
-				if (hostOnly) {
-					c.hostOnlyDomain(domain)
-				} else {
-					c.domain(domain)
-				}
-				c.path(path)
-				if (secure) {
-					c.secure()
-				}
-				if (httpOnly) {
-					c.httpOnly()
-				}
-			}.build()
+			Cookie
+				.Builder()
+				.also { c ->
+					c.name(name)
+					c.value(value)
+					if (persistent) {
+						c.expiresAt(expiresAt)
+					}
+					if (hostOnly) {
+						c.hostOnlyDomain(domain)
+					} else {
+						c.domain(domain)
+					}
+					c.path(path)
+					if (secure) {
+						c.secure()
+					}
+					if (httpOnly) {
+						c.httpOnly()
+					}
+				}.build()
 		},
 	)
 
@@ -63,7 +63,5 @@ data class CookieWrapper(
 
 	fun isExpired() = cookie.expiresAt < System.currentTimeMillis()
 
-	fun key(): String {
-		return (if (cookie.secure) "https" else "http") + "://" + cookie.domain + cookie.path + "|" + cookie.name
-	}
+	fun key(): String = (if (cookie.secure) "https" else "http") + "://" + cookie.domain + cookie.path + "|" + cookie.name
 }

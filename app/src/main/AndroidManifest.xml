@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools">
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:ignore="ImpliedTouchscreenHardware,MissingLeanbackSupport">
 
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -69,15 +70,26 @@
 
 		<activity
 			android:name="org.draken.usagi.main.ui.MainActivity"
-			android:exported="true">
+			android:exported="true"
+			android:banner="@mipmap/tv_banner">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LEANBACK_LAUNCHER" />
 			</intent-filter>
 			<meta-data
 				android:name="android.app.default_searchable"
 				android:value="org.draken.usagi.search.ui.multi.MultiSearchActivity" />
 		</activity>
+		<activity
+			android:name="org.draken.usagi.core.ui.AppCrashActivity"
+			android:process=":crash"
+			android:theme="@style/Theme.Usagi"
+			android:launchMode="singleTask"
+			android:taskAffinity="org.draken.usagi.crash" />
 		<activity
 			android:name="org.draken.usagi.details.ui.DetailsActivity"
 			android:exported="true">
@@ -169,6 +181,36 @@
 			</intent-filter>
 		</activity>
 		<activity
+			android:name="org.draken.usagi.settings.sources.PluginActivity"
+			android:excludeFromRecents="true"
+			android:exported="true"
+			android:noHistory="true">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data
+					android:scheme="content"
+					android:mimeType="application/java-archive"
+					tools:ignore="AppLinkUrlError" />
+				<data android:scheme="file" android:mimeType="application/java-archive" />
+				<data android:scheme="content" android:mimeType="application/x-java-archive" />
+				<data android:scheme="file" android:mimeType="application/x-java-archive" />
+				<data android:scheme="content" android:mimeType="application/vnd.android.package-archive" />
+				<data android:scheme="file" android:mimeType="application/vnd.android.package-archive" />
+				<data android:scheme="content" />
+				<data android:scheme="file" />
+				<data android:pathPattern=".*\\.jar" />
+				<data android:pathPattern=".*\\.JAR" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.SEND" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="application/java-archive" />
+				<data android:mimeType="application/x-java-archive" />
+				<data android:mimeType="application/vnd.android.package-archive" />
+			</intent-filter>
+		</activity>
+		<activity
 			android:name="org.draken.usagi.settings.reader.ReaderTapGridConfigActivity"
 			android:label="@string/reader_actions" />
 		<activity
@@ -176,6 +218,11 @@
 			android:label="@string/local_manga_directories" />
 		<activity
 			android:name="org.draken.usagi.browser.BrowserActivity"
+			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+			android:windowSoftInputMode="adjustResize" />
+		<!-- Should refactor this one, may duplicate -->
+		<activity
+			android:name="eu.kanade.tachiyomi.ui.webview.WebViewActivity"
 			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
 			android:windowSoftInputMode="adjustResize" />
 		<activity
@@ -258,7 +305,7 @@
 			android:label="@string/sources_catalog" />
 		<activity
 			android:name="org.draken.usagi.scrobbling.kitsu.ui.KitsuAuthActivity"
-			android:exported="false"
+			android:exported="true"
 			android:label="@string/kitsu"
 			tools:ignore="AppLinkUrlError">
 			<intent-filter>
@@ -300,7 +347,18 @@
 		</activity>
 		<activity
 			android:name="org.draken.usagi.scrobbling.discord.ui.DiscordAuthActivity"
-			android:label="@string/discord" />
+			android:exported="true"
+			android:launchMode="singleTask"
+			android:label="@string/discord">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.BROWSABLE" />
+				<data android:scheme="kotatsu" />
+				<data android:scheme="usagi" />
+    			<data android:host="discord-auth" />
+			</intent-filter>
+		</activity>
 
 		<service
 			android:name="androidx.work.impl.foreground.SystemForegroundService"

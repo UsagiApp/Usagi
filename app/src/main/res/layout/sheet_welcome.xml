@@ -36,10 +36,19 @@
 				android:textAppearance="?textAppearanceTitleLarge"
 				app:drawableStartCompat="@drawable/ic_welcome" />
 
-			<HorizontalScrollView
+			<TextView
+				android:id="@+id/textView_hint"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="8dp"
+				android:paddingHorizontal="@dimen/margin_normal"
+				android:text="@string/welcome_text"
+				android:textAppearance="?textAppearanceBodyMedium" />
+
+			<HorizontalScrollView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/margin_normal"
 				android:scrollbars="none">
 
 				<com.google.android.material.chip.ChipGroup
@@ -64,62 +73,9 @@
 						android:text="@string/sync_auth"
 						app:chipIcon="@drawable/ic_sync" />
 
-					<com.google.android.material.chip.Chip
-						android:id="@+id/chip_directories"
-						style="@style/Widget.Usagi.Chip.Assist"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:text="@string/local_manga_directories"
-						app:chipIcon="@drawable/ic_storage" />
-
 				</com.google.android.material.chip.ChipGroup>
 
 			</HorizontalScrollView>
-
-			<TextView
-				android:id="@+id/textView_hint"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:paddingHorizontal="@dimen/margin_normal"
-				android:text="@string/welcome_text"
-				android:textAppearance="?textAppearanceBodyMedium" />
-
-			<TextView
-				android:id="@+id/textView_locales_title"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginHorizontal="@dimen/margin_normal"
-				android:layout_marginTop="@dimen/margin_normal"
-				android:singleLine="true"
-				android:text="@string/languages"
-				android:textAppearance="?textAppearanceTitleSmall" />
-
-			<org.draken.usagi.core.ui.widgets.ChipsView
-				android:id="@+id/chips_locales"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginHorizontal="@dimen/margin_normal"
-				android:layout_marginTop="@dimen/margin_normal"
-				app:chipStyle="@style/Widget.Usagi.Chip.Filter" />
-
-			<TextView
-				android:id="@+id/textView_type_title"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginHorizontal="@dimen/margin_normal"
-				android:layout_marginTop="@dimen/margin_normal"
-				android:singleLine="true"
-				android:text="@string/type"
-				android:textAppearance="?textAppearanceTitleSmall" />
-
-			<org.draken.usagi.core.ui.widgets.ChipsView
-				android:id="@+id/chips_type"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginHorizontal="@dimen/margin_normal"
-				android:layout_marginTop="@dimen/margin_normal"
-				app:chipStyle="@style/Widget.Usagi.Chip.Filter" />
 
 		</LinearLayout>
 	</androidx.core.widget.NestedScrollView>

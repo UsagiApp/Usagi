@@ -49,14 +49,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
 import okio.IOException
 import okio.use
-import org.json.JSONException
-import org.jsoup.internal.StringUtil.StringJoiner
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.R
 import org.draken.usagi.main.ui.MainActivity
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import org.json.JSONException
+import org.jsoup.internal.StringUtil.StringJoiner
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
+import tsuki.util.runCatchingCancellable
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToLong
@@ -70,13 +70,17 @@ val Context.powerManager: PowerManager?
 val Context.connectivityManager: ConnectivityManager
 	get() = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-suspend fun CoroutineWorker.trySetForeground(): Boolean = runCatchingCancellable {
-	val info = getForegroundInfo()
-	setForeground(info)
-}.isSuccess
+suspend fun CoroutineWorker.trySetForeground(): Boolean =
+	runCatchingCancellable {
+		val info = getForegroundInfo()
+		setForeground(info)
+	}.isSuccess
 
 @CheckResult
-fun <I> ActivityResultLauncher<I>.resolve(context: Context, input: I): ResolveInfo? {
+fun <I> ActivityResultLauncher<I>.resolve(
+	context: Context,
+	input: I,
+): ResolveInfo? {
 	val pm = context.packageManager
 	val intent = contract.createIntent(context, input)
 	return pm.resolveActivity(intent, 0)
@@ -86,13 +90,17 @@ fun <I> ActivityResultLauncher<I>.resolve(context: Context, input: I): ResolveIn
 fun <I> ActivityResultLauncher<I>.tryLaunch(
 	input: I,
 	options: ActivityOptionsCompat? = null,
-): Boolean = runCatching {
-	launch(input, options)
-}.onFailure { e ->
-	e.printStackTraceDebug()
-}.isSuccess
+): Boolean =
+	runCatching {
+		launch(input, options)
+	}.onFailure { e ->
+		e.printStackTraceDebug()
+	}.isSuccess
 
-fun Lifecycle.postDelayed(delay: Long, runnable: Runnable) {
+fun Lifecycle.postDelayed(
+	delay: Long,
+	runnable: Runnable,
+) {
 	coroutineScope.launch {
 		delay(delay)
 		runnable.run()
@@ -102,10 +110,13 @@ fun Lifecycle.postDelayed(delay: Long, runnable: Runnable) {
 fun SyncResult.onError(error: Throwable) {
 	when (error) {
 		is IOException -> stats.numIoExceptions++
+
 		is OperationApplicationException,
-		is SQLException -> databaseError = true
+		is SQLException,
+		-> databaseError = true
 
 		is JSONException -> stats.numParseExceptions++
+
 		else -> if (BuildConfig.DEBUG) throw error
 	}
 	error.printStackTraceDebug()
@@ -117,21 +128,18 @@ val Context.animatorDurationScale: Float
 val Context.isAnimationsEnabled: Boolean
 	get() = animatorDurationScale > 0f
 
-fun ViewPropertyAnimator.applySystemAnimatorScale(context: Context): ViewPropertyAnimator = apply {
-	this.duration = (this.duration * context.animatorDurationScale).toLong()
-}
+fun ViewPropertyAnimator.applySystemAnimatorScale(context: Context): ViewPropertyAnimator =
+	apply {
+		this.duration = (this.duration * context.animatorDurationScale).toLong()
+	}
 
-fun Context.getAnimationDuration(@IntegerRes resId: Int): Long {
-	return (resources.getInteger(resId) * animatorDurationScale).roundToLong()
-}
+fun Context.getAnimationDuration(
+	@IntegerRes resId: Int,
+): Long = (resources.getInteger(resId) * animatorDurationScale).roundToLong()
 
-fun Context.isLowRamDevice(): Boolean {
-	return activityManager?.isLowRamDevice == true
-}
+fun Context.isLowRamDevice(): Boolean = activityManager?.isLowRamDevice == true
 
-fun Context.isPowerSaveMode(): Boolean {
-	return powerManager?.isPowerSaveMode == true
-}
+fun Context.isPowerSaveMode(): Boolean = powerManager?.isPowerSaveMode == true
 
 val Context.ramAvailable: Long
 	get() {
@@ -165,11 +173,12 @@ fun Context.getLocalesConfig(): LocaleListCompat {
 	return LocaleListCompat.forLanguageTags(tagsList.complete())
 }
 
-fun Context.findActivity(): Activity? = when (this) {
-	is Activity -> this
-	is ContextWrapper -> baseContext.findActivity()
-	else -> null
-}
+fun Context.findActivity(): Activity? =
+	when (this) {
+		is Activity -> this
+		is ContextWrapper -> baseContext.findActivity()
+		else -> null
+	}
 
 fun Fragment.findAppCompatDelegate(): AppCompatDelegate? {
 	((this as? DialogFragment)?.dialog as? AppCompatDialog)?.run {
@@ -179,11 +188,12 @@ fun Fragment.findAppCompatDelegate(): AppCompatDelegate? {
 }
 
 fun Context.checkNotificationPermission(channelId: String?): Boolean {
-	val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-		ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PERMISSION_GRANTED
-	} else {
-		NotificationManagerCompat.from(this).areNotificationsEnabled()
-	}
+	val hasPermission =
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PERMISSION_GRANTED
+		} else {
+			NotificationManagerCompat.from(this).areNotificationsEnabled()
+		}
 	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && hasPermission && channelId != null) {
 		val channel = NotificationManagerCompat.from(this).getNotificationChannel(channelId)
 		if (channel != null && channel.importance == NotificationManagerCompat.IMPORTANCE_NONE) {
@@ -193,13 +203,14 @@ fun Context.checkNotificationPermission(channelId: String?): Boolean {
 	return hasPermission
 }
 
-suspend fun Bitmap.compressToPNG(output: File) = runInterruptible(Dispatchers.IO) {
-	output.outputStream().use { os ->
-		if (!compress(Bitmap.CompressFormat.PNG, 100, os)) {
-			throw IOException("Failed to encode bitmap into PNG format")
+suspend fun Bitmap.compressToPNG(output: File) =
+	runInterruptible(Dispatchers.IO) {
+		output.outputStream().use { os ->
+			if (!compress(Bitmap.CompressFormat.PNG, 100, os)) {
+				throw IOException("Failed to encode bitmap into PNG format")
+			}
 		}
 	}
-}
 
 fun Context.ensureRamAtLeast(requiredSize: Long) {
 	if (ramAvailable < requiredSize) {
@@ -207,22 +218,23 @@ fun Context.ensureRamAtLeast(requiredSize: Long) {
 	}
 }
 
-fun WebView.configureForParser(userAgentOverride: String?) = with(settings) {
-	javaScriptEnabled = true
-	domStorageEnabled = true
-	mediaPlaybackRequiresUserGesture = false
-	if (WebViewFeature.isFeatureSupported(WebViewFeature.MUTE_AUDIO)) {
-		WebViewCompat.setAudioMuted(this@configureForParser, true)
+fun WebView.configureForParser(userAgentOverride: String?) =
+	with(settings) {
+		javaScriptEnabled = true
+		domStorageEnabled = true
+		mediaPlaybackRequiresUserGesture = false
+		if (WebViewFeature.isFeatureSupported(WebViewFeature.MUTE_AUDIO)) {
+			WebViewCompat.setAudioMuted(this@configureForParser, true)
+		}
+		databaseEnabled = true
+		allowContentAccess = false
+		if (userAgentOverride != null) {
+			userAgentString = userAgentOverride
+		}
+		val cookieManager = CookieManager.getInstance()
+		cookieManager.setAcceptCookie(true)
+		cookieManager.setAcceptThirdPartyCookies(this@configureForParser, true)
 	}
-	databaseEnabled = true
-	allowContentAccess = false
-	if (userAgentOverride != null) {
-		userAgentString = userAgentOverride
-	}
-	val cookieManager = CookieManager.getInstance()
-	cookieManager.setAcceptCookie(true)
-	cookieManager.setAcceptThirdPartyCookies(this@configureForParser, true)
-}
 
 fun Context.restartApplication() {
 	val activity = findActivity()
@@ -231,7 +243,10 @@ fun Context.restartApplication() {
 	activity?.finishAndRemoveTask()
 }
 
-internal inline fun <R> PowerManager?.withPartialWakeLock(tag: String, body: (PowerManager.WakeLock?) -> R): R {
+internal inline fun <R> PowerManager?.withPartialWakeLock(
+	tag: String,
+	body: (PowerManager.WakeLock?) -> R,
+): R {
 	val wakeLock = newPartialWakeLock(tag)
 	return try {
 		wakeLock?.acquire(TimeUnit.HOURS.toMillis(1))
@@ -241,15 +256,17 @@ internal inline fun <R> PowerManager?.withPartialWakeLock(tag: String, body: (Po
 	}
 }
 
-private fun PowerManager?.newPartialWakeLock(tag: String): PowerManager.WakeLock? {
-	return if (this != null && isWakeLockLevelSupported(PowerManager.PARTIAL_WAKE_LOCK)) {
+private fun PowerManager?.newPartialWakeLock(tag: String): PowerManager.WakeLock? =
+	if (this != null && isWakeLockLevelSupported(PowerManager.PARTIAL_WAKE_LOCK)) {
 		newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, tag)
 	} else {
 		null
 	}
-}
 
-fun Context.copyToClipboard(label: String, content: String) {
+fun Context.copyToClipboard(
+	label: String,
+	content: String,
+) {
 	val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return
 	clipboardManager.setPrimaryClip(ClipData.newPlainText(label, content))
 }

@@ -3,7 +3,7 @@ package org.draken.usagi.reader.ui
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import org.draken.usagi.core.model.MangaHistory
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 @Parcelize
 data class ReaderState(
@@ -11,7 +11,6 @@ data class ReaderState(
 	val page: Int,
 	val scroll: Int,
 ) : Parcelable {
-
 	constructor(history: MangaHistory) : this(
 		chapterId = history.chapterId,
 		page = history.page,
@@ -19,9 +18,11 @@ data class ReaderState(
 	)
 
 	constructor(manga: Manga, branch: String?) : this(
-		chapterId = manga.chapters?.let {
-			it.firstOrNull { x -> x.branch == branch } ?: it.firstOrNull()
-		}?.id ?: error("Cannot find first chapter"),
+		chapterId =
+			manga.chapters
+				?.let {
+					it.firstOrNull { x -> x.branch == branch } ?: it.firstOrNull()
+				}?.id ?: error("Cannot find first chapter"),
 		page = 0,
 		scroll = 0,
 	)

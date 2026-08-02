@@ -23,63 +23,61 @@ import coil3.size.Scale
 import coil3.size.Size
 import coil3.size.isOriginal
 import coil3.size.pxOrElse
-import org.draken.usagi.core.util.ext.copyWithNewSource
 import kotlin.math.roundToInt
 
 class RegionBitmapDecoder(
 	private val fetchResult: SourceFetchResult,
 	private val options: Options,
-	private val imageLoader: ImageLoader,
 ) : Decoder {
-
 	override suspend fun decode(): DecodeResult? {
-		val regionDecoder = BitmapDecoderCompat.createRegionDecoder(fetchResult.source.source().inputStream())
+		val sourceBytes = fetchResult.source.source().readByteArray()
+		val regionDecoder = BitmapDecoderCompat.createRegionDecoder(sourceBytes.inputStream())
 		if (regionDecoder == null) {
-			val revivedFetchResult = fetchResult.copyWithNewSource()
-			return try {
-				val fallbackDecoder = imageLoader.components.newDecoder(
-					result = revivedFetchResult,
-					options = options,
-					imageLoader = imageLoader,
-					startIndex = 0,
-				)?.first
-				if (fallbackDecoder == null || fallbackDecoder is RegionBitmapDecoder) {
-					null
-				} else {
-					fallbackDecoder.decode()
-				}
-			} finally {
-				revivedFetchResult.source.close()
-			}
+			return decodeFullBitmap(sourceBytes)
 		}
 		val bitmapOptions = BitmapFactory.Options()
 		return try {
 			val rect = bitmapOptions.configureScale(regionDecoder.width, regionDecoder.height)
 			bitmapOptions.configureConfig()
 			val bitmap = regionDecoder.decodeRegion(rect, bitmapOptions)
-			bitmap.density = options.context.resources.displayMetrics.densityDpi
-			DecodeResult(
-				image = bitmap.asImage(),
-				isSampled = true,
-			)
+			if (bitmap != null) {
+				bitmap.density = options.context.resources.displayMetrics.densityDpi
+				DecodeResult(image = bitmap.asImage(), isSampled = true)
+			} else {
+				decodeFullBitmap(sourceBytes)
+			}
 		} finally {
 			regionDecoder.recycle()
 		}
 	}
 
+	/** Fallback when BitmapRegionDecoder.decodeRegion() fails. */
+	private fun decodeFullBitmap(bytes: ByteArray): DecodeResult? {
+		val opts = BitmapFactory.Options().apply { configureConfig() }
+		val bitmap =
+			BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
+				?: return null
+		bitmap.density = options.context.resources.displayMetrics.densityDpi
+		return DecodeResult(image = bitmap.asImage(), isSampled = false)
+	}
+
 	/** Compute and set the scaling properties for [BitmapFactory.Options]. */
-	private fun BitmapFactory.Options.configureScale(srcWidth: Int, srcHeight: Int): Rect {
+	private fun BitmapFactory.Options.configureScale(
+		srcWidth: Int,
+		srcHeight: Int,
+	): Rect {
 		val dstWidth = options.size.widthPx(options.scale) { srcWidth }
 		val dstHeight = options.size.heightPx(options.scale) { srcHeight }
 
 		val srcRatio = srcWidth / srcHeight.toDouble()
 		val dstRatio = dstWidth / dstHeight.toDouble()
-		val rect = if (srcRatio < dstRatio) {
-			// probably manga
-			Rect(0, 0, srcWidth, (srcWidth / dstRatio).toInt().coerceAtLeast(1))
-		} else {
-			Rect(0, 0, (srcHeight / dstRatio).toInt().coerceAtLeast(1), srcHeight)
-		}
+		val rect =
+			if (srcRatio < dstRatio) {
+				// probably manga
+				Rect(0, 0, srcWidth, (srcWidth / dstRatio).toInt().coerceAtLeast(1))
+			} else {
+				Rect(0, 0, (srcHeight / dstRatio).toInt().coerceAtLeast(1), srcHeight)
+			}
 		val scroll = options.getExtra(regionScrollKey)
 		if (scroll == SCROLL_UNDEFINED) {
 			rect.offsetTo(
@@ -94,22 +92,24 @@ class RegionBitmapDecoder(
 		}
 
 		// Calculate the image's sample size.
-		inSampleSize = DecodeUtils.calculateInSampleSize(
-			srcWidth = rect.width(),
-			srcHeight = rect.height(),
-			dstWidth = dstWidth,
-			dstHeight = dstHeight,
-			scale = options.scale,
-		)
+		inSampleSize =
+			DecodeUtils.calculateInSampleSize(
+				srcWidth = rect.width(),
+				srcHeight = rect.height(),
+				dstWidth = dstWidth,
+				dstHeight = dstHeight,
+				scale = options.scale,
+			)
 
 		// Calculate the image's density scaling multiple.
-		var scale = DecodeUtils.computeSizeMultiplier(
-			srcWidth = rect.width() / inSampleSize.toDouble(),
-			srcHeight = rect.height() / inSampleSize.toDouble(),
-			dstWidth = dstWidth.toDouble(),
-			dstHeight = dstHeight.toDouble(),
-			scale = options.scale,
-		)
+		var scale =
+			DecodeUtils.computeSizeMultiplier(
+				srcWidth = rect.width() / inSampleSize.toDouble(),
+				srcHeight = rect.height() / inSampleSize.toDouble(),
+				dstWidth = dstWidth.toDouble(),
+				dstHeight = dstHeight.toDouble(),
+				scale = options.scale,
+			)
 
 		// Only upscale the image if the options require an exact size.
 		if (options.precision == Precision.INEXACT) {
@@ -155,12 +155,11 @@ class RegionBitmapDecoder(
 	}
 
 	object Factory : Decoder.Factory {
-
 		override fun create(
 			result: SourceFetchResult,
 			options: Options,
-			imageLoader: ImageLoader
-		): Decoder = RegionBitmapDecoder(result, options, imageLoader)
+			imageLoader: ImageLoader,
+		): Decoder = RegionBitmapDecoder(result, options)
 
 		override fun equals(other: Any?) = other is Factory
 
@@ -168,23 +167,25 @@ class RegionBitmapDecoder(
 	}
 
 	companion object {
-
 		const val SCROLL_UNDEFINED = -1
 		val regionScrollKey = Extras.Key(SCROLL_UNDEFINED)
 
-		private inline fun Size.widthPx(scale: Scale, original: () -> Int): Int {
-			return if (isOriginal) original() else width.toPx(scale)
-		}
+		private inline fun Size.widthPx(
+			scale: Scale,
+			original: () -> Int,
+		): Int = if (isOriginal) original() else width.toPx(scale)
 
-		private inline fun Size.heightPx(scale: Scale, original: () -> Int): Int {
-			return if (isOriginal) original() else height.toPx(scale)
-		}
+		private inline fun Size.heightPx(
+			scale: Scale,
+			original: () -> Int,
+		): Int = if (isOriginal) original() else height.toPx(scale)
 
-		private fun Dimension.toPx(scale: Scale) = pxOrElse {
-			when (scale) {
-				Scale.FILL -> Int.MIN_VALUE
-				Scale.FIT -> Int.MAX_VALUE
+		private fun Dimension.toPx(scale: Scale) =
+			pxOrElse {
+				when (scale) {
+					Scale.FILL -> Int.MIN_VALUE
+					Scale.FIT -> Int.MAX_VALUE
+				}
 			}
-		}
 	}
 }

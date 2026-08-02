@@ -12,43 +12,46 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.core.util.ext.call
-import org.koitharu.kotatsu.parsers.util.isNumeric
-import org.koitharu.kotatsu.parsers.util.md5
+import tsuki.util.isNumeric
+import tsuki.util.md5
 import javax.inject.Inject
 
 @HiltViewModel
-class ProtectSetupViewModel @Inject constructor(
-	private val settings: AppSettings,
-) : BaseViewModel() {
+class ProtectSetupViewModel
+	@Inject
+	constructor(
+		private val settings: AppSettings,
+	) : BaseViewModel() {
+		private val firstPassword = MutableStateFlow<String?>(null)
 
-	private val firstPassword = MutableStateFlow<String?>(null)
+		val isSecondStep =
+			firstPassword
+				.map {
+					it != null
+				}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, false)
+		val onPasswordSet = MutableEventFlow<Unit>()
+		val onPasswordMismatch = MutableEventFlow<Unit>()
+		val onClearText = MutableEventFlow<Unit>()
 
-	val isSecondStep = firstPassword.map {
-		it != null
-	}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, false)
-	val onPasswordSet = MutableEventFlow<Unit>()
-	val onPasswordMismatch = MutableEventFlow<Unit>()
-	val onClearText = MutableEventFlow<Unit>()
+		val isBiometricEnabled
+			get() = settings.isBiometricProtectionEnabled
 
-	val isBiometricEnabled
-		get() = settings.isBiometricProtectionEnabled
-
-	fun onNextClick(password: String) {
-		if (firstPassword.value == null) {
-			firstPassword.value = password
-			onClearText.call(Unit)
-		} else {
-			if (firstPassword.value == password) {
-				settings.appPassword = password.md5()
-				settings.isAppPasswordNumeric = password.isNumeric()
-				onPasswordSet.call(Unit)
+		fun onNextClick(password: String) {
+			if (firstPassword.value == null) {
+				firstPassword.value = password
+				onClearText.call(Unit)
 			} else {
-				onPasswordMismatch.call(Unit)
+				if (firstPassword.value == password) {
+					settings.appPassword = password.md5()
+					settings.isAppPasswordNumeric = password.isNumeric()
+					onPasswordSet.call(Unit)
+				} else {
+					onPasswordMismatch.call(Unit)
+				}
 			}
 		}
-	}
 
-	fun setBiometricEnabled(isEnabled: Boolean) {
-		settings.isBiometricProtectionEnabled = isEnabled
+		fun setBiometricEnabled(isEnabled: Boolean) {
+			settings.isBiometricProtectionEnabled = isEnabled
+		}
 	}
-}

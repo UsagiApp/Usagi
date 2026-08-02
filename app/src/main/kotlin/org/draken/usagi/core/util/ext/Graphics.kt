@@ -14,12 +14,11 @@ fun Rect.scale(factor: Double) {
 	)
 }
 
-inline fun <R> Bitmap.use(block: (Bitmap) -> R) = try {
-	block(this)
-} finally {
-	recycle()
-}
+inline fun <R> Bitmap.use(block: (Bitmap) -> R) =
+	try {
+		block(this)
+	} finally {
+		recycle()
+	}
 
-fun ColorStateList.hasFocusStateSpecified(): Boolean {
-	return getColorForState(intArrayOf(android.R.attr.state_focused), defaultColor) != defaultColor
-}
+fun ColorStateList.hasFocusStateSpecified(): Boolean = getColorForState(intArrayOf(android.R.attr.state_focused), defaultColor) != defaultColor

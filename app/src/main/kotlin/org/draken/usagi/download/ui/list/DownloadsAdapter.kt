@@ -12,7 +12,6 @@ class DownloadsAdapter(
 	lifecycleOwner: LifecycleOwner,
 	listener: DownloadItemListener,
 ) : BaseListAdapter<ListModel>() {
-
 	init {
 		addDelegate(ListItemType.DOWNLOAD, downloadItemAD(lifecycleOwner, listener))
 		addDelegate(ListItemType.STATE_LOADING, loadingStateAD())

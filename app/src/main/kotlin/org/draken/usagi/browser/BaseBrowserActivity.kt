@@ -11,19 +11,20 @@ import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.network.proxy.ProxyProvider
 import org.draken.usagi.core.network.webview.adblock.AdBlock
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
 import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.util.ext.configureForParser
 import org.draken.usagi.core.util.ext.consumeAll
 import org.draken.usagi.databinding.ActivityBrowserBinding
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.util.nullIfEmpty
+import tsuki.model.MangaSource
+import tsuki.util.nullIfEmpty
 import javax.inject.Inject
 
 @AndroidEntryPoint
-abstract class BaseBrowserActivity : BaseActivity<ActivityBrowserBinding>(), BrowserCallback {
-
+abstract class BaseBrowserActivity :
+	BaseActivity<ActivityBrowserBinding>(),
+	BrowserCallback {
 	@Inject
 	lateinit var proxyProvider: ProxyProvider
 
@@ -45,9 +46,10 @@ abstract class BaseBrowserActivity : BaseActivity<ActivityBrowserBinding>(), Bro
 		onBackPressedDispatcher.addCallback(onBackPressedCallback)
 
 		val mangaSource = MangaSource(intent?.getStringExtra(AppRouter.KEY_SOURCE))
-		val repository = mangaRepositoryFactory.create(mangaSource) as? ParserMangaRepository
-		val userAgent = intent?.getStringExtra(AppRouter.KEY_USER_AGENT)?.nullIfEmpty()
-			?: repository?.getRequestHeaders()?.get(CommonHeaders.USER_AGENT)
+		val repository = mangaRepositoryFactory.create(mangaSource) as? MangaParserRepository
+		val userAgent =
+			intent?.getStringExtra(AppRouter.KEY_USER_AGENT)?.nullIfEmpty()
+				?: repository?.getRequestHeaders()?.get(CommonHeaders.USER_AGENT)
 		viewBinding.webView.configureForParser(userAgent)
 
 		onCreate2(savedInstanceState, mangaSource, repository)
@@ -56,12 +58,12 @@ abstract class BaseBrowserActivity : BaseActivity<ActivityBrowserBinding>(), Bro
 	protected abstract fun onCreate2(
 		savedInstanceState: Bundle?,
 		source: MangaSource,
-		repository: ParserMangaRepository?
+		repository: MangaParserRepository?,
 	)
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val type = WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()
 		val barsInsets = insets.getInsets(type)
@@ -100,7 +102,10 @@ abstract class BaseBrowserActivity : BaseActivity<ActivityBrowserBinding>(), Bro
 		viewBinding.progressBar.isVisible = isLoading
 	}
 
-	override fun onTitleChanged(title: CharSequence, subtitle: CharSequence?) {
+	override fun onTitleChanged(
+		title: CharSequence,
+		subtitle: CharSequence?,
+	) {
 		this.title = title
 		supportActionBar?.subtitle = subtitle
 	}

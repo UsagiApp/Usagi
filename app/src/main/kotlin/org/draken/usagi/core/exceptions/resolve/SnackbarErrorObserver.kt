@@ -9,7 +9,7 @@ import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.isSerializable
 import org.draken.usagi.main.ui.owners.BottomNavOwner
 import org.draken.usagi.main.ui.owners.BottomSheetOwner
-import org.koitharu.kotatsu.parsers.exception.ParseException
+import tsuki.exception.ParseException
 
 class SnackbarErrorObserver(
 	host: View,
@@ -17,7 +17,6 @@ class SnackbarErrorObserver(
 	resolver: ExceptionResolver?,
 	onResolved: Consumer<Boolean>?,
 ) : ErrorObserver(host, fragment, resolver, onResolved) {
-
 	constructor(
 		host: View,
 		fragment: Fragment?,

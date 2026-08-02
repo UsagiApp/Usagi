@@ -13,19 +13,22 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.draken.usagi.databinding.DialogTwoButtonsBinding
 
 class BigButtonsAlertDialog private constructor(
-	private val delegate: AlertDialog
+	private val delegate: AlertDialog,
 ) : DialogInterface by delegate {
-
 	fun show() = delegate.show()
 
-	class Builder(context: Context) {
-
+	class Builder(
+		context: Context,
+	) {
 		private val binding = DialogTwoButtonsBinding.inflate(LayoutInflater.from(context))
 
-		private val delegate = MaterialAlertDialogBuilder(context)
-			.setView(binding.root)
+		private val delegate =
+			MaterialAlertDialogBuilder(context)
+				.setView(binding.root)
 
-		fun setTitle(@StringRes titleResId: Int): Builder {
+		fun setTitle(
+			@StringRes titleResId: Int,
+		): Builder {
 			binding.title.setText(titleResId)
 			return this
 		}
@@ -35,7 +38,9 @@ class BigButtonsAlertDialog private constructor(
 			return this
 		}
 
-		fun setIcon(@DrawableRes iconId: Int): Builder {
+		fun setIcon(
+			@DrawableRes iconId: Int,
+		): Builder {
 			binding.icon.setImageResource(iconId)
 			return this
 		}
@@ -50,7 +55,7 @@ class BigButtonsAlertDialog private constructor(
 
 		fun setNegativeButton(
 			@StringRes textId: Int,
-			listener: DialogInterface.OnClickListener? = null
+			listener: DialogInterface.OnClickListener? = null,
 		): Builder {
 			initButton(binding.button3, DialogInterface.BUTTON_NEGATIVE, textId, listener)
 			return this
@@ -58,7 +63,7 @@ class BigButtonsAlertDialog private constructor(
 
 		fun setNeutralButton(
 			@StringRes textId: Int,
-			listener: DialogInterface.OnClickListener? = null
+			listener: DialogInterface.OnClickListener? = null,
 		): Builder {
 			initButton(binding.button2, DialogInterface.BUTTON_NEUTRAL, textId, listener)
 			return this
@@ -76,20 +81,26 @@ class BigButtonsAlertDialog private constructor(
 			return BigButtonsAlertDialog(dialog)
 		}
 
-		private fun MaterialButton.adjustCorners(isFirst: Boolean, isLast: Boolean) {
+		private fun MaterialButton.adjustCorners(
+			isFirst: Boolean,
+			isLast: Boolean,
+		) {
 			if (!isVisible) {
 				return
 			}
-			shapeAppearanceModel = shapeAppearanceModel.toBuilder().apply {
-				if (!isFirst) {
-					setTopLeftCornerSize(0f)
-					setTopRightCornerSize(0f)
-				}
-				if (!isLast) {
-					setBottomLeftCornerSize(0f)
-					setBottomRightCornerSize(0f)
-				}
-			}.build()
+			shapeAppearanceModel =
+				shapeAppearanceModel
+					.toBuilder()
+					.apply {
+						if (!isFirst) {
+							setTopLeftCornerSize(0f)
+							setTopRightCornerSize(0f)
+						}
+						if (!isLast) {
+							setBottomLeftCornerSize(0f)
+							setBottomRightCornerSize(0f)
+						}
+					}.build()
 		}
 
 		private fun initButton(

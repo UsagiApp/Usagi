@@ -7,24 +7,19 @@ import android.graphics.drawable.Drawable
 
 @Suppress("OVERRIDE_DEPRECATION")
 abstract class PaintDrawable : Drawable() {
-
 	protected abstract val paint: Paint
 
 	override fun setAlpha(alpha: Int) {
 		paint.alpha = alpha
 	}
 
-	override fun getAlpha(): Int {
-		return paint.alpha
-	}
+	override fun getAlpha(): Int = paint.alpha
 
 	override fun setColorFilter(colorFilter: ColorFilter?) {
 		paint.colorFilter = colorFilter
 	}
 
-	override fun getColorFilter(): ColorFilter? {
-		return paint.colorFilter
-	}
+	override fun getColorFilter(): ColorFilter? = paint.colorFilter
 
 	override fun setDither(dither: Boolean) {
 		paint.isDither = dither
@@ -34,9 +29,7 @@ abstract class PaintDrawable : Drawable() {
 		paint.isFilterBitmap = filter
 	}
 
-	override fun isFilterBitmap(): Boolean {
-		return paint.isFilterBitmap
-	}
+	override fun isFilterBitmap(): Boolean = paint.isFilterBitmap
 
 	override fun getOpacity(): Int {
 		if (paint.colorFilter != null) {

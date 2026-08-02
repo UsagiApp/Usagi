@@ -1,0 +1,34 @@
+name: Verify app build (for PRs)
+
+on:
+	pull_request:
+		types: [opened, synchronize, reopened]
+
+jobs:
+	build:
+		runs-on: ubuntu-latest
+		timeout-minutes: 120
+		steps:
+			-	name: Pull upstream 🌏
+				uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # v6.0.2
+        		with:
+          			submodules: recursive
+
+      		-	name: Set up JDK 🚀
+      			uses: actions/setup-java@b622de1dfa918ecc0ab28f40cd42e3c3752cd6c5 # v5.2.0
+        		with:
+        			distribution: 'temurin'
+        			java-version: '21'
+
+      		-	name: Setup Gradle 🚀
+      			uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+      			with:
+      				gradle-version: '9.1.0'
+
+      		-	name: Setup Android SDK 🚀
+        		uses: android-actions/setup-android@v3
+
+      		-	name: Compile debug app 💻
+      			run: |
+      				chmod a+x gradlew
+      				./gradlew compileDebugKotlin --no-daemon --no-configuration-cache --stacktrace

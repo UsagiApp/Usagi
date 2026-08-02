@@ -7,19 +7,18 @@ import org.draken.usagi.search.domain.SearchKind
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionListener
 import org.draken.usagi.search.ui.suggestion.model.SearchSuggestionItem
 
-fun searchSuggestionQueryHintAD(
-	listener: SearchSuggestionListener,
-) = adapterDelegateViewBinding<SearchSuggestionItem.Hint, SearchSuggestionItem, ItemSearchSuggestionQueryHintBinding>(
-	{ inflater, parent -> ItemSearchSuggestionQueryHintBinding.inflate(inflater, parent, false) },
-) {
+fun searchSuggestionQueryHintAD(listener: SearchSuggestionListener) =
+	adapterDelegateViewBinding<SearchSuggestionItem.Hint, SearchSuggestionItem, ItemSearchSuggestionQueryHintBinding>(
+		{ inflater, parent -> ItemSearchSuggestionQueryHintBinding.inflate(inflater, parent, false) },
+	) {
+		val viewClickListener =
+			View.OnClickListener { _ ->
+				listener.onQueryClick(item.query, SearchKind.SIMPLE, true)
+			}
 
-	val viewClickListener = View.OnClickListener { _ ->
-		listener.onQueryClick(item.query, SearchKind.SIMPLE, true)
+		binding.root.setOnClickListener(viewClickListener)
+
+		bind {
+			binding.root.text = item.query
+		}
 	}
-
-	binding.root.setOnClickListener(viewClickListener)
-
-	bind {
-		binding.root.text = item.query
-	}
-}

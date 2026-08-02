@@ -18,27 +18,40 @@ open class BrowserClient(
 	private val callback: BrowserCallback,
 	private val adBlock: AdBlock?,
 ) : WebViewClient() {
-
 	/**
 	 * https://stackoverflow.com/questions/57414530/illegalstateexception-reasonphrase-cant-be-empty-with-android-webview
 	 */
 
-	override fun onPageFinished(webView: WebView, url: String) {
+	override fun onPageFinished(
+		webView: WebView,
+		url: String,
+	) {
 		super.onPageFinished(webView, url)
 		callback.onLoadingStateChanged(isLoading = false)
 	}
 
-	override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+	override fun onPageStarted(
+		view: WebView?,
+		url: String?,
+		favicon: Bitmap?,
+	) {
 		super.onPageStarted(view, url, favicon)
 		callback.onLoadingStateChanged(isLoading = true)
 	}
 
-	override fun onPageCommitVisible(view: WebView, url: String) {
+	override fun onPageCommitVisible(
+		view: WebView,
+		url: String,
+	) {
 		super.onPageCommitVisible(view, url)
 		callback.onTitleChanged(view.title.orEmpty(), url)
 	}
 
-	override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
+	override fun doUpdateVisitedHistory(
+		view: WebView?,
+		url: String?,
+		isReload: Boolean,
+	) {
 		super.doUpdateVisitedHistory(view, url, isReload)
 		callback.onHistoryChanged()
 	}
@@ -47,17 +60,18 @@ open class BrowserClient(
 	@Deprecated("Deprecated in Java")
 	override fun shouldInterceptRequest(
 		view: WebView?,
-		url: String?
-	): WebResourceResponse? = if (url.isNullOrEmpty() || adBlock?.shouldLoadUrl(url, view?.getUrlSafe()) ?: true) {
-		super.shouldInterceptRequest(view, url)
-	} else {
-		emptyResponse()
-	}
+		url: String?,
+	): WebResourceResponse? =
+		if (url.isNullOrEmpty() || adBlock?.shouldLoadUrl(url, view?.getUrlSafe()) ?: true) {
+			super.shouldInterceptRequest(view, url)
+		} else {
+			emptyResponse()
+		}
 
 	@WorkerThread
 	override fun shouldInterceptRequest(
 		view: WebView?,
-		request: WebResourceRequest?
+		request: WebResourceRequest?,
 	): WebResourceResponse? =
 		if (request == null || adBlock?.shouldLoadUrl(request.url.toString(), view?.getUrlSafe()) ?: true) {
 			super.shouldInterceptRequest(view, request)
@@ -65,16 +79,16 @@ open class BrowserClient(
 			emptyResponse()
 		}
 
-	private fun emptyResponse(): WebResourceResponse =
-		WebResourceResponse("text/plain", "utf-8", ByteArrayInputStream(byteArrayOf()))
+	private fun emptyResponse(): WebResourceResponse = WebResourceResponse("text/plain", "utf-8", ByteArrayInputStream(byteArrayOf()))
 
 	@SuppressLint("WrongThread")
 	@AnyThread
-	private fun WebView.getUrlSafe(): String? = if (Looper.myLooper() == Looper.getMainLooper()) {
-		url
-	} else {
-		runBlocking(Dispatchers.Main.immediate) {
+	private fun WebView.getUrlSafe(): String? =
+		if (Looper.myLooper() == Looper.getMainLooper()) {
 			url
+		} else {
+			runBlocking(Dispatchers.Main.immediate) {
+				url
+			}
 		}
-	}
 }

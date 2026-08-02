@@ -15,15 +15,19 @@ class BottomSheetCollapseCallback(
 	private val sheet: ViewGroup,
 	private val behavior: BottomSheetBehavior<*> = BottomSheetBehavior.from(sheet),
 ) : OnBackPressedCallback(behavior.state == STATE_EXPANDED || behavior.state == STATE_HALF_EXPANDED) {
-
 	init {
 		behavior.addBottomSheetCallback(
 			object : BottomSheetBehavior.BottomSheetCallback() {
-
 				@SuppressLint("SwitchIntDef")
-				override fun onStateChanged(view: View, state: Int) = onStateChanged(state)
+				override fun onStateChanged(
+					view: View,
+					state: Int,
+				) = onStateChanged(state)
 
-				override fun onSlide(p0: View, p1: Float) = Unit
+				override fun onSlide(
+					p0: View,
+					p1: Float,
+				) = Unit
 			},
 		)
 		onStateChanged(behavior.state)
@@ -40,10 +44,12 @@ class BottomSheetCollapseCallback(
 	private fun onStateChanged(state: Int) {
 		when (state) {
 			STATE_EXPANDED,
-			STATE_HALF_EXPANDED -> isEnabled = true
+			STATE_HALF_EXPANDED,
+			-> isEnabled = true
 
 			STATE_COLLAPSED,
-			STATE_HIDDEN -> isEnabled = false
+			STATE_HIDDEN,
+			-> isEnabled = false
 		}
 	}
 }

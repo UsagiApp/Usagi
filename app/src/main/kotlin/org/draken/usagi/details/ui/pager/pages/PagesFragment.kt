@@ -58,7 +58,6 @@ class PagesFragment :
 	OnListItemClickListener<PageThumbnail>,
 	RecyclerViewOwner,
 	ListSelectionController.Callback {
-
 	@Inject
 	lateinit var settings: AppSettings
 
@@ -96,22 +95,28 @@ class PagesFragment :
 			.observe(this, viewModel::updateState)
 	}
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentPagesBinding {
-		return FragmentPagesBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): FragmentPagesBinding = FragmentPagesBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: FragmentPagesBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentPagesBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		spanResolver = GridSpanResolver(binding.root.resources)
-		selectionController = ListSelectionController(
-			appCompatDelegate = checkNotNull(findAppCompatDelegate()),
-			decoration = PagesSelectionDecoration(binding.root.context),
-			registryOwner = this,
-			callback = this,
-		)
-		thumbnailsAdapter = PageThumbnailAdapter(
-			clickListener = this@PagesFragment,
-		)
+		selectionController =
+			ListSelectionController(
+				appCompatDelegate = checkNotNull(findAppCompatDelegate()),
+				decoration = PagesSelectionDecoration(binding.root.context),
+				registryOwner = this,
+				callback = this,
+			)
+		thumbnailsAdapter =
+			PageThumbnailAdapter(
+				clickListener = this@PagesFragment,
+			)
 		viewModel.gridScale.observe(viewLifecycleOwner, ::onGridScaleChanged) // before rv initialization
 		with(binding.recyclerView) {
 			addItemDecoration(TypedListSpacingDecoration(context, false))
@@ -151,7 +156,10 @@ class PagesFragment :
 		super.onDestroyView()
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeBask = WindowInsetsCompat.Type.systemBars()
 		val barsInsets = insets.getInsets(typeBask)
 		viewBinding?.recyclerView?.setPadding(
@@ -163,7 +171,10 @@ class PagesFragment :
 		return insets.consumeAll(typeBask)
 	}
 
-	override fun onItemClick(item: PageThumbnail, view: View) {
+	override fun onItemClick(
+		item: PageThumbnail,
+		view: View,
+	) {
 		if (selectionController?.onItemClick(item.page.id) == true) {
 			return
 		}
@@ -172,7 +183,8 @@ class PagesFragment :
 			dismissParentDialog()
 		} else {
 			router.openReader(
-				ReaderIntent.Builder(view.context)
+				ReaderIntent
+					.Builder(view.context)
 					.manga(parentViewModel.getMangaOrNull() ?: return)
 					.state(ReaderState(item.page.chapterId, item.page.index, 0))
 					.build(),
@@ -180,15 +192,20 @@ class PagesFragment :
 		}
 	}
 
-	override fun onItemLongClick(item: PageThumbnail, view: View): Boolean {
-		return selectionController?.onItemLongClick(view, item.page.id) == true
-	}
+	override fun onItemLongClick(
+		item: PageThumbnail,
+		view: View,
+	): Boolean = selectionController?.onItemLongClick(view, item.page.id) == true
 
-	override fun onItemContextClick(item: PageThumbnail, view: View): Boolean {
-		return selectionController?.onItemContextClick(view, item.page.id) == true
-	}
+	override fun onItemContextClick(
+		item: PageThumbnail,
+		view: View,
+	): Boolean = selectionController?.onItemContextClick(view, item.page.id) == true
 
-	override fun onSelectionChanged(controller: ListSelectionController, count: Int) {
+	override fun onSelectionChanged(
+		controller: ListSelectionController,
+		count: Int,
+	) {
 		viewBinding?.recyclerView?.invalidateItemDecorations()
 	}
 
@@ -201,17 +218,22 @@ class PagesFragment :
 		return true
 	}
 
-	override fun onActionItemClicked(controller: ListSelectionController, mode: ActionMode?, item: MenuItem): Boolean {
-		return when (item.itemId) {
+	override fun onActionItemClicked(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		item: MenuItem,
+	): Boolean =
+		when (item.itemId) {
 			R.id.action_save -> {
 				viewModel.savePages(pageSaveHelper, collectSelectedPages())
 				mode?.finish()
 				true
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
-	}
 
 	private suspend fun onThumbnailsChanged(list: List<ListModel>) {
 		val adapter = thumbnailsAdapter ?: return
@@ -219,12 +241,13 @@ class PagesFragment :
 			var position = list.indexOfFirst { it is PageThumbnail && it.isCurrent }
 			if (position > 0) {
 				val spanCount = spanResolver?.spanCount ?: 0
-				val offset = if (position > spanCount + 1) {
-					(resources.getDimensionPixelSize(R.dimen.manga_list_details_item_height) * 0.6).roundToInt()
-				} else {
-					position = 0
-					0
-				}
+				val offset =
+					if (position > spanCount + 1) {
+						(resources.getDimensionPixelSize(R.dimen.manga_list_details_item_height) * 0.6).roundToInt()
+					} else {
+						position = 0
+						0
+					}
 				val scrollCallback = RecyclerViewScrollCallback(requireViewBinding().recyclerView, position, offset)
 				adapter.emit(list)
 				scrollCallback.run()
@@ -265,7 +288,6 @@ class PagesFragment :
 	}
 
 	private inner class ScrollListener : BoundsScrollListener(3, 3) {
-
 		override fun onScrolledToStart(recyclerView: RecyclerView) {
 			viewModel.loadPrevChapter()
 		}
@@ -276,7 +298,6 @@ class PagesFragment :
 	}
 
 	private inner class SpanSizeLookup : GridLayoutManager.SpanSizeLookup() {
-
 		init {
 			isSpanIndexCacheEnabled = true
 			isSpanGroupIndexCacheEnabled = true

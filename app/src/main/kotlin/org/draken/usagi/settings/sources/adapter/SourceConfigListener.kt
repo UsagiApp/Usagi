@@ -4,7 +4,6 @@ import org.draken.usagi.core.ui.list.OnTipCloseListener
 import org.draken.usagi.settings.sources.model.SourceConfigItem
 
 interface SourceConfigListener : OnTipCloseListener<SourceConfigItem.Tip> {
-
 	fun onItemSettingsClick(item: SourceConfigItem.SourceItem)
 
 	fun onItemLiftClick(item: SourceConfigItem.SourceItem)
@@ -13,5 +12,8 @@ interface SourceConfigListener : OnTipCloseListener<SourceConfigItem.Tip> {
 
 	fun onItemPinClick(item: SourceConfigItem.SourceItem)
 
-	fun onItemEnabledChanged(item: SourceConfigItem.SourceItem, isEnabled: Boolean)
+	fun onItemEnabledChanged(
+		item: SourceConfigItem.SourceItem,
+		isEnabled: Boolean,
+	)
 }

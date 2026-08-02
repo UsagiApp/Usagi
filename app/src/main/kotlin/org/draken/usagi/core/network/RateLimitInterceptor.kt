@@ -3,7 +3,7 @@ package org.draken.usagi.core.network
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
-import org.koitharu.kotatsu.parsers.exception.TooManyRequestExceptions
+import tsuki.exception.TooManyRequestExceptions
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
@@ -22,8 +22,7 @@ class RateLimitInterceptor : Interceptor {
 		return response
 	}
 
-	private fun String.parseRetryAfter(): Long {
-		return toLongOrNull()?.let { TimeUnit.SECONDS.toMillis(it) }
+	private fun String.parseRetryAfter(): Long =
+		toLongOrNull()?.let { TimeUnit.SECONDS.toMillis(it) }
 			?: ZonedDateTime.parse(this, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant().toEpochMilli()
-	}
 }

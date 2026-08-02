@@ -9,10 +9,12 @@ import org.draken.usagi.reader.domain.EdgeDetector.Companion.isColorTheSame
 class TrimTransformation(
 	private val tolerance: Int = 20,
 ) : Transformation() {
-
 	override val cacheKey: String = "${javaClass.name}-$tolerance"
 
-	override suspend fun transform(input: Bitmap, size: Size): Bitmap {
+	override suspend fun transform(
+		input: Bitmap,
+		size: Size,
+	): Bitmap {
 		var left = 0
 		var top = 0
 		var right = 0

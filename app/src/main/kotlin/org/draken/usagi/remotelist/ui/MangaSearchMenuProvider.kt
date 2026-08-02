@@ -11,14 +11,18 @@ import org.draken.usagi.core.ui.util.ReversibleAction
 import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.list.ui.MangaListViewModel
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
+import tsuki.model.MangaListFilter
 
 class MangaSearchMenuProvider(
 	private val filter: FilterCoordinator,
 	private val viewModel: MangaListViewModel,
-) : MenuProvider, MenuItem.OnActionExpandListener, SearchView.OnQueryTextListener {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+) : MenuProvider,
+	MenuItem.OnActionExpandListener,
+	SearchView.OnQueryTextListener {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		menuInflater.inflate(R.menu.opt_search, menu)
 		val menuItem = menu.findItem(R.id.action_search)
 		menuItem.setOnActionExpandListener(this)
@@ -36,7 +40,9 @@ class MangaSearchMenuProvider(
 
 	override fun onQueryTextSubmit(query: String?): Boolean {
 		val snapshot = filter.snapshot()
-		if (!query.isNullOrEmpty() && !filter.capabilities.isSearchWithFiltersSupported && snapshot.listFilter.hasNonSearchOptions()) {
+		if (!query.isNullOrEmpty() && !filter.capabilities.isSearchWithFiltersSupported &&
+			snapshot.listFilter.hasNonSearchOptions()
+		) {
 			filter.set(MangaListFilter(query = query))
 			viewModel.onActionDone.call(
 				ReversibleAction(R.string.filter_search_warning) { filter.set(snapshot.listFilter) },
@@ -59,11 +65,12 @@ class MangaSearchMenuProvider(
 	override fun onMenuItemActionCollapse(item: MenuItem): Boolean = true
 
 	private fun SearchView.adjustSearchView() {
-		imeOptions = if (viewModel.isIncognitoModeEnabled) {
-			imeOptions or EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
-		} else {
-			imeOptions and EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING.inv()
-		}
+		imeOptions =
+			if (viewModel.isIncognitoModeEnabled) {
+				imeOptions or EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING
+			} else {
+				imeOptions and EditorInfoCompat.IME_FLAG_NO_PERSONALIZED_LEARNING.inv()
+			}
 		setQuery(filter.query.value, false)
 	}
 }

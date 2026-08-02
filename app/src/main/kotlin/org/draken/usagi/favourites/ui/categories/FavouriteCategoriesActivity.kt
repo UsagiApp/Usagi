@@ -36,7 +36,6 @@ class FavouriteCategoriesActivity :
 	FavouriteCategoriesListListener,
 	View.OnClickListener,
 	ListStateHolderListener {
-
 	@Inject
 	lateinit var coil: ImageLoader
 
@@ -51,21 +50,23 @@ class FavouriteCategoriesActivity :
 		setContentView(ActivityCategoriesBinding.inflate(layoutInflater))
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
 		adapter = CategoriesAdapter(this, this)
-		selectionController = ListSelectionController(
-			appCompatDelegate = delegate,
-			decoration = CategoriesSelectionDecoration(this),
-			registryOwner = this,
-			callback = CategoriesSelectionCallback(viewBinding.recyclerView, viewModel),
-		)
+		selectionController =
+			ListSelectionController(
+				appCompatDelegate = delegate,
+				decoration = CategoriesSelectionDecoration(this),
+				registryOwner = this,
+				callback = CategoriesSelectionCallback(viewBinding.recyclerView, viewModel),
+			)
 		selectionController.attachToRecyclerView(viewBinding.recyclerView)
 		viewBinding.recyclerView.setHasFixedSize(true)
 		viewBinding.recyclerView.adapter = adapter
 		viewBinding.recyclerView.addItemDecoration(TypedListSpacingDecoration(this, false))
 		viewBinding.fabAdd.setOnClickListener(this)
 
-		reorderHelper = ItemTouchHelper(ReorderHelperCallback()).apply {
-			attachToRecyclerView(viewBinding.recyclerView)
-		}
+		reorderHelper =
+			ItemTouchHelper(ReorderHelperCallback()).apply {
+				attachToRecyclerView(viewBinding.recyclerView)
+			}
 
 		viewModel.content.observe(this, ::onCategoriesChanged)
 		viewModel.onError.observeEvent(this, SnackbarErrorObserver(viewBinding.recyclerView, null))
@@ -73,7 +74,7 @@ class FavouriteCategoriesActivity :
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		viewBinding.recyclerView.updatePadding(
@@ -99,7 +100,10 @@ class FavouriteCategoriesActivity :
 		}
 	}
 
-	override fun onItemClick(item: FavouriteCategory?, view: View) {
+	override fun onItemClick(
+		item: FavouriteCategory?,
+		view: View,
+	) {
 		if (item == null) {
 			if (selectionController.count == 0) {
 				router.openFavorites()
@@ -112,20 +116,25 @@ class FavouriteCategoriesActivity :
 		router.openFavorites(item)
 	}
 
-	override fun onEditClick(item: FavouriteCategory, view: View) {
+	override fun onEditClick(
+		item: FavouriteCategory,
+		view: View,
+	) {
 		if (selectionController.onItemClick(item.id)) {
 			return
 		}
 		router.openFavoriteCategoryEdit(item.id)
 	}
 
-	override fun onItemLongClick(item: FavouriteCategory?, view: View): Boolean {
-		return item != null && selectionController.onItemLongClick(view, item.id)
-	}
+	override fun onItemLongClick(
+		item: FavouriteCategory?,
+		view: View,
+	): Boolean = item != null && selectionController.onItemLongClick(view, item.id)
 
-	override fun onItemContextClick(item: FavouriteCategory?, view: View): Boolean {
-		return item != null && selectionController.onItemContextClick(view, item.id)
-	}
+	override fun onItemContextClick(
+		item: FavouriteCategory?,
+		view: View,
+	): Boolean = item != null && selectionController.onItemContextClick(view, item.id)
 
 	override fun onSupportActionModeStarted(mode: ActionMode) {
 		super.onSupportActionModeStarted(mode)
@@ -157,20 +166,25 @@ class FavouriteCategoriesActivity :
 		invalidateOptionsMenu()
 	}
 
-	private inner class ReorderHelperCallback : ItemTouchHelper.SimpleCallback(
-		ItemTouchHelper.DOWN or ItemTouchHelper.UP,
-		0,
-	) {
-
-		override fun getDragDirs(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-			return if (actionModeDelegate.isActionModeStarted) {
+	private inner class ReorderHelperCallback :
+		ItemTouchHelper.SimpleCallback(
+			ItemTouchHelper.DOWN or ItemTouchHelper.UP,
+			0,
+		) {
+		override fun getDragDirs(
+			recyclerView: RecyclerView,
+			viewHolder: RecyclerView.ViewHolder,
+		): Int =
+			if (actionModeDelegate.isActionModeStarted) {
 				0
 			} else {
 				super.getDragDirs(recyclerView, viewHolder)
 			}
-		}
 
-		override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) = Unit
+		override fun onSwiped(
+			viewHolder: RecyclerView.ViewHolder,
+			direction: Int,
+		) = Unit
 
 		override fun onMove(
 			recyclerView: RecyclerView,
@@ -197,12 +211,18 @@ class FavouriteCategoriesActivity :
 
 		override fun isLongPressDragEnabled(): Boolean = false
 
-		override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+		override fun onSelectedChanged(
+			viewHolder: RecyclerView.ViewHolder?,
+			actionState: Int,
+		) {
 			super.onSelectedChanged(viewHolder, actionState)
 			viewBinding.recyclerView.isNestedScrollingEnabled = actionState == ItemTouchHelper.ACTION_STATE_IDLE
 		}
 
-		override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+		override fun clearView(
+			recyclerView: RecyclerView,
+			viewHolder: RecyclerView.ViewHolder,
+		) {
 			super.clearView(recyclerView, viewHolder)
 			viewModel.saveOrder(adapter.items ?: return)
 		}

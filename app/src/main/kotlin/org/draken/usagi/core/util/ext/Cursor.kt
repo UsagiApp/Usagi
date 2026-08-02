@@ -10,15 +10,20 @@ inline fun <T> Cursor.map(mapper: (Cursor) -> T): List<T> = mapTo(ArrayList(coun
 
 inline fun <T> Cursor.mapToSet(mapper: (Cursor) -> T): Set<T> = mapTo(ArraySet(count), mapper)
 
-inline fun <T, C: MutableCollection<in T>> Cursor.mapTo(destination: C, mapper: (Cursor) -> T): C = use { c ->
-	if (c.moveToFirst()) {
-		do {
-			destination.add(mapper(c))
-		} while (c.moveToNext())
+inline fun <T, C : MutableCollection<in T>> Cursor.mapTo(
+	destination: C,
+	mapper: (Cursor) -> T,
+): C =
+	use { c ->
+		if (c.moveToFirst()) {
+			do {
+				destination.add(mapper(c))
+			} while (c.moveToNext())
+		}
+		destination
 	}
-	destination
-}
 
-inline fun buildContentValues(capacity: Int, block: ContentValues.() -> Unit): ContentValues {
-	return ContentValues(capacity).apply(block)
-}
+inline fun buildContentValues(
+	capacity: Int,
+	block: ContentValues.() -> Unit,
+): ContentValues = ContentValues(capacity).apply(block)

@@ -16,12 +16,13 @@ import kotlinx.coroutines.isActive
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.db.entity.MangaSourceEntity
 import org.draken.usagi.explore.data.SourcesSortOrder
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper.PROTECTION_CAPTCHA
+import tsuki.network.CloudFlareHelper
+import tsuki.network.CloudFlareHelper.PROTECTION_CAPTCHA
+import kotlin.math.max
+import kotlin.math.min
 
 @Dao
 abstract class MangaSourcesDao {
-
 	@Query("SELECT * FROM sources ORDER BY pinned DESC, sort_key")
 	abstract suspend fun findAll(): List<MangaSourceEntity>
 
@@ -47,16 +48,28 @@ abstract class MangaSourcesDao {
 	abstract suspend fun disableAllSources()
 
 	@Query("UPDATE sources SET sort_key = :sortKey WHERE source = :source")
-	abstract suspend fun setSortKey(source: String, sortKey: Int)
+	abstract suspend fun setSortKey(
+		source: String,
+		sortKey: Int,
+	)
 
 	@Query("UPDATE sources SET used_at = :value WHERE source = :source")
-	abstract suspend fun setLastUsed(source: String, value: Long)
+	abstract suspend fun setLastUsed(
+		source: String,
+		value: Long,
+	)
 
 	@Query("UPDATE sources SET pinned = :isPinned WHERE source = :source")
-	abstract suspend fun setPinned(source: String, isPinned: Boolean)
+	abstract suspend fun setPinned(
+		source: String,
+		isPinned: Boolean,
+	)
 
 	@Query("UPDATE sources SET cf_state = :state WHERE source = :source")
-	abstract suspend fun setCfState(source: String, state: Int)
+	abstract suspend fun setCfState(
+		source: String,
+		state: Int,
+	)
 
 	@Insert(onConflict = OnConflictStrategy.IGNORE)
 	@Transaction
@@ -71,43 +84,91 @@ abstract class MangaSourcesDao {
 	@Query("SELECT * FROM sources WHERE cf_state = $PROTECTION_CAPTCHA")
 	abstract suspend fun findAllCaptchaRequired(): List<MangaSourceEntity>
 
-	fun observeAll(enabledOnly: Boolean, order: SourcesSortOrder): Flow<List<MangaSourceEntity>> =
-		observeImpl(getQuery(enabledOnly, order))
+	@Query("SELECT * FROM sources WHERE source = :key LIMIT 1")
+	abstract suspend fun findByKey(key: String): MangaSourceEntity?
 
-	suspend fun findAll(enabledOnly: Boolean, order: SourcesSortOrder): List<MangaSourceEntity> =
-		findAllImpl(getQuery(enabledOnly, order))
+	@Query("DELETE FROM sources WHERE source = :key")
+	abstract suspend fun deleteByKey(key: String): Int
+
+	@Query("UPDATE sources SET source = :newKey WHERE source = :oldKey")
+	abstract suspend fun renameSourcePrimaryKey(
+		oldKey: String,
+		newKey: String,
+	): Int
 
 	@Transaction
-	open suspend fun setEnabled(source: String, isEnabled: Boolean) {
-		if (updateIsEnabled(source, isEnabled) == 0) {
-			val entity = MangaSourceEntity(
-				source = source,
-				isEnabled = isEnabled,
-				sortKey = getMaxSortKey() + 1,
-				addedIn = BuildConfig.VERSION_CODE,
-				lastUsedAt = 0,
-				isPinned = false,
-				cfState = CloudFlareHelper.PROTECTION_NOT_DETECTED,
+	open suspend fun mergeLegacyPluginSourceKeys(
+		short: String,
+		compound: String,
+	) {
+		val shortRow = findByKey(short) ?: return
+		val compoundRow = findByKey(compound)
+		if (compoundRow == null) {
+			renameSourcePrimaryKey(short, compound)
+			return
+		}
+		val merged =
+			compoundRow.copy(
+				isEnabled = shortRow.isEnabled || compoundRow.isEnabled,
+				isPinned = shortRow.isPinned || compoundRow.isPinned,
+				sortKey = min(shortRow.sortKey, compoundRow.sortKey),
+				lastUsedAt = max(shortRow.lastUsedAt, compoundRow.lastUsedAt),
+				addedIn = min(shortRow.addedIn, compoundRow.addedIn),
+				cfState = if (shortRow.cfState != 0) shortRow.cfState else compoundRow.cfState,
 			)
+		upsert(merged)
+		deleteByKey(short)
+	}
+
+	fun observeAll(
+		enabledOnly: Boolean,
+		order: SourcesSortOrder,
+	): Flow<List<MangaSourceEntity>> = observeImpl(getQuery(enabledOnly, order))
+
+	suspend fun findAll(
+		enabledOnly: Boolean,
+		order: SourcesSortOrder,
+	): List<MangaSourceEntity> = findAllImpl(getQuery(enabledOnly, order))
+
+	@Transaction
+	open suspend fun setEnabled(
+		source: String,
+		isEnabled: Boolean,
+	) {
+		if (updateIsEnabled(source, isEnabled) == 0) {
+			val entity =
+				MangaSourceEntity(
+					source = source,
+					isEnabled = isEnabled,
+					sortKey = getMaxSortKey() + 1,
+					addedIn = BuildConfig.VERSION_CODE,
+					lastUsedAt = 0,
+					isPinned = false,
+					cfState = CloudFlareHelper.PROTECTION_NOT_DETECTED,
+				)
 			upsert(entity)
 		}
 	}
 
-	fun dumpEnabled(): Flow<MangaSourceEntity> = flow {
-		val window = 10
-		var offset = 0
-		while (currentCoroutineContext().isActive) {
-			val list = findAllEnabled(offset, window)
-			if (list.isEmpty()) {
-				break
+	fun dumpEnabled(): Flow<MangaSourceEntity> =
+		flow {
+			val window = 10
+			var offset = 0
+			while (currentCoroutineContext().isActive) {
+				val list = findAllEnabled(offset, window)
+				if (list.isEmpty()) {
+					break
+				}
+				offset += window
+				list.forEach { emit(it) }
 			}
-			offset += window
-			list.forEach { emit(it) }
 		}
-	}
 
 	@Query("UPDATE sources SET enabled = :isEnabled WHERE source = :source")
-	protected abstract suspend fun updateIsEnabled(source: String, isEnabled: Boolean): Int
+	protected abstract suspend fun updateIsEnabled(
+		source: String,
+		isEnabled: Boolean,
+	): Int
 
 	@RawQuery(observedEntities = [MangaSourceEntity::class])
 	protected abstract fun observeImpl(query: SupportSQLiteQuery): Flow<List<MangaSourceEntity>>
@@ -116,9 +177,15 @@ abstract class MangaSourcesDao {
 	protected abstract suspend fun findAllImpl(query: SupportSQLiteQuery): List<MangaSourceEntity>
 
 	@Query("SELECT * FROM sources WHERE enabled = 1 ORDER BY source LIMIT :limit OFFSET :offset")
-	protected abstract suspend fun findAllEnabled(offset: Int, limit: Int): List<MangaSourceEntity>
+	protected abstract suspend fun findAllEnabled(
+		offset: Int,
+		limit: Int,
+	): List<MangaSourceEntity>
 
-	private fun getQuery(enabledOnly: Boolean, order: SourcesSortOrder) = SimpleSQLiteQuery(
+	private fun getQuery(
+		enabledOnly: Boolean,
+		order: SourcesSortOrder,
+	) = SimpleSQLiteQuery(
 		buildString {
 			append("SELECT * FROM sources ")
 			if (enabledOnly) {
@@ -129,10 +196,11 @@ abstract class MangaSourcesDao {
 		},
 	)
 
-	private fun getOrderBy(order: SourcesSortOrder) = when (order) {
-		SourcesSortOrder.ALPHABETIC -> "source ASC"
-		SourcesSortOrder.POPULARITY -> "(SELECT COUNT(*) FROM manga WHERE source = sources.source) DESC"
-		SourcesSortOrder.MANUAL -> "sort_key ASC"
-		SourcesSortOrder.LAST_USED -> "used_at DESC"
-	}
+	private fun getOrderBy(order: SourcesSortOrder) =
+		when (order) {
+			SourcesSortOrder.ALPHABETIC -> "source ASC"
+			SourcesSortOrder.POPULARITY -> "(SELECT COUNT(*) FROM manga WHERE source = sources.source) DESC"
+			SourcesSortOrder.MANUAL -> "sort_key ASC"
+			SourcesSortOrder.LAST_USED -> "used_at DESC"
+		}
 }

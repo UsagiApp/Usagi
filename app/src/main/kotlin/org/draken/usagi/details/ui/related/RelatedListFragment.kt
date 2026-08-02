@@ -10,7 +10,6 @@ import org.draken.usagi.list.ui.MangaListFragment
 
 @AndroidEntryPoint
 class RelatedListFragment : MangaListFragment() {
-
 	override val viewModel by viewModels<RelatedListViewModel>()
 	override val isSwipeRefreshEnabled = false
 
@@ -19,10 +18,9 @@ class RelatedListFragment : MangaListFragment() {
 	override fun onCreateActionMode(
 		controller: ListSelectionController,
 		menuInflater: MenuInflater,
-		menu: Menu
+		menu: Menu,
 	): Boolean {
 		menuInflater.inflate(R.menu.mode_remote, menu)
 		return super.onCreateActionMode(controller, menuInflater, menu)
 	}
 }
-

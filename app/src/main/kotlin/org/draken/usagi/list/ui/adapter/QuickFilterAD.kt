@@ -7,19 +7,18 @@ import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.QuickFilter
 
-fun quickFilterAD(
-	listener: QuickFilterClickListener,
-) = adapterDelegateViewBinding<QuickFilter, ListModel, ItemQuickFilterBinding>(
-	{ layoutInflater, parent -> ItemQuickFilterBinding.inflate(layoutInflater, parent, false) }
-) {
+fun quickFilterAD(listener: QuickFilterClickListener) =
+	adapterDelegateViewBinding<QuickFilter, ListModel, ItemQuickFilterBinding>(
+		{ layoutInflater, parent -> ItemQuickFilterBinding.inflate(layoutInflater, parent, false) },
+	) {
+		binding.chipsTags.onChipClickListener =
+			ChipsView.OnChipClickListener { chip, data ->
+				if (data is ListFilterOption) {
+					listener.onFilterOptionClick(data)
+				}
+			}
 
-	binding.chipsTags.onChipClickListener = ChipsView.OnChipClickListener { chip, data ->
-		if (data is ListFilterOption) {
-			listener.onFilterOptionClick(data)
+		bind {
+			binding.chipsTags.setChips(item.items)
 		}
 	}
-
-	bind {
-		binding.chipsTags.setChips(item.items)
-	}
-}

@@ -19,13 +19,13 @@ fun mangaGridItemAD(
 ) = adapterDelegateViewBinding<MangaGridModel, ListModel, ItemMangaGridBinding>(
 	{ inflater, parent -> ItemMangaGridBinding.inflate(inflater, parent, false) },
 ) {
-
 	AdapterDelegateClickListenerAdapter(this, clickListener).attach(itemView)
 	sizeResolver.attachToView(itemView, binding.textViewTitle, binding.progressView)
 
 	bind { payloads ->
 		itemView.setTooltipCompat(item.getSummary(context))
 		binding.textViewTitle.text = item.title
+		binding.textViewTitle.isVisible = !item.isTitleHidden
 		binding.progressView.setProgress(item.progress, PAYLOAD_PROGRESS_CHANGED in payloads)
 		with(binding.iconsView) {
 			clearIcons()

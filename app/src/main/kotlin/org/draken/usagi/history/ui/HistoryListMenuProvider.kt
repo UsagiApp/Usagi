@@ -19,8 +19,10 @@ class HistoryListMenuProvider(
 	private val router: AppRouter,
 	private val viewModel: HistoryListViewModel,
 ) : MenuProvider {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		menuInflater.inflate(R.menu.opt_history, menu)
 	}
 
@@ -29,8 +31,8 @@ class HistoryListMenuProvider(
 		menu.findItem(R.id.action_stats)?.isVisible = viewModel.isStatsEnabled.value
 	}
 
-	override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-		return when (menuItem.itemId) {
+	override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+		when (menuItem.itemId) {
 			R.id.action_clear_history -> {
 				showClearHistoryDialog()
 				true
@@ -41,9 +43,10 @@ class HistoryListMenuProvider(
 				true
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
-	}
 
 	private fun showClearHistoryDialog() {
 		val selectionListener = RememberSelectionDialogListener(1)

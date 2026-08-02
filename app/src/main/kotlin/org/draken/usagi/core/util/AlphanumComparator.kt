@@ -1,8 +1,10 @@
 package org.draken.usagi.core.util
 
 class AlphanumComparator : Comparator<String> {
-
-	override fun compare(s1: String?, s2: String?): Int {
+	override fun compare(
+		s1: String?,
+		s2: String?,
+	): Int {
 		if (s1 == null || s2 == null) {
 			return 0
 		}
@@ -37,7 +39,11 @@ class AlphanumComparator : Comparator<String> {
 		return s1Length - s2Length
 	}
 
-	private fun getChunk(s: String, slength: Int, cmarker: Int): String {
+	private fun getChunk(
+		s: String,
+		slength: Int,
+		cmarker: Int,
+	): String {
 		var marker = cmarker
 		val chunk = StringBuilder()
 		var c = s[marker]

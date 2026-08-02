@@ -1,7 +1,7 @@
 package org.draken.usagi.suggestions.domain
 
 import androidx.annotation.FloatRange
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 data class MangaSuggestion(
 	val manga: Manga,

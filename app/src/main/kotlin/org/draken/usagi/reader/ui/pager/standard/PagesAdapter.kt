@@ -17,12 +17,11 @@ class PagesAdapter(
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
 ) : BaseReaderAdapter<PageHolder>(
-	loader = loader,
-	readerSettingsProducer = readerSettingsProducer,
-	networkState = networkState,
-	exceptionResolver = exceptionResolver,
-) {
-
+		loader = loader,
+		readerSettingsProducer = readerSettingsProducer,
+		networkState = networkState,
+		exceptionResolver = exceptionResolver,
+	) {
 	override fun onCreateViewHolder(
 		parent: ViewGroup,
 		loader: PageLoader,

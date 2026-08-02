@@ -4,25 +4,28 @@ import android.content.Context
 import androidx.preference.PreferenceManager
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
+import tsuki.model.MangaSource
 
-class Migration16To17(context: Context) : Migration(16, 17) {
-
+class Migration16To17(
+	context: Context,
+) : Migration(16, 17) {
 	private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
 	override fun migrate(db: SupportSQLiteDatabase) {
-		db.execSQL("CREATE TABLE `sources` (`source` TEXT NOT NULL, `enabled` INTEGER NOT NULL, `sort_key` INTEGER NOT NULL, PRIMARY KEY(`source`))")
+		db.execSQL(
+			"CREATE TABLE `sources` (`source` TEXT NOT NULL, `enabled` INTEGER NOT NULL, `sort_key` INTEGER NOT NULL, PRIMARY KEY(`source`))",
+		)
 		db.execSQL("CREATE INDEX `index_sources_sort_key` ON `sources` (`sort_key`)")
 		val hiddenSources = prefs.getStringSet("sources_hidden", null).orEmpty()
 		val order = prefs.getString("sources_order_2", null)?.split('|').orEmpty()
-		val sources = MangaParserSource.entries
+		val sources = org.draken.usagi.core.model.MangaSourceRegistry.sources
 		for (source in sources) {
 			val name = source.name
 			val isHidden = name in hiddenSources
 			var sortKey = order.indexOf(name)
 			if (sortKey == -1) {
 				if (isHidden) {
-					sortKey = order.size + source.ordinal
+					sortKey = order.size + sources.indexOf(source)
 				} else {
 					continue
 				}

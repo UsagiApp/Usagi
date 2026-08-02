@@ -25,20 +25,20 @@ fun Response.parseJsonOrNull(): JSONObject? {
 	}
 }
 
-fun Response.ensureSuccess() = apply {
-	if (!isSuccessful || code == HttpURLConnection.HTTP_NO_CONTENT) {
-		closeQuietly()
-		throw HttpStatusException(message, code, request.url.toString())
+fun Response.ensureSuccess() =
+	apply {
+		if (!isSuccessful || code == HttpURLConnection.HTTP_NO_CONTENT) {
+			closeQuietly()
+			throw HttpStatusException(message, code, request.url.toString())
+		}
 	}
-}
 
-fun String.sanitizeHeaderValue(): String {
-	return if (all(Char::isValidForHeaderValue)) {
+fun String.sanitizeHeaderValue(): String =
+	if (all(Char::isValidForHeaderValue)) {
 		this // fast path
 	} else {
 		filter(Char::isValidForHeaderValue)
 	}
-}
 
 private fun Char.isValidForHeaderValue(): Boolean {
 	// from okhttp3.Headers$Companion.checkValue

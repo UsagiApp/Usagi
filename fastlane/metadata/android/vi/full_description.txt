@@ -1,0 +1,27 @@
+Usagi là một ứng dụng đọc truyện mã nguồn mở miễn phí dành cho các thiết bị Android, là một nhánh được lấy cảm hứng từ Kotatsu
+
+
+Các chức năng nổi bật của Usagi so với ứng dụng gốc bao gồm:
+
+- Các dịch vụ vẫn được cập nhật và bảo trì thường xuyên (Máy chủ đồng bộ, Bot, Proxy,...)
+- Cung cấp các bản vá lỗi cho các tính năng đã tồn tại trước đây trên Kotatsu
+- Cung cấp khả năng truy cập bất kì nội dung nào thông qua các tiện ích hỗ trợ bên ngoài
+- Cung cấp nhiều lựa chọn hơn để tùy biến giao diện, tích hợp thêm nhiều kiểu giao diện người dùng mới
+- Được cải thiện để mở rộng khả năng tùy biến / đọc offline với các manga đã tải xuống như PDF, CBZ,...
+- Được tối ưu hóa toàn diện cho các thiết bị cũ / cấu hình thấp, mở rộng hỗ trợ cho các thiết bị Android 5.0+
+- Vượt tường lửa mạng bằng đường hầm siêu nhẹ ngay trong ứng dụng, khả năng truy cập nội dung được mở rộng hơn
+
+Ngoài ra còn có các tính năng chính từ Kotatsu:
+
+- Hỗ trợ 100% tiếng Việt, được phát triển và đóng góp bởi cộng đồng người Việt
+- Tìm kiếm manga với nhiều bộ lọc khác nhau (tên, thể loại,...)
+- Lưu lại manga vào lịch sử khi đọc / đánh dấu trang
+- Mục yêu thích được sắp xếp theo thứ tự do người dùng quản lí
+- Tải và đọc manga ngoại tuyến (không cần mạng). Các tệp lưu trữ manga định dạng CBZ cũng được hỗ trợ!
+- Giao diện rõ ràng, đơn giản, được tối ưu hóa cho cả điện thoại & máy tính bảng
+- Hỗ trợ nhiều chế độ đọc khác nhau: Webtoon; Trái qua phải; Phải qua trái;...
+- Nhận các thông báo khi manga xuất hiện chương mới tại mục Feed của ứng dụng, nhận gợi ý manga (với bộ lọc tùy chọn)
+- Tích hợp các trang giúp theo dõi manga: Shikimori, AniList, MyAnimeList, Kitsu
+- Bảo vệ ứng dụng bằng mật khẩu cá nhân / Sử dụng sinh trắc học (vân tay)
+- Tạo tài khoản giúp đồng bộ lịch sử và mục yêu thích của bạn trên nhiều thiết bị khác nhau
+- Hỗ trợ cho các thiết bị cũ có cấu hình yếu (từ Android 6.0+ trở lên)

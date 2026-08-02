@@ -22,12 +22,11 @@ import org.draken.usagi.core.util.ext.withPartialWakeLock
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.domain.model.LocalManga
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class LocalChaptersRemoveService : CoroutineIntentService() {
-
 	@Inject
 	lateinit var localMangaRepository: LocalMangaRepository
 
@@ -57,48 +56,54 @@ class LocalChaptersRemoveService : CoroutineIntentService() {
 	}
 
 	override fun IntentJobContext.onError(error: Throwable) {
-		val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-			.setContentTitle(getString(R.string.error_occurred))
-			.setPriority(NotificationCompat.PRIORITY_DEFAULT)
-			.setDefaults(0)
-			.setSilent(true)
-			.setContentText(error.getDisplayMessage(resources))
-			.setSmallIcon(android.R.drawable.stat_notify_error)
-			.setAutoCancel(true)
-			.setContentIntent(ErrorReporterReceiver.getPendingIntent(applicationContext, error))
-			.build()
+		val notification =
+			NotificationCompat
+				.Builder(applicationContext, CHANNEL_ID)
+				.setContentTitle(getString(R.string.error_occurred))
+				.setPriority(NotificationCompat.PRIORITY_DEFAULT)
+				.setDefaults(0)
+				.setSilent(true)
+				.setContentText(error.getDisplayMessage(resources))
+				.setSmallIcon(android.R.drawable.stat_notify_error)
+				.setAutoCancel(true)
+		ErrorReporterReceiver.getNotificationAction(applicationContext, error, startId, TAG)?.let { a ->
+			notification.addAction(a)
+		}
 		val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-		nm.notify(NOTIFICATION_ID + startId, notification)
+		nm.notify(NOTIFICATION_ID + startId, notification.build())
 	}
 
 	@SuppressLint("InlinedApi")
 	private fun startForeground(jobContext: IntentJobContext) {
 		val title = getString(R.string.local_manga_processing)
 		val manager = NotificationManagerCompat.from(this)
-		val channel = NotificationChannelCompat.Builder(CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_LOW)
-			.setName(title)
-			.setShowBadge(false)
-			.setVibrationEnabled(false)
-			.setSound(null, null)
-			.setLightsEnabled(false)
-			.build()
+		val channel =
+			NotificationChannelCompat
+				.Builder(CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_LOW)
+				.setName(title)
+				.setShowBadge(false)
+				.setVibrationEnabled(false)
+				.setSound(null, null)
+				.setLightsEnabled(false)
+				.build()
 		manager.createNotificationChannel(channel)
 
-		val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-			.setContentTitle(title)
-			.setPriority(NotificationCompat.PRIORITY_MIN)
-			.setDefaults(0)
-			.setSilent(true)
-			.setProgress(0, 0, true)
-			.setSmallIcon(android.R.drawable.stat_notify_sync)
-			.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFERRED)
-			.setOngoing(false)
-			.build()
+		val notification =
+			NotificationCompat
+				.Builder(this, CHANNEL_ID)
+				.setContentTitle(title)
+				.setPriority(NotificationCompat.PRIORITY_MIN)
+				.setDefaults(0)
+				.setSilent(true)
+				.setProgress(0, 0, true)
+				.setSmallIcon(android.R.drawable.stat_notify_sync)
+				.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFERRED)
+				.setOngoing(false)
+				.build()
 		jobContext.setForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
 	}
 
 	companion object {
-
 		var isRunning: Boolean = false
 			private set
 
@@ -110,7 +115,11 @@ class LocalChaptersRemoveService : CoroutineIntentService() {
 
 		private const val TAG = CHANNEL_ID
 
-		fun start(context: Context, manga: Manga, chaptersIds: Collection<Long>) {
+		fun start(
+			context: Context,
+			manga: Manga,
+			chaptersIds: Collection<Long>,
+		) {
 			if (chaptersIds.isEmpty()) {
 				return
 			}

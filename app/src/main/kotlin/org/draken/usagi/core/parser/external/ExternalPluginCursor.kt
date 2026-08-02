@@ -5,13 +5,16 @@ import android.database.CursorWrapper
 import org.draken.usagi.core.exceptions.IncompatiblePluginException
 import org.draken.usagi.core.util.ext.getBoolean
 
-class ExternalPluginCursor(private val source: ExternalMangaSource, cursor: Cursor) : CursorWrapper(cursor) {
-
-	override fun getColumnIndexOrThrow(columnName: String?): Int = try {
-		super.getColumnIndexOrThrow(columnName)
-	} catch (e: Exception) {
-		throw IncompatiblePluginException(source.name, e)
-	}
+class ExternalPluginCursor(
+	private val source: ExternalMangaSource,
+	cursor: Cursor,
+) : CursorWrapper(cursor) {
+	override fun getColumnIndexOrThrow(columnName: String?): Int =
+		try {
+			super.getColumnIndexOrThrow(columnName)
+		} catch (e: Exception) {
+			throw IncompatiblePluginException(source.name, e)
+		}
 
 	fun getString(columnName: String): String = getString(getColumnIndexOrThrow(columnName))
 
@@ -26,7 +29,10 @@ class ExternalPluginCursor(private val source: ExternalMangaSource, cursor: Curs
 
 	fun getBoolean(columnName: String): Boolean = getBoolean(getColumnIndexOrThrow(columnName))
 
-	fun getBooleanOrDefault(columnName: String, defaultValue: Boolean): Boolean {
+	fun getBooleanOrDefault(
+		columnName: String,
+		defaultValue: Boolean,
+	): Boolean {
 		val columnIndex = getColumnIndex(columnName)
 		return when {
 			columnIndex < 0 -> defaultValue
@@ -37,7 +43,10 @@ class ExternalPluginCursor(private val source: ExternalMangaSource, cursor: Curs
 
 	fun getInt(columnName: String): Int = getInt(getColumnIndexOrThrow(columnName))
 
-	fun getIntOrDefault(columnName: String, defaultValue: Int): Int {
+	fun getIntOrDefault(
+		columnName: String,
+		defaultValue: Int,
+	): Int {
 		val columnIndex = getColumnIndex(columnName)
 		return when {
 			columnIndex < 0 -> defaultValue
@@ -48,7 +57,10 @@ class ExternalPluginCursor(private val source: ExternalMangaSource, cursor: Curs
 
 	fun getLong(columnName: String): Long = getLong(getColumnIndexOrThrow(columnName))
 
-	fun getLongOrDefault(columnName: String, defaultValue: Long): Long {
+	fun getLongOrDefault(
+		columnName: String,
+		defaultValue: Long,
+	): Long {
 		val columnIndex = getColumnIndex(columnName)
 		return when {
 			columnIndex < 0 -> defaultValue
@@ -59,7 +71,10 @@ class ExternalPluginCursor(private val source: ExternalMangaSource, cursor: Curs
 
 	fun getFloat(columnName: String): Float = getFloat(getColumnIndexOrThrow(columnName))
 
-	fun getFloatOrDefault(columnName: String, defaultValue: Float): Float {
+	fun getFloatOrDefault(
+		columnName: String,
+		defaultValue: Float,
+	): Float {
 		val columnIndex = getColumnIndex(columnName)
 		return when {
 			columnIndex < 0 -> defaultValue

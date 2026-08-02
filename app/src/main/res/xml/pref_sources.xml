@@ -14,23 +14,35 @@
         android:key="sources_grid"
         android:title="@string/show_in_grid_view" />
 
+	<PreferenceScreen
+		android:fragment="org.draken.usagi.settings.sources.manage.plugins.PluginsManageFragment"
+		android:key="plugins_manager"
+		android:persistent="false"
+		android:title="@string/manage_plugins" />
+
     <PreferenceScreen
         android:fragment="org.draken.usagi.settings.sources.manage.SourcesManageFragment"
         android:key="remote_sources"
         android:persistent="false"
         android:title="@string/manage_sources" />
 
-    <SwitchPreferenceCompat
-        android:defaultValue="false"
-        android:key="sources_enabled_all"
-        android:summary="@string/enable_all_sources_summary"
-        android:title="@string/enable_all_sources"
-        app:allowDividerAbove="true" />
-
     <Preference
         android:key="sources_catalog"
         android:persistent="false"
         android:title="@string/sources_catalog" />
+
+	<SwitchPreferenceCompat
+		android:defaultValue="false"
+		android:key="auto_plugins"
+		android:summary="@string/auto_update_plugins_summary"
+		android:title="@string/auto_update_plugins"
+		app:allowDividerAbove="true" />
+
+	<SwitchPreferenceCompat
+		android:defaultValue="false"
+		android:key="sources_enabled_all"
+		android:summary="@string/enable_all_sources_summary"
+		android:title="@string/enable_all_sources" />
 
     <SwitchPreferenceCompat
         android:defaultValue="false"

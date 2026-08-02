@@ -32,7 +32,6 @@ class FavouritesCategoryEditActivity :
 	AdapterView.OnItemClickListener,
 	View.OnClickListener,
 	DefaultTextWatcher {
-
 	private val viewModel by viewModels<FavouritesCategoryEditViewModel>()
 	private var selectedSortOrder: ListSortOrder? = null
 	private val sortOrders = ListSortOrder.FAVORITES.sortedByOrdinal()
@@ -57,7 +56,7 @@ class FavouritesCategoryEditActivity :
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		viewBinding.root.setPadding(
@@ -83,12 +82,18 @@ class FavouritesCategoryEditActivity :
 
 	override fun onClick(v: View) {
 		when (v.id) {
-			R.id.button_done -> viewModel.save(
-				title = viewBinding.editName.text?.toString()?.trim().orEmpty(),
-				sortOrder = getSelectedSortOrder(),
-				isTrackerEnabled = viewBinding.switchTracker.isChecked,
-				isVisibleOnShelf = viewBinding.switchShelf.isChecked,
-			)
+			R.id.button_done -> {
+				viewModel.save(
+					title =
+						viewBinding.editName.text
+							?.toString()
+							?.trim()
+							.orEmpty(),
+					sortOrder = getSelectedSortOrder(),
+					isTrackerEnabled = viewBinding.switchTracker.isChecked,
+					isVisibleOnShelf = viewBinding.switchShelf.isChecked,
+				)
+			}
 		}
 	}
 
@@ -96,7 +101,12 @@ class FavouritesCategoryEditActivity :
 		viewBinding.buttonDone.isEnabled = !s.isNullOrBlank() && !viewModel.isLoading.value
 	}
 
-	override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+	override fun onItemClick(
+		parent: AdapterView<*>?,
+		view: View?,
+		position: Int,
+		id: Long,
+	) {
 		selectedSortOrder = sortOrders.getOrNull(position)
 	}
 
@@ -147,17 +157,19 @@ class FavouritesCategoryEditActivity :
 		context: Context,
 		entries: List<String>,
 	) : ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item, entries) {
-
 		override fun getFilter(): Filter = EmptyFilter
 
 		private object EmptyFilter : Filter() {
 			override fun performFiltering(constraint: CharSequence?) = FilterResults()
-			override fun publishResults(constraint: CharSequence?, results: FilterResults?) = Unit
+
+			override fun publishResults(
+				constraint: CharSequence?,
+				results: FilterResults?,
+			) = Unit
 		}
 	}
 
 	companion object {
-
 		const val NO_ID = -1L
 		private const val KEY_SORT_ORDER = "sort"
 	}

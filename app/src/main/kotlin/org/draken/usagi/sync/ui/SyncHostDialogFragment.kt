@@ -16,34 +16,34 @@ import org.draken.usagi.core.ui.AlertDialogFragment
 import org.draken.usagi.core.util.ext.isHttpUrl
 import org.draken.usagi.core.util.ext.withArgs
 import org.draken.usagi.databinding.PreferenceDialogAutocompletetextviewBinding
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
 import org.draken.usagi.settings.utils.validation.UrlValidator
 import org.draken.usagi.sync.data.SyncSettings
+import tsuki.util.ifNullOrEmpty
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SyncHostDialogFragment : AlertDialogFragment<PreferenceDialogAutocompletetextviewBinding>(),
+class SyncHostDialogFragment :
+	AlertDialogFragment<PreferenceDialogAutocompletetextviewBinding>(),
 	DialogInterface.OnClickListener {
-
 	@Inject
 	lateinit var syncSettings: SyncSettings
 
 	override fun onCreateViewBinding(
 		inflater: LayoutInflater,
-		container: ViewGroup?
+		container: ViewGroup?,
 	) = PreferenceDialogAutocompletetextviewBinding.inflate(inflater, container, false)
 
-	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder {
-		return super.onBuildDialog(builder)
+	override fun onBuildDialog(builder: MaterialAlertDialogBuilder): MaterialAlertDialogBuilder =
+		super
+			.onBuildDialog(builder)
 			.setPositiveButton(android.R.string.ok, this)
 			.setNegativeButton(android.R.string.cancel, this)
 			.setCancelable(false)
 			.setTitle(R.string.server_address)
-	}
 
 	override fun onViewBindingCreated(
 		binding: PreferenceDialogAutocompletetextviewBinding,
-		savedInstanceState: Bundle?
+		savedInstanceState: Bundle?,
 	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		binding.message.updateLayoutParams<MarginLayoutParams> {
@@ -62,10 +62,17 @@ class SyncHostDialogFragment : AlertDialogFragment<PreferenceDialogAutocompletet
 		UrlValidator().attachToEditText(editText)
 	}
 
-	override fun onClick(dialog: DialogInterface, which: Int) {
+	override fun onClick(
+		dialog: DialogInterface,
+		which: Int,
+	) {
 		when (which) {
 			DialogInterface.BUTTON_POSITIVE -> {
-				val result = requireViewBinding().edit.text?.toString().orEmpty()
+				val result =
+					requireViewBinding()
+						.edit.text
+						?.toString()
+						.orEmpty()
 				var scheme = ""
 				if (!result.isHttpUrl()) {
 					scheme = "http://"
@@ -78,13 +85,16 @@ class SyncHostDialogFragment : AlertDialogFragment<PreferenceDialogAutocompletet
 	}
 
 	companion object {
-
 		private const val TAG = "SyncHostDialogFragment"
 		const val REQUEST_KEY = "host"
 		const val KEY_SYNC_URL = "host"
 
-		fun show(fm: FragmentManager, syncURL: String?) = SyncHostDialogFragment().withArgs(1) {
-			putString(KEY_SYNC_URL, syncURL)
-		}.show(fm, TAG)
+		fun show(
+			fm: FragmentManager,
+			syncURL: String?,
+		) = SyncHostDialogFragment()
+			.withArgs(1) {
+				putString(KEY_SYNC_URL, syncURL)
+			}.show(fm, TAG)
 	}
 }

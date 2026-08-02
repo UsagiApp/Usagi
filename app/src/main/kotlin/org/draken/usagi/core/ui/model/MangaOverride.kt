@@ -1,6 +1,6 @@
 package org.draken.usagi.core.ui.model
 
-import org.koitharu.kotatsu.parsers.model.ContentRating
+import tsuki.model.ContentRating
 
 data class MangaOverride(
 	val coverUrl: String?,

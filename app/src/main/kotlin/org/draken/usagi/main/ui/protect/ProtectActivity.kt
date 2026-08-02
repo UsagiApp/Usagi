@@ -43,7 +43,6 @@ class ProtectActivity :
 	DefaultTextWatcher,
 	View.OnClickListener,
 	AuthenticationResultCallback {
-
 	private val viewModel by viewModels<ProtectViewModel>()
 	private var canUseBiometric = false
 
@@ -58,11 +57,12 @@ class ProtectActivity :
 		viewBinding.buttonNext.setOnClickListener(this)
 		viewBinding.buttonCancel.setOnClickListener(this)
 
-		viewBinding.editPassword.inputType = if (viewModel.isNumericPassword) {
-			EditorInfo.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD
-		} else {
-			EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
-		}
+		viewBinding.editPassword.inputType =
+			if (viewModel.isNumericPassword) {
+				EditorInfo.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD
+			} else {
+				EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
+			}
 
 		viewModel.onError.observeEvent(this, this::onError)
 		viewModel.isLoading.observe(this, this::onLoadingStateChanged)
@@ -82,7 +82,10 @@ class ProtectActivity :
 		}
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		val basePadding = resources.getDimensionPixelOffset(R.dimen.screen_padding)
 		viewBinding.root.setPadding(
@@ -96,20 +99,35 @@ class ProtectActivity :
 
 	override fun onClick(v: View) {
 		when (v.id) {
-			R.id.button_next -> viewModel.tryUnlock(viewBinding.editPassword.text?.toString().orEmpty())
-			R.id.button_cancel -> finish()
-			materialR.id.text_input_end_icon -> useFingerprint()
+			R.id.button_next -> {
+				viewModel.tryUnlock(
+					viewBinding.editPassword.text
+						?.toString()
+						.orEmpty(),
+				)
+			}
+
+			R.id.button_cancel -> {
+				finish()
+			}
+
+			materialR.id.text_input_end_icon -> {
+				useFingerprint()
+			}
 		}
 	}
 
-	override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
-		return if (actionId == EditorInfo.IME_ACTION_DONE && viewBinding.buttonNext.isEnabled) {
+	override fun onEditorAction(
+		v: TextView?,
+		actionId: Int,
+		event: KeyEvent?,
+	): Boolean =
+		if (actionId == EditorInfo.IME_ACTION_DONE && viewBinding.buttonNext.isEnabled) {
 			viewBinding.buttonNext.performClick()
 			true
 		} else {
 			false
 		}
-	}
 
 	override fun afterTextChanged(s: Editable?) {
 		viewBinding.layoutPassword.error = null
@@ -138,43 +156,46 @@ class ProtectActivity :
 		if (BiometricManager.from(this).canAuthenticate(BIOMETRIC_WEAK) != BIOMETRIC_SUCCESS) {
 			return false
 		}
-		val request = AuthenticationRequest.biometricRequest(
-			title = getString(R.string.app_name),
-			authFallback = Biometric.Fallback.NegativeButton(getString(android.R.string.cancel)),
-			init = {
-				setMinStrength(Biometric.Strength.Class2)
-				setIsConfirmationRequired(false)
-			},
-		)
+		val request =
+			AuthenticationRequest.biometricRequest(
+				title = getString(R.string.app_name),
+				authFallback = Biometric.Fallback.NegativeButton(getString(android.R.string.cancel)),
+				init = {
+					setMinStrength(Biometric.Strength.Class2)
+					setIsConfirmationRequired(false)
+				},
+			)
 		biometricPrompt.launch(request)
 		return true
 	}
 
-	private fun updateEndIcon() = with(viewBinding.layoutPassword) {
-		val isFingerprintIcon = canUseBiometric && viewBinding.editPassword.text.isNullOrEmpty()
-		if (isFingerprintIcon == (endIconMode == TextInputLayout.END_ICON_CUSTOM)) {
-			return@with
+	private fun updateEndIcon() =
+		with(viewBinding.layoutPassword) {
+			val isFingerprintIcon = canUseBiometric && viewBinding.editPassword.text.isNullOrEmpty()
+			if (isFingerprintIcon == (endIconMode == TextInputLayout.END_ICON_CUSTOM)) {
+				return@with
+			}
+			if (isFingerprintIcon) {
+				endIconMode = TextInputLayout.END_ICON_CUSTOM
+				setEndIconDrawable(androidx.biometric.R.drawable.fingerprint_dialog_fp_icon)
+				endIconContentDescription = getString(androidx.biometric.R.string.use_biometric_label)
+				setEndIconOnClickListener(this@ProtectActivity)
+			} else {
+				setEndIconOnClickListener(null)
+				setEndIconDrawable(0)
+				endIconContentDescription = null
+				endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
+			}
 		}
-		if (isFingerprintIcon) {
-			endIconMode = TextInputLayout.END_ICON_CUSTOM
-			setEndIconDrawable(androidx.biometric.R.drawable.fingerprint_dialog_fp_icon)
-			endIconContentDescription = getString(androidx.biometric.R.string.use_biometric_label)
-			setEndIconOnClickListener(this@ProtectActivity)
-		} else {
-			setEndIconOnClickListener(null)
-			setEndIconDrawable(0)
-			endIconContentDescription = null
-			endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
-		}
-	}
 
 	companion object {
-
 		private const val EXTRA_INTENT = "src_intent"
 
-		fun newIntent(context: Context, sourceIntent: Intent): Intent {
-			return Intent(context, ProtectActivity::class.java)
+		fun newIntent(
+			context: Context,
+			sourceIntent: Intent,
+		): Intent =
+			Intent(context, ProtectActivity::class.java)
 				.putExtra(EXTRA_INTENT, sourceIntent)
-		}
 	}
 }

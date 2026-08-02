@@ -9,8 +9,5 @@ data class InfoModel(
 	@StringRes val text: Int,
 	@DrawableRes val icon: Int,
 ) : ListModel {
-
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is InfoModel && other.key == key
-	}
+	override fun areItemsTheSame(other: ListModel): Boolean = other is InfoModel && other.key == key
 }

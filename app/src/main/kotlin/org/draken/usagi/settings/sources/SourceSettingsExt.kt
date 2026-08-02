@@ -6,111 +6,158 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import eu.kanade.tachiyomi.source.ConfigurableSource
+import eu.kanade.tachiyomi.source.online.HttpSource
+import eu.kanade.tachiyomi.source.preferenceKey
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiSourceSettings
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.EmptyMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
-import org.koitharu.kotatsu.parsers.config.ConfigKey
-import org.koitharu.kotatsu.parsers.network.UserAgents
-import org.koitharu.kotatsu.parsers.util.mapToArray
+import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
+import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.settings.utils.AutoCompleteTextViewPreference
 import org.draken.usagi.settings.utils.EditTextBindListener
 import org.draken.usagi.settings.utils.EditTextDefaultSummaryProvider
 import org.draken.usagi.settings.utils.validation.DomainValidator
 import org.draken.usagi.settings.utils.validation.HeaderValidator
+import tsuki.config.ConfigKey
+import tsuki.network.UserAgents
+import tsuki.util.mapToArray
 
-fun PreferenceFragmentCompat.addPreferencesFromRepository(repository: MangaRepository) = when (repository) {
-	is ParserMangaRepository -> addPreferencesFromParserRepository(repository)
-	is EmptyMangaRepository -> addPreferencesFromEmptyRepository()
-	else -> Unit
+fun PreferenceFragmentCompat.addPreferencesFromRepository(repository: MangaRepository) =
+	when (repository) {
+		is MangaParserRepository -> addPreferencesFromParserRepository(repository)
+		is ExternalMangaRepository -> addPreferences(repository)
+		is EmptyMangaRepository -> addPreferencesFromEmptyRepository()
+		else -> Unit
+	}
+
+private fun PreferenceFragmentCompat.addPreferences(repository: ExternalMangaRepository) {
+	val configurableSource = repository.external as? ConfigurableSource
+	if (configurableSource != null) {
+		preferenceManager.sharedPreferencesName = configurableSource.preferenceKey()
+	}
+	// Let extension add its preferences first
+	configurableSource?.setupPreferenceScreen(preferenceScreen)
+	// Remove extension's domain preference if it added one — Usagi replaces it
+	TachiyomiSourceSettings.mergeDomainPreference(requireContext(), repository.source)
+	for (key in arrayOf(TachiyomiSourceSettings.KEY_DOMAIN, TachiyomiSourceSettings.KEY_OVERRIDE_BASE_URL)) {
+		preferenceScreen.findPreference<Preference>(key)?.let { it.parent?.removePreference(it) }
+	}
+	// Add Usagi's EditTextPreference last so key lookup always returns it
+	addDomainPreferences(repository)
 }
 
-private fun PreferenceFragmentCompat.addPreferencesFromParserRepository(repository: ParserMangaRepository) {
+private fun PreferenceFragmentCompat.addDomainPreferences(repository: ExternalMangaRepository) {
+	val httpSource = repository.external as? HttpSource ?: return
+	val baseDomain =
+		httpSource.baseUrl
+			.removePrefix("https://")
+			.removePrefix("http://")
+			.substringBefore('/')
+	EditTextPreference(preferenceScreen.context).apply {
+		key = SourceSettings.KEY_DOMAIN
+		order = 5
+		isIconSpaceReserved = false
+		summaryProvider = EditTextDefaultSummaryProvider(baseDomain)
+		setOnBindEditTextListener(
+			EditTextBindListener(
+				inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_URI,
+				hint = baseDomain,
+				validator = DomainValidator(),
+			),
+		)
+		setTitle(R.string.domain)
+		setDialogTitle(R.string.domain)
+		preferenceScreen.addPreference(this)
+	}
+}
+
+private fun PreferenceFragmentCompat.addPreferencesFromParserRepository(repository: MangaParserRepository) {
 	addPreferencesFromResource(R.xml.pref_source_parser)
 	val configKeys = repository.getConfigKeys()
 	val screen = preferenceScreen
 	for (key in configKeys) {
-		val preference: Preference? = when (key) {
-			is ConfigKey.Domain -> {
-				val presetValues = key.presetValues
-				if (presetValues.size <= 1) {
-					EditTextPreference(screen.context)
-				} else {
+		val preference: Preference =
+			when (key) {
+				is ConfigKey.Domain -> {
+					val presetValues = key.presetValues
+					if (presetValues.size <= 1) {
+						EditTextPreference(screen.context)
+					} else {
+						AutoCompleteTextViewPreference(screen.context).apply {
+							entries = presetValues.toStringArray()
+						}
+					}.apply {
+						summaryProvider = EditTextDefaultSummaryProvider(key.defaultValue)
+						setOnBindEditTextListener(
+							EditTextBindListener(
+								inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_URI,
+								hint = key.defaultValue,
+								validator = DomainValidator(),
+							),
+						)
+						setTitle(R.string.domain)
+						setDialogTitle(R.string.domain)
+					}
+				}
+
+				is ConfigKey.UserAgent -> {
 					AutoCompleteTextViewPreference(screen.context).apply {
-						entries = presetValues.toStringArray()
+						entries =
+							arrayOf(
+								UserAgents.FIREFOX_MOBILE,
+								UserAgents.CHROME_MOBILE,
+								UserAgents.FIREFOX_DESKTOP,
+								UserAgents.CHROME_DESKTOP,
+							)
+						summaryProvider = EditTextDefaultSummaryProvider(key.defaultValue)
+						setOnBindEditTextListener(
+							EditTextBindListener(
+								inputType = EditorInfo.TYPE_CLASS_TEXT,
+								hint = key.defaultValue,
+								validator = HeaderValidator(),
+							),
+						)
+						setTitle(R.string.user_agent)
+						setDialogTitle(R.string.user_agent)
 					}
-				}.apply {
-					summaryProvider = EditTextDefaultSummaryProvider(key.defaultValue)
-					setOnBindEditTextListener(
-						EditTextBindListener(
-							inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_URI,
-							hint = key.defaultValue,
-							validator = DomainValidator(),
-						),
-					)
-					setTitle(R.string.domain)
-					setDialogTitle(R.string.domain)
 				}
-			}
 
-			is ConfigKey.UserAgent -> {
-				AutoCompleteTextViewPreference(screen.context).apply {
-					entries = arrayOf(
-						UserAgents.FIREFOX_MOBILE,
-						UserAgents.CHROME_MOBILE,
-						UserAgents.FIREFOX_DESKTOP,
-						UserAgents.CHROME_DESKTOP,
-					)
-					summaryProvider = EditTextDefaultSummaryProvider(key.defaultValue)
-					setOnBindEditTextListener(
-						EditTextBindListener(
-							inputType = EditorInfo.TYPE_CLASS_TEXT,
-							hint = key.defaultValue,
-							validator = HeaderValidator(),
-						),
-					)
-					setTitle(R.string.user_agent)
-					setDialogTitle(R.string.user_agent)
-				}
-			}
-
-			is ConfigKey.ShowSuspiciousContent -> {
-				SwitchPreferenceCompat(screen.context).apply {
-					setDefaultValue(key.defaultValue)
-					setTitle(R.string.show_suspicious_content)
-				}
-			}
-
-			is ConfigKey.SplitByTranslations -> {
-				SwitchPreferenceCompat(screen.context).apply {
-					setDefaultValue(key.defaultValue)
-					setTitle(R.string.split_by_translations)
-					setSummary(R.string.split_by_translations_summary)
-				}
-			}
-
-			is ConfigKey.PreferredImageServer -> {
-				ListPreference(screen.context).apply {
-					entries = key.presetValues.values.mapToArray {
-						it ?: context.getString(R.string.automatic)
+				is ConfigKey.ShowSuspiciousContent -> {
+					SwitchPreferenceCompat(screen.context).apply {
+						setDefaultValue(key.defaultValue)
+						setTitle(R.string.show_suspicious_content)
 					}
-					entryValues = key.presetValues.keys.mapToArray { it.orEmpty() }
-					setDefaultValue(key.defaultValue.orEmpty())
-					setTitle(R.string.image_server)
-					setDialogTitle(R.string.image_server)
-					summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
+				}
+
+				is ConfigKey.SplitByTranslations -> {
+					SwitchPreferenceCompat(screen.context).apply {
+						setDefaultValue(key.defaultValue)
+						setTitle(R.string.split_by_translations)
+						setSummary(R.string.split_by_translations_summary)
+					}
+				}
+
+				is ConfigKey.PreferredImageServer -> {
+					ListPreference(screen.context).apply {
+						entries =
+							key.presetValues.values.mapToArray {
+								it ?: context.getString(R.string.automatic)
+							}
+						entryValues = key.presetValues.keys.mapToArray { it.orEmpty() }
+						setDefaultValue(key.defaultValue.orEmpty())
+						setTitle(R.string.image_server)
+						setDialogTitle(R.string.image_server)
+						summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
+					}
 				}
 			}
-
-			is ConfigKey.UserInput -> null
-		}
-
-		if (preference != null) {
-			preference.isIconSpaceReserved = false
-			preference.key = key.key
-			preference.order = 10
-			screen.addPreference(preference)
-		}
+		preference.isIconSpaceReserved = false
+		preference.key = key.key
+		preference.order = 10
+		screen.addPreference(preference)
 	}
 }
 
@@ -124,6 +171,4 @@ private fun PreferenceFragmentCompat.addPreferencesFromEmptyRepository() {
 	preferenceScreen.addPreference(preference)
 }
 
-private fun Array<out String?>.toStringArray(): Array<String> {
-	return Array(size) { i -> this[i].orEmpty() }
-}
+private fun Array<out String?>.toStringArray(): Array<String> = Array(size) { i -> this[i].orEmpty() }

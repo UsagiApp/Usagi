@@ -11,7 +11,6 @@ import java.util.Date
 import java.util.Locale
 
 object BackupUtils {
-
 	private const val DIR_BACKUPS = "backups"
 	private val dateTimeFormat = SimpleDateFormat("yyyyMMdd-HHmm")
 
@@ -22,21 +21,24 @@ object BackupUtils {
 		return File(dir, generateFileName(context))
 	}
 
-	fun getAppBackupDir(context: Context) = context.run {
-		getExternalFilesDir(DIR_BACKUPS) ?: File(filesDir, DIR_BACKUPS)
-	}
+	fun getAppBackupDir(context: Context) =
+		context.run {
+			getExternalFilesDir(DIR_BACKUPS) ?: File(filesDir, DIR_BACKUPS)
+		}
 
-	fun parseBackupDateTime(fileName: String): Date? = try {
-		dateTimeFormat.parse(fileName.substringAfterLast('_').substringBefore('.'))
-	} catch (e: ParseException) {
-		e.printStackTraceDebug()
-		null
-	}
+	fun parseBackupDateTime(fileName: String): Date? =
+		try {
+			dateTimeFormat.parse(fileName.substringAfterLast('_').substringBefore('.'))
+		} catch (e: ParseException) {
+			e.printStackTraceDebug()
+			null
+		}
 
-	fun generateFileName(context: Context) = buildString {
-		append(context.getString(R.string.app_name).replace(' ', '_').lowercase(Locale.ROOT))
-		append('_')
-		append(dateTimeFormat.format(Date()))
-		append(".bk.zip")
-	}
+	fun generateFileName(context: Context) =
+		buildString {
+			append(context.getString(R.string.app_name).replace(' ', '_').lowercase(Locale.ROOT))
+			append('_')
+			append(dateTimeFormat.format(Date()))
+			append(".bk.zip")
+		}
 }

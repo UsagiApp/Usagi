@@ -10,7 +10,6 @@ import org.draken.usagi.scrobbling.common.domain.model.ScrobblingInfo
 class ScrobblingMangaAdapter(
 	clickListener: OnListItemClickListener<ScrobblingInfo>,
 ) : BaseListAdapter<ListModel>() {
-
 	init {
 		addDelegate(ListItemType.HEADER, scrobblingHeaderAD())
 		addDelegate(ListItemType.STATE_EMPTY, emptyStateListAD(null))

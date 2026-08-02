@@ -28,8 +28,9 @@ fun RecyclerView.removeItemDecoration(cls: Class<out RecyclerView.ItemDecoration
 }
 
 var RecyclerView.firstVisibleItemPosition: Int
-	get() = (layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition()
-		?: RecyclerView.NO_POSITION
+	get() =
+		(layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition()
+			?: RecyclerView.NO_POSITION
 	set(value) {
 		if (value != RecyclerView.NO_POSITION) {
 			(layoutManager as? LinearLayoutManager)?.scrollToPositionWithOffset(value, 0)
@@ -37,16 +38,18 @@ var RecyclerView.firstVisibleItemPosition: Int
 	}
 
 val RecyclerView.visibleItemCount: Int
-	get() = (layoutManager as? LinearLayoutManager)?.run {
-		findLastVisibleItemPosition() - findFirstVisibleItemPosition()
-	} ?: 0
+	get() =
+		(layoutManager as? LinearLayoutManager)?.run {
+			findLastVisibleItemPosition() - findFirstVisibleItemPosition()
+		} ?: 0
 
 fun <T> RecyclerView.ViewHolder.getItem(clazz: Class<T>): T? {
-	val rawItem = when (this) {
-		is AdapterDelegateViewBindingViewHolder<*, *> -> item
-		is AdapterDelegateViewHolder<*> -> item
-		else -> null
-	} ?: return null
+	val rawItem =
+		when (this) {
+			is AdapterDelegateViewBindingViewHolder<*, *> -> item
+			is AdapterDelegateViewHolder<*> -> item
+			else -> null
+		} ?: return null
 	return if (clazz.isAssignableFrom(rawItem.javaClass)) {
 		clazz.cast(rawItem)
 	} else {
@@ -64,18 +67,20 @@ val RecyclerView.isScrolledToTop: Boolean
 	}
 
 val RecyclerView.LayoutManager?.firstVisibleItemPosition
-	get() = when (this) {
-		is LinearLayoutManager -> findFirstVisibleItemPosition()
-		is StaggeredGridLayoutManager -> findFirstVisibleItemPositions(null)[0]
-		else -> 0
-	}
+	get() =
+		when (this) {
+			is LinearLayoutManager -> findFirstVisibleItemPosition()
+			is StaggeredGridLayoutManager -> findFirstVisibleItemPositions(null)[0]
+			else -> 0
+		}
 
 val RecyclerView.LayoutManager?.isLayoutReversed
-	get() = when (this) {
-		is LinearLayoutManager -> reverseLayout
-		is StaggeredGridLayoutManager -> reverseLayout
-		else -> false
-	}
+	get() =
+		when (this) {
+			is LinearLayoutManager -> reverseLayout
+			is StaggeredGridLayoutManager -> reverseLayout
+			else -> false
+		}
 
 // https://medium.com/flat-pack-tech/quickly-scroll-to-the-top-of-a-recyclerview-da15b717f3c4
 fun RecyclerView.smoothScrollToTop() {
@@ -86,14 +91,14 @@ fun RecyclerView.smoothScrollToTop() {
 		return
 	}
 
-	val smoothScroller = object : LinearSmoothScroller(context) {
-		init {
-			targetPosition = 0
-		}
+	val smoothScroller =
+		object : LinearSmoothScroller(context) {
+			init {
+				targetPosition = 0
+			}
 
-		override fun calculateSpeedPerPixel(displayMetrics: DisplayMetrics?) =
-			super.calculateSpeedPerPixel(displayMetrics) / DEFAULT_SPEED_FACTOR
-	}
+			override fun calculateSpeedPerPixel(displayMetrics: DisplayMetrics?) = super.calculateSpeedPerPixel(displayMetrics) / DEFAULT_SPEED_FACTOR
+		}
 
 	val jumpBeforeScroll = layoutManager.findFirstVisibleItemPosition() > DEFAULT_JUMP_THRESHOLD
 	if (jumpBeforeScroll) {

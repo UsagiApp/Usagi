@@ -6,12 +6,13 @@ import okhttp3.Response
 import java.util.concurrent.TimeUnit
 
 class CacheLimitInterceptor : Interceptor {
-
 	private val defaultMaxAge = TimeUnit.HOURS.toSeconds(1)
-	private val defaultCacheControl = CacheControl.Builder()
-		.maxAge(defaultMaxAge.toInt(), TimeUnit.SECONDS)
-		.build()
-		.toString()
+	private val defaultCacheControl =
+		CacheControl
+			.Builder()
+			.maxAge(defaultMaxAge.toInt(), TimeUnit.SECONDS)
+			.build()
+			.toString()
 
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val response = chain.proceed(chain.request())
@@ -19,7 +20,8 @@ class CacheLimitInterceptor : Interceptor {
 		if (responseCacheControl.noStore || responseCacheControl.maxAgeSeconds <= defaultMaxAge) {
 			return response
 		}
-		return response.newBuilder()
+		return response
+			.newBuilder()
 			.header(CommonHeaders.CACHE_CONTROL, defaultCacheControl)
 			.build()
 	}

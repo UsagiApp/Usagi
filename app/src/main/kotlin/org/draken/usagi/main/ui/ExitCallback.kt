@@ -17,12 +17,13 @@ import org.draken.usagi.R
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.main.ui.owners.BottomNavOwner
+import kotlin.time.Duration.Companion.milliseconds
 
 class ExitCallback(
 	private val activity: MainActivity,
 	private val snackbarHost: View,
-) : OnBackPressedCallback(false), SearchView.TransitionListener {
-
+) : OnBackPressedCallback(false),
+	SearchView.TransitionListener {
 	private var job: Job? = null
 	private val isSearchOpen = MutableStateFlow(activity.viewBinding.searchView.isShowing)
 	private val isDisabledByTimeout = MutableStateFlow(false)
@@ -43,15 +44,16 @@ class ExitCallback(
 
 	override fun handleOnBackPressed() {
 		job?.cancel()
-		job = activity.lifecycleScope.launch {
-			resetExitConfirmation()
-		}
+		job =
+			activity.lifecycleScope.launch {
+				resetExitConfirmation()
+			}
 	}
 
 	override fun onStateChanged(
 		searchView: SearchView,
 		previousState: SearchView.TransitionState,
-		newState: SearchView.TransitionState
+		newState: SearchView.TransitionState,
 	) {
 		isSearchOpen.value = newState >= SearchView.TransitionState.SHOWING
 	}
@@ -59,14 +61,20 @@ class ExitCallback(
 	private suspend fun resetExitConfirmation() {
 		isDisabledByTimeout.value = true
 		val snackbar = Snackbar.make(snackbarHost, R.string.confirm_exit, Snackbar.LENGTH_INDEFINITE)
-		snackbar.anchorView = (activity as? BottomNavOwner)?.bottomNav
+		snackbar.anchorView =
+			if (activity.settings.isFloatingNav) {
+				activity.viewBinding.floatingNavContainer
+			} else {
+				(activity as? BottomNavOwner)?.bottomNav
+			}
 		snackbar.show()
-		delay(2000)
+		delay(2000.milliseconds)
 		snackbar.dismiss()
 		isDisabledByTimeout.value = false
 	}
 
-	private fun observeSettings(): Flow<Boolean> = activity.settings
-		.observeAsFlow(AppSettings.KEY_EXIT_CONFIRM) { isExitConfirmationEnabled }
-		.flowOn(Dispatchers.Default)
+	private fun observeSettings(): Flow<Boolean> =
+		activity.settings
+			.observeAsFlow(AppSettings.KEY_EXIT_CONFIRM) { isExitConfirmationEnabled }
+			.flowOn(Dispatchers.Default)
 }

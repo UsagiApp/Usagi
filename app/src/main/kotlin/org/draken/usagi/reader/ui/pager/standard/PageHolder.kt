@@ -37,14 +37,15 @@ open class PageHolder(
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
 ) : BasePageHolder<ItemPageBinding>(
-	binding = binding,
-	loader = loader,
-	readerSettingsProducer = readerSettingsProducer,
-	networkState = networkState,
-	exceptionResolver = exceptionResolver,
-	lifecycleOwner = owner,
-), ZoomControl.ZoomControlListener, OnApplyWindowInsetsListener {
-
+		binding = binding,
+		loader = loader,
+		readerSettingsProducer = readerSettingsProducer,
+		networkState = networkState,
+		exceptionResolver = exceptionResolver,
+		lifecycleOwner = owner,
+	),
+	ZoomControl.ZoomControlListener,
+	OnApplyWindowInsetsListener {
 	override val ssiv = binding.ssiv
 
 	init {
@@ -53,7 +54,7 @@ open class PageHolder(
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 			insets.toWindowInsets()?.let {
@@ -75,10 +76,11 @@ open class PageHolder(
 	}
 
 	override fun onReady() {
-		binding.ssiv.maxScale = 2f * maxOf(
-			binding.ssiv.width / binding.ssiv.sWidth.toFloat(),
-			binding.ssiv.height / binding.ssiv.sHeight.toFloat(),
-		)
+		binding.ssiv.maxScale = 2f *
+			maxOf(
+				binding.ssiv.width / binding.ssiv.sWidth.toFloat(),
+				binding.ssiv.height / binding.ssiv.sHeight.toFloat(),
+			)
 		binding.ssiv.colorFilter = settings.colorFilter?.toColorFilter()
 		when (settings.zoomMode) {
 			ZoomMode.FIT_CENTER -> {
@@ -128,19 +130,20 @@ open class PageHolder(
 		binding.textViewNumber.updateLayoutParams<FrameLayout.LayoutParams> {
 			val baseMargin = context.resources.getDimensionPixelOffset(R.dimen.margin_small)
 			val absoluteGravity = Gravity.getAbsoluteGravity(gravity, layoutDirection)
-			val corner = when {
-				absoluteGravity and Gravity.LEFT == Gravity.LEFT -> {
-					insets.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT)
-				}
+			val corner =
+				when {
+					absoluteGravity and Gravity.LEFT == Gravity.LEFT -> {
+						insets.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT)
+					}
 
-				absoluteGravity and Gravity.RIGHT == Gravity.RIGHT -> {
-					insets.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_RIGHT)
-				}
+					absoluteGravity and Gravity.RIGHT == Gravity.RIGHT -> {
+						insets.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_RIGHT)
+					}
 
-				else -> {
-					null
+					else -> {
+						null
+					}
 				}
-			}
 			setMargins(baseMargin + (corner?.radius ?: 0))
 		}
 	}

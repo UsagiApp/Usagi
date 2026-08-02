@@ -15,17 +15,17 @@ import org.draken.usagi.tracker.data.TrackLogWithManga
 
 @Dao
 abstract class TrackLogsDao : MangaQueryBuilder.ConditionCallback {
-
 	fun observeAll(
 		limit: Int,
 		filterOptions: Set<ListFilterOption>,
-	): Flow<List<TrackLogWithManga>> = observeAllImpl(
-		MangaQueryBuilder("track_logs", this)
-			.filters(filterOptions)
-			.limit(limit)
-			.orderBy("created_at DESC")
-			.build(),
-	)
+	): Flow<List<TrackLogWithManga>> =
+		observeAllImpl(
+			MangaQueryBuilder("track_logs", this)
+				.filters(filterOptions)
+				.limit(limit)
+				.orderBy("created_at DESC")
+				.build(),
+		)
 
 	@Query("SELECT COUNT(*) FROM track_logs WHERE unread = 1")
 	abstract fun observeUnreadCount(): Flow<Int>
@@ -48,15 +48,19 @@ abstract class TrackLogsDao : MangaQueryBuilder.ConditionCallback {
 	@Query("SELECT COUNT(*) FROM track_logs")
 	abstract suspend fun count(): Int
 
+	@Query("SELECT * FROM track_logs WHERE manga_id = :mangaId ORDER BY created_at DESC LIMIT 1")
+	abstract suspend fun findLast(mangaId: Long): TrackLogEntity?
+
 	@Transaction
 	@RawQuery(observedEntities = [TrackLogEntity::class])
 	protected abstract fun observeAllImpl(query: SupportSQLiteQuery): Flow<List<TrackLogWithManga>>
 
-	override fun getCondition(option: ListFilterOption): String? = when (option) {
-		ListFilterOption.Macro.FAVORITE -> "EXISTS(SELECT * FROM favourites WHERE favourites.manga_id = track_logs.manga_id)"
-		is ListFilterOption.Favorite -> "EXISTS(SELECT * FROM favourites WHERE favourites.manga_id = track_logs.manga_id AND favourites.category_id = ${option.category.id})"
-		is ListFilterOption.Tag -> "EXISTS(SELECT * FROM manga_tags WHERE manga_tags.manga_id = track_logs.manga_id AND tag_id = ${option.tagId})"
-		ListFilterOption.Macro.NSFW -> "(SELECT nsfw FROM manga WHERE manga.manga_id = track_logs.manga_id) = 1"
-		else -> null
-	}
+	override fun getCondition(option: ListFilterOption): String? =
+		when (option) {
+			ListFilterOption.Macro.FAVORITE -> "EXISTS(SELECT * FROM favourites WHERE favourites.manga_id = track_logs.manga_id)"
+			is ListFilterOption.Favorite -> "EXISTS(SELECT * FROM favourites WHERE favourites.manga_id = track_logs.manga_id AND favourites.category_id = ${option.category.id})"
+			is ListFilterOption.Tag -> "EXISTS(SELECT * FROM manga_tags WHERE manga_tags.manga_id = track_logs.manga_id AND tag_id = ${option.tagId})"
+			ListFilterOption.Macro.NSFW -> "(SELECT nsfw FROM manga WHERE manga.manga_id = track_logs.manga_id) = 1"
+			else -> null
+		}
 }

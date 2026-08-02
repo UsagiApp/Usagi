@@ -8,7 +8,10 @@ import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
 
-inline fun <T : Fragment> T.withArgs(size: Int, block: Bundle.() -> Unit): T {
+inline fun <T : Fragment> T.withArgs(
+	size: Int,
+	block: Bundle.() -> Unit,
+): T {
 	val b = Bundle(size)
 	b.block()
 	this.arguments = b
@@ -33,6 +36,7 @@ tailrec fun <T> Fragment.findParentCallback(cls: Class<T>): T? {
 }
 
 val Fragment.container: FragmentContainerView?
-	get() = view?.ancestors?.firstNotNullOfOrNull {
-		it as? FragmentContainerView // TODO check if direct parent
-	}
+	get() =
+		view?.ancestors?.firstNotNullOfOrNull {
+			it as? FragmentContainerView // TODO check if direct parent
+		}

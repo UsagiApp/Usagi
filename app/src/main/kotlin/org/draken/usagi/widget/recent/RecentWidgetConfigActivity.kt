@@ -17,7 +17,6 @@ import org.draken.usagi.databinding.ActivityAppwidgetRecentBinding
 class RecentWidgetConfigActivity :
 	BaseActivity<ActivityAppwidgetRecentBinding>(),
 	View.OnClickListener {
-
 	private lateinit var config: AppWidgetConfig
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,10 +24,11 @@ class RecentWidgetConfigActivity :
 		setContentView(ActivityAppwidgetRecentBinding.inflate(layoutInflater))
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = true)
 		viewBinding.buttonDone.setOnClickListener(this)
-		val appWidgetId = intent?.getIntExtra(
-			AppWidgetManager.EXTRA_APPWIDGET_ID,
-			AppWidgetManager.INVALID_APPWIDGET_ID,
-		) ?: AppWidgetManager.INVALID_APPWIDGET_ID
+		val appWidgetId =
+			intent?.getIntExtra(
+				AppWidgetManager.EXTRA_APPWIDGET_ID,
+				AppWidgetManager.INVALID_APPWIDGET_ID,
+			) ?: AppWidgetManager.INVALID_APPWIDGET_ID
 		if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
 			finishAfterTransition()
 			return
@@ -37,7 +37,10 @@ class RecentWidgetConfigActivity :
 		viewBinding.switchBackground.isChecked = config.hasBackground
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		viewBinding.root.setPadding(
 			barsInsets.left,

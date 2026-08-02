@@ -471,7 +471,6 @@
     <string name="invert_colors">Обрни боје</string>
     <string name="color_theme">Палета боја</string>
     <string name="brightness">Осветљеност</string>
-    <string name="memory_usage_pattern">%1$s - %2$s</string>
     <string name="preparing_">Припрема се…</string>
     <string name="exit_confirmation_summary">Притисни Назад двапут да би изашао из апликације</string>
     <string name="bookmarks_removed">Обележивачи су уклоњени</string>

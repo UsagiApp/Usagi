@@ -21,8 +21,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.SnackbarErrorObserver
 import org.draken.usagi.core.model.LocalMangaSource
+import org.draken.usagi.core.model.externalPackageName
 import org.draken.usagi.core.nav.router
-import org.draken.usagi.core.parser.external.ExternalMangaSource
+import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseFragment
 import org.draken.usagi.core.ui.dialog.BigButtonsAlertDialog
 import org.draken.usagi.core.ui.list.ListSelectionController
@@ -42,38 +43,47 @@ import org.draken.usagi.explore.ui.adapter.ExploreListEventListener
 import org.draken.usagi.explore.ui.model.MangaSourceItem
 import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.list.ui.model.ListHeader
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
+import tsuki.model.Manga
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ExploreFragment :
 	BaseFragment<FragmentExploreBinding>(),
 	RecyclerViewOwner,
 	ExploreListEventListener,
-	OnListItemClickListener<MangaSourceItem>, ListSelectionController.Callback {
-
+	OnListItemClickListener<MangaSourceItem>,
+	ListSelectionController.Callback {
 	private val viewModel by viewModels<ExploreViewModel>()
 	private var exploreAdapter: ExploreAdapter? = null
 	private var sourceSelectionController: ListSelectionController? = null
 
+	@Inject
+	lateinit var settings: AppSettings
+
 	override val recyclerView: RecyclerView?
 		get() = viewBinding?.recyclerView
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentExploreBinding {
-		return FragmentExploreBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): FragmentExploreBinding = FragmentExploreBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: FragmentExploreBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentExploreBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
-		exploreAdapter = ExploreAdapter(this, this) { manga, view ->
-			router.openDetails(manga)
-		}
-		sourceSelectionController = ListSelectionController(
-			appCompatDelegate = checkNotNull(findAppCompatDelegate()),
-			decoration = SourceSelectionDecoration(binding.root.context),
-			registryOwner = this,
-			callback = this,
-		)
+		exploreAdapter =
+			ExploreAdapter(this, this) { manga, _ ->
+				router.openDetails(manga)
+			}
+		sourceSelectionController =
+			ListSelectionController(
+				appCompatDelegate = checkNotNull(findAppCompatDelegate()),
+				decoration = SourceSelectionDecoration(binding.root.context),
+				registryOwner = this,
+				callback = this,
+			)
 		with(binding.recyclerView) {
 			adapter = exploreAdapter
 			setHasFixedSize(true)
@@ -92,14 +102,21 @@ class ExploreFragment :
 		}
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		val basePadding = v.resources.getDimensionPixelOffset(R.dimen.list_spacing_normal)
 		viewBinding?.recyclerView?.setPadding(
-			/* left = */ barsInsets.left + basePadding,
-			/* top = */ basePadding,
-			/* right = */ barsInsets.right + basePadding,
-			/* bottom = */ barsInsets.bottom + basePadding,
+			// left =
+			barsInsets.left + basePadding,
+			// top =
+			basePadding,
+			// right =
+			barsInsets.right + basePadding,
+			// bottom =
+			barsInsets.bottom + basePadding,
 		)
 		return insets.consumeAllSystemBarsInsets()
 	}
@@ -110,7 +127,15 @@ class ExploreFragment :
 		exploreAdapter = null
 	}
 
-	override fun onListHeaderClick(item: ListHeader, view: View) {
+	override fun onResume() {
+		super.onResume()
+		viewModel.runAutoUpdate()
+	}
+
+	override fun onListHeaderClick(
+		item: ListHeader,
+		view: View,
+	) {
 		if (item.payload == R.id.nav_suggestions) {
 			router.openSuggestions()
 		} else if (viewModel.isAllSourcesEnabled.value) {
@@ -130,39 +155,51 @@ class ExploreFragment :
 		}
 	}
 
-	override fun onItemClick(item: MangaSourceItem, view: View) {
+	override fun onItemClick(
+		item: MangaSourceItem,
+		view: View,
+	) {
 		if (sourceSelectionController?.onItemClick(item.id) == true) {
 			return
 		}
 		router.openList(item.source, null, null)
 	}
 
-	override fun onItemLongClick(item: MangaSourceItem, view: View): Boolean {
-		return sourceSelectionController?.onItemLongClick(view, item.id) == true
-	}
+	override fun onItemLongClick(
+		item: MangaSourceItem,
+		view: View,
+	): Boolean = sourceSelectionController?.onItemLongClick(view, item.id) == true
 
-	override fun onItemContextClick(item: MangaSourceItem, view: View): Boolean {
-		return sourceSelectionController?.onItemContextClick(view, item.id) == true
-	}
+	override fun onItemContextClick(
+		item: MangaSourceItem,
+		view: View,
+	): Boolean = sourceSelectionController?.onItemContextClick(view, item.id) == true
 
 	override fun onRetryClick(error: Throwable) = Unit
 
 	override fun onEmptyActionClick() = router.openSourcesCatalog()
 
-	override fun onSelectionChanged(controller: ListSelectionController, count: Int) {
+	override fun onSelectionChanged(
+		controller: ListSelectionController,
+		count: Int,
+	) {
 		viewBinding?.recyclerView?.invalidateItemDecorations()
 	}
 
 	override fun onCreateActionMode(
 		controller: ListSelectionController,
 		menuInflater: MenuInflater,
-		menu: Menu
+		menu: Menu,
 	): Boolean {
 		menuInflater.inflate(R.menu.mode_source, menu)
 		return true
 	}
 
-	override fun onPrepareActionMode(controller: ListSelectionController, mode: ActionMode?, menu: Menu): Boolean {
+	override fun onPrepareActionMode(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		menu: Menu,
+	): Boolean {
 		val selectedSources = viewModel.sourcesSnapshot(controller.peekCheckedIds())
 		val isSingleSelection = selectedSources.size == 1
 		menu.findItem(R.id.action_settings).isVisible = isSingleSelection
@@ -170,12 +207,21 @@ class ExploreFragment :
 		menu.findItem(R.id.action_pin).isVisible = selectedSources.all { !it.isPinned }
 		menu.findItem(R.id.action_unpin).isVisible = selectedSources.all { it.isPinned }
 		menu.findItem(R.id.action_disable)?.isVisible = !viewModel.isAllSourcesEnabled.value &&
-			selectedSources.all { it.mangaSource is MangaParserSource }
-		menu.findItem(R.id.action_delete)?.isVisible = selectedSources.all { it.mangaSource is ExternalMangaSource }
+			selectedSources.all {
+				it.mangaSource.externalPackageName() == null &&
+					it.mangaSource !is LocalMangaSource &&
+					it.mangaSource !is org.draken.usagi.core.model.TestMangaSource &&
+					it.mangaSource !is org.draken.usagi.core.model.UnknownMangaSource
+			}
+		menu.findItem(R.id.action_delete)?.isVisible = selectedSources.all { it.mangaSource.externalPackageName() != null }
 		return super.onPrepareActionMode(controller, mode, menu)
 	}
 
-	override fun onActionItemClicked(controller: ListSelectionController, mode: ActionMode?, item: MenuItem): Boolean {
+	override fun onActionItemClicked(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		item: MenuItem,
+	): Boolean {
 		val selectedSources = viewModel.sourcesSnapshot(controller.peekCheckedIds())
 		if (selectedSources.isEmpty()) {
 			return false
@@ -193,9 +239,9 @@ class ExploreFragment :
 			}
 
 			R.id.action_delete -> {
-				selectedSources.forEach {
-					(it.mangaSource as? ExternalMangaSource)?.let { uninstallExternalSource(it) }
-				}
+				selectedSources
+					.mapNotNullTo(LinkedHashSet()) { it.mangaSource.externalPackageName() }
+					.forEach(::uninstallExternalPackage)
 				mode?.finish()
 			}
 
@@ -215,7 +261,9 @@ class ExploreFragment :
 				mode?.finish()
 			}
 
-			else -> return false
+			else -> {
+				return false
+			}
 		}
 		return true
 	}
@@ -225,20 +273,23 @@ class ExploreFragment :
 	}
 
 	private fun onGridModeChanged(isGrid: Boolean) {
-		requireViewBinding().recyclerView.layoutManager = if (isGrid) {
-			GridLayoutManager(requireContext(), 4).also { lm ->
-				lm.spanSizeLookup = ExploreGridSpanSizeLookup(checkNotNull(exploreAdapter), lm)
+		requireViewBinding().recyclerView.layoutManager =
+			if (isGrid) {
+				GridLayoutManager(requireContext(), 4).also { lm ->
+					lm.spanSizeLookup = ExploreGridSpanSizeLookup(checkNotNull(exploreAdapter), lm)
+				}
+			} else {
+				LinearLayoutManager(requireContext())
 			}
-		} else {
-			LinearLayoutManager(requireContext())
-		}
 	}
 
 	private fun showSuggestionsTip() {
-		val listener = DialogInterface.OnClickListener { _, which ->
-			viewModel.respondSuggestionTip(which == DialogInterface.BUTTON_POSITIVE)
-		}
-		BigButtonsAlertDialog.Builder(requireContext())
+		val listener =
+			DialogInterface.OnClickListener { _, which ->
+				viewModel.respondSuggestionTip(which == DialogInterface.BUTTON_POSITIVE)
+			}
+		BigButtonsAlertDialog
+			.Builder(requireContext())
 			.setIcon(R.drawable.ic_suggestion)
 			.setTitle(R.string.suggestions_enable_prompt)
 			.setPositiveButton(R.string.enable, listener)
@@ -247,14 +298,15 @@ class ExploreFragment :
 			.show()
 	}
 
-	private fun uninstallExternalSource(source: ExternalMangaSource) {
-		val uri = Uri.fromParts("package", source.packageName, null)
-		val action = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			Intent.ACTION_DELETE
-		} else {
-			@Suppress("DEPRECATION")
-			Intent.ACTION_UNINSTALL_PACKAGE
-		}
+	private fun uninstallExternalPackage(packageName: String) {
+		val uri = Uri.fromParts("package", packageName, null)
+		val action =
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+				Intent.ACTION_DELETE
+			} else {
+				@Suppress("DEPRECATION")
+				Intent.ACTION_UNINSTALL_PACKAGE
+			}
 		context?.startActivity(Intent(action, uri))
 	}
 }

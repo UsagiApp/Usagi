@@ -29,7 +29,6 @@ open class FaviconDrawable(
 	@StyleRes styleResId: Int,
 	name: String,
 ) : PaintDrawable() {
-
 	override val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG)
 	protected var currentBackgroundColor = Color.WHITE
 		private set
@@ -92,8 +91,7 @@ open class FaviconDrawable(
 	override fun isStateful(): Boolean = colorStroke.isStateful || colorBackground.isStateful
 
 	@RequiresApi(Build.VERSION_CODES.S)
-	override fun hasFocusStateSpecified(): Boolean =
-		colorBackground.hasFocusStateSpecified() || colorStroke.hasFocusStateSpecified()
+	override fun hasFocusStateSpecified(): Boolean = colorBackground.hasFocusStateSpecified() || colorStroke.hasFocusStateSpecified()
 
 	override fun onStateChange(state: IntArray): Boolean {
 		val prevStrokeColor = currentStrokeColor
@@ -124,7 +122,10 @@ open class FaviconDrawable(
 		}
 	}
 
-	private fun getTextSizeForWidth(width: Float, text: String): Float {
+	private fun getTextSizeForWidth(
+		width: Float,
+		text: String,
+	): Float {
 		val testTextSize = 48f
 		paint.textSize = testTextSize
 		paint.getTextBounds(text, 0, text.length, tempRect)
@@ -134,7 +135,6 @@ open class FaviconDrawable(
 	class Factory(
 		@StyleRes private val styleResId: Int,
 	) : ((ImageRequest) -> Image?) {
-
 		override fun invoke(request: ImageRequest): Image? {
 			val source = request.getExtra(mangaSourceKey) ?: return null
 			val context = request.context

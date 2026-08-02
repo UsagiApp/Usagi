@@ -5,58 +5,42 @@ import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.list.ui.ListModelDiffCallback
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.Manga
+import tsuki.model.MangaSource
 
 sealed interface SearchSuggestionItem : ListModel {
-
 	data class MangaList(
 		val items: List<Manga>,
 	) : SearchSuggestionItem {
-
-		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is MangaList
-		}
+		override fun areItemsTheSame(other: ListModel): Boolean = other is MangaList
 	}
 
 	data class RecentQuery(
 		val query: String,
 	) : SearchSuggestionItem {
-
-		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is RecentQuery && query == other.query
-		}
+		override fun areItemsTheSame(other: ListModel): Boolean = other is RecentQuery && query == other.query
 	}
 
 	data class Hint(
 		val query: String,
 	) : SearchSuggestionItem {
-
-		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is Hint && query == other.query
-		}
+		override fun areItemsTheSame(other: ListModel): Boolean = other is Hint && query == other.query
 	}
 
 	data class Author(
 		val name: String,
 	) : SearchSuggestionItem {
-
-		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is Author && name == other.name
-		}
+		override fun areItemsTheSame(other: ListModel): Boolean = other is Author && name == other.name
 	}
 
 	data class Source(
 		val source: MangaSource,
 		val isEnabled: Boolean,
 	) : SearchSuggestionItem {
-
 		val isNsfw: Boolean
 			get() = source.isNsfw()
 
-		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is Source && other.source.name == source.name
-		}
+		override fun areItemsTheSame(other: ListModel): Boolean = other is Source && other.source.name == source.name
 
 		override fun getChangePayload(previousState: ListModel): Any? {
 			if (previousState !is Source) {
@@ -73,36 +57,28 @@ sealed interface SearchSuggestionItem : ListModel {
 	data class SourceTip(
 		val source: MangaSource,
 	) : SearchSuggestionItem {
-
 		val isNsfw: Boolean
 			get() = source.isNsfw()
 
-		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is SourceTip && other.source.name == source.name
-		}
+		override fun areItemsTheSame(other: ListModel): Boolean = other is SourceTip && other.source.name == source.name
 	}
 
 	data class Tags(
 		val tags: List<ChipsView.ChipModel>,
 	) : SearchSuggestionItem {
+		override fun areItemsTheSame(other: ListModel): Boolean = other is Tags
 
-		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is Tags
-		}
-
-		override fun getChangePayload(previousState: ListModel): Any {
-			return ListModelDiffCallback.PAYLOAD_NESTED_LIST_CHANGED
-		}
+		override fun getChangePayload(previousState: ListModel): Any = ListModelDiffCallback.PAYLOAD_NESTED_LIST_CHANGED
 	}
 
 	data class Text(
 		@StringRes val textResId: Int,
 		val error: Throwable?,
 	) : SearchSuggestionItem {
-
-		override fun areItemsTheSame(other: ListModel): Boolean = other is Text
-			&& textResId == other.textResId
-			&& error?.javaClass == other.error?.javaClass
-			&& error?.message == other.error?.message
+		override fun areItemsTheSame(other: ListModel): Boolean =
+			other is Text &&
+				textResId == other.textResId &&
+				error?.javaClass == other.error?.javaClass &&
+				error?.message == other.error?.message
 	}
 }

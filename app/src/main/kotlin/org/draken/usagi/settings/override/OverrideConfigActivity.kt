@@ -21,15 +21,16 @@ import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.tryLaunch
 import org.draken.usagi.databinding.ActivityOverrideEditBinding
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.ifNullOrEmpty
 import org.draken.usagi.picker.ui.PageImagePickContract
+import tsuki.model.Manga
+import tsuki.util.ifNullOrEmpty
 import com.google.android.material.R as materialR
 
 @AndroidEntryPoint
-class OverrideConfigActivity : BaseActivity<ActivityOverrideEditBinding>(), View.OnClickListener,
+class OverrideConfigActivity :
+	BaseActivity<ActivityOverrideEditBinding>(),
+	View.OnClickListener,
 	ActivityResultCallback<Uri?> {
-
 	private val viewModel: OverrideConfigViewModel by viewModels()
 
 	private val pickCoverFileLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument(), this)
@@ -50,7 +51,10 @@ class OverrideConfigActivity : BaseActivity<ActivityOverrideEditBinding>(), View
 		viewModel.onError.observeEvent(this, ::onError)
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		val barsInsets = insets.getInsets(typeMask)
 		viewBinding.root.setPadding(
@@ -73,20 +77,31 @@ class OverrideConfigActivity : BaseActivity<ActivityOverrideEditBinding>(), View
 
 	override fun onClick(v: View) {
 		when (v.id) {
-			R.id.button_done -> viewModel.save(
-				title = viewBinding.editName.text?.toString()?.trim(),
-			)
+			R.id.button_done -> {
+				viewModel.save(
+					title =
+						viewBinding.editName.text
+							?.toString()
+							?.trim(),
+				)
+			}
 
-			materialR.id.text_input_end_icon -> viewBinding.editName.text?.clear()
+			materialR.id.text_input_end_icon -> {
+				viewBinding.editName.text?.clear()
+			}
 
-			R.id.button_reset_cover -> viewModel.updateCover(null)
+			R.id.button_reset_cover -> {
+				viewModel.updateCover(null)
+			}
+
 			R.id.button_pick_file -> {
 				if (!pickCoverFileLauncher.tryLaunch(arrayOf("image/*"))) {
-					Snackbar.make(
-						viewBinding.imageViewCover,
-						R.string.operation_not_supported,
-						Snackbar.LENGTH_SHORT,
-					).show()
+					Snackbar
+						.make(
+							viewBinding.imageViewCover,
+							R.string.operation_not_supported,
+							Snackbar.LENGTH_SHORT,
+						).show()
 				}
 			}
 

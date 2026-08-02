@@ -38,9 +38,9 @@ import kotlin.math.absoluteValue
 import kotlin.math.sign
 
 @AndroidEntryPoint
-abstract class BasePagerReaderFragment : BaseReaderFragment<FragmentReaderPagerBinding>(),
+abstract class BasePagerReaderFragment :
+	BaseReaderFragment<FragmentReaderPagerBinding>(),
 	View.OnGenericMotionListener {
-
 	@Inject
 	lateinit var networkState: NetworkState
 
@@ -67,18 +67,20 @@ abstract class BasePagerReaderFragment : BaseReaderFragment<FragmentReaderPagerB
 				recyclerView?.defaultFocusHighlightEnabled = false
 			}
 			PagerEventSupplier(this).attach()
-			pagerLifecycleDispatcher = PagerLifecycleDispatcher(this).also {
-				registerOnPageChangeCallback(it)
-			}
+			pagerLifecycleDispatcher =
+				PagerLifecycleDispatcher(this).also {
+					registerOnPageChangeCallback(it)
+				}
 			adapter = readerAdapter
 		}
 
 		viewModel.pageAnimation.observe(viewLifecycleOwner) {
-			val transformer = when (it) {
-				ReaderAnimation.NONE -> NoAnimPageTransformer(binding.pager.orientation)
-				ReaderAnimation.DEFAULT -> null
-				ReaderAnimation.ADVANCED -> onCreateAdvancedTransformer()
-			}
+			val transformer =
+				when (it) {
+					ReaderAnimation.NONE -> NoAnimPageTransformer(binding.pager.orientation)
+					ReaderAnimation.DEFAULT -> null
+					ReaderAnimation.ADVANCED -> onCreateAdvancedTransformer()
+				}
 			binding.pager.setPageTransformer(transformer)
 			if (transformer == null) {
 				binding.pager.recyclerView?.children?.forEach { view ->
@@ -102,7 +104,10 @@ abstract class BasePagerReaderFragment : BaseReaderFragment<FragmentReaderPagerB
 		(viewBinding?.pager?.findCurrentViewHolder() as? PageHolder)?.onZoomOut()
 	}
 
-	override fun onGenericMotion(v: View?, event: MotionEvent): Boolean {
+	override fun onGenericMotion(
+		v: View?,
+		event: MotionEvent,
+	): Boolean {
 		if (event.source and InputDevice.SOURCE_CLASS_POINTER != 0) {
 			if (event.actionMasked == MotionEvent.ACTION_SCROLL) {
 				val axisValue = event.getAxisValue(MotionEvent.AXIS_VSCROLL)
@@ -116,22 +121,28 @@ abstract class BasePagerReaderFragment : BaseReaderFragment<FragmentReaderPagerB
 		return false
 	}
 
-	override suspend fun onPagesChanged(pages: List<ReaderPage>, pendingState: ReaderState?) = coroutineScope {
-		val items = launch {
-			requireAdapter().setItems(pages)
-			yield()
-			pagerLifecycleDispatcher?.postInvalidate()
-		}
-		if (pendingState != null) {
-			val position = pages.indexOfFirst {
-				it.chapterId == pendingState.chapterId && it.index == pendingState.page
+	override suspend fun onPagesChanged(
+		pages: List<ReaderPage>,
+		pendingState: ReaderState?,
+	) = coroutineScope {
+		val items =
+			launch {
+				requireAdapter().setItems(pages)
+				yield()
+				pagerLifecycleDispatcher?.postInvalidate()
 			}
+		if (pendingState != null) {
+			val position =
+				pages.indexOfFirst {
+					it.chapterId == pendingState.chapterId && it.index == pendingState.page
+				}
 			items.join()
 			if (position != -1) {
 				requireViewBinding().pager.setCurrentItem(position, false)
 				notifyPageChanged(position)
 			} else {
-				Snackbar.make(requireView(), R.string.not_found_404, Snackbar.LENGTH_SHORT)
+				Snackbar
+					.make(requireView(), R.string.not_found_404, Snackbar.LENGTH_SHORT)
 					.show()
 			}
 		} else {
@@ -139,13 +150,14 @@ abstract class BasePagerReaderFragment : BaseReaderFragment<FragmentReaderPagerB
 		}
 	}
 
-	override fun onCreateAdapter(): BaseReaderAdapter<*> = PagesAdapter(
-		lifecycleOwner = viewLifecycleOwner,
-		loader = pageLoader,
-		readerSettingsProducer = viewModel.readerSettingsProducer,
-		networkState = networkState,
-		exceptionResolver = exceptionResolver,
-	)
+	override fun onCreateAdapter(): BaseReaderAdapter<*> =
+		PagesAdapter(
+			lifecycleOwner = viewLifecycleOwner,
+			loader = pageLoader,
+			readerSettingsProducer = viewModel.readerSettingsProducer,
+			networkState = networkState,
+			exceptionResolver = exceptionResolver,
+		)
 
 	override fun switchPageBy(delta: Int) {
 		with(requireViewBinding().pager) {
@@ -153,7 +165,10 @@ abstract class BasePagerReaderFragment : BaseReaderFragment<FragmentReaderPagerB
 		}
 	}
 
-	override fun switchPageTo(position: Int, smooth: Boolean) {
+	override fun switchPageTo(
+		position: Int,
+		smooth: Boolean,
+	) {
 		with(requireViewBinding().pager) {
 			setCurrentItem(
 				position,
@@ -162,15 +177,16 @@ abstract class BasePagerReaderFragment : BaseReaderFragment<FragmentReaderPagerB
 		}
 	}
 
-	override fun getCurrentState(): ReaderState? = viewBinding?.run {
-		val adapter = pager.adapter as? BaseReaderAdapter<*>
-		val page = adapter?.getItemOrNull(pager.currentItem) ?: return@run null
-		ReaderState(
-			chapterId = page.chapterId,
-			page = page.index,
-			scroll = 0,
-		)
-	}
+	override fun getCurrentState(): ReaderState? =
+		viewBinding?.run {
+			val adapter = pager.adapter as? BaseReaderAdapter<*>
+			val page = adapter?.getItemOrNull(pager.currentItem) ?: return@run null
+			ReaderState(
+				chapterId = page.chapterId,
+				page = page.index,
+				scroll = 0,
+			)
+		}
 
 	protected open fun onWheelScroll(axisValue: Float) {
 		switchPageBy(-axisValue.sign.toInt())
@@ -187,7 +203,6 @@ abstract class BasePagerReaderFragment : BaseReaderFragment<FragmentReaderPagerB
 	}
 
 	companion object {
-
 		const val SMOOTH_SCROLL_LIMIT = 3
 	}
 }

@@ -15,9 +15,9 @@ import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.isNotEmpty
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.util.await
-import org.koitharu.kotatsu.parsers.util.requireBody
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.await
+import tsuki.util.requireBody
+import tsuki.util.runCatchingCancellable
 import java.io.File
 import java.net.HttpURLConnection
 import java.text.SimpleDateFormat
@@ -26,97 +26,111 @@ import java.util.Locale
 import javax.inject.Inject
 
 @Reusable
-class AdBlock @Inject constructor(
-	@ApplicationContext private val context: Context,
-	private val settings: AppSettings,
-) {
-
-	private var rules: RulesList? = null
-
-	@WorkerThread
-	fun shouldLoadUrl(url: String, baseUrl: String?): Boolean {
-		return shouldLoadUrl(
-			url.lowercase().toHttpUrlOrNull() ?: return true,
-			baseUrl?.lowercase()?.toHttpUrlOrNull(),
-		)
-	}
-
-	@WorkerThread
-	fun shouldLoadUrl(url: HttpUrl, baseUrl: HttpUrl?): Boolean {
-		if (!settings.isAdBlockEnabled) {
-			return true
-		}
-		return synchronized(this) {
-			rules ?: parseRules().also { rules = it }
-		}?.let {
-			val rule = it[url, baseUrl]
-			if (rule != null) {
-				Log.i(TAG, "Blocked $url by $rule")
-			}
-			rule == null
-		} ?: true
-	}
-
-	@WorkerThread
-	private fun parseRules() = runCatchingCancellable {
-		listFile(context).useLines { lines ->
-			val rules = RulesList()
-			lines.forEach { line -> rules.add(line) }
-			rules.trimToSize()
-			rules
-		}
-	}.onFailure { e ->
-		e.printStackTraceDebug()
-	}.getOrNull()
-
-	class Updater @Inject constructor(
+class AdBlock
+	@Inject
+	constructor(
 		@ApplicationContext private val context: Context,
-		@BaseHttpClient private val okHttpClient: OkHttpClient,
+		private val settings: AppSettings,
 	) {
+		private var rules: RulesList? = null
 
-		suspend fun updateList() {
-			val file = listFile(context)
-			val dateFormat = SimpleDateFormat(CommonHeaders.DATE_FORMAT, Locale.ENGLISH)
-			val requestBuilder = Request.Builder()
-				.url(EASYLIST_URL)
-				.get()
-			if (file.exists() && file.isNotEmpty()) {
-				val lastModified = file.lastModified()
-				requestBuilder.header(CommonHeaders.IF_MODIFIED_SINCE, dateFormat.format(Date(lastModified)))
+		@WorkerThread
+		fun shouldLoadUrl(
+			url: String,
+			baseUrl: String?,
+		): Boolean {
+			return shouldLoadUrl(
+				url.lowercase().toHttpUrlOrNull() ?: return true,
+				baseUrl?.lowercase()?.toHttpUrlOrNull(),
+			)
+		}
+
+		@WorkerThread
+		fun shouldLoadUrl(
+			url: HttpUrl,
+			baseUrl: HttpUrl?,
+		): Boolean {
+			if (!settings.isAdBlockEnabled) {
+				return true
 			}
-			okHttpClient.newCall(
-				requestBuilder.build(),
-			).await().use { response ->
-				if (response.code == HttpURLConnection.HTTP_NOT_MODIFIED) {
-					return
+			return synchronized(this) {
+				rules ?: parseRules().also { rules = it }
+			}?.let {
+				val rule = it[url, baseUrl]
+				if (rule != null) {
+					Log.i(TAG, "Blocked $url by $rule")
 				}
-				val lastModified = response.header(CommonHeaders.LAST_MODIFIED)?.let {
-					runCatching {
-						dateFormat.parse(it)
-					}.getOrNull()
-				}?.time ?: System.currentTimeMillis()
-				response.requireBody().source().use { source ->
-					file.sink().use { sink ->
-						source.readAll(sink)
+				rule == null
+			} ?: true
+		}
+
+		@WorkerThread
+		private fun parseRules() =
+			runCatchingCancellable {
+				listFile(context).useLines { lines ->
+					val rules = RulesList()
+					lines.forEach { line -> rules.add(line) }
+					rules.trimToSize()
+					rules
+				}
+			}.onFailure { e ->
+				e.printStackTraceDebug()
+			}.getOrNull()
+
+		class Updater
+			@Inject
+			constructor(
+				@ApplicationContext private val context: Context,
+				@BaseHttpClient private val okHttpClient: OkHttpClient,
+			) {
+				suspend fun updateList() {
+					val file = listFile(context)
+					val dateFormat = SimpleDateFormat(CommonHeaders.DATE_FORMAT, Locale.ENGLISH)
+					val requestBuilder =
+						Request
+							.Builder()
+							.url(EASYLIST_URL)
+							.get()
+					if (file.exists() && file.isNotEmpty()) {
+						val lastModified = file.lastModified()
+						requestBuilder.header(CommonHeaders.IF_MODIFIED_SINCE, dateFormat.format(Date(lastModified)))
 					}
-					file.setLastModified(lastModified)
+					okHttpClient
+						.newCall(
+							requestBuilder.build(),
+						).await()
+						.use { response ->
+							if (response.code == HttpURLConnection.HTTP_NOT_MODIFIED) {
+								return
+							}
+							val lastModified =
+								response
+									.header(CommonHeaders.LAST_MODIFIED)
+									?.let {
+										runCatching {
+											dateFormat.parse(it)
+										}.getOrNull()
+									}?.time ?: System.currentTimeMillis()
+							response.requireBody().source().use { source ->
+								file.sink().use { sink ->
+									source.readAll(sink)
+								}
+								file.setLastModified(lastModified)
+							}
+						}
 				}
 			}
+
+		private companion object {
+			fun listFile(context: Context): File {
+				val root = File(context.externalCacheDir ?: context.cacheDir, LIST_DIR)
+				root.mkdir()
+				return File(root, LIST_FILENAME)
+			}
+
+			private const val LIST_FILENAME = "easylist.txt"
+			private const val LIST_DIR = "adblock"
+			private const val EASYLIST_URL = "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt"
+			private const val TAG = "AdBlock"
 		}
-
 	}
-
-	private companion object {
-
-		fun listFile(context: Context): File {
-			val root = File(context.externalCacheDir ?: context.cacheDir, LIST_DIR)
-			root.mkdir()
-			return File(root, LIST_FILENAME)
-		}
-
-		private const val LIST_FILENAME = "easylist.txt"
-		private const val LIST_DIR = "adblock"
-		private const val EASYLIST_URL = "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_2_Base/filter.txt"
-		private const val TAG = "AdBlock"
-	}
-}

@@ -9,19 +9,22 @@ import org.draken.usagi.R
 class ReaderMenuProvider(
 	private val viewModel: ReaderViewModel,
 ) : MenuProvider {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		menuInflater.inflate(R.menu.opt_reader, menu)
 	}
 
-	override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-		return when (menuItem.itemId) {
+	override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+		when (menuItem.itemId) {
 			R.id.action_info -> {
 				// TODO
 				true
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
-	}
 }

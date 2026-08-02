@@ -12,7 +12,6 @@ class CategoriesAdapter(
 	onItemClickListener: FavouriteCategoriesListListener,
 	listListener: ListStateHolderListener,
 ) : ReorderableListAdapter<ListModel>() {
-
 	init {
 		addDelegate(ListItemType.CATEGORY_LARGE, categoryAD(onItemClickListener))
 		addDelegate(ListItemType.NAV_ITEM, allCategoriesAD(onItemClickListener))

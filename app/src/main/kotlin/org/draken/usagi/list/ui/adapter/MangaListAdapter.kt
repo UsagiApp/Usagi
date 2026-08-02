@@ -1,14 +1,13 @@
 package org.draken.usagi.list.ui.adapter
 
-import org.draken.usagi.core.ui.BaseListAdapter
+import org.draken.usagi.core.ui.ReorderableListAdapter
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.size.ItemSizeResolver
 
 open class MangaListAdapter(
 	listener: MangaListListener,
 	sizeResolver: ItemSizeResolver,
-) : BaseListAdapter<ListModel>() {
-
+) : ReorderableListAdapter<ListModel>() {
 	init {
 		addDelegate(ListItemType.MANGA_LIST, mangaListItemAD(listener))
 		addDelegate(ListItemType.MANGA_LIST_DETAILED, mangaListDetailedItemAD(listener))

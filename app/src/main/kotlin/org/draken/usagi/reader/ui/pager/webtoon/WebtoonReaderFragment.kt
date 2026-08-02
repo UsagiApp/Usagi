@@ -31,10 +31,10 @@ import org.draken.usagi.reader.ui.pager.ReaderPage
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class WebtoonReaderFragment : BaseReaderFragment<FragmentReaderWebtoonBinding>(),
+class WebtoonReaderFragment :
+	BaseReaderFragment<FragmentReaderWebtoonBinding>(),
 	WebtoonRecyclerView.OnWebtoonScrollListener,
 	WebtoonRecyclerView.OnPullGestureListener {
-
 	@Inject
 	lateinit var networkState: NetworkState
 
@@ -52,15 +52,19 @@ class WebtoonReaderFragment : BaseReaderFragment<FragmentReaderWebtoonBinding>()
 		container: ViewGroup?,
 	) = FragmentReaderWebtoonBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: FragmentReaderWebtoonBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentReaderWebtoonBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		with(binding.recyclerView) {
 			setHasFixedSize(true)
 			adapter = readerAdapter
 			addOnPageScrollListener(this@WebtoonReaderFragment)
-			recyclerLifecycleDispatcher = RecyclerViewLifecycleDispatcher().also {
-				addOnScrollListener(it)
-			}
+			recyclerLifecycleDispatcher =
+				RecyclerViewLifecycleDispatcher().also {
+					addOnScrollListener(it)
+				}
 			setOnPullGestureListener(this@WebtoonReaderFragment)
 		}
 		viewModel.isWebtoonZooEnabled.observe(viewLifecycleOwner) {
@@ -99,7 +103,10 @@ class WebtoonReaderFragment : BaseReaderFragment<FragmentReaderWebtoonBinding>()
 		super.onDestroyView()
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val offsetInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 		viewBinding?.apply {
 			feedbackTop.updateLayoutParams<MarginLayoutParams> {
@@ -112,13 +119,14 @@ class WebtoonReaderFragment : BaseReaderFragment<FragmentReaderWebtoonBinding>()
 		return super.onApplyWindowInsets(v, insets)
 	}
 
-	override fun onCreateAdapter() = WebtoonAdapter(
-		lifecycleOwner = viewLifecycleOwner,
-		loader = pageLoader,
-		readerSettingsProducer = viewModel.readerSettingsProducer,
-		networkState = networkState,
-		exceptionResolver = exceptionResolver,
-	)
+	override fun onCreateAdapter() =
+		WebtoonAdapter(
+			lifecycleOwner = viewLifecycleOwner,
+			loader = pageLoader,
+			readerSettingsProducer = viewModel.readerSettingsProducer,
+			networkState = networkState,
+			exceptionResolver = exceptionResolver,
+		)
 
 	override fun onScrollChanged(
 		recyclerView: WebtoonRecyclerView,
@@ -129,18 +137,23 @@ class WebtoonReaderFragment : BaseReaderFragment<FragmentReaderWebtoonBinding>()
 		viewModel.onCurrentPageChanged(firstVisiblePosition, lastVisiblePosition)
 	}
 
-	override suspend fun onPagesChanged(pages: List<ReaderPage>, pendingState: ReaderState?) = coroutineScope {
-		val setItems = launch {
-			requireAdapter().setItems(pages)
-			yield()
-			viewBinding?.recyclerView?.let { rv ->
-				recyclerLifecycleDispatcher?.invalidate(rv)
+	override suspend fun onPagesChanged(
+		pages: List<ReaderPage>,
+		pendingState: ReaderState?,
+	) = coroutineScope {
+		val setItems =
+			launch {
+				requireAdapter().setItems(pages)
+				yield()
+				viewBinding?.recyclerView?.let { rv ->
+					recyclerLifecycleDispatcher?.invalidate(rv)
+				}
 			}
-		}
 		if (pendingState != null) {
-			val position = pages.indexOfFirst {
-				it.chapterId == pendingState.chapterId && it.index == pendingState.page
-			}
+			val position =
+				pages.indexOfFirst {
+					it.chapterId == pendingState.chapterId && it.index == pendingState.page
+				}
 			setItems.join()
 			if (position != -1) {
 				with(requireViewBinding().recyclerView) {
@@ -152,7 +165,8 @@ class WebtoonReaderFragment : BaseReaderFragment<FragmentReaderWebtoonBinding>()
 				}
 				viewModel.onCurrentPageChanged(position, position)
 			} else {
-				Snackbar.make(requireView(), R.string.not_found_404, Snackbar.LENGTH_SHORT)
+				Snackbar
+					.make(requireView(), R.string.not_found_404, Snackbar.LENGTH_SHORT)
 					.show()
 			}
 		} else {
@@ -160,16 +174,17 @@ class WebtoonReaderFragment : BaseReaderFragment<FragmentReaderWebtoonBinding>()
 		}
 	}
 
-	override fun getCurrentState(): ReaderState? = viewBinding?.run {
-		val currentItem = recyclerView.findCurrentPagePosition()
-		val adapter = recyclerView.adapter as? BaseReaderAdapter<*>
-		val page = adapter?.getItemOrNull(currentItem) ?: return@run null
-		ReaderState(
-			chapterId = page.chapterId,
-			page = page.index,
-			scroll = (recyclerView.findViewHolderForAdapterPosition(currentItem) as? WebtoonHolder)?.getScrollY() ?: 0,
-		)
-	}
+	override fun getCurrentState(): ReaderState? =
+		viewBinding?.run {
+			val currentItem = recyclerView.findCurrentPagePosition()
+			val adapter = recyclerView.adapter as? BaseReaderAdapter<*>
+			val page = adapter?.getItemOrNull(currentItem) ?: return@run null
+			ReaderState(
+				chapterId = page.chapterId,
+				page = page.index,
+				scroll = (recyclerView.findViewHolderForAdapterPosition(currentItem) as? WebtoonHolder)?.getScrollY() ?: 0,
+			)
+		}
 
 	override fun onZoomIn() {
 		viewBinding?.frame?.onZoomIn()
@@ -189,11 +204,17 @@ class WebtoonReaderFragment : BaseReaderFragment<FragmentReaderWebtoonBinding>()
 		}
 	}
 
-	override fun switchPageTo(position: Int, smooth: Boolean) {
+	override fun switchPageTo(
+		position: Int,
+		smooth: Boolean,
+	) {
 		requireViewBinding().recyclerView.firstVisibleItemPosition = position
 	}
 
-	override fun scrollBy(delta: Int, smooth: Boolean): Boolean {
+	override fun scrollBy(
+		delta: Int,
+		smooth: Boolean,
+	): Boolean {
 		if (smooth && isAnimationEnabled()) {
 			requireViewBinding().recyclerView.smoothScrollBy(0, delta, scrollInterpolator)
 		} else {

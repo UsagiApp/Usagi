@@ -13,10 +13,10 @@ class ScrollbarAnimator(
 	private val scrollbar: View,
 	private val scrollbarPaddingEnd: Float,
 ) {
-
-	private val animationDuration = (
-		scrollbar.resources.getInteger(R.integer.config_defaultAnimTime) *
-			scrollbar.context.animatorDurationScale
+	private val animationDuration =
+		(
+			scrollbar.resources.getInteger(R.integer.config_defaultAnimTime) *
+				scrollbar.context.animatorDurationScale
 		).toLong()
 	private var animator: ViewPropertyAnimator? = null
 	private var isHiding = false
@@ -29,12 +29,13 @@ class ScrollbarAnimator(
 		animator?.cancel()
 		scrollbar.translationX = scrollbarPaddingEnd
 		scrollbar.isVisible = true
-		animator = scrollbar
-			.animate()
-			.translationX(0f)
-			.alpha(1f)
-			.setListener(null)
-			.setDuration(animationDuration)
+		animator =
+			scrollbar
+				.animate()
+				.translationX(0f)
+				.alpha(1f)
+				.setListener(null)
+				.setDuration(animationDuration)
 	}
 
 	fun hide() {
@@ -43,18 +44,18 @@ class ScrollbarAnimator(
 		}
 		animator?.cancel()
 		isHiding = true
-		animator = scrollbar.animate().apply {
-			translationX(scrollbarPaddingEnd)
-			alpha(0f)
-			duration = animationDuration
-			setListener(HideListener(this))
-		}
+		animator =
+			scrollbar.animate().apply {
+				translationX(scrollbarPaddingEnd)
+				alpha(0f)
+				duration = animationDuration
+				setListener(HideListener(this))
+			}
 	}
 
 	private inner class HideListener(
 		private val viewPropertyAnimator: ViewPropertyAnimator,
 	) : AnimatorListenerAdapter() {
-
 		private var isCancelled = false
 
 		override fun onAnimationCancel(animation: Animator) {

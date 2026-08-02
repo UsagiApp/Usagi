@@ -4,7 +4,7 @@ import android.os.Parcelable
 import androidx.work.Data
 import kotlinx.parcelize.Parcelize
 import org.draken.usagi.core.prefs.DownloadFormat
-import org.koitharu.kotatsu.parsers.util.find
+import tsuki.util.find
 import java.io.File
 
 @Parcelize
@@ -17,7 +17,6 @@ class DownloadTask(
 	val format: DownloadFormat?,
 	val allowMeteredNetwork: Boolean,
 ) : Parcelable {
-
 	constructor(data: Data) : this(
 		mangaId = data.getLong(MANGA_ID, 0L),
 		isPaused = data.getBoolean(START_PAUSED, false),
@@ -28,14 +27,16 @@ class DownloadTask(
 		allowMeteredNetwork = data.getBoolean(ALLOW_METERED, true),
 	)
 
-	fun toData(): Data = Data.Builder()
-		.putLong(MANGA_ID, mangaId)
-		.putBoolean(START_PAUSED, isPaused)
-		.putBoolean(IS_SILENT, isSilent)
-		.putLongArray(CHAPTERS, chaptersIds ?: LongArray(0))
-		.putString(DESTINATION, destination?.path)
-		.putString(FORMAT, format?.name)
-		.build()
+	fun toData(): Data =
+		Data
+			.Builder()
+			.putLong(MANGA_ID, mangaId)
+			.putBoolean(START_PAUSED, isPaused)
+			.putBoolean(IS_SILENT, isSilent)
+			.putLongArray(CHAPTERS, chaptersIds ?: LongArray(0))
+			.putString(DESTINATION, destination?.path)
+			.putString(FORMAT, format?.name)
+			.build()
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
@@ -66,7 +67,6 @@ class DownloadTask(
 	}
 
 	private companion object {
-
 		const val MANGA_ID = "manga_id"
 		const val IS_SILENT = "silent"
 		const val START_PAUSED = "paused"

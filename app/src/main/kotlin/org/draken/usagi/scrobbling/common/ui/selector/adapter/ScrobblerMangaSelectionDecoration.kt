@@ -11,14 +11,16 @@ import org.draken.usagi.core.util.ext.getItem
 import org.draken.usagi.list.ui.MangaSelectionDecoration
 import org.draken.usagi.scrobbling.common.domain.model.ScrobblerManga
 
-class ScrobblerMangaSelectionDecoration(context: Context) : MangaSelectionDecoration(context) {
-
+class ScrobblerMangaSelectionDecoration(
+	context: Context,
+) : MangaSelectionDecoration(context) {
 	var checkedItemId: Long
-		get() = if (selection.size == 1) {
-			selection.first()
-		} else {
-			NO_ID
-		}
+		get() =
+			if (selection.size == 1) {
+				selection.first()
+			} else {
+				NO_ID
+			}
 		set(value) {
 			clearSelection()
 			if (value != NO_ID) {
@@ -26,7 +28,10 @@ class ScrobblerMangaSelectionDecoration(context: Context) : MangaSelectionDecora
 			}
 		}
 
-	override fun getItemId(parent: RecyclerView, child: View): Long {
+	override fun getItemId(
+		parent: RecyclerView,
+		child: View,
+	): Long {
 		val holder = parent.getChildViewHolder(child) ?: return NO_ID
 		val item = holder.getItem(ScrobblerManga::class.java) ?: return NO_ID
 		return item.id

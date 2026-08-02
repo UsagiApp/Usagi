@@ -7,7 +7,6 @@ enum class TapAction(
 	@StringRes val nameStringResId: Int,
 	val color: Int,
 ) {
-
 	PAGE_NEXT(R.string.next_page, 0x8BFF00),
 	PAGE_PREV(R.string.prev_page, 0xFF4700),
 	CHAPTER_NEXT(R.string.next_chapter, 0x327E49),

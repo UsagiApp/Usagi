@@ -15,7 +15,6 @@ class FavouriteBackup(
 	@SerialName("created_at") val createdAt: Long,
 	@SerialName("manga") val manga: MangaBackup,
 ) {
-
 	constructor(entity: FavouriteManga) : this(
 		mangaId = entity.manga.id,
 		categoryId = entity.favourite.categoryId,
@@ -25,12 +24,13 @@ class FavouriteBackup(
 		manga = MangaBackup(MangaWithTags(entity.manga, entity.tags)),
 	)
 
-	fun toEntity() = FavouriteEntity(
-		mangaId = mangaId,
-		categoryId = categoryId,
-		sortKey = sortKey,
-		isPinned = isPinned,
-		createdAt = createdAt,
-		deletedAt = 0L,
-	)
+	fun toEntity() =
+		FavouriteEntity(
+			mangaId = mangaId,
+			categoryId = categoryId,
+			sortKey = sortKey,
+			isPinned = isPinned,
+			createdAt = createdAt,
+			deletedAt = 0L,
+		)
 }

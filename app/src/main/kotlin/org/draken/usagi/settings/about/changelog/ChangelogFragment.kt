@@ -23,25 +23,29 @@ import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.showOrHide
 import org.draken.usagi.core.util.ext.start
 import org.draken.usagi.databinding.FragmentChangelogBinding
+import org.draken.usagi.settings.SettingsActivity
 
 @AndroidEntryPoint
 class ChangelogFragment : BaseFragment<FragmentChangelogBinding>() {
-
 	private val viewModel: ChangelogViewModel by viewModels()
 
 	override fun onCreateViewBinding(
 		inflater: LayoutInflater,
-		container: ViewGroup?
+		container: ViewGroup?,
 	) = FragmentChangelogBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: FragmentChangelogBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentChangelogBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		val markwon = Markwon.create(binding.root.context)
 		viewModel.isLoading.observe(viewLifecycleOwner) {
 			binding.progressBar.showOrHide(it)
 		}
 		viewModel.onError.observeEvent(viewLifecycleOwner, DialogErrorObserver(binding.root, this))
-		viewModel.changelog.filterNotNull()
+		viewModel.changelog
+			.filterNotNull()
 			.map { markwon.toMarkdown(it) }
 			.flowOn(Dispatchers.Default)
 			.observe(viewLifecycleOwner) {
@@ -51,12 +55,12 @@ class ChangelogFragment : BaseFragment<FragmentChangelogBinding>() {
 
 	override fun onResume() {
 		super.onResume()
-		activity?.setTitle(R.string.changelog)
+		(activity as? SettingsActivity)?.setSectionTitle(getString(R.string.changelog))
 	}
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		val barsInsets = insets.getInsets(typeMask)

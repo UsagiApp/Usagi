@@ -8,14 +8,13 @@ import org.draken.usagi.list.ui.adapter.emptyHintAD
 import org.draken.usagi.list.ui.adapter.listHeaderAD
 import org.draken.usagi.list.ui.adapter.loadingStateAD
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 class ExploreAdapter(
 	listener: ExploreListEventListener,
 	clickListener: OnListItemClickListener<MangaSourceItem>,
 	mangaClickListener: OnListItemClickListener<Manga>,
 ) : BaseListAdapter<ListModel>() {
-
 	init {
 		addDelegate(ListItemType.EXPLORE_BUTTONS, exploreButtonsAD(listener))
 		addDelegate(

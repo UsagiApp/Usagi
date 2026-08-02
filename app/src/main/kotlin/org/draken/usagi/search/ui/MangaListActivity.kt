@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.os.bundleOf
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePaddingRelative
 import androidx.fragment.app.Fragment
@@ -29,7 +30,6 @@ import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.ui.model.titleRes
-import org.draken.usagi.core.ui.util.FadingAppbarMediator
 import org.draken.usagi.core.util.ViewBadge
 import org.draken.usagi.core.util.ext.consumeSystemBarsInsets
 import org.draken.usagi.core.util.ext.end
@@ -42,44 +42,50 @@ import org.draken.usagi.core.util.ext.start
 import org.draken.usagi.databinding.ActivityMangaListBinding
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.filter.ui.FilterHeaderFragment
+import org.draken.usagi.filter.ui.external.FilterMapper
 import org.draken.usagi.filter.ui.sheet.FilterSheetFragment
 import org.draken.usagi.list.ui.preview.PreviewFragment
 import org.draken.usagi.local.ui.LocalListFragment
 import org.draken.usagi.main.ui.owners.AppBarOwner
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaListFilter
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.SortOrder
 import org.draken.usagi.remotelist.ui.RemoteListFragment
+import tsuki.model.Manga
+import tsuki.model.MangaListFilter
+import tsuki.model.MangaSource
+import tsuki.model.SortOrder
+import javax.inject.Inject
 import kotlin.math.absoluteValue
 import com.google.android.material.R as materialR
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
+import org.draken.usagi.filter.ui.external.sheet.FilterSheetFragment as ExternalSheetFragment
 
 @AndroidEntryPoint
 class MangaListActivity :
 	BaseActivity<ActivityMangaListBinding>(),
-	AppBarOwner, View.OnClickListener,
+	AppBarOwner,
+	View.OnClickListener,
 	FilterCoordinator.Owner,
 	AppBarLayout.OnOffsetChangedListener {
-
 	override val appBar: AppBarLayout
 		get() = viewBinding.appbar
 
 	override val filterCoordinator: FilterCoordinator
-		get() = checkNotNull(findFilterOwner()) {
-			"Cannot find FilterCoordinator.Owner fragment in ${supportFragmentManager.fragments}"
-		}.filterCoordinator
+		get() =
+			checkNotNull(findFilterOwner()) {
+				"Cannot find FilterCoordinator.Owner fragment in ${supportFragmentManager.fragments}"
+			}.filterCoordinator
 
 	private lateinit var source: MangaSource
+
+	@Inject
+	lateinit var externalManager: ExternalManager
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(ActivityMangaListBinding.inflate(layoutInflater))
-		viewBinding.collapsingToolbarLayout?.let { collapsingToolbarLayout ->
-			FadingAppbarMediator(viewBinding.appbar, collapsingToolbarLayout).bind()
-		}
 		val filter = intent.getParcelableExtraCompat<ParcelableMangaListFilter>(AppRouter.KEY_FILTER)?.filter
 		val sortOrder = intent.getSerializableExtraCompat<SortOrder>(AppRouter.KEY_SORT_ORDER)
-		source = MangaSource(intent.getStringExtra(AppRouter.KEY_SOURCE))
+		source = resolve(MangaSource(intent.getStringExtra(AppRouter.KEY_SOURCE)))
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
 		if (viewBinding.containerFilterHeader != null) {
 			viewBinding.appbar.addOnOffsetChangedListener(this)
@@ -89,21 +95,38 @@ class MangaListActivity :
 		initList(source, filter, sortOrder)
 	}
 
+	override fun onResume() {
+		super.onResume()
+		val activeSource = resolve(source)
+		if (activeSource.name != source.name) {
+			source = activeSource
+			title = source.getTitle(this)
+			reload(source)
+		}
+	}
+
 	override fun isNsfwContent(): Flow<Boolean> = flowOf(source.isNsfw())
 
-	override fun onOffsetChanged(appBarLayout: AppBarLayout, verticalOffset: Int) {
+	override fun onOffsetChanged(
+		appBarLayout: AppBarLayout,
+		verticalOffset: Int,
+	) {
 		val container = viewBinding.containerFilterHeader ?: return
-		container.background = if (verticalOffset.absoluteValue < appBarLayout.totalScrollRange) {
-			container.context.getThemeColor(materialR.attr.backgroundColor).toDrawable()
-		} else {
-			viewBinding.collapsingToolbarLayout?.contentScrim
-		}
+		container.background =
+			if (verticalOffset.absoluteValue < appBarLayout.totalScrollRange) {
+				container.context.getThemeColor(materialR.attr.backgroundColor).toDrawable()
+			} else {
+				viewBinding.collapsingToolbarLayout?.contentScrim
+			}
 	}
 
 	/**
 	 * Only for landscape
 	 */
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 		viewBinding.cardSide?.updateLayoutParams<ViewGroup.MarginLayoutParams> {
 			marginEnd = barsInsets.end(v) + resources.getDimensionPixelOffset(R.dimen.side_card_offset)
@@ -120,18 +143,37 @@ class MangaListActivity :
 
 	override fun onClick(v: View) {
 		when (v.id) {
-			R.id.button_order -> router.showFilterSheet()
+			R.id.button_order -> {
+				val coordinator = findFilterOwner()?.filterCoordinator
+				if (coordinator?.isDynamicFilter == true) {
+					router.showSortSheet()
+				} else {
+					router.showFilterSheet()
+				}
+			}
 		}
 	}
 
-	fun showPreview(manga: Manga): Boolean = setSideFragment(
-		PreviewFragment::class.java,
-		bundleOf(AppRouter.KEY_MANGA to ParcelableManga(manga)),
-	)
+	fun showPreview(manga: Manga): Boolean =
+		setSideFragment(
+			PreviewFragment::class.java,
+			bundleOf(AppRouter.KEY_MANGA to ParcelableManga(manga)),
+		)
 
-	fun hidePreview() = setSideFragment(FilterSheetFragment::class.java, null)
+	fun hidePreview() = setSideFragment(filterSheetClass(findFilterOwner()), null)
 
-	private fun initList(source: MangaSource, filter: MangaListFilter?, sortOrder: SortOrder?) {
+	private fun filterSheetClass(owner: FilterCoordinator.Owner?): Class<out Fragment> =
+		if (owner?.filterCoordinator?.isDynamicFilter == true) {
+			ExternalSheetFragment::class.java
+		} else {
+			FilterSheetFragment::class.java
+		}
+
+	private fun initList(
+		source: MangaSource,
+		filter: MangaListFilter?,
+		sortOrder: SortOrder?,
+	) {
 		val fm = supportFragmentManager
 		val existingFragment = fm.findFragmentById(R.id.container)
 		if (existingFragment is FilterCoordinator.Owner) {
@@ -139,11 +181,12 @@ class MangaListActivity :
 		} else {
 			fm.commit {
 				setReorderingAllowed(true)
-				val fragment = if (source == LocalMangaSource) {
-					LocalListFragment()
-				} else {
-					RemoteListFragment.newInstance(source)
-				}
+				val fragment =
+					if (source == LocalMangaSource) {
+						LocalListFragment()
+					} else {
+						RemoteListFragment.newInstance(source)
+					}
 				replace(R.id.container, fragment)
 				runOnCommit { initFilter(fragment) }
 				if (filter != null || sortOrder != null) {
@@ -153,11 +196,25 @@ class MangaListActivity :
 		}
 	}
 
+	private fun reload(source: MangaSource) {
+		supportFragmentManager.commit {
+			setReorderingAllowed(true)
+			replace(R.id.container, RemoteListFragment.newInstance(source))
+			if (viewBinding.containerFilterHeader != null) {
+				replace(R.id.container_filter_header, FilterHeaderFragment::class.java, null)
+			}
+			if (viewBinding.containerSide != null) {
+				replace(R.id.container_side, ExternalSheetFragment::class.java, null)
+			}
+			runOnCommit { findFilterOwner()?.let { initFilter(it) } }
+		}
+	}
+
+	private fun resolve(source: MangaSource): MangaSource = (source as? ExternalSource)?.let(externalManager::resolve) ?: source
+
 	private fun initFilter(filterOwner: FilterCoordinator.Owner) {
 		if (viewBinding.containerSide != null) {
-			if (supportFragmentManager.findFragmentById(R.id.container_side) == null) {
-				setSideFragment(FilterSheetFragment::class.java, null)
-			}
+			setSideFragment(filterSheetClass(filterOwner), null)
 		} else if (viewBinding.containerFilterHeader != null) {
 			if (supportFragmentManager.findFragmentById(R.id.container_filter_header) == null) {
 				supportFragmentManager.commit {
@@ -171,25 +228,39 @@ class MangaListActivity :
 		if (chipSort != null) {
 			val filterBadge = ViewBadge(chipSort, this)
 			filterBadge.setMaxCharacterCount(0)
+			val isDynamic = filter.isDynamicFilter
 			filter.observe().observe(this) { snapshot ->
-				chipSort.setTextAndVisible(snapshot.sortOrder.titleRes)
-				filterBadge.counter = if (snapshot.listFilter.hasNonSearchOptions()) 1 else 0
+				if (isDynamic) {
+					val sortTag = snapshot.listFilter.tags.firstOrNull { it.key.startsWith(FilterMapper.SORT_KEY_PREFIX) }
+					chipSort.text = sortTag?.title?.substringAfter(": ")
+						?: snapshot.sortLabel
+						?: getString(snapshot.sortOrder.titleRes)
+					chipSort.isVisible = true
+					filterBadge.counter =
+						if (snapshot.listFilter.tags.any { !it.key.startsWith(FilterMapper.SORT_KEY_PREFIX) }) 1 else 0
+				} else {
+					chipSort.setTextAndVisible(snapshot.sortOrder.titleRes)
+					filterBadge.counter = if (snapshot.listFilter.hasNonSearchOptions()) 1 else 0
+				}
 			}
 		} else {
-			filter.observe().map {
-				it.listFilter.getSummary()
-			}.flowOn(Dispatchers.Default)
+			filter
+				.observe()
+				.map {
+					it.listFilter.getSummary()
+				}.flowOn(Dispatchers.Default)
 				.observe(this) {
 					supportActionBar?.subtitle = it
 				}
 		}
 	}
 
-	private fun findFilterOwner(): FilterCoordinator.Owner? {
-		return supportFragmentManager.findFragmentById(R.id.container) as? FilterCoordinator.Owner
-	}
+	private fun findFilterOwner(): FilterCoordinator.Owner? = supportFragmentManager.findFragmentById(R.id.container) as? FilterCoordinator.Owner
 
-	private fun setSideFragment(cls: Class<out Fragment>, args: Bundle?) = if (viewBinding.containerSide != null) {
+	private fun setSideFragment(
+		cls: Class<out Fragment>,
+		args: Bundle?,
+	) = if (viewBinding.containerSide != null) {
 		supportFragmentManager.commit {
 			setReorderingAllowed(true)
 			replace(R.id.container_side, cls, args)
@@ -204,7 +275,6 @@ class MangaListActivity :
 		private val filter: MangaListFilter?,
 		private val sortOrder: SortOrder?,
 	) : Runnable {
-
 		override fun run() {
 			if (sortOrder != null) {
 				filterOwner.filterCoordinator.setSortOrder(sortOrder)

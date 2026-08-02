@@ -18,68 +18,99 @@ import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.history.data.HistoryRepository
 import org.draken.usagi.main.domain.ReadingResumeEnabledUseCase
-import org.koitharu.kotatsu.parsers.model.Manga
+import org.draken.usagi.settings.sources.manage.plugins.UpdatePluginsProvider
 import org.draken.usagi.tracker.domain.TrackingRepository
+import tsuki.model.Manga
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
-	private val historyRepository: HistoryRepository,
-	private val appUpdateRepository: AppUpdateRepository,
-	trackingRepository: TrackingRepository,
-	private val settings: AppSettings,
-	readingResumeEnabledUseCase: ReadingResumeEnabledUseCase,
-	private val sourcesRepository: MangaSourcesRepository,
-) : BaseViewModel() {
+class MainViewModel
+	@Inject
+	constructor(
+		private val historyRepository: HistoryRepository,
+		private val appUpdateRepository: AppUpdateRepository,
+		trackingRepository: TrackingRepository,
+		private val settings: AppSettings,
+		private val sourcesRepository: MangaSourcesRepository,
+		private val updatePluginsProvider: UpdatePluginsProvider,
+		readingResumeEnabledUseCase: ReadingResumeEnabledUseCase,
+	) : BaseViewModel() {
+		var isUpdateDialogShown = false // alway shows at startup
 
-	val onOpenReader = MutableEventFlow<Manga>()
-	val onFirstStart = MutableEventFlow<Unit>()
+		val onOpenReader = MutableEventFlow<Manga>()
+		val onFirstStart = MutableEventFlow<Unit>()
 
-	val isResumeEnabled = readingResumeEnabledUseCase()
-		.withErrorHandling()
-		.stateIn(
-			scope = viewModelScope + Dispatchers.Default,
-			started = SharingStarted.WhileSubscribed(5000),
-			initialValue = false,
-		)
+		val isResumeEnabled =
+			readingResumeEnabledUseCase()
+				.withErrorHandling()
+				.stateIn(
+					scope = viewModelScope + Dispatchers.Default,
+					started = SharingStarted.WhileSubscribed(5000),
+					initialValue = false,
+				)
 
-	val appUpdate = appUpdateRepository.observeAvailableUpdate()
+		val appUpdate = appUpdateRepository.observeAvailableUpdate()
 
-	val feedCounter = trackingRepository.observeUnreadUpdatesCount()
-		.withErrorHandling()
-		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, 0)
+		val feedCounter =
+			trackingRepository
+				.observeUnreadUpdatesCount()
+				.withErrorHandling()
+				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, 0)
 
-	val isBottomNavPinned = settings.observeAsFlow(
-		AppSettings.KEY_NAV_PINNED,
-	) {
-		isNavBarPinned
-	}.flowOn(Dispatchers.Default)
+		val isBottomNavPinned =
+			settings
+				.observeAsFlow(
+					AppSettings.KEY_NAV_PINNED,
+				) {
+					isNavBarPinned
+				}.flowOn(Dispatchers.Default)
 
-	val isIncognitoModeEnabled = settings.observeAsStateFlow(
-		scope = viewModelScope + Dispatchers.Default,
-		key = AppSettings.KEY_INCOGNITO_MODE,
-		valueProducer = { isIncognitoModeEnabled },
-	)
+		val isFloatingNav =
+			settings
+				.observeAsFlow(
+					AppSettings.KEY_NAV_FLOATING,
+				) {
+					isFloatingNav
+				}.flowOn(Dispatchers.Default)
 
-	init {
-		launchJob {
-			appUpdateRepository.fetchUpdate()
+		val isIncognitoModeEnabled =
+			settings.observeAsStateFlow(
+				scope = viewModelScope + Dispatchers.Default,
+				key = AppSettings.KEY_INCOGNITO_MODE,
+				valueProducer = { isIncognitoModeEnabled },
+			)
+
+		init {
+			launchJob {
+				if (settings.isCheckAppUpdateEnabled) {
+					appUpdateRepository.fetchUpdate()
+				}
+			}
+			launchJob {
+				if (settings.isFirstLaunch) {
+					settings.isFirstLaunch = false
+					settings.isCheckAppUpdateEnabled = false
+					onFirstStart.call(Unit)
+				}
+			}
 		}
-		launchJob(Dispatchers.Default) {
-			if (sourcesRepository.isSetupRequired()) {
-				onFirstStart.call(Unit)
+
+		fun openLastReader() {
+			launchLoadingJob(Dispatchers.Default) {
+				val manga = historyRepository.getLastOrNull() ?: throw EmptyHistoryException()
+				onOpenReader.call(manga)
+			}
+		}
+
+		fun setIncognitoMode(isEnabled: Boolean) {
+			settings.isIncognitoModeEnabled = isEnabled
+		}
+
+		fun runAutoUpdate() {
+			if (settings.isAutoPluginsEnabled) {
+				launchJob(Dispatchers.Default) {
+					updatePluginsProvider.runAutoUpdate(settings)
+				}
 			}
 		}
 	}
-
-	fun openLastReader() {
-		launchLoadingJob(Dispatchers.Default) {
-			val manga = historyRepository.getLastOrNull() ?: throw EmptyHistoryException()
-			onOpenReader.call(manga)
-		}
-	}
-
-	fun setIncognitoMode(isEnabled: Boolean) {
-		settings.isIncognitoModeEnabled = isEnabled
-	}
-}

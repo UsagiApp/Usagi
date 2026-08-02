@@ -8,6 +8,7 @@ import android.view.View
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
@@ -18,10 +19,13 @@ import org.draken.usagi.core.util.ext.withArgs
 import org.draken.usagi.databinding.FragmentListBinding
 import org.draken.usagi.list.domain.ListSortOrder
 import org.draken.usagi.list.ui.MangaListFragment
+import org.draken.usagi.list.ui.adapter.MangaListAdapter
+import org.draken.usagi.list.ui.model.MangaListModel
 
 @AndroidEntryPoint
-class FavouritesListFragment : MangaListFragment(), PopupMenu.OnMenuItemClickListener {
-
+class FavouritesListFragment :
+	MangaListFragment(),
+	PopupMenu.OnMenuItemClickListener {
 	override val viewModel by viewModels<FavouritesListViewModel>()
 
 	override val isSwipeRefreshEnabled = false
@@ -29,9 +33,35 @@ class FavouritesListFragment : MangaListFragment(), PopupMenu.OnMenuItemClickLis
 	val categoryId
 		get() = viewModel.categoryId
 
-	override fun onViewBindingCreated(binding: FragmentListBinding, savedInstanceState: Bundle?) {
+	private val favouritesAdapter: MangaListAdapter?
+		get() = recyclerView?.adapter as? MangaListAdapter
+
+	private var reorderHelper: ItemTouchHelper? = null
+
+	override fun onViewBindingCreated(
+		binding: FragmentListBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		binding.recyclerView.isVP2BugWorkaroundEnabled = true
+		reorderHelper =
+			ItemTouchHelper(
+				FavouritesReorderCallback(
+					sortOrder = { viewModel.sortOrder.value },
+					getAdapter = { favouritesAdapter },
+					getSelectedItemsIds = { selectedItemsIds },
+					saveMangaOrder = { viewModel.saveMangaOrder(it) },
+					onDragStateChanged = { isDrag -> recyclerView?.isNestedScrollingEnabled = !isDrag },
+					canDrag = { viewModel.categoryId != NO_ID && selectedItemsIds.isNotEmpty() },
+				),
+			).also { it.attachToRecyclerView(binding.recyclerView) }
+		binding.recyclerView.addOnItemTouchListener(
+			FavouritesTouchListener(
+				sortOrder = { viewModel.sortOrder.value },
+				reorderHelper = { reorderHelper },
+				canDrag = { viewModel.categoryId != NO_ID && selectedItemsIds.isNotEmpty() },
+			),
+		)
 	}
 
 	override fun onScrolledToEnd() = viewModel.requestMoreItems()
@@ -57,13 +87,17 @@ class FavouritesListFragment : MangaListFragment(), PopupMenu.OnMenuItemClickLis
 	override fun onCreateActionMode(
 		controller: ListSelectionController,
 		menuInflater: MenuInflater,
-		menu: Menu
+		menu: Menu,
 	): Boolean {
 		menuInflater.inflate(R.menu.mode_favourites, menu)
 		return super.onCreateActionMode(controller, menuInflater, menu)
 	}
 
-	override fun onActionItemClicked(controller: ListSelectionController, mode: ActionMode?, item: MenuItem): Boolean {
+	override fun onActionItemClicked(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		item: MenuItem,
+	): Boolean {
 		return when (item.itemId) {
 			R.id.action_remove -> {
 				viewModel.removeFromFavourites(selectedItemsIds)
@@ -84,16 +118,32 @@ class FavouritesListFragment : MangaListFragment(), PopupMenu.OnMenuItemClickLis
 				true
 			}
 
-			else -> super.onActionItemClicked(controller, mode, item)
+			else -> {
+				super.onActionItemClicked(controller, mode, item)
+			}
 		}
 	}
 
-	companion object {
+	override fun onItemLongClick(
+		item: MangaListModel,
+		view: View,
+	): Boolean {
+		if (viewModel.sortOrder.value == ListSortOrder.NEWEST && selectedItemsIds.isNotEmpty()) {
+			val holder = recyclerView?.findContainingViewHolder(view)
+			if (holder != null) {
+				reorderHelper?.startDrag(holder)
+				return true
+			}
+		}
+		return super.onItemLongClick(item, view)
+	}
 
+	companion object {
 		const val NO_ID = 0L
 
-		fun newInstance(categoryId: Long) = FavouritesListFragment().withArgs(1) {
-			putLong(AppRouter.KEY_ID, categoryId)
-		}
+		fun newInstance(categoryId: Long) =
+			FavouritesListFragment().withArgs(1) {
+				putLong(AppRouter.KEY_ID, categoryId)
+			}
 	}
 }

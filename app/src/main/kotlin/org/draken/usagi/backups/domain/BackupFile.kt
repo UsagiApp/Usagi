@@ -7,6 +7,5 @@ data class BackupFile(
 	val uri: Uri,
 	val dateTime: Date,
 ) : Comparable<BackupFile> {
-
 	override fun compareTo(other: BackupFile): Int = compareValues(dateTime, other.dateTime)
 }

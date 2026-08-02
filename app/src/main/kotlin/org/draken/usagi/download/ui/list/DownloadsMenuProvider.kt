@@ -13,8 +13,10 @@ class DownloadsMenuProvider(
 	private val activity: FragmentActivity,
 	private val viewModel: DownloadsViewModel,
 ) : MenuProvider {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		menuInflater.inflate(R.menu.opt_downloads, menu)
 	}
 

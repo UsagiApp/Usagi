@@ -9,11 +9,15 @@ import org.draken.usagi.R
 
 class SettingsSearchMenuProvider(
 	private val viewModel: SettingsSearchViewModel,
-) : MenuProvider, MenuItem.OnActionExpandListener, SearchView.OnQueryTextListener {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+) : MenuProvider,
+	MenuItem.OnActionExpandListener,
+	SearchView.OnQueryTextListener {
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
 		menuInflater.inflate(R.menu.opt_search, menu)
-		val menuItem = menu.findItem(R.id.action_search)
+		val menuItem = menu.findItem(R.id.action_search) ?: return
 		menuItem.setOnActionExpandListener(this)
 		val searchView = menuItem.actionView as SearchView
 		searchView.setOnQueryTextListener(this)
@@ -23,7 +27,7 @@ class SettingsSearchMenuProvider(
 	override fun onPrepareMenu(menu: Menu) {
 		super.onPrepareMenu(menu)
 		if (viewModel.isSearchActive.value) {
-			val menuItem = menu.findItem(R.id.action_search)
+			val menuItem = menu.findItem(R.id.action_search) ?: return
 			menuItem.expandActionView()
 			val searchView = menuItem.actionView as SearchView
 			searchView.setQuery(viewModel.currentQuery, false)
@@ -42,9 +46,7 @@ class SettingsSearchMenuProvider(
 		return true
 	}
 
-	override fun onQueryTextSubmit(query: String?): Boolean {
-		return true
-	}
+	override fun onQueryTextSubmit(query: String?): Boolean = true
 
 	override fun onQueryTextChange(newText: String?): Boolean {
 		viewModel.onQueryChanged(newText.orEmpty())

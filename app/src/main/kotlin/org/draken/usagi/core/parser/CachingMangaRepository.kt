@@ -14,55 +14,64 @@ import org.draken.usagi.core.cache.MemoryContentCache
 import org.draken.usagi.core.cache.SafeDeferred
 import org.draken.usagi.core.util.MultiMutex
 import org.draken.usagi.core.util.ext.processLifecycleScope
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.model.MangaPage
+import tsuki.util.runCatchingCancellable
 
 abstract class CachingMangaRepository(
 	private val cache: MemoryContentCache,
 ) : MangaRepository {
-
 	private val detailsMutex = MultiMutex<Long>()
 	private val relatedMangaMutex = MultiMutex<Long>()
 	private val pagesMutex = MultiMutex<Long>()
 
 	final override suspend fun getDetails(manga: Manga): Manga = getDetails(manga, CachePolicy.ENABLED)
 
-	final override suspend fun getPages(chapter: MangaChapter): List<MangaPage> = pagesMutex.withLock(chapter.id) {
-		cache.getPages(source, chapter.url)?.let { return it }
-		val pages = asyncSafe {
-			getPagesImpl(chapter).distinctById()
-		}
-		cache.putPages(source, chapter.url, pages)
-		pages
-	}.await()
+	final override suspend fun getPages(chapter: MangaChapter): List<MangaPage> =
+		pagesMutex
+			.withLock(chapter.id) {
+				cache.getPages(source, chapter.url)?.let { return it }
+				val pages =
+					asyncSafe {
+						getPagesImpl(chapter).distinctById()
+					}
+				cache.putPages(source, chapter.url, pages)
+				pages
+			}.await()
 
-	final override suspend fun getRelated(seed: Manga): List<Manga> = relatedMangaMutex.withLock(seed.id) {
-		cache.getRelatedManga(source, seed.url)?.let { return it }
-		val related = asyncSafe {
-			getRelatedMangaImpl(seed).filterNot { it.id == seed.id }
-		}
-		cache.putRelatedManga(source, seed.url, related)
-		related
-	}.await()
+	final override suspend fun getRelated(seed: Manga): List<Manga> =
+		relatedMangaMutex
+			.withLock(seed.id) {
+				cache.getRelatedManga(source, seed.url)?.let { return it }
+				val related =
+					asyncSafe {
+						getRelatedMangaImpl(seed).filterNot { it.id == seed.id }
+					}
+				cache.putRelatedManga(source, seed.url, related)
+				related
+			}.await()
 
-	suspend fun getDetails(manga: Manga, cachePolicy: CachePolicy): Manga = detailsMutex.withLock(manga.id) {
-		if (cachePolicy.readEnabled) {
-			cache.getDetails(source, manga.url)?.let { return it }
-		}
-		val details = asyncSafe {
-			getDetailsImpl(manga)
-		}
-		if (cachePolicy.writeEnabled) {
-			cache.putDetails(source, manga.url, details)
-		}
-		details
-	}.await()
+	suspend fun getDetails(
+		manga: Manga,
+		cachePolicy: CachePolicy,
+	): Manga =
+		detailsMutex
+			.withLock(manga.id) {
+				if (cachePolicy.readEnabled) {
+					cache.getDetails(source, manga.url)?.let { return it }
+				}
+				val details =
+					asyncSafe {
+						getDetailsImpl(manga)
+					}
+				if (cachePolicy.writeEnabled) {
+					cache.putDetails(source, manga.url, details)
+				}
+				details
+			}.await()
 
-	suspend fun peekDetails(manga: Manga): Manga? {
-		return cache.getDetails(source, manga.url)
-	}
+	suspend fun peekDetails(manga: Manga): Manga? = cache.getDetails(source, manga.url)
 
 	fun invalidateCache() {
 		cache.clear(source)

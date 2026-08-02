@@ -2,16 +2,13 @@ package org.draken.usagi.explore.ui.model
 
 import org.draken.usagi.core.model.MangaSourceInfo
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.util.longHashCode
+import tsuki.util.longHashCode
 
 data class MangaSourceItem(
 	val source: MangaSourceInfo,
 	val isGrid: Boolean,
 ) : ListModel {
-
 	val id: Long = source.name.longHashCode()
 
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is MangaSourceItem && other.source == source
-	}
+	override fun areItemsTheSame(other: ListModel): Boolean = other is MangaSourceItem && other.source == source
 }

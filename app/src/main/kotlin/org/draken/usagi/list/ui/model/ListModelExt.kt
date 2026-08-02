@@ -4,9 +4,12 @@ import androidx.annotation.StringRes
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.ExceptionResolver
 import org.draken.usagi.core.util.ext.getDisplayIcon
-import org.koitharu.kotatsu.parsers.util.ifZero
+import tsuki.util.ifZero
 
-fun Throwable.toErrorState(canRetry: Boolean = true, @StringRes secondaryAction: Int = 0) = ErrorState(
+fun Throwable.toErrorState(
+	canRetry: Boolean = true,
+	@StringRes secondaryAction: Int = 0,
+) = ErrorState(
 	exception = this,
 	icon = getDisplayIcon(),
 	canRetry = canRetry,
@@ -14,9 +17,10 @@ fun Throwable.toErrorState(canRetry: Boolean = true, @StringRes secondaryAction:
 	secondaryButtonText = secondaryAction,
 )
 
-fun Throwable.toErrorFooter() = ErrorFooter(
-	exception = this,
-)
+fun Throwable.toErrorFooter() =
+	ErrorFooter(
+		exception = this,
+	)
 
 operator fun ListModel.plus(list: List<ListModel>): List<ListModel> {
 	val result = ArrayList<ListModel>(list.size + 1)

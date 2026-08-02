@@ -17,7 +17,6 @@ data class FavouriteCategorySyncDto(
 	@SerialName("show_in_lib") val isVisibleInLibrary: Boolean,
 	@SerialName("deleted_at") val deletedAt: Long,
 ) {
-
 	constructor(cursor: Cursor) : this(
 		categoryId = cursor.getInt(cursor.getColumnIndexOrThrow("category_id")),
 		createdAt = cursor.getLong(cursor.getColumnIndexOrThrow("created_at")),
@@ -29,14 +28,15 @@ data class FavouriteCategorySyncDto(
 		deletedAt = cursor.getLong(cursor.getColumnIndexOrThrow("deleted_at")),
 	)
 
-	fun toContentValues() = buildContentValues(8) {
-		put("category_id", categoryId)
-		put("created_at", createdAt)
-		put("sort_key", sortKey)
-		put("title", title)
-		put("`order`", order)
-		put("track", track)
-		put("show_in_lib", isVisibleInLibrary)
-		put("deleted_at", deletedAt)
-	}
+	fun toContentValues() =
+		buildContentValues(8) {
+			put("category_id", categoryId)
+			put("created_at", createdAt)
+			put("sort_key", sortKey)
+			put("title", title)
+			put("`order`", order)
+			put("track", track)
+			put("show_in_lib", isVisibleInLibrary)
+			put("deleted_at", deletedAt)
+		}
 }

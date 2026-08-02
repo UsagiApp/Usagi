@@ -73,6 +73,15 @@
 					android:text="@string/grid"
 					app:icon="@drawable/ic_grid" />
 
+				<com.google.android.material.button.MaterialButton
+					android:id="@+id/button_cover_only"
+					style="@style/Widget.Usagi.ToggleButton.Vertical"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/cover_only"
+					app:icon="@drawable/ic_images" />
+
 			</com.google.android.material.button.MaterialButtonToggleGroup>
 
 			<TextView

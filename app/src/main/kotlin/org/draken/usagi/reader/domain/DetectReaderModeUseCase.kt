@@ -8,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
 import okhttp3.OkHttpClient
 import org.draken.usagi.core.network.MangaHttpClient
-import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor
 import org.draken.usagi.core.parser.MangaDataRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.prefs.AppSettings
@@ -16,95 +15,108 @@ import org.draken.usagi.core.prefs.ReaderMode
 import org.draken.usagi.core.util.ext.isFileUri
 import org.draken.usagi.core.util.ext.isZipUri
 import org.draken.usagi.core.util.ext.printStackTraceDebug
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
 import org.draken.usagi.reader.ui.ReaderState
+import tsuki.model.Manga
+import tsuki.model.MangaPage
+import tsuki.util.runCatchingCancellable
 import java.io.InputStream
 import java.util.zip.ZipFile
 import javax.inject.Inject
 import kotlin.math.roundToInt
+import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
 
-class DetectReaderModeUseCase @Inject constructor(
-	private val dataRepository: MangaDataRepository,
-	private val settings: AppSettings,
-	private val mangaRepositoryFactory: MangaRepository.Factory,
-	@MangaHttpClient private val okHttpClient: OkHttpClient,
-	private val imageProxyInterceptor: ImageProxyInterceptor,
-) {
-
-	suspend operator fun invoke(manga: Manga, state: ReaderState?): ReaderMode {
-		dataRepository.getReaderMode(manga.id)?.let { return it }
-		val defaultMode = settings.defaultReaderMode
-		if (!settings.isReaderModeDetectionEnabled || defaultMode == ReaderMode.WEBTOON) {
-			return defaultMode
+class DetectReaderModeUseCase
+	@Inject
+	constructor(
+		private val dataRepository: MangaDataRepository,
+		private val settings: AppSettings,
+		private val mangaRepositoryFactory: MangaRepository.Factory,
+		@MangaHttpClient private val okHttpClient: OkHttpClient,
+		private val interceptor: Interceptor,
+	) {
+		suspend operator fun invoke(
+			manga: Manga,
+			state: ReaderState?,
+		): ReaderMode {
+			dataRepository.getReaderMode(manga.id)?.let { return it }
+			val defaultMode = settings.defaultReaderMode
+			if (!settings.isReaderModeDetectionEnabled || defaultMode == ReaderMode.WEBTOON) {
+				return defaultMode
+			}
+			val chapter =
+				state?.let { manga.findChapterById(it.chapterId) }
+					?: manga.chapters?.firstOrNull()
+					?: error("There are no chapters in this manga")
+			val repo = mangaRepositoryFactory.create(manga.source)
+			val pages = repo.getPages(chapter)
+			return runCatchingCancellable {
+				val isWebtoon = guessMangaIsWebtoon(repo, pages)
+				if (isWebtoon) ReaderMode.WEBTOON else defaultMode
+			}.onSuccess {
+				dataRepository.saveReaderMode(manga, it)
+			}.onFailure {
+				it.printStackTraceDebug()
+			}.getOrDefault(defaultMode)
 		}
-		val chapter = state?.let { manga.findChapterById(it.chapterId) }
-			?: manga.chapters?.firstOrNull()
-			?: error("There are no chapters in this manga")
-		val repo = mangaRepositoryFactory.create(manga.source)
-		val pages = repo.getPages(chapter)
-		return runCatchingCancellable {
-			val isWebtoon = guessMangaIsWebtoon(repo, pages)
-			if (isWebtoon) ReaderMode.WEBTOON else defaultMode
-		}.onSuccess {
-			dataRepository.saveReaderMode(manga, it)
-		}.onFailure {
-			it.printStackTraceDebug()
-		}.getOrDefault(defaultMode)
-	}
 
-	/**
-	 * Automatic determine type of manga by page size
-	 * @return ReaderMode.WEBTOON if page is wide
-	 */
-	private suspend fun guessMangaIsWebtoon(repository: MangaRepository, pages: List<MangaPage>): Boolean {
-		val pageIndex = (pages.size * 0.3).roundToInt()
-		val page = requireNotNull(pages.getOrNull(pageIndex)) { "No pages" }
-		val url = repository.getPageUrl(page)
-		val uri = url.toUri()
+		/**
+		 * Automatic determine type of manga by page size
+		 * @return ReaderMode.WEBTOON if page is wide
+		 */
+		private suspend fun guessMangaIsWebtoon(
+			repository: MangaRepository,
+			pages: List<MangaPage>,
+		): Boolean {
+			val pageIndex = (pages.size * 0.3).roundToInt()
+			val page = requireNotNull(pages.getOrNull(pageIndex)) { "No pages" }
+			val url = repository.getPageUrl(page)
+			val uri = url.toUri()
 
-		val size = when {
-			uri.isZipUri() -> runInterruptible(Dispatchers.IO) {
-				ZipFile(uri.schemeSpecificPart).use { zip ->
-					val entry = zip.getEntry(uri.fragment)
-					zip.getInputStream(entry).use {
-						getBitmapSize(it)
+			val size =
+				when {
+					uri.isZipUri() -> {
+						runInterruptible(Dispatchers.IO) {
+							ZipFile(uri.schemeSpecificPart).use { zip ->
+								val entry = zip.getEntry(uri.fragment)
+								zip.getInputStream(entry).use {
+									getBitmapSize(it)
+								}
+							}
+						}
+					}
+
+					uri.isFileUri() -> {
+						runInterruptible(Dispatchers.IO) {
+							uri.toFile().inputStream().use {
+								getBitmapSize(it)
+							}
+						}
+					}
+
+					else -> {
+						repository.getPageResponse(page, okHttpClient, interceptor).use {
+							runInterruptible(Dispatchers.IO) {
+								getBitmapSize(it.body.byteStream())
+							}
+						}
 					}
 				}
-			}
+			return size.width * MIN_WEBTOON_RATIO < size.height
+		}
 
-			uri.isFileUri() -> runInterruptible(Dispatchers.IO) {
-				uri.toFile().inputStream().use {
-					getBitmapSize(it)
-				}
-			}
+		companion object {
+			private const val MIN_WEBTOON_RATIO = 1.8
 
-			else -> {
-				val request = PageLoader.createPageRequest(url, page.source)
-				imageProxyInterceptor.interceptPageRequest(request, okHttpClient).use {
-					runInterruptible(Dispatchers.IO) {
-						getBitmapSize(it.body?.byteStream())
+			private fun getBitmapSize(input: InputStream?): Size {
+				val options =
+					BitmapFactory.Options().apply {
+						inJustDecodeBounds = true
 					}
-				}
+				BitmapFactory.decodeStream(input, null, options)?.recycle()
+				val imageHeight: Int = options.outHeight
+				val imageWidth: Int = options.outWidth
+				check(imageHeight > 0 && imageWidth > 0)
+				return Size(imageWidth, imageHeight)
 			}
 		}
-		return size.width * MIN_WEBTOON_RATIO < size.height
 	}
-
-	companion object {
-
-		private const val MIN_WEBTOON_RATIO = 1.8
-
-		private fun getBitmapSize(input: InputStream?): Size {
-			val options = BitmapFactory.Options().apply {
-				inJustDecodeBounds = true
-			}
-			BitmapFactory.decodeStream(input, null, options)?.recycle()
-			val imageHeight: Int = options.outHeight
-			val imageWidth: Int = options.outWidth
-			check(imageHeight > 0 && imageWidth > 0)
-			return Size(imageWidth, imageHeight)
-		}
-	}
-}

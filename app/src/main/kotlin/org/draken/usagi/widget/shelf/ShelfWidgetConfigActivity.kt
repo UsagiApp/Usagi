@@ -26,7 +26,6 @@ class ShelfWidgetConfigActivity :
 	BaseActivity<ActivityAppwidgetShelfBinding>(),
 	OnListItemClickListener<CategoryItem>,
 	View.OnClickListener {
-
 	private val viewModel by viewModels<ShelfConfigViewModel>()
 
 	private lateinit var adapter: CategorySelectAdapter
@@ -39,10 +38,11 @@ class ShelfWidgetConfigActivity :
 		adapter = CategorySelectAdapter(this)
 		viewBinding.recyclerView.adapter = adapter
 		viewBinding.buttonDone.setOnClickListener(this)
-		val appWidgetId = intent?.getIntExtra(
-			AppWidgetManager.EXTRA_APPWIDGET_ID,
-			AppWidgetManager.INVALID_APPWIDGET_ID,
-		) ?: AppWidgetManager.INVALID_APPWIDGET_ID
+		val appWidgetId =
+			intent?.getIntExtra(
+				AppWidgetManager.EXTRA_APPWIDGET_ID,
+				AppWidgetManager.INVALID_APPWIDGET_ID,
+			) ?: AppWidgetManager.INVALID_APPWIDGET_ID
 		if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
 			finishAfterTransition()
 			return
@@ -55,7 +55,10 @@ class ShelfWidgetConfigActivity :
 		viewModel.onError.observeEvent(this, SnackbarErrorObserver(viewBinding.recyclerView, null))
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		viewBinding.recyclerView.updatePadding(
 			left = barsInsets.left,
@@ -85,7 +88,10 @@ class ShelfWidgetConfigActivity :
 		}
 	}
 
-	override fun onItemClick(item: CategoryItem, view: View) {
+	override fun onItemClick(
+		item: CategoryItem,
+		view: View,
+	) {
 		viewModel.checkedId = item.id
 	}
 

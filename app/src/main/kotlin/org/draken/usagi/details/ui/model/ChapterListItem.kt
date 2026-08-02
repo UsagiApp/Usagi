@@ -2,17 +2,16 @@ package org.draken.usagi.details.ui.model
 
 import android.content.res.Resources
 import android.text.format.DateUtils
-import org.jsoup.internal.StringUtil.StringJoiner
 import org.draken.usagi.core.model.getLocalizedTitle
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.MangaChapter
+import org.jsoup.internal.StringUtil.StringJoiner
+import tsuki.model.MangaChapter
 import kotlin.experimental.and
 
 data class ChapterListItem(
 	val chapter: MangaChapter,
 	val flags: Byte,
 ) : ListModel {
-
 	private var cachedTitle: String? = null
 
 	var description: String? = null
@@ -28,11 +27,12 @@ data class ChapterListItem(
 		get() {
 			if (field != null) return field
 			if (chapter.uploadDate == 0L) return null
-			field = DateUtils.getRelativeTimeSpanString(
-				chapter.uploadDate,
-				System.currentTimeMillis(),
-				DateUtils.DAY_IN_MILLIS,
-			)
+			field =
+				DateUtils.getRelativeTimeSpanString(
+					chapter.uploadDate,
+					System.currentTimeMillis(),
+					DateUtils.DAY_IN_MILLIS,
+				)
 			return field
 		}
 
@@ -54,11 +54,12 @@ data class ChapterListItem(
 	val isGrid: Boolean
 		get() = hasFlag(FLAG_GRID)
 
-	operator fun contains(query: String): Boolean = with(chapter) {
-		title?.contains(query, ignoreCase = true) == true
-			|| numberString()?.contains(query) == true
-			|| volumeString()?.contains(query) == true
-	}
+	operator fun contains(query: String): Boolean =
+		with(chapter) {
+			title?.contains(query, ignoreCase = true) == true ||
+				numberString()?.contains(query) == true ||
+				volumeString()?.contains(query) == true
+		}
 
 	fun getTitle(resources: Resources): String {
 		cachedTitle?.let {
@@ -85,13 +86,9 @@ data class ChapterListItem(
 		return joiner.complete()
 	}
 
-	private fun hasFlag(flag: Byte): Boolean {
-		return (flags and flag) == flag
-	}
+	private fun hasFlag(flag: Byte): Boolean = (flags and flag) == flag
 
-	override fun areItemsTheSame(other: ListModel): Boolean {
-		return other is ChapterListItem && chapter.id == other.chapter.id
-	}
+	override fun areItemsTheSame(other: ListModel): Boolean = other is ChapterListItem && chapter.id == other.chapter.id
 
 	override fun getChangePayload(previousState: ListModel): Any? {
 		if (previousState !is ChapterListItem) {
@@ -105,7 +102,6 @@ data class ChapterListItem(
 	}
 
 	companion object {
-
 		const val FLAG_UNREAD: Byte = 2
 		const val FLAG_CURRENT: Byte = 4
 		const val FLAG_NEW: Byte = 8

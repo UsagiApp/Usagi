@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_ID
 
 abstract class AbstractSelectionItemDecoration : RecyclerView.ItemDecoration() {
-
 	private val bounds = Rect()
 	private val boundsF = RectF()
 	protected val selection = MutableLongSet()
@@ -32,7 +31,10 @@ abstract class AbstractSelectionItemDecoration : RecyclerView.ItemDecoration() {
 		}
 	}
 
-	fun setItemIsChecked(id: Long, isChecked: Boolean) {
+	fun setItemIsChecked(
+		id: Long,
+		isChecked: Boolean,
+	) {
 		if (isChecked) {
 			selection.add(id)
 		} else {
@@ -50,7 +52,11 @@ abstract class AbstractSelectionItemDecoration : RecyclerView.ItemDecoration() {
 		selection.clear()
 	}
 
-	override fun onDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+	override fun onDraw(
+		canvas: Canvas,
+		parent: RecyclerView,
+		state: RecyclerView.State,
+	) {
 		if (hasBackground) {
 			doDraw(canvas, parent, state, false)
 		} else {
@@ -58,7 +64,11 @@ abstract class AbstractSelectionItemDecoration : RecyclerView.ItemDecoration() {
 		}
 	}
 
-	override fun onDrawOver(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+	override fun onDrawOver(
+		canvas: Canvas,
+		parent: RecyclerView,
+		state: RecyclerView.State,
+	) {
 		if (hasForeground) {
 			doDraw(canvas, parent, state, true)
 		} else {
@@ -66,11 +76,18 @@ abstract class AbstractSelectionItemDecoration : RecyclerView.ItemDecoration() {
 		}
 	}
 
-	private fun doDraw(canvas: Canvas, parent: RecyclerView, state: RecyclerView.State, isOver: Boolean) {
+	private fun doDraw(
+		canvas: Canvas,
+		parent: RecyclerView,
+		state: RecyclerView.State,
+		isOver: Boolean,
+	) {
 		val checkpoint = canvas.save()
 		if (parent.clipToPadding) {
 			canvas.clipRect(
-				parent.paddingLeft, parent.paddingTop, parent.width - parent.paddingRight,
+				parent.paddingLeft,
+				parent.paddingTop,
+				parent.width - parent.paddingRight,
 				parent.height - parent.paddingBottom,
 			)
 		}
@@ -95,7 +112,10 @@ abstract class AbstractSelectionItemDecoration : RecyclerView.ItemDecoration() {
 		canvas.restoreToCount(checkpoint)
 	}
 
-	abstract fun getItemId(parent: RecyclerView, child: View): Long
+	abstract fun getItemId(
+		parent: RecyclerView,
+		child: View,
+	): Long
 
 	protected open fun onDrawBackground(
 		canvas: Canvas,

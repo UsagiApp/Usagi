@@ -51,16 +51,19 @@ class ScrobblingSelectorSheet :
 	TabLayout.OnTabSelectedListener,
 	ListStateHolderListener,
 	AsyncListDiffer.ListListener<ListModel> {
-
 	private var collapsibleActionViewCallback: CollapseActionViewCallback? = null
 	private var paginationScrollListener: PaginationScrollListener? = null
 	private val viewModel by viewModels<ScrobblingSelectorViewModel>()
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): SheetScrobblingSelectorBinding {
-		return SheetScrobblingSelectorBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): SheetScrobblingSelectorBinding = SheetScrobblingSelectorBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: SheetScrobblingSelectorBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: SheetScrobblingSelectorBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		disableFitToContents()
 		val listAdapter = ScrobblerSelectorAdapter(this, this)
@@ -112,7 +115,10 @@ class ScrobblingSelectorSheet :
 		paginationScrollListener = null
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		val basePadding = v.resources.getDimensionPixelOffset(R.dimen.list_spacing_normal)
 		viewBinding?.recyclerView?.updatePadding(
@@ -121,15 +127,19 @@ class ScrobblingSelectorSheet :
 		return insets.consume(v, typeMask, bottom = true)
 	}
 
-	override fun onCurrentListChanged(previousList: MutableList<ListModel>, currentList: MutableList<ListModel>) {
+	override fun onCurrentListChanged(
+		previousList: MutableList<ListModel>,
+		currentList: MutableList<ListModel>,
+	) {
 		if (previousList.singleOrNull() is LoadingFooter) {
 			val rv = viewBinding?.recyclerView ?: return
 			val selectedId = viewModel.selectedItemId.value
-			val target = if (selectedId == NO_ID) {
-				0
-			} else {
-				currentList.indexOfFirst { it is ScrobblerManga && it.id == selectedId }.coerceAtLeast(0)
-			}
+			val target =
+				if (selectedId == NO_ID) {
+					0
+				} else {
+					currentList.indexOfFirst { it is ScrobblerManga && it.id == selectedId }.coerceAtLeast(0)
+				}
 			rv.post(RecyclerViewScrollCallback(rv, target, if (target == 0) 0 else rv.height / 3))
 			paginationScrollListener?.postInvalidate(rv)
 		}
@@ -141,7 +151,10 @@ class ScrobblingSelectorSheet :
 		}
 	}
 
-	override fun onItemClick(item: ScrobblerManga, view: View) {
+	override fun onItemClick(
+		item: ScrobblerManga,
+		view: View,
+	) {
 		viewModel.selectItem(item.id)
 	}
 
@@ -184,7 +197,10 @@ class ScrobblingSelectorSheet :
 			return false
 		}
 		viewModel.search(query)
-		requireViewBinding().toolbar.menu.findItem(R.id.action_search)?.collapseActionView()
+		requireViewBinding()
+			.toolbar.menu
+			.findItem(R.id.action_search)
+			?.collapseActionView()
 		return true
 	}
 
@@ -223,9 +239,10 @@ class ScrobblingSelectorSheet :
 		searchView.setOnQueryTextListener(this)
 		searchView.setIconifiedByDefault(false)
 		searchView.queryHint = searchMenuItem.title
-		collapsibleActionViewCallback = CollapseActionViewCallback(searchMenuItem).also {
-			onBackPressedDispatcher.addCallback(it)
-		}
+		collapsibleActionViewCallback =
+			CollapseActionViewCallback(searchMenuItem).also {
+				onBackPressedDispatcher.addCallback(it)
+			}
 	}
 
 	private fun initTabs() {

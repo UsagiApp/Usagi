@@ -28,15 +28,14 @@ import org.draken.usagi.core.util.ext.tryLaunch
 import org.draken.usagi.core.util.ext.viewLifecycleScope
 import org.draken.usagi.download.ui.worker.DownloadWorker
 import org.draken.usagi.local.data.LocalStorageManager
-import org.koitharu.kotatsu.parsers.util.names
 import org.draken.usagi.settings.utils.DozeHelper
+import tsuki.util.names
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class DownloadsSettingsFragment :
 	BasePreferenceFragment(R.string.downloads),
 	SharedPreferences.OnSharedPreferenceChangeListener {
-
 	private val dozeHelper = DozeHelper(this)
 
 	@Inject
@@ -45,11 +44,15 @@ class DownloadsSettingsFragment :
 	@Inject
 	lateinit var downloadsScheduler: DownloadWorker.Scheduler
 
-	private val pickFileTreeLauncher = OpenDocumentTreeHelper(this) {
-		if (it != null) onDirectoryPicked(it)
-	}
+	private val pickFileTreeLauncher =
+		OpenDocumentTreeHelper(this) {
+			if (it != null) onDirectoryPicked(it)
+		}
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
 		addPreferencesFromResource(R.xml.pref_downloads)
 		findPreference<ListPreference>(AppSettings.KEY_DOWNLOADS_FORMAT)?.run {
 			entryValues = DownloadFormat.entries.names()
@@ -62,7 +65,10 @@ class DownloadsSettingsFragment :
 		dozeHelper.updatePreference()
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		findPreference<Preference>(AppSettings.KEY_LOCAL_STORAGE)?.bindStorageName()
 		findPreference<Preference>(AppSettings.KEY_LOCAL_MANGA_DIRS)?.bindDirectoriesCount()
@@ -75,7 +81,10 @@ class DownloadsSettingsFragment :
 		super.onDestroyView()
 	}
 
-	override fun onSharedPreferenceChanged(prefs: SharedPreferences?, key: String?) {
+	override fun onSharedPreferenceChanged(
+		prefs: SharedPreferences?,
+		key: String?,
+	) {
 		when (key) {
 			AppSettings.KEY_LOCAL_STORAGE -> {
 				findPreference<Preference>(key)?.bindStorageName()
@@ -95,8 +104,8 @@ class DownloadsSettingsFragment :
 		}
 	}
 
-	override fun onPreferenceTreeClick(preference: Preference): Boolean {
-		return when (preference.key) {
+	override fun onPreferenceTreeClick(preference: Preference): Boolean =
+		when (preference.key) {
 			AppSettings.KEY_LOCAL_STORAGE -> {
 				router.showDirectorySelectDialog()
 				true
@@ -113,33 +122,39 @@ class DownloadsSettingsFragment :
 
 			AppSettings.KEY_PAGES_SAVE_DIR -> {
 				if (!pickFileTreeLauncher.tryLaunch(settings.getPagesSaveDir(preference.context)?.uri)) {
-					Snackbar.make(
-						requireView(), R.string.operation_not_supported, Snackbar.LENGTH_SHORT,
-					).show()
+					Snackbar
+						.make(
+							requireView(),
+							R.string.operation_not_supported,
+							Snackbar.LENGTH_SHORT,
+						).show()
 				}
 				true
 			}
 
-			else -> super.onPreferenceTreeClick(preference)
+			else -> {
+				super.onPreferenceTreeClick(preference)
+			}
 		}
-	}
 
 	private fun onDirectoryPicked(uri: Uri) {
 		storageManager.takePermissions(uri)
-		val doc = DocumentFile.fromTreeUri(requireContext(), uri)?.takeIf {
-			it.canWrite()
-		}
+		val doc =
+			DocumentFile.fromTreeUri(requireContext(), uri)?.takeIf {
+				it.canWrite()
+			}
 		settings.setPagesSaveDir(doc?.uri)
 	}
 
 	private fun Preference.bindStorageName() {
 		viewLifecycleScope.launch {
 			val storage = storageManager.getDefaultWriteableDir()
-			summary = if (storage != null) {
-				storageManager.getDirectoryDisplayName(storage, isFullPath = true)
-			} else {
-				getString(R.string.not_available)
-			}
+			summary =
+				if (storage != null) {
+					storageManager.getDirectoryDisplayName(storage, isFullPath = true)
+				} else {
+					getString(R.string.not_available)
+				}
 		}
 	}
 
@@ -152,9 +167,10 @@ class DownloadsSettingsFragment :
 
 	private fun Preference.bindPagesDirectory() {
 		viewLifecycleScope.launch {
-			val df = withContext(Dispatchers.IO) {
-				settings.getPagesSaveDir(this@bindPagesDirectory.context)
-			}
+			val df =
+				withContext(Dispatchers.IO) {
+					settings.getPagesSaveDir(this@bindPagesDirectory.context)
+				}
 			summary = df?.getDisplayPath(this@bindPagesDirectory.context)
 				?: this@bindPagesDirectory.context.getString(androidx.preference.R.string.not_set)
 		}
@@ -166,11 +182,12 @@ class DownloadsSettingsFragment :
 			try {
 				preference?.isEnabled = false
 				withContext(Dispatchers.Default) {
-					val option = when (settings.allowDownloadOnMeteredNetwork) {
-						TriStateOption.ENABLED -> true
-						TriStateOption.ASK -> return@withContext
-						TriStateOption.DISABLED -> false
-					}
+					val option =
+						when (settings.allowDownloadOnMeteredNetwork) {
+							TriStateOption.ENABLED -> true
+							TriStateOption.ASK -> return@withContext
+							TriStateOption.DISABLED -> false
+						}
 					downloadsScheduler.updateConstraints(option)
 				}
 			} catch (e: Exception) {
@@ -181,8 +198,5 @@ class DownloadsSettingsFragment :
 		}
 	}
 
-	private fun DocumentFile.getDisplayPath(context: Context): String {
-		return uri.resolveFile(context)?.path ?: uri.toString()
-	}
-
+	private fun DocumentFile.getDisplayPath(context: Context): String = uri.resolveFile(context)?.path ?: uri.toString()
 }

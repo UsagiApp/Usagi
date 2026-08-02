@@ -6,17 +6,21 @@ import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
 import org.draken.usagi.core.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaPage
+import tsuki.model.MangaPage
 
 object MangaPageParceler : Parceler<MangaPage> {
-	override fun create(parcel: Parcel) = MangaPage(
-		id = parcel.readLong(),
-		url = requireNotNull(parcel.readString()),
-		preview = parcel.readString(),
-		source = MangaSource(parcel.readString()),
-	)
+	override fun create(parcel: Parcel) =
+		MangaPage(
+			id = parcel.readLong(),
+			url = requireNotNull(parcel.readString()),
+			preview = parcel.readString(),
+			source = MangaSource(parcel.readString()),
+		)
 
-	override fun MangaPage.write(parcel: Parcel, flags: Int) {
+	override fun MangaPage.write(
+		parcel: Parcel,
+		flags: Int,
+	) {
 		parcel.writeLong(id)
 		parcel.writeString(url)
 		parcel.writeString(preview)
@@ -26,4 +30,6 @@ object MangaPageParceler : Parceler<MangaPage> {
 
 @Parcelize
 @TypeParceler<MangaPage, MangaPageParceler>
-class ParcelableMangaPage(val page: MangaPage) : Parcelable
+class ParcelableMangaPage(
+	val page: MangaPage,
+) : Parcelable

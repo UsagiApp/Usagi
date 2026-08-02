@@ -9,9 +9,10 @@ import org.draken.usagi.list.ui.size.ItemSizeResolver
 class HistoryListAdapter(
 	listener: MangaListListener,
 	sizeResolver: ItemSizeResolver,
-) : MangaListAdapter(listener, sizeResolver), FastScroller.SectionIndexer {
-
-	override fun getSectionText(context: Context, position: Int): CharSequence? {
-		return findHeader(position)?.getText(context)
-	}
+) : MangaListAdapter(listener, sizeResolver),
+	FastScroller.SectionIndexer {
+	override fun getSectionText(
+		context: Context,
+		position: Int,
+	): CharSequence? = findHeader(position)?.getText(context)
 }

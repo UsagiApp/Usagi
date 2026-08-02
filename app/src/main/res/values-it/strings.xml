@@ -307,7 +307,6 @@
     <string name="other_cache">Altra cache</string>
     <string name="storage_usage">Utilizzo dello spazio di archiviazione</string>
     <string name="available">Disponibile</string>
-    <string name="memory_usage_pattern">%1$s - %2$s</string>
     <string name="removed_from_favourites">Rimosso dai preferiti</string>
     <string name="options">Opzioni</string>
     <string name="no_chapters">Nessun capitolo</string>

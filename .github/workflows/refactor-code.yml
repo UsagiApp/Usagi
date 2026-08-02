@@ -1,0 +1,55 @@
+name: Refactor code (for PRs, if needed)
+
+on:
+    pull_request_target:
+        paths:
+            - 'app/src/main/kotlin/**'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: false
+
+env:
+    SIGNER_USERNAME: YakaBot
+    SIGNER_EMAIL: yakateam@proton.me
+
+permissions:
+    contents: write
+
+jobs:
+    update:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout repository 🌏
+                uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # v6.0.2
+                with:
+                    fetch-depth: 0
+                    ref: ${{ github.event.pull_request.head.ref }}
+                    repository: ${{ github.event.pull_request.head.repo.full_name }}
+                    token: ${{ secrets.GITHUB_TOKEN }}
+
+            -   name: Set up Java environment 🔧
+                uses: actions/setup-java@b622de1dfa918ecc0ab28f40cd42e3c3752cd6c5 # v5.2.0
+                with:
+                    java-version: '17'
+                    distribution: 'temurin'
+
+            -   name: Set up Gradle environment 📦
+                uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+                with:
+                    gradle-version: '9.1.0'
+
+            -	name: Setup Android SDK 🚀
+            	uses: android-actions/setup-android@v3
+
+            -   name: Run spotless tasks 🚀
+                run: ./gradlew spotlessApply --rerun-tasks
+                continue-on-error: true
+
+            -	name: Commit & Push changes
+            	uses: stefanzweifel/git-auto-commit-action@v5
+            	with:
+            		commit_message: "chore: Refactor code using spotless"
+            		file_pattern: '.github/summary.yaml'
+            		commit_user_name: ${{ env.SIGNER_USERNAME }}
+            		commit_user_email: ${{ env.SIGNER_EMAIL }}

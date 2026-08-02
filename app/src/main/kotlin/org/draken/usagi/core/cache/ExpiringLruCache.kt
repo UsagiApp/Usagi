@@ -1,7 +1,7 @@
 package org.draken.usagi.core.cache
 
 import org.draken.usagi.core.util.SynchronizedSieveCache
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 import java.util.concurrent.TimeUnit
 import org.draken.usagi.core.cache.MemoryContentCache.Key as CacheKey
 
@@ -10,7 +10,6 @@ class ExpiringLruCache<T>(
 	private val lifetime: Long,
 	private val timeUnit: TimeUnit,
 ) {
-
 	private val cache = SynchronizedSieveCache<CacheKey, ExpiringValue<T>>(maxSize)
 
 	operator fun get(key: CacheKey): T? {
@@ -21,7 +20,10 @@ class ExpiringLruCache<T>(
 		return value.get()
 	}
 
-	operator fun set(key: CacheKey, value: T) {
+	operator fun set(
+		key: CacheKey,
+		value: T,
+	) {
 		val value = ExpiringValue(value, lifetime, timeUnit)
 		cache.put(key, value)
 	}

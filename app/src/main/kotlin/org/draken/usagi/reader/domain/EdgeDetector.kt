@@ -25,8 +25,9 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-class EdgeDetector(private val context: Context) {
-
+class EdgeDetector(
+	private val context: Context,
+) {
 	private val mutex = Mutex()
 	private val cache = SynchronizedSieveCache<ImageSource, Rect>(CACHE_SIZE)
 
@@ -34,56 +35,65 @@ class EdgeDetector(private val context: Context) {
 		cache[imageSource]?.let { rect ->
 			return if (rect.isEmpty) null else rect
 		}
-		return mutex.withLock {
-			withContext(Dispatchers.IO) {
-				val decoder = SkiaPooledImageRegionDecoder(Bitmap.Config.RGB_565)
-				try {
-					val size = runInterruptible {
-						decoder.init(context, imageSource)
-					}
-					val scaleFactor = calculateScaleFactor(size)
-					val sampleSize = (1f / scaleFactor).toInt().coerceAtLeast(1)
-
-					val fullBitmap = decoder.decodeRegion(
-						Rect(0, 0, size.x, size.y),
-						sampleSize,
-					)
-
+		return mutex
+			.withLock {
+				withContext(Dispatchers.IO) {
+					val decoder = SkiaPooledImageRegionDecoder(Bitmap.Config.RGB_565)
 					try {
-						val edges = coroutineScope {
-							listOf(
-								async { detectLeftRightEdge(fullBitmap, size, sampleSize, isLeft = true) },
-								async { detectTopBottomEdge(fullBitmap, size, sampleSize, isTop = true) },
-								async { detectLeftRightEdge(fullBitmap, size, sampleSize, isLeft = false) },
-								async { detectTopBottomEdge(fullBitmap, size, sampleSize, isTop = false) },
-							).awaitAll()
-						}
-						var hasEdges = false
-						for (edge in edges) {
-							if (edge > 0) {
-								hasEdges = true
-							} else if (edge < 0) {
-								return@withContext null
+						val size =
+							runInterruptible {
+								decoder.init(context, imageSource)
 							}
-						}
-						if (hasEdges) {
-							Rect(edges[0], edges[1], size.x - edges[2], size.y - edges[3])
-						} else {
-							null
+						val scaleFactor = calculateScaleFactor(size)
+						val sampleSize = (1f / scaleFactor).toInt().coerceAtLeast(1)
+
+						val fullBitmap =
+							decoder.decodeRegion(
+								Rect(0, 0, size.x, size.y),
+								sampleSize,
+							)
+
+						try {
+							val edges =
+								coroutineScope {
+									listOf(
+										async { detectLeftRightEdge(fullBitmap, size, sampleSize, isLeft = true) },
+										async { detectTopBottomEdge(fullBitmap, size, sampleSize, isTop = true) },
+										async { detectLeftRightEdge(fullBitmap, size, sampleSize, isLeft = false) },
+										async { detectTopBottomEdge(fullBitmap, size, sampleSize, isTop = false) },
+									).awaitAll()
+								}
+							var hasEdges = false
+							for (edge in edges) {
+								if (edge > 0) {
+									hasEdges = true
+								} else if (edge < 0) {
+									return@withContext null
+								}
+							}
+							if (hasEdges) {
+								Rect(edges[0], edges[1], size.x - edges[2], size.y - edges[3])
+							} else {
+								null
+							}
+						} finally {
+							fullBitmap.recycle()
 						}
 					} finally {
-						fullBitmap.recycle()
+						decoder.recycle()
 					}
-				} finally {
-					decoder.recycle()
 				}
+			}.also {
+				cache.put(imageSource, it ?: EMPTY_RECT)
 			}
-		}.also {
-			cache.put(imageSource, it ?: EMPTY_RECT)
-		}
 	}
 
-	private fun detectLeftRightEdge(bitmap: Bitmap, size: Point, sampleSize: Int, isLeft: Boolean): Int {
+	private fun detectLeftRightEdge(
+		bitmap: Bitmap,
+		size: Point,
+		sampleSize: Int,
+		isLeft: Boolean,
+	): Int {
 		var width = size.x
 		val rectCount = size.x / BLOCK_SIZE
 		val maxRect = rectCount / 3
@@ -133,7 +143,12 @@ class EdgeDetector(private val context: Context) {
 		return width
 	}
 
-	private fun detectTopBottomEdge(bitmap: Bitmap, size: Point, sampleSize: Int, isTop: Boolean): Int {
+	private fun detectTopBottomEdge(
+		bitmap: Bitmap,
+		size: Point,
+		sampleSize: Int,
+		isTop: Boolean,
+	): Int {
 		var height = size.y
 		val rectCount = size.y / BLOCK_SIZE
 		val maxRect = rectCount / 3
@@ -198,21 +213,26 @@ class EdgeDetector(private val context: Context) {
 	}
 
 	companion object {
-
 		private const val BLOCK_SIZE = 100
 		private const val COLOR_TOLERANCE = 16
 		private const val CACHE_SIZE = 24
 		private val EMPTY_RECT = Rect(0, 0, 0, 0)
 
-		fun isColorTheSame(@ColorInt a: Int, @ColorInt b: Int, tolerance: Int): Boolean {
-			return abs(a.red - b.red) <= tolerance &&
+		fun isColorTheSame(
+			@ColorInt a: Int,
+			@ColorInt b: Int,
+			tolerance: Int,
+		): Boolean =
+			abs(a.red - b.red) <= tolerance &&
 				abs(a.green - b.green) <= tolerance &&
 				abs(a.blue - b.blue) <= tolerance &&
 				abs(a.alpha - b.alpha) <= tolerance
-		}
 
 		private fun Int.isNotWhite() = !isColorTheSame(this, Color.WHITE, COLOR_TOLERANCE)
 
-		private fun region(x: Int, y: Int) = Rect(x, y, x + BLOCK_SIZE, y + BLOCK_SIZE)
+		private fun region(
+			x: Int,
+			y: Int,
+		) = Rect(x, y, x + BLOCK_SIZE, y + BLOCK_SIZE)
 	}
 }

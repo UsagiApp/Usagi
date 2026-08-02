@@ -9,7 +9,6 @@ import androidx.core.view.ViewCompat
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 
 open class ShrinkOnScrollBehavior : Behavior<ExtendedFloatingActionButton> {
-
 	constructor() : super()
 	constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
 
@@ -19,10 +18,8 @@ open class ShrinkOnScrollBehavior : Behavior<ExtendedFloatingActionButton> {
 		directTargetChild: View,
 		target: View,
 		axes: Int,
-		type: Int
-	): Boolean {
-		return axes == ViewCompat.SCROLL_AXIS_VERTICAL
-	}
+		type: Int,
+	): Boolean = axes == ViewCompat.SCROLL_AXIS_VERTICAL
 
 	override fun onNestedScroll(
 		coordinatorLayout: CoordinatorLayout,
@@ -33,7 +30,7 @@ open class ShrinkOnScrollBehavior : Behavior<ExtendedFloatingActionButton> {
 		dxUnconsumed: Int,
 		dyUnconsumed: Int,
 		type: Int,
-		consumed: IntArray
+		consumed: IntArray,
 	) {
 		if (dyConsumed > 0) {
 			if (child.isExtended) {

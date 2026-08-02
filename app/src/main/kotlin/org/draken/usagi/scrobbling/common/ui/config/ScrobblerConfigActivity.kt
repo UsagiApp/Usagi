@@ -26,9 +26,10 @@ import org.draken.usagi.scrobbling.common.ui.config.adapter.ScrobblingMangaAdapt
 import androidx.appcompat.R as appcompatR
 
 @AndroidEntryPoint
-class ScrobblerConfigActivity : BaseActivity<ActivityScrobblerConfigBinding>(),
-	OnListItemClickListener<ScrobblingInfo>, View.OnClickListener {
-
+class ScrobblerConfigActivity :
+	BaseActivity<ActivityScrobblerConfigBinding>(),
+	OnListItemClickListener<ScrobblingInfo>,
+	View.OnClickListener {
 	private val viewModel: ScrobblerConfigViewModel by viewModels()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,7 +64,10 @@ class ScrobblerConfigActivity : BaseActivity<ActivityScrobblerConfigBinding>(),
 		processIntent(intent)
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		val basePadding = v.resources.getDimensionPixelOffset(R.dimen.list_spacing_normal)
 		viewBinding.appbar.updatePadding(
@@ -80,7 +84,10 @@ class ScrobblerConfigActivity : BaseActivity<ActivityScrobblerConfigBinding>(),
 		return insets.consumeAllSystemBarsInsets()
 	}
 
-	override fun onItemClick(item: ScrobblingInfo, view: View) {
+	override fun onItemClick(
+		item: ScrobblingInfo,
+		view: View,
+	) {
 		router.openDetails(item.mangaId)
 	}
 

@@ -29,14 +29,14 @@ import org.draken.usagi.list.ui.adapter.emptyStateListAD
 import org.draken.usagi.list.ui.adapter.loadingFooterAD
 import org.draken.usagi.list.ui.adapter.loadingStateAD
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AlternativesActivity : BaseActivity<ActivityAlternativesBinding>(),
+class AlternativesActivity :
+	BaseActivity<ActivityAlternativesBinding>(),
 	ListStateHolderListener,
 	OnListItemClickListener<MangaAlternativeModel> {
-
 	@Inject
 	lateinit var coil: ImageLoader
 
@@ -49,12 +49,13 @@ class AlternativesActivity : BaseActivity<ActivityAlternativesBinding>(),
 			setDisplayHomeAsUpEnabled(true)
 			subtitle = viewModel.manga.title
 		}
-		val listAdapter = BaseListAdapter<ListModel>()
-			.addDelegate(ListItemType.MANGA_LIST_DETAILED, alternativeAD(coil, this, this))
-			.addDelegate(ListItemType.STATE_EMPTY, emptyStateListAD(null))
-			.addDelegate(ListItemType.FOOTER_LOADING, loadingFooterAD())
-			.addDelegate(ListItemType.STATE_LOADING, loadingStateAD())
-			.addDelegate(ListItemType.FOOTER_BUTTON, buttonFooterAD(this))
+		val listAdapter =
+			BaseListAdapter<ListModel>()
+				.addDelegate(ListItemType.MANGA_LIST_DETAILED, alternativeAD(coil, this, this))
+				.addDelegate(ListItemType.STATE_EMPTY, emptyStateListAD(null))
+				.addDelegate(ListItemType.FOOTER_LOADING, loadingFooterAD())
+				.addDelegate(ListItemType.STATE_LOADING, loadingStateAD())
+				.addDelegate(ListItemType.FOOTER_BUTTON, buttonFooterAD(this))
 		with(viewBinding.recyclerView) {
 			setHasFixedSize(true)
 			addItemDecoration(TypedListSpacingDecoration(context, addHorizontalPadding = false))
@@ -72,7 +73,7 @@ class AlternativesActivity : BaseActivity<ActivityAlternativesBinding>(),
 
 	override fun onApplyWindowInsets(
 		v: View,
-		insets: WindowInsetsCompat
+		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		viewBinding.recyclerView.updatePadding(
@@ -88,7 +89,10 @@ class AlternativesActivity : BaseActivity<ActivityAlternativesBinding>(),
 		return insets.consumeAllSystemBarsInsets()
 	}
 
-	override fun onItemClick(item: MangaAlternativeModel, view: View) {
+	override fun onItemClick(
+		item: MangaAlternativeModel,
+		view: View,
+	) {
 		when (view.id) {
 			R.id.chip_source -> router.openSearch(item.manga.source, viewModel.manga.title)
 			R.id.button_migrate -> confirmMigration(item.manga)

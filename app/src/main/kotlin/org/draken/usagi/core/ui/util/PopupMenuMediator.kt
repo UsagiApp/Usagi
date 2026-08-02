@@ -4,12 +4,15 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.MenuProvider
+import org.draken.usagi.core.ui.OnContextClickListenerCompat
+import org.draken.usagi.core.util.ext.setOnContextClickListenerCompat
 
 class PopupMenuMediator(
 	private val provider: MenuProvider,
-) : View.OnLongClickListener, View.OnContextClickListener, PopupMenu.OnMenuItemClickListener,
+) : View.OnLongClickListener,
+	OnContextClickListenerCompat,
+	PopupMenu.OnMenuItemClickListener,
 	PopupMenu.OnDismissListener {
-
 	override fun onContextClick(v: View): Boolean = onLongClick(v)
 
 	override fun onLongClick(v: View): Boolean {
@@ -25,9 +28,7 @@ class PopupMenuMediator(
 		return true
 	}
 
-	override fun onMenuItemClick(item: MenuItem): Boolean {
-		return provider.onMenuItemSelected(item)
-	}
+	override fun onMenuItemClick(item: MenuItem): Boolean = provider.onMenuItemSelected(item)
 
 	override fun onDismiss(menu: PopupMenu) {
 		provider.onMenuClosed(menu.menu)
@@ -35,6 +36,6 @@ class PopupMenuMediator(
 
 	fun attach(view: View) {
 		view.setOnLongClickListener(this)
-		view.setOnContextClickListener(this)
+		view.setOnContextClickListenerCompat(this)
 	}
 }

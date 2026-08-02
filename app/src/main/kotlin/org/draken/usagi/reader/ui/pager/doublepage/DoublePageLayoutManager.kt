@@ -11,13 +11,15 @@ class DoublePageLayoutManager(
 	defStyleAttr: Int,
 	defStyleRes: Int,
 ) : LinearLayoutManager(context, attrs, defStyleAttr, defStyleRes) {
-
 	override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
 		lp?.width = width / 2
 		return super.checkLayoutParams(lp)
 	}
 
-	override fun calculateExtraLayoutSpace(state: RecyclerView.State, extraLayoutSpace: IntArray) {
+	override fun calculateExtraLayoutSpace(
+		state: RecyclerView.State,
+		extraLayoutSpace: IntArray,
+	) {
 		val offscreenSpace = width / 2
 		extraLayoutSpace[0] = offscreenSpace
 		extraLayoutSpace[1] = offscreenSpace

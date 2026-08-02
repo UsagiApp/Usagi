@@ -33,11 +33,11 @@ import javax.inject.Inject
 import com.google.android.material.R as materialR
 
 @AndroidEntryPoint
-abstract class BasePreferenceFragment(@StringRes private val titleId: Int) :
-	PreferenceFragmentCompat(),
+abstract class BasePreferenceFragment(
+	@StringRes private val titleId: Int,
+) : PreferenceFragmentCompat(),
 	OnApplyWindowInsetsListener,
 	RecyclerViewOwner {
-
 	protected lateinit var exceptionResolver: ExceptionResolver
 		private set
 
@@ -53,7 +53,10 @@ abstract class BasePreferenceFragment(@StringRes private val titleId: Int) :
 		exceptionResolver = entryPoint.exceptionResolverFactory.create(this)
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		ViewCompat.setOnApplyWindowInsetsListener(view, this)
 		val themedContext = (view.parentView ?: view).context
@@ -61,7 +64,10 @@ abstract class BasePreferenceFragment(@StringRes private val titleId: Int) :
 		listView.clipToPadding = false
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		val isTablet = !resources.getBoolean(R.bool.is_tablet)
 		val isMaster = container?.id == R.id.container_master
@@ -87,11 +93,12 @@ abstract class BasePreferenceFragment(@StringRes private val titleId: Int) :
 		(activity as? SettingsActivity)?.setSectionTitle(title)
 	}
 
-	protected fun getWarningIcon(): Drawable? = context?.let { ctx ->
-		ContextCompat.getDrawable(ctx, R.drawable.ic_alert_outline)?.also {
-			it.setTint(ContextCompat.getColor(ctx, R.color.warning))
+	protected fun getWarningIcon(): Drawable? =
+		context?.let { ctx ->
+			ContextCompat.getDrawable(ctx, R.drawable.ic_alert_outline)?.also {
+				it.setTint(ContextCompat.getColor(ctx, R.color.warning))
+			}
 		}
-	}
 
 	private fun focusPreference(key: String) {
 		val pref = findPreference<Preference>(key)
@@ -101,11 +108,12 @@ abstract class BasePreferenceFragment(@StringRes private val titleId: Int) :
 		}
 		scrollToPreference(pref)
 		val prefIndex = preferenceScreen.indexOf(key)
-		val view = if (prefIndex >= 0) {
-			listView.findViewHolderForAdapterPosition(prefIndex)?.itemView ?: return
-		} else {
-			return
-		}
+		val view =
+			if (prefIndex >= 0) {
+				listView.findViewHolderForAdapterPosition(prefIndex)?.itemView ?: return
+			} else {
+				return
+			}
 		view.context.getThemeDrawable(materialR.attr.colorTertiaryContainer)?.let {
 			view.background = it
 		}

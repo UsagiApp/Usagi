@@ -8,7 +8,6 @@ import org.draken.usagi.list.ui.adapter.ListItemType
 import kotlin.math.roundToInt
 
 class ChapterGridSpanHelper private constructor() : View.OnLayoutChangeListener {
-
 	override fun onLayoutChange(
 		v: View?,
 		left: Int,
@@ -18,7 +17,7 @@ class ChapterGridSpanHelper private constructor() : View.OnLayoutChangeListener 
 		oldLeft: Int,
 		oldTop: Int,
 		oldRight: Int,
-		oldBottom: Int
+		oldBottom: Int,
 	) {
 		val rv = v as? RecyclerView ?: return
 		if (rv.width > 0) {
@@ -31,23 +30,21 @@ class ChapterGridSpanHelper private constructor() : View.OnLayoutChangeListener 
 	}
 
 	class SpanSizeLookup(
-		private val recyclerView: RecyclerView
+		private val recyclerView: RecyclerView,
 	) : GridLayoutManager.SpanSizeLookup() {
-
-		override fun getSpanSize(position: Int): Int {
-			return when (recyclerView.adapter?.getItemViewType(position)) {
+		override fun getSpanSize(position: Int): Int =
+			when (recyclerView.adapter?.getItemViewType(position)) {
 				ListItemType.CHAPTER_LIST.ordinal, // for smooth transition
-				ListItemType.HEADER.ordinal -> getTotalSpans()
+				ListItemType.HEADER.ordinal,
+				-> getTotalSpans()
 
 				else -> 1
 			}
-		}
 
 		private fun getTotalSpans() = (recyclerView.layoutManager as? GridLayoutManager)?.spanCount ?: 1
 	}
 
 	companion object {
-
 		fun attach(view: RecyclerView) {
 			val helper = ChapterGridSpanHelper()
 			view.addOnLayoutChangeListener(helper)

@@ -19,7 +19,6 @@ class HistoryBackup(
 	@SerialName("chapters") val chaptersCount: Int = 0,
 	@SerialName("manga") val manga: MangaBackup,
 ) {
-
 	constructor(entity: HistoryWithManga) : this(
 		mangaId = entity.manga.id,
 		createdAt = entity.history.createdAt,
@@ -32,15 +31,16 @@ class HistoryBackup(
 		manga = MangaBackup(MangaWithTags(entity.manga, entity.tags)),
 	)
 
-	fun toEntity() = HistoryEntity(
-		mangaId = mangaId,
-		createdAt = createdAt,
-		updatedAt = updatedAt,
-		chapterId = chapterId,
-		page = page,
-		scroll = scroll,
-		percent = percent,
-		deletedAt = 0L,
-		chaptersCount = chaptersCount,
-	)
+	fun toEntity() =
+		HistoryEntity(
+			mangaId = mangaId,
+			createdAt = createdAt,
+			updatedAt = updatedAt,
+			chapterId = chapterId,
+			page = page,
+			scroll = scroll,
+			percent = percent,
+			deletedAt = 0L,
+			chaptersCount = chaptersCount,
+		)
 }

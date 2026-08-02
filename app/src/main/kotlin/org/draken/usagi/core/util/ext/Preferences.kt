@@ -22,39 +22,52 @@ fun MultiSelectListPreference.setDefaultValueCompat(defaultValue: Set<String>) {
 	setDefaultValue(defaultValue) // FIXME not working
 }
 
-fun <E : Enum<E>> SharedPreferences.getEnumValue(key: String, enumClass: Class<E>): E? {
+fun <E : Enum<E>> SharedPreferences.getEnumValue(
+	key: String,
+	enumClass: Class<E>,
+): E? {
 	val stringValue = getString(key, null) ?: return null
 	return enumClass.enumConstants?.find {
 		it.name == stringValue
 	}
 }
 
-fun <E : Enum<E>> SharedPreferences.getEnumValue(key: String, defaultValue: E): E {
-	return getEnumValue(key, defaultValue.javaClass) ?: defaultValue
-}
+fun <E : Enum<E>> SharedPreferences.getEnumValue(
+	key: String,
+	defaultValue: E,
+): E = getEnumValue(key, defaultValue.javaClass) ?: defaultValue
 
-fun <E : Enum<E>> SharedPreferences.Editor.putEnumValue(key: String, value: E?) {
+fun <E : Enum<E>> SharedPreferences.Editor.putEnumValue(
+	key: String,
+	value: E?,
+) {
 	putString(key, value?.name)
 }
 
-fun SharedPreferences.observeChanges(): Flow<String?> = callbackFlow {
-	val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-		trySendBlocking(key)
-	}
-	registerOnSharedPreferenceChangeListener(listener)
-	awaitClose {
-		unregisterOnSharedPreferenceChangeListener(listener)
-	}
-}
-
-fun <T> SharedPreferences.observe(key: String, valueProducer: suspend () -> T): Flow<T> = flow {
-	emit(valueProducer())
-	observeChanges().collect { upstreamKey ->
-		if (upstreamKey == key) {
-			emit(valueProducer())
+fun SharedPreferences.observeChanges(): Flow<String?> =
+	callbackFlow {
+		val listener =
+			SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+				trySendBlocking(key)
+			}
+		registerOnSharedPreferenceChangeListener(listener)
+		awaitClose {
+			unregisterOnSharedPreferenceChangeListener(listener)
 		}
 	}
-}.distinctUntilChanged()
+
+fun <T> SharedPreferences.observe(
+	key: String,
+	valueProducer: suspend () -> T,
+): Flow<T> =
+	flow {
+		emit(valueProducer())
+		observeChanges().collect { upstreamKey ->
+			if (upstreamKey == key) {
+				emit(valueProducer())
+			}
+		}
+	}.distinctUntilChanged()
 
 fun SharedPreferences.Editor.putAll(values: Map<String, *>) {
 	values.forEach { e ->

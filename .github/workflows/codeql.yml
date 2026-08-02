@@ -1,0 +1,69 @@
+name: CodeQL testing
+
+on:
+    push:
+        branches: [ "devel" ]
+    pull_request:
+        branches: [ "devel" ]
+        paths:
+            - 'app/src/**'
+            - 'app/build.gradle'
+            - 'gradle/libs.versions.toml'
+            - '.github/workflows/codeql.yml'
+    schedule:
+        -   cron: '17 4 * * 1'
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: false
+
+permissions:
+    contents: read
+
+jobs:
+    analyze:
+        name: Analyze (${{ matrix.language }})
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+        permissions:
+            security-events: write
+            actions: read
+            contents: read
+
+        strategy:
+            fail-fast: false
+            matrix:
+                language: [ 'java-kotlin' ]
+
+        steps:
+            -   name: Checkout repository 🌏
+                uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # v6.0.2
+
+            -   name: Set up Java environment 🔧
+                uses: actions/setup-java@b622de1dfa918ecc0ab28f40cd42e3c3752cd6c5 # v5.2.0
+                with:
+                    java-version: '17'
+                    distribution: 'temurin'
+
+            -   name: Set up Gradle environment 📦
+                uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+                with:
+                    gradle-version: '9.1.0'
+
+            -	name: Setup Android SDK 🚀
+            	uses: android-actions/setup-android@v3
+
+            -   name: Initialize CodeQL 🔍
+                uses: github/codeql-action/init@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
+                with:
+                    languages: ${{ matrix.language }}
+                    queries: security-and-quality
+
+            -   name: Build with Gradle 🚀
+                run: ./gradlew compileDebugKotlin --no-daemon --rerun-tasks --no-build-cache
+
+            -   name: Perform CodeQL Analysis 🔬
+                uses: github/codeql-action/analyze@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
+                with:
+                    category: "/language:${{ matrix.language }}"

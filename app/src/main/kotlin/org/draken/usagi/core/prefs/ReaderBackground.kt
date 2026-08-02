@@ -12,28 +12,48 @@ import com.google.android.material.R as materialR
 
 @Keep
 enum class ReaderBackground {
+	DEFAULT,
+	LIGHT,
+	DARK,
+	WHITE,
+	BLACK,
+	;
 
-	DEFAULT, LIGHT, DARK, WHITE, BLACK;
+	fun resolve(context: Context): Drawable? =
+		when (this) {
+			DEFAULT -> {
+				context.getThemeDrawable(android.R.attr.windowBackground)
+			}
 
-	fun resolve(context: Context): Drawable? = when (this) {
-		DEFAULT -> context.getThemeDrawable(android.R.attr.windowBackground)
-		LIGHT -> ContextThemeWrapper(context, materialR.style.ThemeOverlay_Material3_Light)
-			.getThemeDrawable(android.R.attr.windowBackground)
+			LIGHT -> {
+				ContextThemeWrapper(context, materialR.style.ThemeOverlay_Material3_Light)
+					.getThemeDrawable(android.R.attr.windowBackground)
+			}
 
-		DARK -> ContextThemeWrapper(context, materialR.style.ThemeOverlay_Material3_Dark)
-			.getThemeDrawable(android.R.attr.windowBackground)
+			DARK -> {
+				ContextThemeWrapper(context, materialR.style.ThemeOverlay_Material3_Dark)
+					.getThemeDrawable(android.R.attr.windowBackground)
+			}
 
-		WHITE -> ContextCompat.getColor(context, android.R.color.white).toDrawable()
-		BLACK -> ContextCompat.getColor(context, android.R.color.black).toDrawable()
-	}
+			WHITE -> {
+				ContextCompat.getColor(context, android.R.color.white).toDrawable()
+			}
 
-	fun isLight(context: Context): Boolean = when (this) {
-		DEFAULT -> !context.resources.isNightMode
+			BLACK -> {
+				ContextCompat.getColor(context, android.R.color.black).toDrawable()
+			}
+		}
 
-		LIGHT,
-		WHITE -> true
+	fun isLight(context: Context): Boolean =
+		when (this) {
+			DEFAULT -> !context.resources.isNightMode
 
-		DARK,
-		BLACK -> false
-	}
+			LIGHT,
+			WHITE,
+			-> true
+
+			DARK,
+			BLACK,
+			-> false
+		}
 }

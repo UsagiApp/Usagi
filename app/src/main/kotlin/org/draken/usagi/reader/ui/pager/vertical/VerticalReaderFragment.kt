@@ -6,7 +6,6 @@ import org.draken.usagi.reader.ui.pager.BasePagerReaderFragment
 
 @AndroidEntryPoint
 class VerticalReaderFragment : BasePagerReaderFragment() {
-
 	override fun onInitPager(pager: ViewPager2) {
 		super.onInitPager(pager)
 		pager.orientation = ViewPager2.ORIENTATION_VERTICAL

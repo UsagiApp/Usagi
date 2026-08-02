@@ -9,8 +9,10 @@ import kotlin.coroutines.resume
 open class ContinuationResumeWebViewClient(
 	private val continuation: Continuation<Unit>,
 ) : WebViewClient() {
-
-	override fun onPageFinished(view: WebView?, url: String?) {
+	override fun onPageFinished(
+		view: WebView?,
+		url: String?,
+	) {
 		resumeContinuation(view)
 	}
 

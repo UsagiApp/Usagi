@@ -16,81 +16,92 @@ import org.draken.usagi.core.model.parcelable.ParcelableManga
 import org.draken.usagi.core.parser.MangaDataRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.util.ext.concat
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.runCatchingCancellable
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
-class AutoFixUseCase @Inject constructor(
-	private val mangaRepositoryFactory: MangaRepository.Factory,
-	private val alternativesUseCase: AlternativesUseCase,
-	private val migrateUseCase: MigrateUseCase,
-	private val mangaDataRepository: MangaDataRepository,
-) {
-
-	suspend operator fun invoke(mangaId: Long): Pair<Manga, Manga?> {
-		val seed = checkNotNull(
-			mangaDataRepository.findMangaById(mangaId, withChapters = true),
-		) { "Manga $mangaId not found" }.getDetailsSafe()
-		if (seed.isHealthy()) {
-			return seed to null // no fix required
+class AutoFixUseCase
+	@Inject
+	constructor(
+		private val mangaRepositoryFactory: MangaRepository.Factory,
+		private val alternativesUseCase: AlternativesUseCase,
+		private val migrateUseCase: MigrateUseCase,
+		private val mangaDataRepository: MangaDataRepository,
+	) {
+		suspend operator fun invoke(mangaId: Long): Pair<Manga, Manga?> {
+			val seed =
+				checkNotNull(
+					mangaDataRepository.findMangaById(mangaId, withChapters = true),
+				) { "Manga $mangaId not found" }.getDetailsSafe()
+			if (seed.isHealthy()) {
+				return seed to null // no fix required
+			}
+			val replacement =
+				alternativesUseCase(seed, throughDisabledSources = false)
+					.concat(alternativesUseCase(seed, throughDisabledSources = true))
+					.filter { it.isHealthy() }
+					.runningFold<Manga, Manga?>(null) { best, candidate ->
+						if (best == null || best < candidate) {
+							candidate
+						} else {
+							best
+						}
+					}.selectLastWithTimeout(4, 40, TimeUnit.SECONDS)
+			migrateUseCase(seed, replacement ?: throw NoAlternativesException(ParcelableManga(seed)))
+			return seed to replacement
 		}
-		val replacement = alternativesUseCase(seed, throughDisabledSources = false)
-			.concat(alternativesUseCase(seed, throughDisabledSources = true))
-			.filter { it.isHealthy() }
-			.runningFold<Manga, Manga?>(null) { best, candidate ->
-				if (best == null || best < candidate) {
-					candidate
-				} else {
-					best
+
+		private suspend fun Manga.isHealthy(): Boolean =
+			runCatchingCancellable {
+				val repo = mangaRepositoryFactory.create(source)
+				val details = if (this.chapters != null) this else repo.getDetails(this)
+				val firstChapter = details.chapters?.firstOrNull() ?: return@runCatchingCancellable false
+				val pageUrl = repo.getPageUrl(repo.getPages(firstChapter).first())
+				pageUrl.toHttpUrlOrNull() != null
+			}.getOrDefault(false)
+
+		private suspend fun Manga.getDetailsSafe() =
+			runCatchingCancellable {
+				mangaRepositoryFactory.create(source).getDetails(this)
+			}.getOrDefault(this)
+
+		private operator fun Manga.compareTo(other: Manga) = chaptersCount().compareTo(other.chaptersCount())
+
+		@Suppress("UNCHECKED_CAST", "OPT_IN_USAGE")
+		private suspend fun <T> Flow<T>.selectLastWithTimeout(
+			minCount: Int,
+			timeout: Long,
+			timeUnit: TimeUnit,
+		): T? =
+			channelFlow<T?> {
+				var lastValue: T? = null
+				launch {
+					delay(timeUnit.toMillis(timeout))
+					close(InternalTimeoutException(lastValue))
 				}
-			}.selectLastWithTimeout(4, 40, TimeUnit.SECONDS)
-		migrateUseCase(seed, replacement ?: throw NoAlternativesException(ParcelableManga(seed)))
-		return seed to replacement
+				withIndex()
+					.transformWhile { (index, value) ->
+						lastValue = value
+						emit(value)
+						index < minCount && !isClosedForSend
+					}.collect {
+						send(it)
+					}
+			}.catch { e ->
+				if (e is InternalTimeoutException) {
+					emit(e.value as T?)
+				} else {
+					throw e
+				}
+			}.lastOrNull()
+
+		class NoAlternativesException(
+			val seed: ParcelableManga,
+		) : NoSuchElementException()
+
+		private class InternalTimeoutException(
+			val value: Any?,
+		) : CancellationException()
 	}
-
-	private suspend fun Manga.isHealthy(): Boolean = runCatchingCancellable {
-		val repo = mangaRepositoryFactory.create(source)
-		val details = if (this.chapters != null) this else repo.getDetails(this)
-		val firstChapter = details.chapters?.firstOrNull() ?: return@runCatchingCancellable false
-		val pageUrl = repo.getPageUrl(repo.getPages(firstChapter).first())
-		pageUrl.toHttpUrlOrNull() != null
-	}.getOrDefault(false)
-
-	private suspend fun Manga.getDetailsSafe() = runCatchingCancellable {
-		mangaRepositoryFactory.create(source).getDetails(this)
-	}.getOrDefault(this)
-
-	private operator fun Manga.compareTo(other: Manga) = chaptersCount().compareTo(other.chaptersCount())
-
-	@Suppress("UNCHECKED_CAST", "OPT_IN_USAGE")
-	private suspend fun <T> Flow<T>.selectLastWithTimeout(
-		minCount: Int,
-		timeout: Long,
-		timeUnit: TimeUnit
-	): T? = channelFlow<T?> {
-		var lastValue: T? = null
-		launch {
-			delay(timeUnit.toMillis(timeout))
-			close(InternalTimeoutException(lastValue))
-		}
-		withIndex().transformWhile { (index, value) ->
-			lastValue = value
-			emit(value)
-			index < minCount && !isClosedForSend
-		}.collect {
-			send(it)
-		}
-	}.catch { e ->
-		if (e is InternalTimeoutException) {
-			emit(e.value as T?)
-		} else {
-			throw e
-		}
-	}.lastOrNull()
-
-	class NoAlternativesException(val seed: ParcelableManga) : NoSuchElementException()
-
-	private class InternalTimeoutException(val value: Any?) : CancellationException()
-}

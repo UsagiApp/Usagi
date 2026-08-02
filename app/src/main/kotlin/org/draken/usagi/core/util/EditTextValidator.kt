@@ -9,27 +9,29 @@ import org.draken.usagi.core.util.ext.getDisplayMessage
 import java.lang.ref.WeakReference
 
 abstract class EditTextValidator : DefaultTextWatcher {
-
 	private var editTextRef: WeakReference<EditText>? = null
 
 	protected val context: Context
-		get() = checkNotNull(editTextRef?.get()?.context) {
-			"EditTextValidator is not attached to EditText"
-		}
+		get() =
+			checkNotNull(editTextRef?.get()?.context) {
+				"EditTextValidator is not attached to EditText"
+			}
 
 	@CallSuper
 	override fun afterTextChanged(s: Editable?) {
 		val editText = editTextRef?.get() ?: return
 		val newText = s?.toString().orEmpty()
-		val result = runCatching {
-			validate(newText)
-		}.getOrElse { e ->
-			ValidationResult.Failed(e.getDisplayMessage(editText.resources))
-		}
-		editText.error = when (result) {
-			is ValidationResult.Failed -> result.message
-			ValidationResult.Success -> null
-		}
+		val result =
+			runCatching {
+				validate(newText)
+			}.getOrElse { e ->
+				ValidationResult.Failed(e.getDisplayMessage(editText.resources))
+			}
+		editText.error =
+			when (result) {
+				is ValidationResult.Failed -> result.message
+				ValidationResult.Success -> null
+			}
 	}
 
 	fun attachToEditText(editText: EditText) {
@@ -42,9 +44,10 @@ abstract class EditTextValidator : DefaultTextWatcher {
 	abstract fun validate(text: String): ValidationResult
 
 	sealed class ValidationResult {
-
 		object Success : ValidationResult()
 
-		class Failed(val message: CharSequence) : ValidationResult()
+		class Failed(
+			val message: CharSequence,
+		) : ValidationResult()
 	}
 }

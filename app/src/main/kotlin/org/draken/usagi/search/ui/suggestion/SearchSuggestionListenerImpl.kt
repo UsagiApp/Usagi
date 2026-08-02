@@ -7,22 +7,25 @@ import androidx.core.net.toUri
 import com.google.android.material.search.SearchView
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.parser.MangaLinkResolver
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaTag
 import org.draken.usagi.search.domain.SearchKind
+import tsuki.model.Manga
+import tsuki.model.MangaSource
+import tsuki.model.MangaTag
 
 class SearchSuggestionListenerImpl(
 	private val router: AppRouter,
 	private val searchView: SearchView,
 	private val viewModel: SearchSuggestionViewModel,
 ) : SearchSuggestionListener {
-
 	override fun onMangaClick(manga: Manga) {
 		router.openDetails(manga)
 	}
 
-	override fun onQueryClick(query: String, kind: SearchKind, submit: Boolean) {
+	override fun onQueryClick(
+		query: String,
+		kind: SearchKind,
+		submit: Boolean,
+	) {
 		if (submit && query.isNotEmpty()) {
 			if (kind == SearchKind.SIMPLE && MangaLinkResolver.isValidLink(query)) {
 				router.openDetails(query.toUri())
@@ -42,7 +45,10 @@ class SearchSuggestionListenerImpl(
 		router.openSearch(tag.title, SearchKind.TAG)
 	}
 
-	override fun onSourceToggle(source: MangaSource, isEnabled: Boolean) {
+	override fun onSourceToggle(
+		source: MangaSource,
+		isEnabled: Boolean,
+	) {
 		viewModel.onSourceToggle(source, isEnabled)
 	}
 
@@ -50,9 +56,19 @@ class SearchSuggestionListenerImpl(
 		router.openList(source, null, null)
 	}
 
-	override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+	override fun beforeTextChanged(
+		s: CharSequence?,
+		start: Int,
+		count: Int,
+		after: Int,
+	) = Unit
 
-	override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+	override fun onTextChanged(
+		s: CharSequence?,
+		start: Int,
+		before: Int,
+		count: Int,
+	) = Unit
 
 	override fun afterTextChanged(s: Editable?) {
 		viewModel.onQueryChanged(s?.toString().orEmpty())
@@ -61,7 +77,7 @@ class SearchSuggestionListenerImpl(
 	override fun onEditorAction(
 		v: TextView?,
 		actionId: Int,
-		event: KeyEvent?
+		event: KeyEvent?,
 	): Boolean {
 		val query = v?.text?.toString()
 		if (query.isNullOrEmpty()) {

@@ -19,7 +19,6 @@ class DynamicItemSizeResolver(
 	private val settings: AppSettings,
 	private val adjustWidth: Boolean,
 ) : ItemSizeResolver {
-
 	private val gridWidth = resources.getDimension(R.dimen.preferred_grid_width)
 	private val scaleFactor: Float
 		get() = settings.gridSize / 100f
@@ -30,7 +29,7 @@ class DynamicItemSizeResolver(
 	override fun attachToView(
 		view: View,
 		textView: TextView?,
-		progressView: ReadingProgressView?
+		progressView: ReadingProgressView?,
 	) {
 		val observer = SizeObserver(view, textView, progressView)
 		view.addOnAttachStateChangeListener(observer)
@@ -44,14 +43,18 @@ class DynamicItemSizeResolver(
 		private val view: View,
 		private val textView: TextView?,
 		private val progressView: ReadingProgressView?,
-	) : DefaultLifecycleObserver, SharedPreferences.OnSharedPreferenceChangeListener, View.OnAttachStateChangeListener {
-
+	) : DefaultLifecycleObserver,
+		SharedPreferences.OnSharedPreferenceChangeListener,
+		View.OnAttachStateChangeListener {
 		private val widthThreshold = view.resources.getDimensionPixelSize(R.dimen.small_grid_width)
 
 		@StyleRes
 		private var prevTextAppearance = 0
 
-		override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+		override fun onSharedPreferenceChanged(
+			sharedPreferences: SharedPreferences?,
+			key: String?,
+		) {
 			if (key == AppSettings.KEY_GRID_SIZE) {
 				update()
 			}
@@ -87,13 +90,14 @@ class DynamicItemSizeResolver(
 
 		private fun ReadingProgressView.adjustSize(width: Int) {
 			val lp = layoutParams
-			val size = resources.getDimensionPixelSize(
-				if (width < widthThreshold) {
-					R.dimen.card_indicator_size_small
-				} else {
-					R.dimen.card_indicator_size
-				},
-			)
+			val size =
+				resources.getDimensionPixelSize(
+					if (width < widthThreshold) {
+						R.dimen.card_indicator_size_small
+					} else {
+						R.dimen.card_indicator_size
+					},
+				)
 			if (lp.width != size || lp.height != size) {
 				lp.width = size
 				lp.height = size
@@ -102,11 +106,12 @@ class DynamicItemSizeResolver(
 		}
 
 		private fun TextView.adjustTextAppearance(width: Int) {
-			val textAppearanceResId = if (width < widthThreshold) {
-				R.style.TextAppearance_Usagi_GridTitle_Small
-			} else {
-				R.style.TextAppearance_Usagi_GridTitle
-			}
+			val textAppearanceResId =
+				if (width < widthThreshold) {
+					R.style.TextAppearance_Usagi_GridTitle_Small
+				} else {
+					R.style.TextAppearance_Usagi_GridTitle
+				}
 			if (textAppearanceResId != prevTextAppearance) {
 				prevTextAppearance = textAppearanceResId
 				TextViewCompat.setTextAppearance(this, textAppearanceResId)

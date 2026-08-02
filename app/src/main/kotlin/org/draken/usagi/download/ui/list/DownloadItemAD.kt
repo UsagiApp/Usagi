@@ -22,7 +22,7 @@ import org.draken.usagi.download.ui.list.chapters.downloadChapterAD
 import org.draken.usagi.list.ui.ListModelDiffCallback
 import org.draken.usagi.list.ui.adapter.ListItemType
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.util.format
+import tsuki.util.format
 
 fun downloadItemAD(
 	lifecycleOwner: LifecycleOwner,
@@ -30,29 +30,28 @@ fun downloadItemAD(
 ) = adapterDelegateViewBinding<DownloadItemModel, ListModel, ItemDownloadBinding>(
 	{ inflater, parent -> ItemDownloadBinding.inflate(inflater, parent, false) },
 ) {
-
 	val percentPattern = context.resources.getString(R.string.percent_string_pattern)
 	var chaptersJob: Job? = null
 
-	val clickListener = object : View.OnClickListener, View.OnLongClickListener {
-		override fun onClick(v: View) {
-			when (v.id) {
-				R.id.button_cancel -> listener.onCancelClick(item)
-				R.id.button_resume -> listener.onResumeClick(item)
-				R.id.button_skip -> listener.onSkipClick(item)
-				R.id.button_skip_all -> listener.onSkipAllClick(item)
-				R.id.button_pause -> listener.onPauseClick(item)
-				R.id.button_expand -> listener.onExpandClick(item)
-				else -> listener.onItemClick(item, v)
+	val clickListener =
+		object : View.OnClickListener, View.OnLongClickListener {
+			override fun onClick(v: View) {
+				when (v.id) {
+					R.id.button_cancel -> listener.onCancelClick(item)
+					R.id.button_resume -> listener.onResumeClick(item)
+					R.id.button_skip -> listener.onSkipClick(item)
+					R.id.button_skip_all -> listener.onSkipAllClick(item)
+					R.id.button_pause -> listener.onPauseClick(item)
+					R.id.button_expand -> listener.onExpandClick(item)
+					else -> listener.onItemClick(item, v)
+				}
 			}
-		}
 
-		override fun onLongClick(v: View): Boolean {
-			return listener.onItemLongClick(item, v)
+			override fun onLongClick(v: View): Boolean = listener.onItemLongClick(item, v)
 		}
-	}
-	val chaptersAdapter = BaseListAdapter<DownloadChapter>()
-		.addDelegate(ListItemType.CHAPTER_LIST, downloadChapterAD())
+	val chaptersAdapter =
+		BaseListAdapter<DownloadChapter>()
+			.addDelegate(ListItemType.CHAPTER_LIST, downloadChapterAD())
 
 	binding.recyclerViewChapters.adapter = chaptersAdapter
 	binding.buttonCancel.setOnClickListener(clickListener)
@@ -82,13 +81,14 @@ fun downloadItemAD(
 		binding.imageViewCover.setImageAsync(item.manga?.coverUrl, item.manga)
 		if (chaptersJob == null || payloads.isEmpty()) {
 			chaptersJob?.cancel()
-			chaptersJob = lifecycleOwner.lifecycleScope.launch(start = CoroutineStart.UNDISPATCHED) {
-				item.chapters.collect { chapters ->
-					binding.buttonExpand.isGone = chapters.isNullOrEmpty()
-					chaptersAdapter.emit(chapters)
-					scrollToCurrentChapter()
+			chaptersJob =
+				lifecycleOwner.lifecycleScope.launch(start = CoroutineStart.UNDISPATCHED) {
+					item.chapters.collect { chapters ->
+						binding.buttonExpand.isGone = chapters.isNullOrEmpty()
+						chaptersAdapter.emit(chapters)
+						scrollToCurrentChapter()
+					}
 				}
-			}
 		} else if (ListModelDiffCallback.PAYLOAD_CHECKED_CHANGED in payloads) {
 			binding.recyclerViewChapters.post {
 				scrollToCurrentChapter()
@@ -99,7 +99,8 @@ fun downloadItemAD(
 		binding.recyclerViewChapters.isVisible = item.isExpanded
 		when (item.workState) {
 			WorkInfo.State.ENQUEUED,
-			WorkInfo.State.BLOCKED -> {
+			WorkInfo.State.BLOCKED,
+			-> {
 				binding.textViewStatus.setText(R.string.queued)
 				binding.progressBar.isIndeterminate = false
 				binding.progressBar.isVisible = false
@@ -124,11 +125,12 @@ fun downloadItemAD(
 				binding.progressBar.setProgressCompat(item.progress, payloads.isNotEmpty())
 				binding.textViewPercent.text = percentPattern.format((item.percent * 100f).format(1))
 				binding.textViewPercent.isVisible = true
-				binding.textViewDetails.textAndVisible = when {
-					item.isPaused -> item.getErrorMessage(context)
-					item.isStuck -> context.getString(R.string.stuck)
-					else -> item.getEtaString()
-				}
+				binding.textViewDetails.textAndVisible =
+					when {
+						item.isPaused -> item.getErrorMessage(context)
+						item.isStuck -> context.getString(R.string.stuck)
+						else -> item.getEtaString()
+					}
 				binding.buttonCancel.isVisible = true
 				binding.buttonResume.isVisible = item.isPaused
 				binding.buttonResume.setText(if (item.error == null) R.string.resume else R.string.retry)
@@ -144,11 +146,12 @@ fun downloadItemAD(
 				binding.progressBar.isEnabled = true
 				binding.textViewPercent.isVisible = false
 				if (item.chaptersDownloaded > 0) {
-					binding.textViewDetails.text = context.resources.getQuantityStringSafe(
-						R.plurals.chapters,
-						item.chaptersDownloaded,
-						item.chaptersDownloaded,
-					)
+					binding.textViewDetails.text =
+						context.resources.getQuantityStringSafe(
+							R.plurals.chapters,
+							item.chaptersDownloaded,
+							item.chaptersDownloaded,
+						)
 					binding.textViewDetails.isVisible = true
 				} else {
 					binding.textViewDetails.isVisible = false

@@ -1,6 +1,7 @@
 package org.draken.usagi.settings.protect
 
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.view.KeyEvent
@@ -32,7 +33,6 @@ class ProtectSetupActivity :
 	View.OnClickListener,
 	TextView.OnEditorActionListener,
 	CompoundButton.OnCheckedChangeListener {
-
 	private val viewModel by viewModels<ProtectSetupViewModel>()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +59,10 @@ class ProtectSetupActivity :
 		}
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val barsInsets = insets.systemBarsInsets
 		val basePadding = resources.getDimensionPixelOffset(R.dimen.screen_padding)
 		viewBinding.root.setPadding(
@@ -73,25 +76,36 @@ class ProtectSetupActivity :
 
 	override fun onClick(v: View) {
 		when (v.id) {
-			R.id.button_cancel -> finish()
-			R.id.button_next -> viewModel.onNextClick(
-				password = viewBinding.editPassword.text?.toString() ?: return,
-			)
+			R.id.button_cancel -> {
+				finish()
+			}
+
+			R.id.button_next -> {
+				viewModel.onNextClick(
+					password = viewBinding.editPassword.text?.toString() ?: return,
+				)
+			}
 		}
 	}
 
-	override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
+	override fun onCheckedChanged(
+		buttonView: CompoundButton,
+		isChecked: Boolean,
+	) {
 		viewModel.setBiometricEnabled(isChecked)
 	}
 
-	override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
-		return if (actionId == EditorInfo.IME_ACTION_DONE && viewBinding.buttonNext.isEnabled) {
+	override fun onEditorAction(
+		v: TextView?,
+		actionId: Int,
+		event: KeyEvent?,
+	): Boolean =
+		if (actionId == EditorInfo.IME_ACTION_DONE && viewBinding.buttonNext.isEnabled) {
 			viewBinding.buttonNext.performClick()
 			true
 		} else {
 			false
 		}
-	}
 
 	override fun afterTextChanged(s: Editable?) {
 		viewBinding.editPassword.error = null
@@ -113,7 +127,7 @@ class ProtectSetupActivity :
 		}
 	}
 
-	private fun isBiometricAvailable(): Boolean {
-		return packageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)
-	}
+	private fun isBiometricAvailable(): Boolean =
+		Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+			packageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)
 }

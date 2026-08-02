@@ -4,10 +4,9 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.list.ui.model.ListModel
-import org.koitharu.kotatsu.parsers.model.MangaSource
+import tsuki.model.MangaSource
 
 sealed interface SourceConfigItem : ListModel {
-
 	data class SourceItem(
 		val source: MangaSource,
 		val isEnabled: Boolean,
@@ -16,13 +15,10 @@ sealed interface SourceConfigItem : ListModel {
 		val isPinned: Boolean,
 		val isDisableAvailable: Boolean,
 	) : SourceConfigItem {
-
 		val isNsfw: Boolean
 			get() = source.isNsfw()
 
-		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is SourceItem && other.source == source
-		}
+		override fun areItemsTheSame(other: ListModel): Boolean = other is SourceItem && other.source == source
 	}
 
 	data class Tip(
@@ -30,16 +26,10 @@ sealed interface SourceConfigItem : ListModel {
 		@DrawableRes val iconResId: Int,
 		@StringRes val textResId: Int,
 	) : SourceConfigItem {
-
-		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is Tip && other.key == key
-		}
+		override fun areItemsTheSame(other: ListModel): Boolean = other is Tip && other.key == key
 	}
 
 	data object EmptySearchResult : SourceConfigItem {
-
-		override fun areItemsTheSame(other: ListModel): Boolean {
-			return other is EmptySearchResult
-		}
+		override fun areItemsTheSame(other: ListModel): Boolean = other is EmptySearchResult
 	}
 }

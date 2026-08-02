@@ -26,11 +26,9 @@ import org.draken.usagi.core.util.ext.isNetworkUri
 import org.draken.usagi.core.util.ext.toMimeTypeOrNull
 import org.draken.usagi.local.data.LocalStorageCache
 import org.draken.usagi.local.data.PageCache
-import org.koitharu.kotatsu.parsers.model.MangaPage
-import org.koitharu.kotatsu.parsers.util.mimeType
-import org.koitharu.kotatsu.parsers.util.requireBody
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
-import org.draken.usagi.reader.domain.PageLoader
+import tsuki.model.MangaPage
+import tsuki.util.mimeType
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
 class MangaPageFetcher(
@@ -42,7 +40,6 @@ class MangaPageFetcher(
 	private val imageProxyInterceptor: ImageProxyInterceptor,
 	private val imageLoader: ImageLoader,
 ) : Fetcher {
-
 	override suspend fun fetch(): FetchResult? {
 		if (!page.preview.isNullOrEmpty()) {
 			runCatchingCancellable {
@@ -65,38 +62,39 @@ class MangaPageFetcher(
 		return loadPage(pageUrl)
 	}
 
-	private suspend fun loadPage(pageUrl: String): FetchResult? = if (pageUrl.toUri().isNetworkUri()) {
-		fetchPage(pageUrl)
-	} else {
-		imageLoader.fetch(pageUrl, options)
-	}
+	private suspend fun loadPage(pageUrl: String): FetchResult? =
+		if (pageUrl.toUri().isNetworkUri()) {
+			fetchPage(pageUrl)
+		} else {
+			imageLoader.fetch(pageUrl, options)
+		}
 
-	private suspend fun fetchPage(pageUrl: String): FetchResult {
-		val request = PageLoader.createPageRequest(pageUrl, page.source)
-		return imageProxyInterceptor.interceptPageRequest(request, okHttpClient).use { response ->
+	private suspend fun fetchPage(pageUrl: String): FetchResult =
+		mangaRepositoryFactory.create(page.source).getPageResponse(page, okHttpClient, imageProxyInterceptor).use { response ->
 			if (!response.isSuccessful) {
 				throw HttpException(response.toNetworkResponse())
 			}
 			val mimeType = response.mimeType?.toMimeTypeOrNull()
-			val file = response.requireBody().use {
-				pagesCache.set(pageUrl, it.source(), mimeType)
-			}
+			val file =
+				response.body.use {
+					pagesCache.set(pageUrl, it.source(), mimeType)
+				}
 			SourceFetchResult(
 				source = ImageSource(file.toOkioPath(), FileSystem.SYSTEM),
 				mimeType = mimeType?.toString(),
 				dataSource = DataSource.NETWORK,
 			)
 		}
-	}
 
-	private fun Response.toNetworkResponse() = NetworkResponse(
-		code = code,
-		requestMillis = sentRequestAtMillis,
-		responseMillis = receivedResponseAtMillis,
-		headers = headers.toNetworkHeaders(),
-		body = body?.source()?.let(::NetworkResponseBody),
-		delegate = this,
-	)
+	private fun Response.toNetworkResponse() =
+		NetworkResponse(
+			code = code,
+			requestMillis = sentRequestAtMillis,
+			responseMillis = receivedResponseAtMillis,
+			headers = headers.toNetworkHeaders(),
+			body = body.source().let(::NetworkResponseBody),
+			delegate = this,
+		)
 
 	private fun Headers.toNetworkHeaders(): NetworkHeaders {
 		val headers = NetworkHeaders.Builder()
@@ -106,21 +104,26 @@ class MangaPageFetcher(
 		return headers.build()
 	}
 
-	class Factory @Inject constructor(
-		@MangaHttpClient private val okHttpClient: OkHttpClient,
-		@PageCache private val pagesCache: LocalStorageCache,
-		private val mangaRepositoryFactory: MangaRepository.Factory,
-		private val imageProxyInterceptor: ImageProxyInterceptor,
-	) : Fetcher.Factory<MangaPage> {
-
-		override fun create(data: MangaPage, options: Options, imageLoader: ImageLoader) = MangaPageFetcher(
-			okHttpClient = okHttpClient,
-			pagesCache = pagesCache,
-			options = options,
-			page = data,
-			mangaRepositoryFactory = mangaRepositoryFactory,
-			imageProxyInterceptor = imageProxyInterceptor,
-			imageLoader = imageLoader,
-		)
-	}
+	class Factory
+		@Inject
+		constructor(
+			@MangaHttpClient private val okHttpClient: OkHttpClient,
+			@PageCache private val pagesCache: LocalStorageCache,
+			private val mangaRepositoryFactory: MangaRepository.Factory,
+			private val imageProxyInterceptor: ImageProxyInterceptor,
+		) : Fetcher.Factory<MangaPage> {
+			override fun create(
+				data: MangaPage,
+				options: Options,
+				imageLoader: ImageLoader,
+			) = MangaPageFetcher(
+				okHttpClient = okHttpClient,
+				pagesCache = pagesCache,
+				options = options,
+				page = data,
+				mangaRepositoryFactory = mangaRepositoryFactory,
+				imageProxyInterceptor = imageProxyInterceptor,
+				imageLoader = imageLoader,
+			)
+		}
 }

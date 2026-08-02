@@ -20,8 +20,8 @@ import org.draken.usagi.core.db.TABLE_MANGA_TAGS
 			parentColumns = ["tag_id"],
 			childColumns = ["tag_id"],
 			onDelete = ForeignKey.CASCADE,
-		)
-	]
+		),
+	],
 )
 class MangaTagsEntity(
 	@ColumnInfo(name = "manga_id", index = true) val mangaId: Long,

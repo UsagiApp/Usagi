@@ -1,6 +1,6 @@
 package org.draken.usagi.tracker.domain.model
 
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 import java.time.Instant
 
 data class MangaTracking(
@@ -10,8 +10,5 @@ data class MangaTracking(
 	val lastChapterDate: Instant?,
 	val newChapters: Int,
 ) {
-
-	fun isEmpty(): Boolean {
-		return lastChapterId == 0L
-	}
+	fun isEmpty(): Boolean = lastChapterId == 0L
 }

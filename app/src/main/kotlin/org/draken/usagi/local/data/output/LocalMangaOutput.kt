@@ -10,20 +10,27 @@ import org.draken.usagi.core.util.ext.MimeType
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.toFileNameSafe
 import org.draken.usagi.local.data.input.LocalMangaParser
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.util.runCatchingCancellable
 import java.io.File
 
 sealed class LocalMangaOutput(
 	val rootFile: File,
 ) : Closeable {
-
 	abstract suspend fun mergeWithExisting()
 
-	abstract suspend fun addCover(file: File, type: MimeType?)
+	abstract suspend fun addCover(
+		file: File,
+		type: MimeType?,
+	)
 
-	abstract suspend fun addPage(chapter: IndexedValue<MangaChapter>, file: File, pageNumber: Int, type: MimeType?)
+	abstract suspend fun addPage(
+		chapter: IndexedValue<MangaChapter>,
+		file: File,
+		pageNumber: Int,
+		type: MimeType?,
+	)
 
 	abstract suspend fun flushChapter(chapter: MangaChapter): Boolean
 
@@ -32,7 +39,6 @@ sealed class LocalMangaOutput(
 	abstract suspend fun cleanup()
 
 	companion object {
-
 		const val ENTRY_NAME_INDEX = "index.json"
 		const val SUFFIX_TMP = ".tmp"
 		private val mutex = Mutex()
@@ -41,22 +47,28 @@ sealed class LocalMangaOutput(
 			root: File,
 			manga: Manga,
 			format: DownloadFormat,
-		): LocalMangaOutput = withContext(Dispatchers.IO) {
-			val targetFormat = if (format == DownloadFormat.AUTOMATIC) {
-				if (manga.chapters.let { it != null && it.size <= 3 }) {
-					DownloadFormat.SINGLE_CBZ
-				} else {
-					DownloadFormat.MULTIPLE_CBZ
-				}
-			} else {
-				format
+		): LocalMangaOutput =
+			withContext(Dispatchers.IO) {
+				val targetFormat =
+					if (format == DownloadFormat.AUTOMATIC) {
+						if (manga.chapters.let { it != null && it.size <= 3 }) {
+							DownloadFormat.SINGLE_CBZ
+						} else {
+							DownloadFormat.MULTIPLE_CBZ
+						}
+					} else {
+						format
+					}
+				checkNotNull(getImpl(root, manga, onlyIfExists = false, format = targetFormat))
 			}
-			checkNotNull(getImpl(root, manga, onlyIfExists = false, format = targetFormat))
-		}
 
-		suspend fun get(root: File, manga: Manga): LocalMangaOutput? = withContext(Dispatchers.IO) {
-			getImpl(root, manga, onlyIfExists = true, format = DownloadFormat.AUTOMATIC)
-		}
+		suspend fun get(
+			root: File,
+			manga: Manga,
+		): LocalMangaOutput? =
+			withContext(Dispatchers.IO) {
+				getImpl(root, manga, onlyIfExists = true, format = DownloadFormat.AUTOMATIC)
+			}
 
 		private suspend fun getImpl(
 			root: File,
@@ -81,30 +93,40 @@ sealed class LocalMangaOutput(
 							}
 						}
 
-						zip.isFile -> if (canWriteTo(zip, manga)) {
-							LocalMangaZipOutput(zip, manga)
-						} else {
-							continue
+						zip.isFile -> {
+							if (canWriteTo(zip, manga)) {
+								LocalMangaZipOutput(zip, manga)
+							} else {
+								continue
+							}
 						}
 
-						!onlyIfExists -> when (format) {
-							DownloadFormat.AUTOMATIC -> null
-							DownloadFormat.SINGLE_CBZ -> LocalMangaZipOutput(zip, manga)
-							DownloadFormat.MULTIPLE_CBZ -> LocalMangaDirOutput(dir, manga)
+						!onlyIfExists -> {
+							when (format) {
+								DownloadFormat.AUTOMATIC -> null
+								DownloadFormat.SINGLE_CBZ -> LocalMangaZipOutput(zip, manga)
+								DownloadFormat.MULTIPLE_CBZ -> LocalMangaDirOutput(dir, manga)
+							}
 						}
 
-						else -> null
+						else -> {
+							null
+						}
 					}
 				}
 			}
 		}
 
-		private suspend fun canWriteTo(file: File, manga: Manga): Boolean {
-			val info = runCatchingCancellable {
-				LocalMangaParser(file).getMangaInfo()
-			}.onFailure {
-				it.printStackTraceDebug()
-			}.getOrNull() ?: return false
+		private suspend fun canWriteTo(
+			file: File,
+			manga: Manga,
+		): Boolean {
+			val info =
+				runCatchingCancellable {
+					LocalMangaParser(file).getMangaInfo()
+				}.onFailure {
+					it.printStackTraceDebug()
+				}.getOrNull() ?: return false
 			return info.id == manga.id
 		}
 	}

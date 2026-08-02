@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,12 +20,12 @@ import org.draken.usagi.core.util.ext.powerManager
 class DozeHelper(
 	private val fragment: PreferenceFragmentCompat,
 ) {
-
-	private val startForDozeResult = fragment.registerForActivityResult(
-		ActivityResultContracts.StartActivityForResult(),
-	) {
-		updatePreference()
-	}
+	private val startForDozeResult =
+		fragment.registerForActivityResult(
+			ActivityResultContracts.StartActivityForResult(),
+		) {
+			updatePreference()
+		}
 
 	fun updatePreference() {
 		val preference = fragment.findPreference<Preference>(AppSettings.KEY_IGNORE_DOZE) ?: return
@@ -32,15 +33,20 @@ class DozeHelper(
 	}
 
 	fun startIgnoreDoseActivity(): Boolean {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+			Snackbar.make(fragment.listView ?: return false, R.string.operation_not_supported, Snackbar.LENGTH_SHORT).show()
+			return false
+		}
 		val context = fragment.context ?: return false
 		val packageName = context.packageName
 		val powerManager = context.powerManager ?: return false
 		return if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
 			try {
-				val intent = Intent(
-					Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-					"package:$packageName".toUri(),
-				)
+				val intent =
+					Intent(
+						Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+						"package:$packageName".toUri(),
+					)
 				startForDozeResult.launch(intent)
 				true
 			} catch (e: ActivityNotFoundException) {
@@ -53,6 +59,9 @@ class DozeHelper(
 	}
 
 	private fun isDozeIgnoreAvailable(): Boolean {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+			return false
+		}
 		val context = fragment.context ?: return false
 		val packageName = context.packageName
 		val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager

@@ -5,9 +5,8 @@ import com.google.android.material.appbar.AppBarLayout
 
 class FadingAppbarMediator(
 	private val appBarLayout: AppBarLayout,
-	private val target: View
+	private val target: View,
 ) : AppBarLayout.OnOffsetChangedListener {
-
 	private var isBound: Boolean = false
 
 	fun bind() {
@@ -25,7 +24,10 @@ class FadingAppbarMediator(
 		target.alpha = 1f
 	}
 
-	override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
+	override fun onOffsetChanged(
+		appBarLayout: AppBarLayout?,
+		verticalOffset: Int,
+	) {
 		val scrollRange = (appBarLayout ?: return).totalScrollRange
 		if (scrollRange <= 0) {
 			return

@@ -20,7 +20,6 @@ import org.draken.usagi.core.util.ext.hasFocusStateSpecified
 class TextDrawable(
 	val text: String,
 ) : PaintDrawable() {
-
 	override val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.SUBPIXEL_TEXT_FLAG)
 	private val textBounds = Rect()
 	private val textPoint = PointF()
@@ -75,11 +74,18 @@ class TextDrawable(
 	}
 
 	companion object {
-
 		@SuppressLint("RestrictedApi")
-		fun create(context: Context, text: String, @AttrRes textAppearanceAttr: Int): TextDrawable {
+		fun create(
+			context: Context,
+			text: String,
+			@AttrRes textAppearanceAttr: Int,
+		): TextDrawable {
 			val drawable = TextDrawable(text)
-			val textAppearance = TextAppearance(context, context.getThemeResId(textAppearanceAttr, androidx.appcompat.R.style.TextAppearance_AppCompat))
+			val textAppearance =
+				TextAppearance(
+					context,
+					context.getThemeResId(textAppearanceAttr, androidx.appcompat.R.style.TextAppearance_AppCompat),
+				)
 			drawable.textSize = textAppearance.textSize
 			drawable.textColor = textAppearance.textColor ?: drawable.textColor
 			drawable.paint.typeface = textAppearance.getFont(context)
@@ -87,7 +93,10 @@ class TextDrawable(
 			return drawable
 		}
 
-		fun compound(textView: TextView, text: String): TextDrawable? {
+		fun compound(
+			textView: TextView,
+			text: String,
+		): TextDrawable? {
 			val drawable = TextDrawable(text)
 			drawable.textSize = textView.textSize
 			drawable.textColor = textView.textColors

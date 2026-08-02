@@ -14,15 +14,15 @@ import org.draken.usagi.core.db.entity.MangaEntity
 			entity = MangaEntity::class,
 			parentColumns = ["manga_id"],
 			childColumns = ["manga_id"],
-			onDelete = ForeignKey.CASCADE
+			onDelete = ForeignKey.CASCADE,
 		),
 		ForeignKey(
 			entity = FavouriteCategoryEntity::class,
 			parentColumns = ["category_id"],
 			childColumns = ["category_id"],
-			onDelete = ForeignKey.CASCADE
-		)
-	]
+			onDelete = ForeignKey.CASCADE,
+		),
+	],
 )
 data class FavouriteEntity(
 	@ColumnInfo(name = "manga_id", index = true) val mangaId: Long,

@@ -19,9 +19,9 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.getDrawableOrThrow
 import org.draken.usagi.core.util.ext.mangaExtra
 import org.draken.usagi.history.data.HistoryRepository
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.util.replaceWith
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.model.Manga
+import tsuki.util.replaceWith
+import tsuki.util.runCatchingCancellable
 
 class RecentListFactory(
 	private val context: Context,
@@ -29,15 +29,16 @@ class RecentListFactory(
 	private val coilLazy: Lazy<ImageLoader>,
 	private val settings: AppSettings,
 ) : RemoteViewsService.RemoteViewsFactory {
-
 	private val dataSet = ArrayList<Manga>()
-	private val transformation = RoundedCornersTransformation(
-		context.resources.getDimension(R.dimen.appwidget_corner_radius_inner),
-	)
-	private val coverSize = Size(
-		context.resources.getDimensionPixelSize(R.dimen.widget_cover_width),
-		context.resources.getDimensionPixelSize(R.dimen.widget_cover_height),
-	)
+	private val transformation =
+		RoundedCornersTransformation(
+			context.resources.getDimension(R.dimen.appwidget_corner_radius_inner),
+		)
+	private val coverSize =
+		Size(
+			context.resources.getDimensionPixelSize(R.dimen.widget_cover_width),
+			context.resources.getDimensionPixelSize(R.dimen.widget_cover_height),
+		)
 
 	override fun onCreate() = Unit
 
@@ -46,11 +47,12 @@ class RecentListFactory(
 	override fun getItemId(position: Int) = dataSet.getOrNull(position)?.id ?: 0L
 
 	override fun onDataSetChanged() {
-		val data = if (settings.appPassword.isNullOrEmpty()) {
-			runBlocking { historyRepository.getList(0, 10) }
-		} else {
-			emptyList()
-		}
+		val data =
+			if (settings.appPassword.isNullOrEmpty()) {
+				runBlocking { historyRepository.getList(0, 10) }
+			} else {
+				emptyList()
+			}
 		dataSet.replaceWith(data)
 	}
 
@@ -60,14 +62,18 @@ class RecentListFactory(
 		val views = RemoteViews(context.packageName, R.layout.item_recent)
 		val item = dataSet.getOrNull(position) ?: return views
 		runCatchingCancellable {
-			coilLazy.get().executeBlocking(
-				ImageRequest.Builder(context)
-					.data(item.coverUrl)
-					.size(coverSize)
-					.mangaExtra(item)
-					.transformations(transformation)
-					.build(),
-			).getDrawableOrThrow().toBitmap()
+			coilLazy
+				.get()
+				.executeBlocking(
+					ImageRequest
+						.Builder(context)
+						.data(item.coverUrl)
+						.size(coverSize)
+						.mangaExtra(item)
+						.transformations(transformation)
+						.build(),
+				).getDrawableOrThrow()
+				.toBitmap()
 		}.onSuccess { cover ->
 			views.setImageViewBitmap(R.id.imageView_cover, cover)
 		}.onFailure {

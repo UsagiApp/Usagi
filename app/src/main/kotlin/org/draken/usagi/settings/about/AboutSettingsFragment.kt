@@ -23,10 +23,12 @@ import org.draken.usagi.core.util.ext.observeEvent
 
 @AndroidEntryPoint
 class AboutSettingsFragment : BasePreferenceFragment(R.string.about) {
-
 	private val viewModel by viewModels<AboutSettingsViewModel>()
 
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
 		addPreferencesFromResource(R.xml.pref_about)
 		findPreference<Preference>(AppSettings.KEY_APP_VERSION)?.run {
 			title = getString(R.string.app_version, BuildConfig.VERSION_NAME)
@@ -37,19 +39,21 @@ class AboutSettingsFragment : BasePreferenceFragment(R.string.about) {
 		}
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		combine(viewModel.isUpdateSupported, viewModel.isLoading, ::Pair)
 			.observe(viewLifecycleOwner) { (isUpdateSupported, isLoading) ->
 				findPreference<Preference>(AppSettings.KEY_UPDATES_UNSTABLE)?.isVisible = isUpdateSupported
 				findPreference<Preference>(AppSettings.KEY_APP_VERSION)?.isEnabled = isUpdateSupported && !isLoading
-
 			}
 		viewModel.onUpdateAvailable.observeEvent(viewLifecycleOwner, ::onUpdateAvailable)
 	}
 
-	override fun onPreferenceTreeClick(preference: Preference): Boolean {
-		return when (preference.key) {
+	override fun onPreferenceTreeClick(preference: Preference): Boolean =
+		when (preference.key) {
 			AppSettings.KEY_APP_VERSION -> {
 				viewModel.checkForUpdates()
 				true
@@ -77,9 +81,10 @@ class AboutSettingsFragment : BasePreferenceFragment(R.string.about) {
 				true
 			}
 
-			else -> super.onPreferenceTreeClick(preference)
+			else -> {
+				super.onPreferenceTreeClick(preference)
+			}
 		}
-	}
 
 	private fun onUpdateAvailable(version: AppVersion?) {
 		if (version == null) {
@@ -91,11 +96,12 @@ class AboutSettingsFragment : BasePreferenceFragment(R.string.about) {
 
 	private fun openLink(
 		@StringRes url: Int,
-		title: CharSequence?
-	): Boolean = if (router.openExternalBrowser(getString(url), title)) {
-		true
-	} else {
-		Snackbar.make(listView, R.string.operation_not_supported, Snackbar.LENGTH_SHORT).show()
-		false
-	}
+		title: CharSequence?,
+	): Boolean =
+		if (router.openExternalBrowser(getString(url), title)) {
+			true
+		} else {
+			Snackbar.make(listView, R.string.operation_not_supported, Snackbar.LENGTH_SHORT).show()
+			false
+		}
 }

@@ -2,13 +2,12 @@ package org.draken.usagi.list.domain
 
 import androidx.annotation.StringRes
 import org.draken.usagi.R
-import org.koitharu.kotatsu.parsers.util.find
+import tsuki.util.find
 import java.util.EnumSet
 
 enum class ListSortOrder(
 	@StringRes val titleResId: Int,
 ) {
-
 	NEWEST(R.string.order_added),
 	OLDEST(R.string.order_oldest),
 	PROGRESS(R.string.progress),
@@ -26,34 +25,38 @@ enum class ListSortOrder(
 	fun isGroupingSupported() = this == LAST_READ || this == NEWEST || this == PROGRESS
 
 	companion object {
-
-		val HISTORY: Set<ListSortOrder> = EnumSet.of(
-			LAST_READ,
-			LONG_AGO_READ,
-			NEWEST,
-			OLDEST,
-			PROGRESS,
-			UNREAD,
-			ALPHABETIC,
-			ALPHABETIC_REVERSE,
-			NEW_CHAPTERS,
-			UPDATED,
-		)
-		val FAVORITES: Set<ListSortOrder> = EnumSet.of(
-			ALPHABETIC,
-			ALPHABETIC_REVERSE,
-			NEWEST,
-			OLDEST,
-			RATING,
-			NEW_CHAPTERS,
-			PROGRESS,
-			UNREAD,
-			LAST_READ,
-			LONG_AGO_READ,
-			UPDATED,
-		)
+		val HISTORY: Set<ListSortOrder> =
+			EnumSet.of(
+				LAST_READ,
+				LONG_AGO_READ,
+				NEWEST,
+				OLDEST,
+				PROGRESS,
+				UNREAD,
+				ALPHABETIC,
+				ALPHABETIC_REVERSE,
+				NEW_CHAPTERS,
+				UPDATED,
+			)
+		val FAVORITES: Set<ListSortOrder> =
+			EnumSet.of(
+				ALPHABETIC,
+				ALPHABETIC_REVERSE,
+				NEWEST,
+				OLDEST,
+				RATING,
+				NEW_CHAPTERS,
+				PROGRESS,
+				UNREAD,
+				LAST_READ,
+				LONG_AGO_READ,
+				UPDATED,
+			)
 		val SUGGESTIONS: Set<ListSortOrder> = EnumSet.of(RELEVANCE)
 
-		operator fun invoke(value: String, fallback: ListSortOrder) = entries.find(value) ?: fallback
+		operator fun invoke(
+			value: String,
+			fallback: ListSortOrder,
+		) = entries.find(value) ?: fallback
 	}
 }

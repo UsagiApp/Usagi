@@ -9,7 +9,6 @@ import org.draken.usagi.core.prefs.AppSettings
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 interface BaseActivityEntryPoint {
-
 	val settings: AppSettings
 
 	val exceptionResolverFactory: ExceptionResolver.Factory

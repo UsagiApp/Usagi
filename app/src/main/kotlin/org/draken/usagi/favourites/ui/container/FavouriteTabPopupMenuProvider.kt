@@ -14,15 +14,18 @@ class FavouriteTabPopupMenuProvider(
 	private val context: Context,
 	private val router: AppRouter,
 	private val viewModel: FavouritesContainerViewModel,
-	private val categoryId: Long
+	private val categoryId: Long,
 ) : MenuProvider {
-
-	override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-		val menuResId = if (categoryId == NO_ID) {
-			R.menu.popup_fav_tab_all
-		} else {
-			R.menu.popup_fav_tab
-		}
+	override fun onCreateMenu(
+		menu: Menu,
+		menuInflater: MenuInflater,
+	) {
+		val menuResId =
+			if (categoryId == NO_ID) {
+				R.menu.popup_fav_tab_all
+			} else {
+				R.menu.popup_fav_tab
+			}
 		menuInflater.inflate(menuResId, menu)
 	}
 

@@ -8,14 +8,14 @@ import okio.Buffer
 import org.draken.usagi.core.network.CommonHeaders.ACCEPT_ENCODING
 
 class CurlLoggingInterceptor(
-	private val curlOptions: String? = null
+	private val curlOptions: String? = null,
 ) : Interceptor {
-
 	private val escapeRegex = Regex("([\\[\\]\"])")
 
-	override fun intercept(chain: Interceptor.Chain): Response = chain.proceed(chain.request()).also {
-		logRequest(it.networkResponse?.request ?: it.request)
-	}
+	override fun intercept(chain: Interceptor.Chain): Response =
+		chain.proceed(chain.request()).also {
+			logRequest(it.networkResponse?.request ?: it.request)
+		}
 
 	private fun logRequest(request: Request) {
 		var isCompressed = false
@@ -31,7 +31,12 @@ class CurlLoggingInterceptor(
 			if (name.equals(ACCEPT_ENCODING, ignoreCase = true) && value.equals("gzip", ignoreCase = true)) {
 				isCompressed = true
 			}
-			curlCmd.append(" -H \"").append(name).append(": ").append(value.escape()).append('\"')
+			curlCmd
+				.append(" -H \"")
+				.append(name)
+				.append(": ")
+				.append(value.escape())
+				.append('\"')
 		}
 
 		val body = request.body
@@ -39,7 +44,8 @@ class CurlLoggingInterceptor(
 			val buffer = Buffer()
 			body.writeTo(buffer)
 			val charset = body.contentType()?.charset() ?: Charsets.UTF_8
-			curlCmd.append(" --data-raw '")
+			curlCmd
+				.append(" --data-raw '")
 				.append(buffer.readString(charset).replace("\n", "\\n"))
 				.append("'")
 		}
@@ -52,9 +58,10 @@ class CurlLoggingInterceptor(
 		log(curlCmd.toString())
 	}
 
-	private fun String.escape() = replace(escapeRegex) { match ->
-		"\\" + match.value
-	}
+	private fun String.escape() =
+		replace(escapeRegex) { match ->
+			"\\" + match.value
+		}
 
 	private fun log(msg: String) {
 		Log.d("CURL", msg)

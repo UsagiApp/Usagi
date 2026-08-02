@@ -5,25 +5,32 @@
 	xmlns:tools="http://schemas.android.com/tools">
 
 	<item
-		android:id="@+id/action_random"
-		android:icon="@drawable/ic_dice"
+		android:id="@+id/action_web"
+		android:icon="@drawable/ic_web"
 		android:orderInCategory="10"
-		android:title="@string/random"
+		android:title="@string/open_in_browser"
 		app:showAsAction="ifRoom" />
 
 	<item
 		android:id="@+id/action_filter"
-		android:orderInCategory="30"
+		android:orderInCategory="20"
 		android:title="@string/filter"
 		app:showAsAction="never" />
 
 	<item
 		android:id="@+id/action_filter_reset"
-		android:orderInCategory="30"
+		android:orderInCategory="20"
 		android:title="@string/reset_filter"
 		android:visible="false"
 		app:showAsAction="never"
 		tools:visible="true" />
+
+	<item
+		android:id="@+id/action_random"
+		android:icon="@drawable/ic_dice"
+		android:orderInCategory="30"
+		android:title="@string/random"
+		app:showAsAction="ifRoom" />
 
 	<item
 		android:id="@+id/action_source_settings"

@@ -54,9 +54,9 @@ import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.MangaListModel
 import org.draken.usagi.list.ui.size.DynamicItemSizeResolver
 import org.draken.usagi.main.ui.owners.AppBarOwner
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaTag
 import org.draken.usagi.search.ui.MangaListActivity
+import tsuki.model.Manga
+import tsuki.model.MangaTag
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -68,7 +68,6 @@ abstract class MangaListFragment :
 	SwipeRefreshLayout.OnRefreshListener,
 	ListSelectionController.Callback,
 	FastScroller.FastScrollListener {
-
 	@Inject
 	lateinit var coil: ImageLoader
 
@@ -77,7 +76,7 @@ abstract class MangaListFragment :
 
 	private var listAdapter: MangaListAdapter? = null
 	private var paginationListener: PaginationScrollListener? = null
-	private var selectionController: ListSelectionController? = null
+	protected var selectionController: ListSelectionController? = null
 	private var spanResolver: GridSpanResolver? = null
 	private val spanSizeLookup = SpanSizeLookup()
 	open val isSwipeRefreshEnabled = true
@@ -98,16 +97,20 @@ abstract class MangaListFragment :
 		container: ViewGroup?,
 	) = FragmentListBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: FragmentListBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: FragmentListBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		listAdapter = onCreateAdapter()
 		spanResolver = GridSpanResolver(binding.root.resources)
-		selectionController = ListSelectionController(
-			appCompatDelegate = checkNotNull(findAppCompatDelegate()),
-			decoration = MangaSelectionDecoration(binding.root.context),
-			registryOwner = this,
-			callback = this,
-		)
+		selectionController =
+			ListSelectionController(
+				appCompatDelegate = checkNotNull(findAppCompatDelegate()),
+				decoration = MangaSelectionDecoration(binding.root.context),
+				registryOwner = this,
+				callback = this,
+			)
 		paginationListener = PaginationScrollListener(4, this)
 		with(binding.recyclerView) {
 			setHasFixedSize(true)
@@ -131,7 +134,10 @@ abstract class MangaListFragment :
 		viewModel.onActionDone.observeEvent(viewLifecycleOwner, ReversibleActionObserver(binding.recyclerView))
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		val barsInsets = insets.getInsets(typeMask)
 		val basePadding = v.resources.getDimensionPixelOffset(R.dimen.list_spacing_normal)
@@ -153,7 +159,10 @@ abstract class MangaListFragment :
 		super.onDestroyView()
 	}
 
-	override fun onItemClick(item: MangaListModel, view: View) {
+	override fun onItemClick(
+		item: MangaListModel,
+		view: View,
+	) {
 		if (selectionController?.onItemClick(item.id) != true) {
 			val manga = item.toMangaWithOverride()
 			if ((activity as? MangaListActivity)?.showPreview(manga) != true) {
@@ -162,21 +171,30 @@ abstract class MangaListFragment :
 		}
 	}
 
-	override fun onItemLongClick(item: MangaListModel, view: View): Boolean {
-		return selectionController?.onItemLongClick(view, item.id) == true
-	}
+	override fun onItemLongClick(
+		item: MangaListModel,
+		view: View,
+	): Boolean = selectionController?.onItemLongClick(view, item.id) == true
 
-	override fun onItemContextClick(item: MangaListModel, view: View): Boolean {
-		return selectionController?.onItemContextClick(view, item.id) == true
-	}
+	override fun onItemContextClick(
+		item: MangaListModel,
+		view: View,
+	): Boolean = selectionController?.onItemContextClick(view, item.id) == true
 
-	override fun onReadClick(manga: Manga, view: View) {
+	override fun onReadClick(
+		manga: Manga,
+		view: View,
+	) {
 		if (selectionController?.onItemClick(manga.id) != true) {
 			router.openReader(manga)
 		}
 	}
 
-	override fun onTagClick(manga: Manga, tag: MangaTag, view: View) {
+	override fun onTagClick(
+		manga: Manga,
+		tag: MangaTag,
+		view: View,
+	) {
 		if (selectionController?.onItemClick(manga.id) != true) {
 			router.showTagDialog(tag)
 		}
@@ -217,12 +235,11 @@ abstract class MangaListFragment :
 		}
 	}
 
-	protected open fun onCreateAdapter(): MangaListAdapter {
-		return MangaListAdapter(
+	protected open fun onCreateAdapter(): MangaListAdapter =
+		MangaListAdapter(
 			listener = this,
 			sizeResolver = DynamicItemSizeResolver(resources, viewLifecycleOwner, settings, adjustWidth = false),
 		)
-	}
 
 	override fun onFilterOptionClick(option: ListFilterOption) {
 		selectionController?.clear()
@@ -233,7 +250,10 @@ abstract class MangaListFragment :
 
 	override fun onEmptyActionClick() = Unit
 
-	override fun onListHeaderClick(item: ListHeader, view: View) = Unit
+	override fun onListHeaderClick(
+		item: ListHeader,
+		view: View,
+	) = Unit
 
 	override fun onPrimaryButtonClick(tipView: TipView) = Unit
 
@@ -261,10 +281,11 @@ abstract class MangaListFragment :
 					layoutManager = FitHeightLinearLayoutManager(context)
 				}
 
-				ListMode.GRID -> {
-					layoutManager = FitHeightGridLayoutManager(context, checkNotNull(spanResolver).spanCount).also {
-						it.spanSizeLookup = spanSizeLookup
-					}
+				ListMode.COVER_ONLY, ListMode.GRID -> {
+					layoutManager =
+						FitHeightGridLayoutManager(context, checkNotNull(spanResolver).spanCount).also {
+							it.spanSizeLookup = spanSizeLookup
+						}
 					addOnLayoutChangeListener(spanResolver)
 				}
 			}
@@ -272,7 +293,11 @@ abstract class MangaListFragment :
 	}
 
 	@CallSuper
-	override fun onPrepareActionMode(controller: ListSelectionController, mode: ActionMode?, menu: Menu): Boolean {
+	override fun onPrepareActionMode(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		menu: Menu,
+	): Boolean {
 		val hasNoLocal = selectedItems.none { it.isLocal }
 		val isSingleSelection = controller.count == 1
 		menu.findItem(R.id.action_save)?.isVisible = hasNoLocal
@@ -284,17 +309,20 @@ abstract class MangaListFragment :
 	override fun onCreateActionMode(
 		controller: ListSelectionController,
 		menuInflater: MenuInflater,
-		menu: Menu
-	): Boolean {
-		return menu.hasVisibleItems()
-	}
+		menu: Menu,
+	): Boolean = menu.hasVisibleItems()
 
-	override fun onActionItemClicked(controller: ListSelectionController, mode: ActionMode?, item: MenuItem): Boolean {
+	override fun onActionItemClicked(
+		controller: ListSelectionController,
+		mode: ActionMode?,
+		item: MenuItem,
+	): Boolean {
 		return when (item.itemId) {
 			R.id.action_select_all -> {
-				val ids = listAdapter?.items?.mapNotNull {
-					(it as? MangaListModel)?.id
-				} ?: return false
+				val ids =
+					listAdapter?.items?.mapNotNull {
+						(it as? MangaListModel)?.id
+					} ?: return false
 				selectionController?.addAll(ids)
 				true
 			}
@@ -338,11 +366,16 @@ abstract class MangaListFragment :
 				true
 			}
 
-			else -> false
+			else -> {
+				false
+			}
 		}
 	}
 
-	override fun onSelectionChanged(controller: ListSelectionController, count: Int) {
+	override fun onSelectionChanged(
+		controller: ListSelectionController,
+		count: Int,
+	) {
 		viewBinding?.recyclerView?.invalidateItemDecorations()
 	}
 
@@ -368,7 +401,6 @@ abstract class MangaListFragment :
 	}
 
 	private inner class SpanSizeLookup : GridLayoutManager.SpanSizeLookup() {
-
 		init {
 			isSpanIndexCacheEnabled = true
 			isSpanGroupIndexCacheEnabled = true

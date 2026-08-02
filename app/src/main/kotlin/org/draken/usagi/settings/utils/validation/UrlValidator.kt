@@ -5,7 +5,6 @@ import org.draken.usagi.R
 import org.draken.usagi.core.util.EditTextValidator
 
 class UrlValidator : EditTextValidator() {
-
 	override fun validate(text: String): ValidationResult {
 		val trimmed = text.trim()
 		if (trimmed.isEmpty()) {
@@ -18,7 +17,5 @@ class UrlValidator : EditTextValidator() {
 		}
 	}
 
-	private fun isValidUrl(str: String): Boolean {
-		return URLUtil.isValidUrl(str) || DomainValidator.isValidDomain(str)
-	}
+	private fun isValidUrl(str: String): Boolean = URLUtil.isValidUrl(str) || DomainValidator.isValidDomain(str)
 }

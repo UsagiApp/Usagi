@@ -4,7 +4,6 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 sealed interface ListConfigSection : Parcelable {
-
 	@Parcelize
 	data object History : ListConfigSection
 

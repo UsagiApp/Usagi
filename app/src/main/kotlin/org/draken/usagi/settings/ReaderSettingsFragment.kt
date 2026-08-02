@@ -1,7 +1,6 @@
 package org.draken.usagi.settings
 
 import android.content.SharedPreferences
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
 import androidx.preference.ListPreference
@@ -12,50 +11,26 @@ import org.draken.usagi.R
 import org.draken.usagi.core.model.ZoomMode
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.prefs.AppSettings
-import org.draken.usagi.core.prefs.ReaderAnimation
-import org.draken.usagi.core.prefs.ReaderBackground
-import org.draken.usagi.core.prefs.ReaderControl
 import org.draken.usagi.core.prefs.ReaderMode
 import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
-import org.koitharu.kotatsu.parsers.util.mapToSet
-import org.koitharu.kotatsu.parsers.util.names
 import org.draken.usagi.settings.utils.MultiSummaryProvider
 import org.draken.usagi.settings.utils.PercentSummaryProvider
 import org.draken.usagi.settings.utils.SliderPreference
+import tsuki.util.names
 
 @AndroidEntryPoint
 class ReaderSettingsFragment :
 	BasePreferenceFragment(R.string.reader_settings),
 	SharedPreferences.OnSharedPreferenceChangeListener {
-
-	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-		addPreferencesFromResource(R.xml.pref_reader)
+	override fun onCreatePreferences(
+		savedInstanceState: Bundle?,
+		rootKey: String?,
+	) {
+		addPreferencesFromResource(R.xml.pref_readers)
 		findPreference<ListPreference>(AppSettings.KEY_READER_MODE)?.run {
 			entryValues = ReaderMode.entries.names()
 			setDefaultValueCompat(ReaderMode.STANDARD.name)
-		}
-		findPreference<ListPreference>(AppSettings.KEY_READER_ORIENTATION)?.run {
-			entryValues = arrayOf(
-				ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED.toString(),
-				ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR.toString(),
-				ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT.toString(),
-				ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE.toString(),
-			)
-			setDefaultValueCompat(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED.toString())
-		}
-		findPreference<MultiSelectListPreference>(AppSettings.KEY_READER_CONTROLS)?.run {
-			entryValues = ReaderControl.entries.names()
-			setDefaultValueCompat(ReaderControl.DEFAULT.mapToSet { it.name })
-			summaryProvider = MultiSummaryProvider(R.string.none)
-		}
-		findPreference<ListPreference>(AppSettings.KEY_READER_BACKGROUND)?.run {
-			entryValues = ReaderBackground.entries.names()
-			setDefaultValueCompat(ReaderBackground.DEFAULT.name)
-		}
-		findPreference<ListPreference>(AppSettings.KEY_READER_ANIMATION)?.run {
-			entryValues = ReaderAnimation.entries.names()
-			setDefaultValueCompat(ReaderAnimation.DEFAULT.name)
 		}
 		findPreference<ListPreference>(AppSettings.KEY_ZOOM_MODE)?.run {
 			entryValues = ZoomMode.entries.names()
@@ -68,7 +43,10 @@ class ReaderSettingsFragment :
 		updateReaderModeDependency()
 	}
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+	override fun onViewCreated(
+		view: View,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewCreated(view, savedInstanceState)
 		settings.subscribe(this)
 	}
@@ -78,18 +56,22 @@ class ReaderSettingsFragment :
 		super.onDestroyView()
 	}
 
-	override fun onPreferenceTreeClick(preference: Preference): Boolean {
-		return when (preference.key) {
+	override fun onPreferenceTreeClick(preference: Preference): Boolean =
+		when (preference.key) {
 			AppSettings.KEY_READER_TAP_ACTIONS -> {
 				router.openReaderTapGridSettings()
 				true
 			}
 
-			else -> super.onPreferenceTreeClick(preference)
+			else -> {
+				super.onPreferenceTreeClick(preference)
+			}
 		}
-	}
 
-	override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+	override fun onSharedPreferenceChanged(
+		sharedPreferences: SharedPreferences?,
+		key: String?,
+	) {
 		when (key) {
 			AppSettings.KEY_READER_MODE -> updateReaderModeDependency()
 		}

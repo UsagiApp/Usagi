@@ -17,7 +17,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
-import androidx.fragment.app.FragmentManager
 import androidx.viewbinding.ViewBinding
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +34,6 @@ abstract class BaseActivity<B : ViewBinding> :
 	AppCompatActivity(),
 	OnApplyWindowInsetsListener,
 	ScreenshotPolicyHelper.ContentContainer {
-
 	private var isAmoledTheme = false
 
 	lateinit var viewBinding: B
@@ -94,7 +92,10 @@ abstract class BaseActivity<B : ViewBinding> :
 		toolbar?.let(this::setSupportActionBar)
 	}
 
-	protected fun setDisplayHomeAsUp(isEnabled: Boolean, showUpAsClose: Boolean) {
+	protected fun setDisplayHomeAsUp(
+		isEnabled: Boolean,
+		showUpAsClose: Boolean,
+	) {
 		supportActionBar?.run {
 			setDisplayHomeAsUpEnabled(isEnabled)
 			if (showUpAsClose) {
@@ -116,7 +117,10 @@ abstract class BaseActivity<B : ViewBinding> :
 		return true
 	}
 
-	override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+	override fun onKeyDown(
+		keyCode: Int,
+		event: KeyEvent?,
+	): Boolean {
 		if (BuildConfig.DEBUG) {
 			if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
 				ActivityCompat.recreate(this)
@@ -163,20 +167,19 @@ abstract class BaseActivity<B : ViewBinding> :
 		intent?.putExtra(AppRouter.KEY_DATA, intent.data)
 	}
 
-	protected fun setContentViewWebViewSafe(viewBindingProducer: () -> B): Boolean {
-		return try {
+	protected fun setContentViewWebViewSafe(viewBindingProducer: () -> B): Boolean =
+		try {
 			setContentView(viewBindingProducer())
 			true
 		} catch (e: Exception) {
 			if (e.isWebViewUnavailable()) {
-				Toast.makeText(this, R.string.web_view_unavailable, Toast.LENGTH_LONG).show()
+				Toast.makeText(applicationContext, R.string.web_view_unavailable, Toast.LENGTH_LONG).show()
 				finishAfterTransition()
 				false
 			} else {
 				throw e
 			}
 		}
-	}
 
 	protected fun hasViewBinding() = ::viewBinding.isInitialized
 }

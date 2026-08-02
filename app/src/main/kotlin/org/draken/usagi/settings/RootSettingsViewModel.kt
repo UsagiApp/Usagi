@@ -6,18 +6,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
+import org.draken.usagi.core.model.isExternalSource
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class RootSettingsViewModel @Inject constructor(
-	sourcesRepository: MangaSourcesRepository,
-) : BaseViewModel() {
+class RootSettingsViewModel
+	@Inject
+	constructor(
+		private val sourcesRepository: MangaSourcesRepository,
+	) : BaseViewModel() {
+		val totalSourcesCount: Int
+			get() = sourcesRepository.allMangaSources.count { !it.isExternalSource() }
 
-	val totalSourcesCount = sourcesRepository.allMangaSources.size
-
-	val enabledSourcesCount = sourcesRepository.observeEnabledSourcesCount()
-		.withErrorHandling()
-		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, -1)
-}
+		val enabledSourcesCount =
+			sourcesRepository
+				.observeEnabledSourcesCount()
+				.withErrorHandling()
+				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, -1)
+	}

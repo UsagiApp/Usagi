@@ -9,7 +9,6 @@ class EditTextBindListener(
 	private val hint: String?,
 	private val validator: EditTextValidator?,
 ) : EditTextPreference.OnBindEditTextListener {
-
 	override fun onBindEditText(editText: EditText) {
 		editText.inputType = inputType
 		editText.hint = hint

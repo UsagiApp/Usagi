@@ -16,7 +16,6 @@ data class FavouriteSyncDto(
 	@SerialName("created_at") val createdAt: Long,
 	@SerialName("deleted_at") var deletedAt: Long,
 ) {
-
 	constructor(cursor: Cursor, manga: MangaSyncDto) : this(
 		mangaId = cursor.getLong(cursor.getColumnIndexOrThrow("manga_id")),
 		manga = manga,
@@ -27,12 +26,13 @@ data class FavouriteSyncDto(
 		deletedAt = cursor.getLong(cursor.getColumnIndexOrThrow("deleted_at")),
 	)
 
-	fun toContentValues() = buildContentValues(6) {
-		put("manga_id", mangaId)
-		put("category_id", categoryId)
-		put("sort_key", sortKey)
-		put("pinned", pinned)
-		put("created_at", createdAt)
-		put("deleted_at", deletedAt)
-	}
+	fun toContentValues() =
+		buildContentValues(6) {
+			put("manga_id", mangaId)
+			put("category_id", categoryId)
+			put("sort_key", sortKey)
+			put("pinned", pinned)
+			put("created_at", createdAt)
+			put("deleted_at", deletedAt)
+		}
 }

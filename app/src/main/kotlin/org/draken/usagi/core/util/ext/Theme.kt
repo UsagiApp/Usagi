@@ -71,13 +71,17 @@ fun Context.getThemeColorStateList(
 
 fun Context.getThemeResId(
 	@AttrRes resId: Int,
-	fallback: Int
-): Int = obtainStyledAttributes(intArrayOf(resId)).use {
-	it.getResourceId(0, fallback)
-}
+	fallback: Int,
+): Int =
+	obtainStyledAttributes(intArrayOf(resId)).use {
+		it.getResourceId(0, fallback)
+	}
 
 @Deprecated("")
-fun TypedArray.getDrawableCompat(context: Context, index: Int): Drawable? {
+fun TypedArray.getDrawableCompat(
+	context: Context,
+	index: Int,
+): Drawable? {
 	val resId = getResourceId(index, 0)
 	return if (resId != 0) ContextCompat.getDrawable(context, resId) else null
 }

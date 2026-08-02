@@ -1,12 +1,10 @@
 package org.draken.usagi.core.parser.favicon
 
-import android.graphics.Color
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.net.Uri
 import android.os.Build
-import coil3.ColorImage
 import coil3.ImageLoader
 import coil3.asImage
 import coil3.decode.DataSource
@@ -29,8 +27,8 @@ import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.CloudFlareProtectedException
 import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.parser.EmptyMangaRepository
+import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.ParserMangaRepository
 import org.draken.usagi.core.parser.external.ExternalMangaRepository
 import org.draken.usagi.core.util.MimeTypes
 import org.draken.usagi.core.util.ext.fetch
@@ -39,10 +37,11 @@ import org.draken.usagi.core.util.ext.toMimeTypeOrNull
 import org.draken.usagi.local.data.FaviconCache
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.local.data.LocalStorageCache
-import org.koitharu.kotatsu.parsers.util.runCatchingCancellable
+import tsuki.util.runCatchingCancellable
 import java.io.File
 import javax.inject.Inject
 import coil3.Uri as CoilUri
+import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as ExternalRepository
 
 class FaviconFetcher(
 	private val uri: Uri,
@@ -51,30 +50,25 @@ class FaviconFetcher(
 	private val mangaRepositoryFactory: MangaRepository.Factory,
 	private val localStorageCache: LocalStorageCache,
 ) : Fetcher {
-
 	override suspend fun fetch(): FetchResult? {
 		val mangaSource = MangaSource(uri.schemeSpecificPart)
 
 		return when (val repo = mangaRepositoryFactory.create(mangaSource)) {
-			is ParserMangaRepository -> fetchParserFavicon(repo)
+			is MangaParserRepository -> fetchParserFavicon(repo)
 			is ExternalMangaRepository -> fetchPluginIcon(repo)
-			is EmptyMangaRepository -> ImageFetchResult(
-				image = ColorImage(Color.WHITE),
-				isSampled = false,
-				dataSource = DataSource.MEMORY,
-			)
-
+			is ExternalRepository -> fetchPackageIcon(repo.source.pkgName)
+			is EmptyMangaRepository -> throwNSEE(null)
 			is LocalMangaRepository -> imageLoader.fetch(R.drawable.ic_storage, options)
-
 			else -> throw IllegalArgumentException("Unsupported repo ${repo.javaClass.simpleName}")
 		}
 	}
 
-	private suspend fun fetchParserFavicon(repository: ParserMangaRepository): FetchResult {
-		val sizePx = maxOf(
-			options.size.width.pxOrElse { FALLBACK_SIZE },
-			options.size.height.pxOrElse { FALLBACK_SIZE },
-		)
+	private suspend fun fetchParserFavicon(repository: MangaParserRepository): FetchResult {
+		val sizePx =
+			maxOf(
+				options.size.width.pxOrElse { FALLBACK_SIZE },
+				options.size.height.pxOrElse { FALLBACK_SIZE },
+			)
 		val cacheKey = options.diskCacheKey ?: "${repository.source.name}_$sizePx"
 		if (options.diskCachePolicy.readEnabled) {
 			localStorageCache[cacheKey]?.let { file ->
@@ -113,11 +107,19 @@ class FaviconFetcher(
 
 	private suspend fun fetchPluginIcon(repository: ExternalMangaRepository): FetchResult {
 		val source = repository.source
+		return fetchPackageIcon(source.packageName, source.authority)
+	}
+
+	private suspend fun fetchPackageIcon(
+		packageName: String,
+		authority: String? = null,
+	): FetchResult {
 		val pm = options.context.packageManager
-		val icon = runInterruptible {
-			val provider = pm.resolveContentProvider(source.authority, 0)
-			provider?.loadIcon(pm) ?: pm.getApplicationIcon(source.packageName)
-		}
+		val icon =
+			runInterruptible {
+				val provider = authority?.let { pm.resolveContentProvider(it, 0) }
+				provider?.loadIcon(pm) ?: pm.getApplicationIcon(packageName)
+			}
 		return ImageFetchResult(
 			image = icon.nonAdaptive().asImage(),
 			isSampled = false,
@@ -125,54 +127,60 @@ class FaviconFetcher(
 		)
 	}
 
-	private suspend fun writeToCache(key: String, result: FetchResult): FetchResult = runCatchingCancellable {
-		when (result) {
-			is ImageFetchResult -> {
-				if (result.dataSource == DataSource.NETWORK) {
-					localStorageCache.set(key, result.image.toBitmap()).asFetchResult()
-				} else {
-					result
-				}
-			}
-
-			is SourceFetchResult -> {
-				if (result.dataSource == DataSource.NETWORK) {
-					result.source.source().use {
-						localStorageCache.set(key, it, result.mimeType?.toMimeTypeOrNull()).asFetchResult()
+	private suspend fun writeToCache(
+		key: String,
+		result: FetchResult,
+	): FetchResult =
+		runCatchingCancellable {
+			when (result) {
+				is ImageFetchResult -> {
+					if (result.dataSource == DataSource.NETWORK) {
+						localStorageCache.set(key, result.image.toBitmap()).asFetchResult()
+					} else {
+						result
 					}
-				} else {
-					result
+				}
+
+				is SourceFetchResult -> {
+					if (result.dataSource == DataSource.NETWORK) {
+						result.source.source().use {
+							localStorageCache.set(key, it, result.mimeType?.toMimeTypeOrNull()).asFetchResult()
+						}
+					} else {
+						result
+					}
 				}
 			}
+		}.onFailure {
+			it.printStackTraceDebug()
+		}.getOrDefault(result)
+
+	private fun File.asFetchResult() =
+		SourceFetchResult(
+			source = ImageSource(toOkioPath(), FileSystem.SYSTEM),
+			mimeType = MimeTypes.probeMimeType(this)?.toString(),
+			dataSource = DataSource.DISK,
+		)
+
+	class Factory
+		@Inject
+		constructor(
+			private val mangaRepositoryFactory: MangaRepository.Factory,
+			@FaviconCache private val faviconCache: LocalStorageCache,
+		) : Fetcher.Factory<CoilUri> {
+			override fun create(
+				data: CoilUri,
+				options: Options,
+				imageLoader: ImageLoader,
+			): Fetcher? =
+				if (data.scheme == URI_SCHEME_FAVICON) {
+					FaviconFetcher(data.toAndroidUri(), options, imageLoader, mangaRepositoryFactory, faviconCache)
+				} else {
+					null
+				}
 		}
-	}.onFailure {
-		it.printStackTraceDebug()
-	}.getOrDefault(result)
-
-	private fun File.asFetchResult() = SourceFetchResult(
-		source = ImageSource(toOkioPath(), FileSystem.SYSTEM),
-		mimeType = MimeTypes.probeMimeType(this)?.toString(),
-		dataSource = DataSource.DISK,
-	)
-
-	class Factory @Inject constructor(
-		private val mangaRepositoryFactory: MangaRepository.Factory,
-		@FaviconCache private val faviconCache: LocalStorageCache,
-	) : Fetcher.Factory<CoilUri> {
-
-		override fun create(
-			data: CoilUri,
-			options: Options,
-			imageLoader: ImageLoader
-		): Fetcher? = if (data.scheme == URI_SCHEME_FAVICON) {
-			FaviconFetcher(data.toAndroidUri(), options, imageLoader, mangaRepositoryFactory, faviconCache)
-		} else {
-			null
-		}
-	}
 
 	private companion object {
-
 		const val FALLBACK_SIZE = 9999 // largest icon
 
 		private fun throwNSEE(lastError: Exception?): Nothing {
@@ -189,7 +197,5 @@ class FaviconFetcher(
 			} else {
 				this
 			}
-
 	}
 }
-

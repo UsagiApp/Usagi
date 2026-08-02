@@ -10,8 +10,8 @@ import kotlin.coroutines.CoroutineContext
 
 class RetainedLifecycleCoroutineScope(
 	val lifecycle: RetainedLifecycle,
-) : CoroutineScope, RetainedLifecycle.OnClearedListener {
-
+) : CoroutineScope,
+	RetainedLifecycle.OnClearedListener {
 	override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main.immediate
 
 	init {

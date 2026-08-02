@@ -3,7 +3,6 @@ package org.draken.usagi.reader.ui.pager.vm
 import com.davemorrissey.labs.subscaleview.ImageSource
 
 sealed class PageState {
-
 	data object Empty : PageState()
 
 	data class Loading(
@@ -16,7 +15,7 @@ sealed class PageState {
 		val isConverted: Boolean,
 	) : PageState()
 
-	class Converting() : PageState()
+	class Converting : PageState()
 
 	data class Shown(
 		val source: ImageSource,

@@ -9,6 +9,11 @@
 
 	<style name="AlertDialog.Usagi" parent="MaterialAlertDialog.Material3">
 		<item name="android:background">@drawable/m3_popup_background</item>
+		<item name="android:textColor">@color/usagi_onSurface</item>
+		<item name="android:textColorPrimary">@color/usagi_onSurface</item>
+		<item name="android:textColorSecondary">@color/usagi_onSurfaceVariant</item>
+		<item name="android:textColorAlertDialogListItem">@color/usagi_onSurface</item>
+		<item name="textColorAlertDialogListItem">@color/usagi_onSurface</item>
 	</style>
 
 	<!-- Bottom sheet -->
@@ -29,6 +34,11 @@
 		<item name="android:paddingBottom">0dp</item>
 	</style>
 
+	<style name="Widget.Usagi.BottomNavigationView.Expressive" parent="Widget.Material3Expressive.BottomNavigationView">
+		<item name="paddingBottomSystemWindowInsets">false</item>
+		<item name="itemPaddingTop">10dp</item>
+	</style>
+
 	<style name="Widget.Usagi.Spinner.DropDown" parent="Widget.AppCompat.Spinner.DropDown">
 		<item name="android:popupBackground">@drawable/m3_spinner_popup_background</item>
 		<item name="android:elevation">8dp</item>
@@ -38,6 +48,30 @@
 	<style name="Animation.Usagi.BottomSheetDialog" parent="Animation.AppCompat.Dialog">
 		<item name="android:windowEnterAnimation">@anim/bottom_sheet_slide_in</item>
 		<item name="android:windowExitAnimation">@anim/bottom_sheet_slide_out</item>
+	</style>
+
+	<!-- Expressive theme -->
+	<style name="Widget.Usagi.CollapsingToolbar.Medium.Expressive" parent="Widget.Material3.CollapsingToolbar.Medium">
+		<item name="expandedTitleMarginStart">14dp</item>
+		<item name="expandedTitleMarginBottom">15dp</item>
+		<item name="expandedTitleMarginTop">10dp</item>
+		<item name="maxLines">1</item>
+	</style>
+
+	<!--<style name="Widget.Usagi.CircularProgressIndicator.Expressive" parent="Widget.Material3Expressive.CircularProgressIndicator.Wavy">
+		<item name="waveAmplitude">4dp</item>
+		<item name="waveSpeed">20dp</item>
+	</style>-->
+
+	<style name="Widget.Usagi.LinearProgressIndicator" parent="Widget.Material3.LinearProgressIndicator">
+		<item name="trackCornerRadius">@dimen/mtrl_progress_indicator_full_rounded_corner_radius</item>
+	</style>
+
+	<style name="Widget.Usagi.LinearProgressIndicator.Expressive" parent="Widget.Material3Expressive.LinearProgressIndicator.Wavy">
+		<item name="waveAmplitude">1dp</item>
+		<item name="waveSpeed">3dp</item>
+		<item name="trackThickness">3dp</item>
+		<item name="trackCornerRadius">1dp</item>
 	</style>
 
 	<!-- Widget styles -->
@@ -51,10 +85,6 @@
 	</style>
 
 	<style name="Widget.Usagi.CircularProgressIndicator" parent="Widget.Material3.CircularProgressIndicator">
-		<item name="trackCornerRadius">@dimen/mtrl_progress_indicator_full_rounded_corner_radius</item>
-	</style>
-
-	<style name="Widget.Usagi.LinearProgressIndicator" parent="Widget.Material3.LinearProgressIndicator">
 		<item name="trackCornerRadius">@dimen/mtrl_progress_indicator_full_rounded_corner_radius</item>
 	</style>
 
@@ -159,7 +189,7 @@
 		<item name="android:insetTop">2dp</item>
 		<item name="android:insetBottom">2dp</item>
 		<item name="android:orientation">horizontal</item>
-		<item name="android:textColor">@color/list_item_text_color</item>
+		<item name="android:textColor">@color/usagi_onSurface</item>
 		<item name="titleTextAppearance">?attr/textAppearanceTitleSmall</item>
 		<item name="subtitleTextAppearance">?attr/textAppearanceBodySmall</item>
 	</style>

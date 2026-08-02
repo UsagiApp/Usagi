@@ -5,7 +5,7 @@ import android.webkit.WebView
 import org.draken.usagi.browser.BrowserClient
 import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.network.webview.adblock.AdBlock
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
+import tsuki.network.CloudFlareHelper
 
 private const val LOOP_COUNTER = 5
 
@@ -15,21 +15,30 @@ class CloudFlareClient(
 	adBlock: AdBlock,
 	private val targetUrl: String,
 ) : BrowserClient(callback, adBlock) {
-
 	private val oldClearance = getClearance()
 	private var counter = 0
 
-	override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+	override fun onPageStarted(
+		view: WebView?,
+		url: String?,
+		favicon: Bitmap?,
+	) {
 		super.onPageStarted(view, url, favicon)
 		checkClearance()
 	}
 
-	override fun onPageCommitVisible(view: WebView, url: String) {
+	override fun onPageCommitVisible(
+		view: WebView,
+		url: String,
+	) {
 		super.onPageCommitVisible(view, url)
 		callback.onPageLoaded()
 	}
 
-	override fun onPageFinished(webView: WebView, url: String) {
+	override fun onPageFinished(
+		webView: WebView,
+		url: String,
+	) {
 		super.onPageFinished(webView, url)
 		callback.onPageLoaded()
 	}

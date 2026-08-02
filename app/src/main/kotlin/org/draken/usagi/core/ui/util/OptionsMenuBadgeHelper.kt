@@ -11,7 +11,6 @@ class OptionsMenuBadgeHelper(
 	private val toolbar: Toolbar,
 	@IdRes private val itemId: Int,
 ) {
-
 	private var badge: BadgeDrawable? = null
 
 	fun setBadgeVisible(isVisible: Boolean) {
@@ -30,9 +29,10 @@ class OptionsMenuBadgeHelper(
 	}
 
 	private fun showBadge() {
-		val badgeDrawable = badge ?: BadgeDrawable.create(toolbar.context).also {
-			badge = it
-		}
+		val badgeDrawable =
+			badge ?: BadgeDrawable.create(toolbar.context).also {
+				badge = it
+			}
 		BadgeUtils.attachBadgeDrawable(badgeDrawable, toolbar, itemId)
 	}
 }

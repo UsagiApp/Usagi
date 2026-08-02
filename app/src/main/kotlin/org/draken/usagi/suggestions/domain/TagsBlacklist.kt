@@ -1,14 +1,13 @@
 package org.draken.usagi.suggestions.domain
 
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaTag
-import org.koitharu.kotatsu.parsers.util.almostEquals
+import tsuki.model.Manga
+import tsuki.model.MangaTag
+import tsuki.util.almostEquals
 
 class TagsBlacklist(
 	private val tags: Set<String>,
 	private val threshold: Float,
 ) {
-
 	fun isNotEmpty() = tags.isNotEmpty()
 
 	operator fun contains(manga: Manga): Boolean {
@@ -25,7 +24,8 @@ class TagsBlacklist(
 		return false
 	}
 
-	operator fun contains(tag: MangaTag): Boolean = tags.any {
-		it.almostEquals(tag.title, threshold)
-	}
+	operator fun contains(tag: MangaTag): Boolean =
+		tags.any {
+			it.almostEquals(tag.title, threshold)
+		}
 }

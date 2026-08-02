@@ -9,12 +9,11 @@ import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.unwrap
 import org.draken.usagi.core.parser.external.ExternalMangaSource
 import org.draken.usagi.core.parser.favicon.faviconUri
-import org.koitharu.kotatsu.parsers.model.MangaParserSource
-import org.koitharu.kotatsu.parsers.model.MangaSource
-import org.koitharu.kotatsu.parsers.model.MangaTag
+import tsuki.model.MangaSource
+import tsuki.model.MangaTag
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 
 sealed interface ListFilterOption {
-
 	@get:StringRes
 	val titleResId: Int
 
@@ -28,7 +27,6 @@ sealed interface ListFilterOption {
 	fun getIconData(): Any? = null
 
 	data object Downloaded : ListFilterOption {
-
 		override val titleResId: Int
 			get() = R.string.on_device
 
@@ -46,7 +44,6 @@ sealed interface ListFilterOption {
 		@StringRes override val titleResId: Int,
 		@DrawableRes override val iconResId: Int,
 	) : ListFilterOption {
-
 		COMPLETED(R.string.status_completed, R.drawable.ic_state_finished),
 		NEW_CHAPTERS(R.string.new_chapters, R.drawable.ic_updated),
 		FAVORITE(R.string.favourites, R.drawable.ic_heart_outline),
@@ -64,7 +61,6 @@ sealed interface ListFilterOption {
 		override val titleText: String?,
 		val chaptersCount: Int,
 	) : ListFilterOption {
-
 		override val titleResId: Int
 			get() = if (titleText == null) R.string.system_default else 0
 
@@ -76,9 +72,8 @@ sealed interface ListFilterOption {
 	}
 
 	data class Tag(
-		val tag: MangaTag
+		val tag: MangaTag,
 	) : ListFilterOption {
-
 		val tagId: Long = tag.toEntity().id
 
 		override val titleResId: Int
@@ -95,9 +90,8 @@ sealed interface ListFilterOption {
 	}
 
 	data class Favorite(
-		val category: FavouriteCategory
+		val category: FavouriteCategory,
 	) : ListFilterOption {
-
 		override val titleResId: Int
 			get() = 0
 
@@ -112,23 +106,29 @@ sealed interface ListFilterOption {
 	}
 
 	data class Source(
-		val mangaSource: MangaSource
+		val mangaSource: MangaSource,
 	) : ListFilterOption {
 		override val titleResId: Int
-			get() = when (mangaSource.unwrap()) {
-				is ExternalMangaSource -> R.string.external_source
-				LocalMangaSource -> R.string.local_storage
-				else -> 0
-			}
+			get() =
+				when (mangaSource.unwrap()) {
+					is ExternalMangaSource, is ExternalSource -> R.string.external_source
+					LocalMangaSource -> R.string.local_storage
+					else -> 0
+				}
 
 		override val iconResId: Int
 			get() = R.drawable.ic_web
 
 		override val titleText: CharSequence?
-			get() = when (val source = mangaSource.unwrap()) {
-				is MangaParserSource -> source.title
-				else -> null
-			}
+			get() =
+				when (val source = mangaSource.unwrap()) {
+					is ExternalMangaSource, is ExternalSource, LocalMangaSource,
+					org.draken.usagi.core.model.TestMangaSource,
+					org.draken.usagi.core.model.UnknownMangaSource,
+					-> null
+
+					else -> source.title
+				}
 
 		override val groupKey: String
 			get() = "_source"
@@ -142,27 +142,27 @@ sealed interface ListFilterOption {
 		override val titleResId: Int,
 		override val titleText: CharSequence?,
 	) : ListFilterOption {
-
 		override val groupKey: String
 			get() = "_inv" + option.groupKey
 	}
 
 	companion object {
-
 		val SFW
-			get() = Inverted(
-				option = Macro.NSFW,
-				iconResId = R.drawable.ic_sfw,
-				titleResId = R.string.sfw,
-				titleText = null,
-			)
+			get() =
+				Inverted(
+					option = Macro.NSFW,
+					iconResId = R.drawable.ic_sfw,
+					titleResId = R.string.sfw,
+					titleText = null,
+				)
 
 		val NOT_FAVORITE
-			get() = Inverted(
-				option = Macro.FAVORITE,
-				iconResId = R.drawable.ic_heart_off,
-				titleResId = R.string.not_in_favorites,
-				titleText = null,
-			)
+			get() =
+				Inverted(
+					option = Macro.FAVORITE,
+					iconResId = R.drawable.ic_heart_off,
+					titleResId = R.string.not_in_favorites,
+					titleText = null,
+				)
 	}
 }

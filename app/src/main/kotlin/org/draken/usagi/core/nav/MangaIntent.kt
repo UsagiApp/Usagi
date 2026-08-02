@@ -9,14 +9,13 @@ import org.draken.usagi.core.nav.AppRouter.Companion.KEY_ID
 import org.draken.usagi.core.nav.AppRouter.Companion.KEY_MANGA
 import org.draken.usagi.core.util.ext.getParcelableCompat
 import org.draken.usagi.core.util.ext.getParcelableExtraCompat
-import org.koitharu.kotatsu.parsers.model.Manga
+import tsuki.model.Manga
 
 class MangaIntent private constructor(
 	@JvmField val manga: Manga?,
 	@JvmField val id: Long,
 	@JvmField val uri: Uri?,
 ) {
-
 	constructor(intent: Intent?) : this(
 		manga = intent?.getParcelableExtraCompat<ParcelableManga>(KEY_MANGA)?.manga,
 		id = intent?.getLongExtra(KEY_ID, ID_NONE) ?: ID_NONE,
@@ -39,7 +38,6 @@ class MangaIntent private constructor(
 		get() = if (id != ID_NONE) id else manga?.id ?: uri?.lastPathSegment?.toLongOrNull() ?: ID_NONE
 
 	companion object {
-
 		const val ID_NONE = 0L
 
 		fun of(manga: Manga) = MangaIntent(manga, manga.id, null)

@@ -3,7 +3,7 @@ package org.draken.usagi.core.network.webview
 import android.graphics.Bitmap
 import android.webkit.WebView
 import org.draken.usagi.core.network.cookies.MutableCookieJar
-import org.koitharu.kotatsu.parsers.network.CloudFlareHelper
+import tsuki.network.CloudFlareHelper
 import kotlin.coroutines.Continuation
 
 class CaptchaContinuationClient(
@@ -11,12 +11,18 @@ class CaptchaContinuationClient(
 	private val targetUrl: String,
 	continuation: Continuation<Unit>,
 ) : ContinuationResumeWebViewClient(continuation) {
-
 	private val oldClearance = CloudFlareHelper.getClearanceCookie(cookieJar, targetUrl)
 
-	override fun onPageFinished(view: WebView?, url: String?) = Unit
+	override fun onPageFinished(
+		view: WebView?,
+		url: String?,
+	) = Unit
 
-	override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+	override fun onPageStarted(
+		view: WebView?,
+		url: String?,
+		favicon: Bitmap?,
+	) {
 		super.onPageStarted(view, url, favicon)
 		checkClearance(view)
 	}

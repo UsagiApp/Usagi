@@ -1,12 +1,11 @@
 package org.draken.usagi.tracker.domain.model
 
-import org.koitharu.kotatsu.parsers.exception.TooManyRequestExceptions
-import org.koitharu.kotatsu.parsers.model.Manga
-import org.koitharu.kotatsu.parsers.model.MangaChapter
-import org.koitharu.kotatsu.parsers.util.ifZero
+import tsuki.exception.TooManyRequestExceptions
+import tsuki.model.Manga
+import tsuki.model.MangaChapter
+import tsuki.util.ifZero
 
 sealed interface MangaUpdates {
-
 	val manga: Manga
 
 	data class Success(
@@ -15,7 +14,6 @@ sealed interface MangaUpdates {
 		val newChapters: List<MangaChapter>,
 		val isValid: Boolean,
 	) : MangaUpdates {
-
 		fun isNotEmpty() = newChapters.isNotEmpty()
 
 		fun lastChapterDate(): Long {
@@ -23,13 +21,17 @@ sealed interface MangaUpdates {
 			return lastChapter?.uploadDate?.ifZero { System.currentTimeMillis() }
 				?: (manga.chapters?.lastOrNull()?.uploadDate ?: 0L)
 		}
+
+		fun lastChapterId(): Long =
+			manga.getChapters(branch).maxByOrNull { it.number }?.id
+				?: manga.chapters?.maxByOrNull { it.number }?.id
+				?: 0L
 	}
 
 	data class Failure(
 		override val manga: Manga,
 		val error: Throwable?,
 	) : MangaUpdates {
-
 		fun shouldRetry() = error is TooManyRequestExceptions
 	}
 }

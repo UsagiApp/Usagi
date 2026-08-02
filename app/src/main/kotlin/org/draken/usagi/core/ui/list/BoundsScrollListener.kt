@@ -5,10 +5,13 @@ import androidx.recyclerview.widget.RecyclerView
 
 abstract class BoundsScrollListener(
 	@JvmField protected val offsetTop: Int,
-	@JvmField protected val offsetBottom: Int
+	@JvmField protected val offsetBottom: Int,
 ) : RecyclerView.OnScrollListener() {
-
-	override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+	override fun onScrolled(
+		recyclerView: RecyclerView,
+		dx: Int,
+		dy: Int,
+	) {
 		super.onScrolled(recyclerView, dx, dy)
 		if (recyclerView.hasPendingAdapterUpdates()) {
 			return
@@ -36,14 +39,15 @@ abstract class BoundsScrollListener(
 	protected open fun onPostScrolled(
 		recyclerView: RecyclerView,
 		firstVisibleItemPosition: Int,
-		visibleItemCount: Int
+		visibleItemCount: Int,
 	) = Unit
 
 	fun invalidate(recyclerView: RecyclerView) {
 		onScrolled(recyclerView, 0, 0)
 	}
 
-	fun postInvalidate(recyclerView: RecyclerView) = recyclerView.post {
-		invalidate(recyclerView)
-	}
+	fun postInvalidate(recyclerView: RecyclerView) =
+		recyclerView.post {
+			invalidate(recyclerView)
+		}
 }

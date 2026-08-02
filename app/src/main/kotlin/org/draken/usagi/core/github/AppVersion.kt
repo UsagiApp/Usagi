@@ -13,7 +13,6 @@ data class AppVersion(
 	val apkUrl: String,
 	val description: String,
 ) : Parcelable {
-
 	@IgnoredOnParcel
 	val versionId = VersionId(name)
 }

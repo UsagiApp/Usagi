@@ -36,7 +36,6 @@ class ScrobblingInfoSheet :
 	RatingBar.OnRatingBarChangeListener,
 	View.OnClickListener,
 	PopupMenu.OnMenuItemClickListener {
-
 	private val viewModel by activityViewModels<DetailsViewModel>()
 	private var scrobblerIndex: Int = -1
 
@@ -47,15 +46,20 @@ class ScrobblingInfoSheet :
 		scrobblerIndex = requireArguments().getInt(AppRouter.KEY_INDEX, scrobblerIndex)
 	}
 
-	override fun onCreateViewBinding(inflater: LayoutInflater, container: ViewGroup?): SheetScrobblingBinding {
-		return SheetScrobblingBinding.inflate(inflater, container, false)
-	}
+	override fun onCreateViewBinding(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+	): SheetScrobblingBinding = SheetScrobblingBinding.inflate(inflater, container, false)
 
-	override fun onViewBindingCreated(binding: SheetScrobblingBinding, savedInstanceState: Bundle?) {
+	override fun onViewBindingCreated(
+		binding: SheetScrobblingBinding,
+		savedInstanceState: Bundle?,
+	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		viewModel.scrobblingInfo.observe(viewLifecycleOwner, ::onScrobblingInfoChanged)
 		viewModel.onError.observeEvent(viewLifecycleOwner) {
-			Toast.makeText(binding.root.context, it.getDisplayMessage(binding.root.resources), Toast.LENGTH_SHORT)
+			Toast
+				.makeText(binding.root.context, it.getDisplayMessage(binding.root.resources), Toast.LENGTH_SHORT)
 				.show()
 		}
 
@@ -65,10 +69,11 @@ class ScrobblingInfoSheet :
 		binding.imageViewCover.setOnClickListener(this)
 		binding.textViewDescription.movementMethod = LinkMovementMethodCompat.getInstance()
 
-		menu = PopupMenu(binding.root.context, binding.buttonMenu).apply {
-			inflate(R.menu.opt_scrobbling)
-			setOnMenuItemClickListener(this@ScrobblingInfoSheet)
-		}
+		menu =
+			PopupMenu(binding.root.context, binding.buttonMenu).apply {
+				inflate(R.menu.opt_scrobbling)
+				setOnMenuItemClickListener(this@ScrobblingInfoSheet)
+			}
 	}
 
 	override fun onDestroyView() {
@@ -76,7 +81,10 @@ class ScrobblingInfoSheet :
 		menu = null
 	}
 
-	override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+	override fun onApplyWindowInsets(
+		v: View,
+		insets: WindowInsetsCompat,
+	): WindowInsetsCompat {
 		val typeMask = WindowInsetsCompat.Type.systemBars()
 		viewBinding?.root?.updatePadding(
 			bottom = insets.getInsets(typeMask).bottom,
@@ -84,8 +92,12 @@ class ScrobblingInfoSheet :
 		return insets.consume(v, typeMask, bottom = true)
 	}
 
-
-	override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+	override fun onItemSelected(
+		parent: AdapterView<*>?,
+		view: View?,
+		position: Int,
+		id: Long,
+	) {
 		viewModel.updateScrobbling(
 			index = scrobblerIndex,
 			rating = requireViewBinding().ratingBar.rating / requireViewBinding().ratingBar.numStars,
@@ -95,7 +107,11 @@ class ScrobblingInfoSheet :
 
 	override fun onNothingSelected(parent: AdapterView<*>?) = Unit
 
-	override fun onRatingChanged(ratingBar: RatingBar, rating: Float, fromUser: Boolean) {
+	override fun onRatingChanged(
+		ratingBar: RatingBar,
+		rating: Float,
+		fromUser: Boolean,
+	) {
 		if (fromUser) {
 			viewModel.updateScrobbling(
 				index = scrobblerIndex,
@@ -107,12 +123,20 @@ class ScrobblingInfoSheet :
 
 	override fun onClick(v: View) {
 		when (v.id) {
-			R.id.button_menu -> menu?.show()
-			R.id.imageView_cover -> router.openImage(
-				url = viewModel.scrobblingInfo.value.getOrNull(scrobblerIndex)?.coverUrl ?: return,
-				source = null,
-				anchor = v,
-			)
+			R.id.button_menu -> {
+				menu?.show()
+			}
+
+			R.id.imageView_cover -> {
+				router.openImage(
+					url =
+						viewModel.scrobblingInfo.value
+							.getOrNull(scrobblerIndex)
+							?.coverUrl ?: return,
+					source = null,
+					anchor = v,
+				)
+			}
 		}
 	}
 
@@ -135,13 +159,17 @@ class ScrobblingInfoSheet :
 	override fun onMenuItemClick(item: MenuItem): Boolean {
 		when (item.itemId) {
 			R.id.action_browser -> {
-				val url = viewModel.scrobblingInfo.value.getOrNull(scrobblerIndex)?.externalUrl ?: return false
+				val url =
+					viewModel.scrobblingInfo.value
+						.getOrNull(scrobblerIndex)
+						?.externalUrl ?: return false
 				if (!router.openExternalBrowser(url, getString(R.string.open_in_browser))) {
-					Snackbar.make(
-						viewBinding?.textViewDescription ?: return false,
-						R.string.operation_not_supported,
-						Snackbar.LENGTH_SHORT,
-					).show()
+					Snackbar
+						.make(
+							viewBinding?.textViewDescription ?: return false,
+							R.string.operation_not_supported,
+							Snackbar.LENGTH_SHORT,
+						).show()
 				}
 			}
 
@@ -152,7 +180,10 @@ class ScrobblingInfoSheet :
 
 			R.id.action_edit -> {
 				val manga = viewModel.manga.value ?: return false
-				val scrobblerService = viewModel.scrobblingInfo.value.getOrNull(scrobblerIndex)?.scrobbler
+				val scrobblerService =
+					viewModel.scrobblingInfo.value
+						.getOrNull(scrobblerIndex)
+						?.scrobbler
 				activity?.router?.showScrobblingSelectorSheet(manga, scrobblerService)
 				dismiss()
 			}

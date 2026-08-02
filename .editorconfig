@@ -8,12 +8,18 @@ indent_size = 4
 max_line_length = 120
 insert_final_newline = true
 trim_trailing_whitespace = true
-# noinspection EditorConfigKeyCorrectness
-disabled_rules = no-wildcard-imports, no-unused-imports
-
 [*.{kt,kts}]
 ij_kotlin_allow_trailing_comma = true
 ij_kotlin_allow_trailing_comma_on_call_site = true
+ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_no-unused-imports = disabled
+ktlint_standard_filename = disabled
+ktlint_standard_max-line-length = disabled
+ktlint_standard_function-naming = disabled
+ktlint_standard_if-else-wrapping = disabled
+ktlint_standard_comment-wrapping = disabled
+ktlint_standard_no-empty-file = disabled
+ktlint_standard_mixed-condition-operators = disabled
 
 [*.md]
 indent_size = 2

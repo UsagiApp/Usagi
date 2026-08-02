@@ -39,7 +39,9 @@ var TextView.drawableTop: Drawable?
 		setCompoundDrawablesRelativeWithIntrinsicBounds(dr[0], value, dr[2], dr[3])
 	}
 
-fun TextView.setTextAndVisible(@StringRes textResId: Int) {
+fun TextView.setTextAndVisible(
+	@StringRes textResId: Int,
+) {
 	if (textResId == 0) {
 		text = null
 		isGone = true
@@ -49,7 +51,9 @@ fun TextView.setTextAndVisible(@StringRes textResId: Int) {
 	}
 }
 
-fun TextView.setTextColorAttr(@AttrRes attrResId: Int) {
+fun TextView.setTextColorAttr(
+	@AttrRes attrResId: Int,
+) {
 	setTextColor(context.getThemeColorStateList(attrResId))
 }
 
@@ -57,15 +61,19 @@ var TextView.isBold: Boolean
 	get() = typeface.isBold
 	set(value) {
 		var style = typeface.style
-		style = if (value) {
-			style or Typeface.BOLD
-		} else {
-			style and Typeface.BOLD.inv()
-		}
+		style =
+			if (value) {
+				style or Typeface.BOLD
+			} else {
+				style and Typeface.BOLD.inv()
+			}
 		setTypeface(typeface, style)
 	}
 
-fun TextView.setThemeTextAppearance(@AttrRes resId: Int, @StyleRes fallback: Int) {
+fun TextView.setThemeTextAppearance(
+	@AttrRes resId: Int,
+	@StyleRes fallback: Int,
+) {
 	context.obtainStyledAttributes(intArrayOf(resId)).use {
 		TextViewCompat.setTextAppearance(this, it.getResourceId(0, fallback))
 	}

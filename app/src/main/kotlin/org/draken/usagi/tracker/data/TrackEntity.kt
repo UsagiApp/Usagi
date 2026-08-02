@@ -18,7 +18,7 @@ import org.draken.usagi.core.db.entity.MangaEntity
 		),
 	],
 )
-class TrackEntity(
+data class TrackEntity(
 	@PrimaryKey(autoGenerate = false)
 	@ColumnInfo(name = "manga_id") val mangaId: Long,
 	@ColumnInfo(name = "last_chapter_id") val lastChapterId: Long,
@@ -29,27 +29,26 @@ class TrackEntity(
 	@ColumnInfo(name = "last_result") val lastResult: Int,
 	@ColumnInfo(name = "last_error") val lastError: String?,
 ) {
-
 	@IntDef(RESULT_NONE, RESULT_HAS_UPDATE, RESULT_NO_UPDATE, RESULT_FAILED, RESULT_EXTERNAL_MODIFICATION)
 	@Retention(AnnotationRetention.SOURCE)
 	annotation class TrackerResult
 
 	companion object {
-
 		const val RESULT_NONE = 0
 		const val RESULT_HAS_UPDATE = 1
 		const val RESULT_NO_UPDATE = 2
 		const val RESULT_FAILED = 3
 		const val RESULT_EXTERNAL_MODIFICATION = 4
 
-		fun create(mangaId: Long) = TrackEntity(
-			mangaId = mangaId,
-			lastChapterId = 0L,
-			newChapters = 0,
-			lastCheckTime = 0L,
-			lastChapterDate = 0,
-			lastResult = RESULT_NONE,
-			lastError = null,
-		)
+		fun create(mangaId: Long) =
+			TrackEntity(
+				mangaId = mangaId,
+				lastChapterId = 0L,
+				newChapters = 0,
+				lastCheckTime = 0L,
+				lastChapterDate = 0,
+				lastResult = RESULT_NONE,
+				lastError = null,
+			)
 	}
 }
