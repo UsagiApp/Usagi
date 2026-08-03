@@ -1,3 +1,4 @@
+import java.time.LocalDateTime
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -43,6 +44,10 @@ android {
 			minifyEnabled true
 			shrinkResources true
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+		}
+		nightly {
+			initWith release
+			applicationIdSuffix = '.nightly'
 		}
 	}
 	buildFeatures {
@@ -126,6 +131,15 @@ android {
             }
 		}
 	}
+	applicationVariants.configureEach { variant ->
+		if (variant.name == 'nightly') {
+			variant.outputs.each { output ->
+				def now = LocalDateTime.now()
+				output.versionCodeOverride = now.format("yyMMdd").toInteger()
+				output.versionNameOverride = 'N' + now.format("yyyyMMdd")
+			}
+		}
+	}
 }
 dependencies {
 	implementation libs.usagi.serialization.library
@@ -201,6 +215,7 @@ dependencies {
 	implementation libs.conscrypt.android
 
 	debugImplementation libs.leakcanary.android
+	nightlyImplementation libs.leakcanary.android
 	debugImplementation libs.workinspector
 
 	testImplementation libs.junit
