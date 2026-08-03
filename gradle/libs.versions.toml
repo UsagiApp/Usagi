@@ -53,7 +53,7 @@ transition = "1.6.0"
 tsuki = "1.0.5"
 tsukimix = "1.0.5"
 usagiRpc = "1.0.2"
-usagiSerialization = "ae2bb90a3b"
+usagi-serialization = "1.0.0"
 viewpager2 = "1.1.0"
 #noinspection GradleDependency
 webkit = "1.14.0"
@@ -134,8 +134,8 @@ tsuki = { module = "com.github.UsagiApp:Tsuki", version.ref = "tsuki" }
 tsukimix = { module = "com.github.UsagiApp:TsukiMix", version.ref = "tsukimix" }
 workinspector = { module = "com.github.UsagiApp:WorkInspector", version.ref = "workinspector" }
 androidx-window = { module = "androidx.window:window", version.ref = "window" }
-usagi-serialization-library = { module = "com.github.UsagiApp.serialization:library", version.ref = "usagiSerialization" }
-usagi-serialization-plugin = { module = "com.github.UsagiApp.serialization:plugin", version.ref = "usagiSerialization" }
+usagi-serialization-library = { module = "com.github.UsagiApp.serialization:library", version.ref = "usagi-serialization" }
+usagi-serialization-plugin = { module = "com.github.UsagiApp.serialization:plugin", version.ref = "usagi-serialization" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "gradle" }
