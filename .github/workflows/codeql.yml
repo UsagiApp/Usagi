@@ -25,7 +25,6 @@ jobs:
     analyze:
         name: Analyze (${{ matrix.language }})
         runs-on: ubuntu-latest
-        timeout-minutes: 45
         permissions:
             security-events: write
             actions: read
@@ -43,7 +42,7 @@ jobs:
             -   name: Set up Java environment 🔧
                 uses: actions/setup-java@b622de1dfa918ecc0ab28f40cd42e3c3752cd6c5 # v5.2.0
                 with:
-                    java-version: '17'
+                    java-version: '21'
                     distribution: 'temurin'
 
             -   name: Set up Gradle environment 📦
@@ -61,7 +60,7 @@ jobs:
                     queries: security-and-quality
 
             -   name: Build with Gradle 🚀
-                run: ./gradlew compileDebugKotlin --no-daemon --rerun-tasks --no-build-cache
+                run: ./gradlew compileDebugKotlin --rerun-tasks --no-build-cache
 
             -   name: Perform CodeQL Analysis 🔬
                 uses: github/codeql-action/analyze@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2

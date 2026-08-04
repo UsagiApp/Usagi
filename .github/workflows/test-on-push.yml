@@ -8,6 +8,7 @@ on:
 jobs:
     check-and-build:
         runs-on: ubuntu-latest
+        timeout-minutes: 120
         steps:
             -   name: Checkout repository 🌏
                 uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # v6.0.2
@@ -23,5 +24,5 @@ jobs:
                 with:
                     gradle-version: '9.1.0'
 
-            -   name: Compile the library 🚀
-                run: ./gradlew compileReleaseKotlin --rerun-tasks
+            -   name: Build release app 🚀
+                run: ./gradlew assembleRelease --rerun-tasks
