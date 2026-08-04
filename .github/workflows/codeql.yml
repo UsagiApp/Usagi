@@ -37,7 +37,7 @@ jobs:
 
         steps:
             -   name: Checkout repository 🌏
-                uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # v6.0.2
+                uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v6.0.2
 
             -   name: Set up Java environment 🔧
                 uses: actions/setup-java@b622de1dfa918ecc0ab28f40cd42e3c3752cd6c5 # v5.2.0
