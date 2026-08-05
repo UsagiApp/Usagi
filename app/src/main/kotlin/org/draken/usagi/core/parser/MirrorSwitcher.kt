@@ -111,13 +111,10 @@ class MirrorSwitcher
 			try {
 				val oldUrl = "https://$oldDomain".toHttpUrl()
 				val newUrl = "https://$newDomain".toHttpUrl()
-				val oldCookies = cookieJar.loadForRequest(oldUrl)
-				val newCookies = cookieJar.loadForRequest(newUrl)
-				val existingNames = newCookies.map { it.name }.toSet()
-				val cookiesToTransfer = oldCookies.filter { it.name !in existingNames }
-				if (cookiesToTransfer.isNotEmpty()) {
-					cookieJar.saveFromResponse(newUrl, cookiesToTransfer)
-					logd { "Transferred ${cookiesToTransfer.size} cookies from $oldDomain to $newDomain" }
+				val cookies = cookieJar.loadForRequest(oldUrl)
+				if (cookies.isNotEmpty()) {
+					cookieJar.saveFromResponse(newUrl, cookies)
+					logd { "Transferred ${cookies.size} cookies from $oldDomain to $newDomain" }
 				}
 			} catch (e: Exception) {
 				logd { "Failed to transfer cookies: ${e.message}" }
