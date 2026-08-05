@@ -104,6 +104,10 @@ class MirrorSwitcher
 		}
 
 		private fun transferCookies(oldDomain: String, newDomain: String) {
+			if (!areDomainsRelated(oldDomain, newDomain)) {
+				logd { "Skipping cookie transfer: domains not related ($oldDomain -> $newDomain)" }
+				return
+			}
 			try {
 				val oldUrl = "https://$oldDomain".toHttpUrl()
 				val newUrl = "https://$newDomain".toHttpUrl()
@@ -115,6 +119,15 @@ class MirrorSwitcher
 			} catch (e: Exception) {
 				logd { "Failed to transfer cookies: ${e.message}" }
 			}
+		}
+
+		private fun areDomainsRelated(oldDomain: String, newDomain: String): Boolean {
+			val oldParts = oldDomain.lowercase().split(".")
+			val newParts = newDomain.lowercase().split(".")
+			if (oldParts.size < 2 || newParts.size < 2) return false
+			val oldBase = oldParts.takeLast(2).joinToString(".")
+			val newBase = newParts.takeLast(2).joinToString(".")
+			return oldBase == newBase
 		}
 
 		private fun <T : Any> T.takeIfValid() =
