@@ -5,8 +5,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.network.MangaHttpClient
+import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.prefs.AppSettings
 import tsuki.model.MangaSource
 import tsuki.util.await
@@ -18,6 +20,7 @@ class MirrorSwitcher
 	constructor(
 		private val settings: AppSettings,
 		@MangaHttpClient private val okHttpClient: OkHttpClient,
+		private val cookieJar: MutableCookieJar,
 	) {
 		private val blacklist = mutableSetOf<MangaSource>()
 		private val mutex: Mutex = Mutex()
@@ -44,7 +47,11 @@ class MirrorSwitcher
 				}
 				logd { "Looking for mirrors for $source..." }
 				findRedirect(repository)?.let { mirror ->
+					val oldHost = repository.domain
 					repository.domain = mirror
+					if (settings.isTransferCookiesOnRedirectEnabled) {
+						transferCookies(oldHost, mirror)
+					}
 					runCatchingCancellable {
 						loader()?.takeIfValid()
 					}.getOrNull()?.let {
@@ -93,6 +100,20 @@ class MirrorSwitcher
 				newHost
 			} else {
 				null
+			}
+		}
+
+		private fun transferCookies(oldDomain: String, newDomain: String) {
+			try {
+				val oldUrl = "https://$oldDomain".toHttpUrl()
+				val newUrl = "https://$newDomain".toHttpUrl()
+				val cookies = cookieJar.loadForRequest(oldUrl)
+				if (cookies.isNotEmpty()) {
+					cookieJar.saveFromResponse(newUrl, cookies)
+					logd { "Transferred ${cookies.size} cookies from $oldDomain to $newDomain" }
+				}
+			} catch (e: Exception) {
+				logd { "Failed to transfer cookies: ${e.message}" }
 			}
 		}
 

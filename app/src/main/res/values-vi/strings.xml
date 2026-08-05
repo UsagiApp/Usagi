@@ -393,6 +393,8 @@
     <string name="show_on_shelf">Hiển thị trên kệ sách</string>
     <string name="mirror_switching">Tự động chuyển sang dự phòng</string>
     <string name="mirror_switching_summary">Tự động chuyển sang tên miền dự phòng của nguồn đọc (nếu có) khi gặp lỗi</string>
+    <string name="transfer_cookies_on_redirect">Tự động chuyển cookies sang tên miền mới (beta)</string>
+    <string name="transfer_cookies_on_redirect_summary">Tự động sao chép và chuyển cookies từ tên miền cũ sang tên miền mới nếu phát hiện chuyển hướng tên miền của nguồn đọc sang tên miền khác</string>
     <string name="paused">Đã tạm dừng</string>
     <string name="images_proxy_title">Proxy tối ưu hình ảnh</string>
     <string name="images_procy_description">Sử dụng dịch vụ wsrv.nl để giảm dung lượng ảnh và tăng tốc quá trình tải ảnh nếu khả thi</string>
