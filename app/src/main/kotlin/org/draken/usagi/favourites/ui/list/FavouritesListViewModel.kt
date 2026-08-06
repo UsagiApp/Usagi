@@ -8,10 +8,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -23,11 +25,22 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.ListMode
 import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.ui.util.ReversibleAction
+import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.core.util.ext.flattenLatest
+import org.draken.usagi.favourites.data.FavouriteStageCounts
 import org.draken.usagi.favourites.domain.FavoritesListQuickFilter
+import org.draken.usagi.favourites.domain.FavouriteOrganizerRefreshResult
+import org.draken.usagi.favourites.domain.FavouriteScope
+import org.draken.usagi.favourites.domain.FavouriteStage
 import org.draken.usagi.favourites.domain.FavouritesRepository
+import org.draken.usagi.favourites.domain.RefreshFavouriteOrganizerUseCase
+import org.draken.usagi.favourites.ui.list.FavouritesListFragment.Companion.KEY_SCOPE_TYPE
+import org.draken.usagi.favourites.ui.list.FavouritesListFragment.Companion.KEY_STAGE
 import org.draken.usagi.favourites.ui.list.FavouritesListFragment.Companion.NO_ID
+import org.draken.usagi.favourites.ui.list.FavouritesListFragment.Companion.SCOPE_ALL
+import org.draken.usagi.favourites.ui.list.FavouritesListFragment.Companion.SCOPE_CATEGORY
+import org.draken.usagi.favourites.ui.list.FavouritesListFragment.Companion.SCOPE_SMART_FOLDER
 import org.draken.usagi.history.domain.MarkAsReadUseCase
 import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.domain.ListSortOrder
@@ -51,21 +64,41 @@ private const val PAGE_SIZE = 16
 class FavouritesListViewModel
 	@Inject
 	constructor(
-		savedStateHandle: SavedStateHandle,
+		private val savedStateHandle: SavedStateHandle,
 		private val repository: FavouritesRepository,
 		private val mangaListMapper: MangaListMapper,
 		private val markAsReadUseCase: MarkAsReadUseCase,
+		private val refreshFavouriteOrganizerUseCase: RefreshFavouriteOrganizerUseCase,
 		quickFilterFactory: FavoritesListQuickFilter.Factory,
 		settings: AppSettings,
 		mangaDataRepository: MangaDataRepository,
 		@LocalStorageChanges localStorageChanges: SharedFlow<LocalManga?>,
 	) : MangaListViewModel(settings, mangaDataRepository, localStorageChanges),
 		QuickFilterListener {
-		val categoryId: Long = savedStateHandle[AppRouter.KEY_ID] ?: NO_ID
+		val scope: FavouriteScope = savedStateHandle.toFavouriteScope()
+		val categoryId: Long = (scope as? FavouriteScope.Category)?.id ?: NO_ID
 		private val quickFilter = quickFilterFactory.create(categoryId)
 		private val refreshTrigger = MutableStateFlow(Any())
+		private val mutableOrganizerRefreshing = MutableStateFlow(false)
 		private val limit = MutableStateFlow(PAGE_SIZE)
+		private val mutableSelectedStage =
+			MutableStateFlow(
+				savedStateHandle.get<String>(KEY_STAGE)?.let(FavouriteStage::valueOf) ?: FavouriteStage.ALL,
+			)
 		private val isPaginationReady = AtomicBoolean(false)
+		val selectedStage = mutableSelectedStage.asStateFlow()
+		val selectedRuleOptions = quickFilter.appliedOptions
+		val isOrganizerRefreshing = mutableOrganizerRefreshing.asStateFlow()
+		val onOrganizerRefreshed = MutableEventFlow<FavouriteOrganizerRefreshResult>()
+		val availableRuleOptions =
+			flow { emit(quickFilter.availableOptions()) }
+				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, emptyList())
+
+		val stageCounts =
+			repository
+				.observeStageCounts(scope)
+				.catch { emit(FavouriteStageCounts.EMPTY) }
+				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, FavouriteStageCounts.EMPTY)
 
 		override val listMode =
 			settings
@@ -73,15 +106,26 @@ class FavouritesListViewModel
 				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, settings.favoritesListMode)
 
 		val sortOrder: StateFlow<ListSortOrder?> =
-			if (categoryId == NO_ID) {
-				settings.observeAsFlow(AppSettings.KEY_FAVORITES_ORDER) {
-					allFavoritesSortOrder
+			when (val currentScope = scope) {
+				FavouriteScope.All -> {
+					settings.observeAsFlow(AppSettings.KEY_FAVORITES_ORDER) {
+						allFavoritesSortOrder
+					}
 				}
-			} else {
-				repository
-					.observeCategory(categoryId)
-					.withErrorHandling()
-					.map { it?.order }
+
+				is FavouriteScope.Category -> {
+					repository
+						.observeCategory(categoryId)
+						.withErrorHandling()
+						.map { it?.order }
+				}
+
+				is FavouriteScope.SmartFolder -> {
+					repository
+						.observeSmartFolder(currentScope.id)
+						.withErrorHandling()
+						.map { it?.listOrder }
+				}
 			}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, null)
 
 		override val content =
@@ -114,6 +158,20 @@ class FavouritesListViewModel
 
 		override fun clearFilter() = quickFilter.clearFilter()
 
+		fun refreshOrganizer() {
+			if (mutableOrganizerRefreshing.value) return
+			launchJob(Dispatchers.Default) {
+				mutableOrganizerRefreshing.value = true
+				try {
+					val result = refreshFavouriteOrganizerUseCase(scope)
+					onOrganizerRefreshed.call(result)
+					onRefresh()
+				} finally {
+					mutableOrganizerRefreshing.value = false
+				}
+			}
+		}
+
 		fun markAsRead(items: Set<Manga>) {
 			launchLoadingJob(Dispatchers.Default) {
 				markAsReadUseCase(items)
@@ -127,30 +185,38 @@ class FavouritesListViewModel
 			}
 			launchJob(Dispatchers.Default) {
 				val handle =
-					if (categoryId == NO_ID) {
-						repository.removeFromFavourites(ids)
-					} else {
-						repository.removeFromCategory(categoryId, ids)
+					when (val currentScope = scope) {
+						FavouriteScope.All,
+						is FavouriteScope.SmartFolder,
+						-> repository.removeFromFavourites(ids)
+
+						is FavouriteScope.Category -> repository.removeFromCategory(currentScope.id, ids)
 					}
 				onActionDone.call(ReversibleAction(R.string.removed_from_favourites, handle))
 			}
 		}
 
 		fun setSortOrder(order: ListSortOrder) {
-			if (categoryId == NO_ID) {
-				return
-			}
 			launchJob {
-				repository.setCategoryOrder(categoryId, order)
+				when (val currentScope = scope) {
+					FavouriteScope.All -> Unit
+					is FavouriteScope.Category -> repository.setCategoryOrder(currentScope.id, order)
+					is FavouriteScope.SmartFolder -> repository.setSmartFolderOrder(currentScope.id, order)
+				}
 			}
 		}
 
+		fun setStage(stage: FavouriteStage) {
+			mutableSelectedStage.value = stage
+			savedStateHandle[KEY_STAGE] = stage.name
+		}
+
 		fun saveMangaOrder(items: List<ListModel>) {
-			if (categoryId == NO_ID) return
+			val currentScope = scope as? FavouriteScope.Category ?: return
 			val mangaIds = items.mapNotNull { (it as? MangaListModel)?.id }
 			launchJob(Dispatchers.IO) {
 				kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) {
-					repository.reorderManga(categoryId, mangaIds)
+					repository.reorderManga(currentScope.id, mangaIds)
 				}
 			}
 		}
@@ -169,30 +235,24 @@ class FavouritesListViewModel
 				return if (filters.isEmpty()) {
 					listOf(getEmptyState(hasFilters = false))
 				} else {
-					listOfNotNull(quickFilter.filterItem(filters), getEmptyState(hasFilters = true))
+					listOf(getEmptyState(hasFilters = true))
 				}
 			}
-			val result = ArrayList<ListModel>(size + 1)
-			quickFilter.filterItem(filters)?.let(result::add)
+			val result = ArrayList<ListModel>(size)
 			mangaListMapper.toListModelList(result, this, mode, MangaListMapper.NO_FAVORITE)
 			return result
 		}
 
 		private fun observeFavorites() =
-			if (categoryId == NO_ID) {
-				combine(
-					sortOrder.filterNotNull(),
-					quickFilter.appliedOptions.combineWithSettings(),
-					limit,
-				) { order, filters, limit ->
-					isPaginationReady.set(false)
-					repository.observeAll(order, filters, limit)
-				}.flattenLatest()
-			} else {
-				combine(quickFilter.appliedOptions.combineWithSettings(), limit) { filters, limit ->
-					repository.observeAll(categoryId, filters, limit)
-				}.flattenLatest()
-			}
+			combine(
+				sortOrder.filterNotNull(),
+				quickFilter.appliedOptions.combineWithSettings(),
+				limit,
+				selectedStage,
+			) { order, filters, limit, stage ->
+				isPaginationReady.set(false)
+				repository.observeAll(scope, stage, order, filters, limit)
+			}.flattenLatest()
 
 		private fun getEmptyState(hasFilters: Boolean) =
 			if (hasFilters) {
@@ -207,12 +267,20 @@ class FavouritesListViewModel
 					icon = R.drawable.ic_empty_favourites,
 					textPrimary = R.string.text_empty_holder_primary,
 					textSecondary =
-						if (categoryId == NO_ID) {
+						if (scope == FavouriteScope.All) {
 							R.string.you_have_not_favourites_yet
 						} else {
 							R.string.favourites_category_empty
 						},
 					actionStringRes = 0,
 				)
+			}
+
+		private fun SavedStateHandle.toFavouriteScope(): FavouriteScope =
+			when (requireNotNull(get<String>(KEY_SCOPE_TYPE)) { "Favourite scope type is missing" }) {
+				SCOPE_ALL -> FavouriteScope.All
+				SCOPE_CATEGORY -> FavouriteScope.Category(requireNotNull(get<Long>(AppRouter.KEY_ID)))
+				SCOPE_SMART_FOLDER -> FavouriteScope.SmartFolder(requireNotNull(get<Long>(AppRouter.KEY_ID)))
+				else -> error("Unsupported favourite scope type")
 			}
 	}

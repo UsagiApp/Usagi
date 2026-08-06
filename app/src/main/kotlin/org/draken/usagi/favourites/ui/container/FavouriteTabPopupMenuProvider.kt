@@ -8,45 +8,72 @@ import androidx.core.view.MenuProvider
 import org.draken.usagi.R
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.ui.dialog.buildAlertDialog
-import org.draken.usagi.favourites.ui.list.FavouritesListFragment.Companion.NO_ID
+import org.draken.usagi.favourites.domain.FavouriteScope
+import org.draken.usagi.favourites.ui.list.FavouritesListFragment
 
 class FavouriteTabPopupMenuProvider(
 	private val context: Context,
 	private val router: AppRouter,
 	private val viewModel: FavouritesContainerViewModel,
-	private val categoryId: Long,
+	private val tab: FavouriteTabModel,
 ) : MenuProvider {
 	override fun onCreateMenu(
 		menu: Menu,
 		menuInflater: MenuInflater,
 	) {
 		val menuResId =
-			if (categoryId == NO_ID) {
-				R.menu.popup_fav_tab_all
-			} else {
-				R.menu.popup_fav_tab
+			when (tab.scope) {
+				FavouriteScope.All -> R.menu.popup_fav_tab_all
+				is FavouriteScope.Category -> R.menu.popup_fav_tab
+				is FavouriteScope.SmartFolder -> R.menu.popup_fav_tab_smart
 			}
 		menuInflater.inflate(menuResId, menu)
 	}
 
 	override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
 		when (menuItem.itemId) {
-			R.id.action_hide -> viewModel.hide(categoryId)
-			R.id.action_edit -> router.openFavoriteCategoryEdit(categoryId)
+			R.id.action_hide -> hide()
+			R.id.action_edit -> edit()
 			R.id.action_delete -> confirmDelete()
 			R.id.action_manage -> router.openFavoriteCategories()
+			R.id.action_manage_smart_folders -> router.openSmartFolders()
 			else -> return false
 		}
 		return true
 	}
 
 	private fun confirmDelete() {
+		val isSmartFolder = tab.scope is FavouriteScope.SmartFolder
 		buildAlertDialog(context, isCentered = true) {
-			setMessage(R.string.categories_delete_confirm)
-			setTitle(R.string.remove_category)
+			setMessage(if (isSmartFolder) R.string.smart_folder_delete_confirm else R.string.categories_delete_confirm)
+			setTitle(if (isSmartFolder) R.string.delete_smart_folder else R.string.remove_category)
 			setIcon(R.drawable.ic_delete)
 			setNegativeButton(android.R.string.cancel, null)
-			setPositiveButton(R.string.remove) { _, _ -> viewModel.deleteCategory(categoryId) }
+			setPositiveButton(if (isSmartFolder) R.string.delete else R.string.remove) { _, _ -> delete() }
 		}.show()
+	}
+
+	private fun hide() {
+		when (val scope = tab.scope) {
+			FavouriteScope.All -> viewModel.hide(FavouritesListFragment.NO_ID)
+			is FavouriteScope.Category -> viewModel.hide(scope.id)
+			is FavouriteScope.SmartFolder -> Unit
+		}
+	}
+
+	private fun edit() {
+		when (val scope = tab.scope) {
+			FavouriteScope.All -> Unit
+			is FavouriteScope.Category -> router.openFavoriteCategoryEdit(scope.id)
+			is FavouriteScope.SmartFolder -> router.openSmartFolderEdit(scope.id)
+		}
+	}
+
+	private fun delete() {
+		when (val scope = tab.scope) {
+			FavouriteScope.All -> Unit
+			is FavouriteScope.Category -> viewModel.deleteCategory(scope.id)
+			is FavouriteScope.SmartFolder -> viewModel.deleteSmartFolder(scope.id)
+		}
 	}
 }

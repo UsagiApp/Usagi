@@ -10,9 +10,9 @@ biometric = "1.4.0-alpha04"
 #noinspection NewerVersionAvailable
 coil = "3.3.0"
 collections = "1.5.0"
-# https://github.com/google/conscrypt/issues/1268
-#noinspection NewerVersionAvailable,GradleDependency,Aligned16KB - 2.5.3 cause crashes
-conscrypt = "2.5.2"
+#noinspection GradleDependency
+# 2.6 is the first stable release line with officially 16 KB-aligned Android binaries.
+conscrypt = "2.6.1"
 constraintlayout = "2.2.1"
 coreKtx = "1.17.0"
 coroutines = "1.10.2"

@@ -23,12 +23,16 @@ class FavoritesListQuickFilter
 		override suspend fun getAvailableFilterOptions(): List<ListFilterOption> =
 			buildList {
 				add(ListFilterOption.Downloaded)
+				add(ListFilterOption.SFW)
+				add(ListFilterOption.Macro.NSFW)
 				if (settings.isTrackerEnabled) {
 					add(ListFilterOption.Macro.NEW_CHAPTERS)
 				}
-				add(ListFilterOption.Macro.COMPLETED)
 				repository.findPopularSources(categoryId, 10).mapTo(this) {
 					ListFilterOption.Source(it)
+				}
+				repository.findPopularTags(20).mapTo(this) {
+					ListFilterOption.Tag(it)
 				}
 			}
 

@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.history.data.HistoryRepository
+import org.draken.usagi.list.domain.ReadingProgress
 import tsuki.model.Manga
 import javax.inject.Inject
 
@@ -17,21 +18,24 @@ class MarkAsReadUseCase
 		private val mangaRepositoryFactory: MangaRepository.Factory,
 	) {
 		suspend operator fun invoke(manga: Manga) {
-			val repo = mangaRepositoryFactory.create(manga.source)
+			val detailsRepo = mangaRepositoryFactory.create(manga.source)
 			val details =
 				if (manga.chapters.isNullOrEmpty()) {
-					repo.getDetails(manga)
+					detailsRepo.getDetails(manga)
 				} else {
 					manga
 				}
-			val lastChapter = checkNotNull(details.chapters).last()
-			val pages = repo.getPages(lastChapter)
+			val history = historyRepository.getOne(details)
+			val lastChapter = CompletionTargetResolver.resolve(details, history)
+			val chapterRepo = mangaRepositoryFactory.create(lastChapter.source)
+			val pages = chapterRepo.getPages(lastChapter)
+			check(pages.isNotEmpty()) { "Preferred branch final chapter has no pages" }
 			historyRepository.addOrUpdate(
 				manga = details,
 				chapterId = lastChapter.id,
 				page = pages.lastIndex,
 				scroll = 0,
-				percent = 1f,
+				percent = ReadingProgress.PROGRESS_COMPLETED,
 				force = true,
 			)
 		}

@@ -23,6 +23,10 @@ class FavouritesContainerMenuProvider(
 				router.openFavoriteCategories()
 			}
 
+			R.id.action_manage_smart_folders -> {
+				router.openSmartFolders()
+			}
+
 			else -> {
 				return false
 			}

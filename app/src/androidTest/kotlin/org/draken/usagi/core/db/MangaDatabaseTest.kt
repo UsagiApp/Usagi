@@ -3,6 +3,7 @@ package org.draken.usagi.core.db
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import org.draken.usagi.core.db.migrations.Migration28To29
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -51,7 +52,30 @@ class MangaDatabaseTest {
 		}
 	}
 
+	@Test
+	fun migrate28To29CreatesSmartFoldersWithoutChangingExistingData() {
+		helper.createDatabase(TEST_DB_28_29, 28).use { database ->
+			database.execSQL(
+				"INSERT INTO favourite_categories " +
+					"(category_id, created_at, sort_key, title, `order`, track, show_in_lib, deleted_at) " +
+					"VALUES (1, 10, 0, 'Read later', 'NEWEST', 1, 1, 0)",
+			)
+		}
+
+		helper.runMigrationsAndValidate(TEST_DB_28_29, 29, true, Migration28To29()).use { database ->
+			database.query("SELECT COUNT(*) FROM favourite_categories WHERE category_id = 1").use { cursor ->
+				cursor.moveToFirst()
+				assertEquals(1, cursor.getInt(0))
+			}
+			database.query("SELECT COUNT(*) FROM smart_folders").use { cursor ->
+				cursor.moveToFirst()
+				assertEquals(0, cursor.getInt(0))
+			}
+		}
+	}
+
 	private companion object {
 		const val TEST_DB = "test-db"
+		const val TEST_DB_28_29 = "test-db-28-29"
 	}
 }

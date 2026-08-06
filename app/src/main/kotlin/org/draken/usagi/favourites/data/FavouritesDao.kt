@@ -16,11 +16,20 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import org.draken.usagi.core.db.MangaQueryBuilder
 import org.draken.usagi.core.db.TABLE_FAVOURITES
+import org.draken.usagi.core.db.entity.MangaEntity
 import org.draken.usagi.core.db.entity.MangaWithTags
+import org.draken.usagi.favourites.domain.FavouriteScope
+import org.draken.usagi.favourites.domain.FavouriteStage
+import org.draken.usagi.favourites.domain.SmartFolderContent
+import org.draken.usagi.favourites.domain.SmartFolderDevice
+import org.draken.usagi.favourites.domain.SmartFolderRules
 import org.draken.usagi.favourites.domain.model.Cover
+import org.draken.usagi.history.data.HistoryEntity
 import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.domain.ListSortOrder
-import org.draken.usagi.list.domain.ReadingProgress.Companion.PROGRESS_COMPLETED
+import org.draken.usagi.list.domain.ReadingProgress.Companion.COMPLETION_THRESHOLD
+import org.draken.usagi.local.data.index.LocalMangaIndexEntity
+import org.draken.usagi.tracker.data.TrackEntity
 import org.intellij.lang.annotations.Language
 
 @Dao
@@ -104,6 +113,55 @@ abstract class FavouritesDao : MangaQueryBuilder.ConditionCallback {
 				.limit(limit)
 				.build(),
 		)
+
+	fun observeAll(
+		scope: FavouriteScope,
+		stage: FavouriteStage,
+		rules: SmartFolderRules?,
+		order: ListSortOrder,
+		filterOptions: Set<ListFilterOption>,
+		limit: Int,
+	): Flow<List<FavouriteManga>> =
+		observeAllImpl(
+			MangaQueryBuilder(TABLE_FAVOURITES, this)
+				.join("LEFT JOIN manga ON favourites.manga_id = manga.manga_id")
+				.where("favourites.deleted_at = 0")
+				.where(getScopeCondition(scope, rules))
+				.where(getStageCondition(stage))
+				.filters(filterOptions)
+				.groupBy("favourites.manga_id")
+				.orderBy(getOrderBy(order))
+				.limit(limit)
+				.build(),
+		)
+
+	fun observeStageCounts(
+		scope: FavouriteScope,
+		rules: SmartFolderRules?,
+	): Flow<FavouriteStageCounts> {
+		val scopeCondition = getScopeCondition(scope, rules)
+		val query =
+			SimpleSQLiteQuery(
+				"""SELECT
+					COUNT(*) AS all_count,
+					COALESCE(SUM(CASE WHEN history_percent IS NULL THEN 1 ELSE 0 END), 0) AS not_started_count,
+					COALESCE(SUM(CASE WHEN history_percent IS NOT NULL AND (new_chapters > 0 OR history_percent < $COMPLETION_THRESHOLD) THEN 1 ELSE 0 END), 0) AS reading_count,
+					COALESCE(SUM(CASE WHEN history_percent >= $COMPLETION_THRESHOLD AND new_chapters <= 0 AND state IN ('ONGOING', 'PAUSED', 'UPCOMING') THEN 1 ELSE 0 END), 0) AS waiting_count,
+					COALESCE(SUM(CASE WHEN history_percent >= $COMPLETION_THRESHOLD AND new_chapters <= 0 AND state = 'FINISHED' THEN 1 ELSE 0 END), 0) AS completed_count,
+					COALESCE(SUM(CASE WHEN history_percent >= $COMPLETION_THRESHOLD AND new_chapters <= 0 AND (state IS NULL OR state NOT IN ('FINISHED', 'ONGOING', 'PAUSED', 'UPCOMING')) THEN 1 ELSE 0 END), 0) AS needs_review_count
+				FROM (
+					SELECT manga.manga_id,
+						manga.state AS state,
+						(SELECT percent FROM history WHERE history.manga_id = favourites.manga_id AND history.deleted_at = 0 LIMIT 1) AS history_percent,
+						COALESCE((SELECT chapters_new FROM tracks WHERE tracks.manga_id = favourites.manga_id LIMIT 1), 0) AS new_chapters
+					FROM favourites
+					LEFT JOIN manga ON favourites.manga_id = manga.manga_id
+					WHERE favourites.deleted_at = 0 AND $scopeCondition
+					GROUP BY favourites.manga_id
+				)""",
+			)
+		return observeStageCountsImpl(query)
+	}
 
 	suspend fun findCovers(
 		categoryId: Long,
@@ -234,8 +292,29 @@ abstract class FavouritesDao : MangaQueryBuilder.ConditionCallback {
 	abstract suspend fun upsert(entity: FavouriteEntity)
 
 	@Transaction
-	@RawQuery(observedEntities = [FavouriteEntity::class])
+	@RawQuery(
+		observedEntities = [
+			FavouriteEntity::class,
+			FavouriteCategoryEntity::class,
+			MangaEntity::class,
+			HistoryEntity::class,
+			TrackEntity::class,
+			LocalMangaIndexEntity::class,
+		],
+	)
 	protected abstract fun observeAllImpl(query: SupportSQLiteQuery): Flow<List<FavouriteManga>>
+
+	@RawQuery(
+		observedEntities = [
+			FavouriteEntity::class,
+			FavouriteCategoryEntity::class,
+			MangaEntity::class,
+			HistoryEntity::class,
+			TrackEntity::class,
+			LocalMangaIndexEntity::class,
+		],
+	)
+	protected abstract fun observeStageCountsImpl(query: SupportSQLiteQuery): Flow<FavouriteStageCounts>
 
 	@RawQuery
 	protected abstract suspend fun findCoversImpl(query: SupportSQLiteQuery): List<Cover>
@@ -282,9 +361,71 @@ abstract class FavouritesDao : MangaQueryBuilder.ConditionCallback {
 			else -> throw IllegalArgumentException("Sort order $sortOrder is not supported")
 		}
 
+	private fun getScopeCondition(
+		scope: FavouriteScope,
+		rules: SmartFolderRules?,
+	): String =
+		when (scope) {
+			FavouriteScope.All -> {
+				"EXISTS(SELECT 1 FROM favourite_categories WHERE favourite_categories.category_id = favourites.category_id AND favourite_categories.show_in_lib = 1 AND favourite_categories.deleted_at = 0)"
+			}
+
+			is FavouriteScope.Category -> {
+				"favourites.category_id = ${scope.id} AND EXISTS(SELECT 1 FROM favourite_categories WHERE favourite_categories.category_id = ${scope.id} AND favourite_categories.deleted_at = 0)"
+			}
+
+			is FavouriteScope.SmartFolder -> {
+				rules?.toSqlCondition() ?: "0"
+			}
+		}
+
+	private fun SmartFolderRules.toSqlCondition(): String {
+		val conditions = ArrayList<String>(5)
+		if (sources.isNotEmpty()) {
+			conditions += "manga.source IN (${sources.joinToString { sqlEscapeString(it) }})"
+		}
+		if (categoryIds.isNotEmpty()) {
+			val ids = categoryIds.joinToString()
+			conditions +=
+				"((SELECT COUNT(*) FROM favourite_categories WHERE category_id IN ($ids) AND deleted_at = 0) = ${categoryIds.size} " +
+				"AND EXISTS(SELECT 1 FROM favourites AS category_favourite WHERE category_favourite.manga_id = favourites.manga_id " +
+				"AND category_favourite.category_id IN ($ids) AND category_favourite.deleted_at = 0))"
+		}
+		if (tagIds.isNotEmpty()) {
+			val ids = tagIds.joinToString()
+			conditions +=
+				"EXISTS(SELECT 1 FROM manga_tags WHERE manga_tags.manga_id = favourites.manga_id AND manga_tags.tag_id IN ($ids))"
+		}
+		when (content) {
+			SmartFolderContent.ANY -> Unit
+			SmartFolderContent.SFW -> conditions += "manga.nsfw = 0"
+			SmartFolderContent.NSFW -> conditions += "manga.nsfw = 1"
+		}
+		when (device) {
+			SmartFolderDevice.ANY -> Unit
+			SmartFolderDevice.ON_DEVICE -> conditions += "EXISTS(SELECT 1 FROM local_index WHERE local_index.manga_id = favourites.manga_id)"
+			SmartFolderDevice.NOT_ON_DEVICE -> conditions += "NOT EXISTS(SELECT 1 FROM local_index WHERE local_index.manga_id = favourites.manga_id)"
+		}
+		return conditions.joinToString(separator = " AND ").ifEmpty { "0" }
+	}
+
+	private fun getStageCondition(stage: FavouriteStage): String {
+		val history = "EXISTS(SELECT 1 FROM history WHERE history.manga_id = favourites.manga_id AND history.deleted_at = 0)"
+		val percent = "(SELECT percent FROM history WHERE history.manga_id = favourites.manga_id AND history.deleted_at = 0 LIMIT 1)"
+		val newChapters = "COALESCE((SELECT chapters_new FROM tracks WHERE tracks.manga_id = favourites.manga_id LIMIT 1), 0)"
+		return when (stage) {
+			FavouriteStage.ALL -> "1"
+			FavouriteStage.NOT_STARTED -> "NOT $history"
+			FavouriteStage.READING -> "$history AND ($newChapters > 0 OR $percent < $COMPLETION_THRESHOLD)"
+			FavouriteStage.COMPLETED -> "$history AND $newChapters <= 0 AND $percent >= $COMPLETION_THRESHOLD AND manga.state = 'FINISHED'"
+			FavouriteStage.WAITING -> "$history AND $newChapters <= 0 AND $percent >= $COMPLETION_THRESHOLD AND manga.state IN ('ONGOING', 'PAUSED', 'UPCOMING')"
+			FavouriteStage.NEEDS_REVIEW -> "$history AND $newChapters <= 0 AND $percent >= $COMPLETION_THRESHOLD AND (manga.state IS NULL OR manga.state NOT IN ('FINISHED', 'ONGOING', 'PAUSED', 'UPCOMING'))"
+		}
+	}
+
 	override fun getCondition(option: ListFilterOption): String? =
 		when (option) {
-			ListFilterOption.Macro.COMPLETED -> "EXISTS(SELECT * FROM history WHERE history.manga_id = favourites.manga_id AND history.percent >= $PROGRESS_COMPLETED)"
+			ListFilterOption.Macro.COMPLETED -> "EXISTS(SELECT * FROM history WHERE history.manga_id = favourites.manga_id AND history.percent >= $COMPLETION_THRESHOLD)"
 			ListFilterOption.Macro.NEW_CHAPTERS -> "(SELECT chapters_new FROM tracks WHERE tracks.manga_id = favourites.manga_id) > 0"
 			ListFilterOption.Macro.NSFW -> "manga.nsfw = 1"
 			is ListFilterOption.Tag -> "EXISTS(SELECT * FROM manga_tags WHERE favourites.manga_id = manga_tags.manga_id AND tag_id = ${option.tagId})"

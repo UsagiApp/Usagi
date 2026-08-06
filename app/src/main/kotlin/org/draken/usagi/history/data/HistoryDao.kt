@@ -18,7 +18,7 @@ import org.draken.usagi.core.db.entity.MangaWithTags
 import org.draken.usagi.core.db.entity.TagEntity
 import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.domain.ListSortOrder
-import org.draken.usagi.list.domain.ReadingProgress.Companion.PROGRESS_COMPLETED
+import org.draken.usagi.list.domain.ReadingProgress.Companion.COMPLETION_THRESHOLD
 
 @Dao
 abstract class HistoryDao : MangaQueryBuilder.ConditionCallback {
@@ -214,7 +214,7 @@ abstract class HistoryDao : MangaQueryBuilder.ConditionCallback {
 	override fun getCondition(option: ListFilterOption): String? =
 		when (option) {
 			is ListFilterOption.Favorite -> "EXISTS(SELECT * FROM favourites WHERE history.manga_id = favourites.manga_id AND category_id = ${option.category.id})"
-			ListFilterOption.Macro.COMPLETED -> "percent >= $PROGRESS_COMPLETED"
+			ListFilterOption.Macro.COMPLETED -> "percent >= $COMPLETION_THRESHOLD"
 			ListFilterOption.Macro.NEW_CHAPTERS -> "(SELECT chapters_new FROM tracks WHERE tracks.manga_id = history.manga_id) > 0"
 			ListFilterOption.Macro.FAVORITE -> "EXISTS(SELECT * FROM favourites WHERE history.manga_id = favourites.manga_id)"
 			ListFilterOption.Macro.NSFW -> "manga.nsfw = 1"

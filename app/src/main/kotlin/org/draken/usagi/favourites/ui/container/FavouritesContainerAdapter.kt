@@ -35,7 +35,7 @@ class FavouritesContainerAdapter(
 
 	override fun createFragment(position: Int): Fragment {
 		val item = differ.currentList[position]
-		return FavouritesListFragment.newInstance(item.id)
+		return FavouritesListFragment.newInstance(item.scope)
 	}
 
 	override suspend fun emit(value: List<FavouriteTabModel>) =
@@ -44,4 +44,6 @@ class FavouritesContainerAdapter(
 		}
 
 	fun getItem(position: Int): FavouriteTabModel = differ.currentList[position]
+
+	fun getItemOrNull(position: Int): FavouriteTabModel? = differ.currentList.getOrNull(position)
 }

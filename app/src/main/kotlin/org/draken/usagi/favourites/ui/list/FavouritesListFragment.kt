@@ -17,6 +17,9 @@ import org.draken.usagi.core.ui.list.ListSelectionController
 import org.draken.usagi.core.util.ext.sortedByOrdinal
 import org.draken.usagi.core.util.ext.withArgs
 import org.draken.usagi.databinding.FragmentListBinding
+import org.draken.usagi.favourites.domain.FavouriteScope
+import org.draken.usagi.favourites.domain.FavouriteStage
+import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.domain.ListSortOrder
 import org.draken.usagi.list.ui.MangaListFragment
 import org.draken.usagi.list.ui.adapter.MangaListAdapter
@@ -32,6 +35,31 @@ class FavouritesListFragment :
 
 	val categoryId
 		get() = viewModel.categoryId
+	val scope
+		get() = viewModel.scope
+	val selectedStage
+		get() = viewModel.selectedStage
+	val stageCounts
+		get() = viewModel.stageCounts
+	val availableRuleOptions
+		get() = viewModel.availableRuleOptions
+	val selectedRuleOptions
+		get() = viewModel.selectedRuleOptions
+	val isOrganizerRefreshing
+		get() = viewModel.isOrganizerRefreshing
+	val onOrganizerRefreshed
+		get() = viewModel.onOrganizerRefreshed
+
+	fun setStage(stage: FavouriteStage) = viewModel.setStage(stage)
+
+	fun setRuleOption(
+		option: ListFilterOption,
+		isApplied: Boolean,
+	) = viewModel.setFilterOption(option, isApplied)
+
+	fun clearRuleOptions() = viewModel.clearFilter()
+
+	fun refreshOrganizer() = viewModel.refreshOrganizer()
 
 	private val favouritesAdapter: MangaListAdapter?
 		get() = recyclerView?.adapter as? MangaListAdapter
@@ -140,10 +168,29 @@ class FavouritesListFragment :
 
 	companion object {
 		const val NO_ID = 0L
+		const val KEY_SCOPE_TYPE = "favourite_scope_type"
+		const val KEY_STAGE = "favourite_stage"
+		const val SCOPE_ALL = "all"
+		const val SCOPE_CATEGORY = "category"
+		const val SCOPE_SMART_FOLDER = "smart_folder"
 
-		fun newInstance(categoryId: Long) =
-			FavouritesListFragment().withArgs(1) {
-				putLong(AppRouter.KEY_ID, categoryId)
+		fun newInstance(scope: FavouriteScope) =
+			FavouritesListFragment().withArgs(2) {
+				when (scope) {
+					FavouriteScope.All -> {
+						putString(KEY_SCOPE_TYPE, SCOPE_ALL)
+					}
+
+					is FavouriteScope.Category -> {
+						putString(KEY_SCOPE_TYPE, SCOPE_CATEGORY)
+						putLong(AppRouter.KEY_ID, scope.id)
+					}
+
+					is FavouriteScope.SmartFolder -> {
+						putString(KEY_SCOPE_TYPE, SCOPE_SMART_FOLDER)
+						putLong(AppRouter.KEY_ID, scope.id)
+					}
+				}
 			}
 	}
 }

@@ -8,4 +8,9 @@
 		android:title="@string/favourites_categories"
 		android:titleCondensed="@string/categories" />
 
+	<item
+		android:id="@+id/action_manage_smart_folders"
+		android:orderInCategory="49"
+		android:title="@string/smart_folders" />
+
 </menu>

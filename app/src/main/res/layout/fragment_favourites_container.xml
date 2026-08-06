@@ -7,24 +7,106 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical">
 
-	<com.google.android.material.tabs.TabLayout
-		android:id="@+id/tabs"
+	<LinearLayout
+		android:id="@+id/organizer_header"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="@null"
-		app:tabGravity="start"
-		app:tabMode="scrollable" />
+		android:gravity="center_vertical"
+		android:orientation="horizontal"
+		android:paddingHorizontal="@dimen/list_spacing_normal"
+		android:paddingTop="4dp">
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/button_scope"
+			style="?attr/materialButtonOutlinedStyle"
+			android:layout_width="0dp"
+			android:layout_height="48dp"
+			android:layout_marginEnd="4dp"
+			android:layout_weight="1"
+			android:ellipsize="end"
+			android:gravity="start|center_vertical"
+			android:maxLines="1"
+			android:text="@string/all_favourites"
+			app:icon="@drawable/ic_folder_file"
+			app:iconGravity="textStart"
+			app:iconPadding="8dp" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/button_rules"
+			style="?attr/materialIconButtonOutlinedStyle"
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:contentDescription="@string/favourite_organizer_rules"
+			app:icon="@drawable/ic_filter_menu" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/button_edit_scope"
+			style="?attr/materialIconButtonOutlinedStyle"
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:layout_marginStart="4dp"
+			android:contentDescription="@string/edit"
+			android:visibility="gone"
+			app:icon="@drawable/ic_edit"
+			tools:visibility="visible" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/button_add_scope"
+			style="?attr/materialIconButtonOutlinedStyle"
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:layout_marginStart="4dp"
+			android:contentDescription="@string/create_smart_folder"
+			app:icon="@drawable/ic_add" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/button_refresh_organizer"
+			style="?attr/materialIconButtonOutlinedStyle"
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:layout_marginStart="4dp"
+			android:contentDescription="@string/favourite_organizer_refresh"
+			app:icon="@drawable/ic_sync" />
+
+	</LinearLayout>
+
+	<TextView
+		android:id="@+id/text_rules_summary"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:ellipsize="end"
+		android:maxLines="1"
+		android:paddingHorizontal="@dimen/list_spacing_normal"
+		android:paddingTop="2dp"
+		android:paddingBottom="4dp"
+		android:text="@string/favourite_organizer_any_rules"
+		android:textAppearance="?attr/textAppearanceBodySmall"
+		android:textColor="?android:attr/textColorSecondary" />
+
+	<com.google.android.material.chip.ChipGroup
+		android:id="@+id/stage_chips"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingHorizontal="@dimen/list_spacing_normal"
+		android:paddingVertical="4dp"
+		app:chipSpacingHorizontal="8dp"
+		app:chipSpacingVertical="0dp"
+		app:selectionRequired="true"
+		app:singleLine="false"
+		app:singleSelection="true" />
 
 	<androidx.viewpager2.widget.ViewPager2
 		android:id="@+id/pager"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
 		tools:visibility="gone" />
 
 	<ViewStub
 		android:id="@+id/stub_empty"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
 		android:layout="@layout/item_empty_state"
 		tools:visibility="visible" />
 
