@@ -930,4 +930,9 @@
     <string name="proxy_webview_unavailable">Hiện không hỗ trợ Proxy cho WebView</string>
     <string name="check_app_update">Tự động kiểm tra bản cập nhật mới</string>
     <string name="check_app_update_summary">Tự động kiểm tra bản cập nhật mới có sẵn cho ứng dụng khi khởi động</string>
+    <string name="downscale_image">Giảm độ phân giải ảnh</string>
+    <string name="downscale_off">Tắt</string>
+    <string name="floating_navigation_bar">Thanh điều hướng nổi</string>
+    <string name="floating_navigation_bar_summary">Hiển thị thanh điều hướng của màn hình chính ở dạng thanh nổi (như là Google Photos)</string>
+    <string name="no_filters_available">Nguồn này không có bộ lọc nào ツ</string>
 </resources>
