@@ -760,7 +760,7 @@
     <string name="backup_tg_echo">Mensagem de teste</string>
     <string name="translation">Tradução</string>
     <string name="send_backups_telegram">Enviar backups no Telegram</string>
-    <string name="open_telegram_bot_summary">Pressione para abrir o chat com o Kotatsu Backup Bot</string>
+    <string name="open_telegram_bot_summary">Pressione para abrir o chat com o Usagi Backup Bot</string>
     <string name="incognito">Anônimo</string>
     <string name="telegram_chat_id_summary">Insira o ID do chat para onde os backups devem ser enviados</string>
     <string name="author">Autor</string>

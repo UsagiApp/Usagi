@@ -13,6 +13,7 @@ import org.draken.usagi.core.model.MangaSourceInfo
 import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.model.TestMangaSource
 import org.draken.usagi.core.model.UnknownMangaSource
+import org.draken.usagi.core.model.UnresolvedMangaSource
 import org.draken.usagi.core.model.resolve
 import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.parser.external.ExternalMangaRepository
@@ -93,7 +94,7 @@ interface MangaRepository {
 			@AnyThread
 			fun create(source: MangaSource): MangaRepository {
 				var target = source.resolve()
-				if (target is org.draken.usagi.core.model.UnresolvedMangaSource || MangaSourceRegistry.sources.isEmpty()) {
+				if (target is UnresolvedMangaSource || MangaSourceRegistry.sources.isEmpty()) {
 					resolve()
 					target = source.resolve()
 				}

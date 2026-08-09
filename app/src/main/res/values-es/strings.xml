@@ -764,7 +764,7 @@
     <string name="rating">Calificación</string>
     <string name="source">Fuente</string>
     <string name="test_connection">Prueba de la conexión</string>
-    <string name="open_telegram_bot_summary">Presione para abrir el chat con Kotatsu Backup Bot</string>
+    <string name="open_telegram_bot_summary">Presione para abrir el chat con Usagi Backup Bot</string>
     <string name="send_backups_telegram">Enviar copias de seguridad por Telegram</string>
     <string name="telegram_chat_id_summary">Ingrese el ID del chat donde se deben enviar las copias de seguridad</string>
     <string name="nsfw_16">16+</string>
