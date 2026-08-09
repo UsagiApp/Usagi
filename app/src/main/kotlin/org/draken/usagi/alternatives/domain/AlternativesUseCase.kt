@@ -29,6 +29,7 @@ class AlternativesUseCase
 		suspend operator fun invoke(
 			manga: Manga,
 			throughDisabledSources: Boolean,
+			query: String = manga.title,
 		): Flow<Manga> {
 			val sources = getSources(manga.source, throughDisabledSources)
 			if (sources.isEmpty()) {
@@ -42,7 +43,7 @@ class AlternativesUseCase
 						val list =
 							runCatchingCancellable {
 								semaphore.withPermit {
-									searchHelper(manga.title, SearchKind.TITLE)?.manga
+									searchHelper(query, SearchKind.TITLE)?.manga
 								}
 							}.getOrNull()
 						list?.forEach { m ->
