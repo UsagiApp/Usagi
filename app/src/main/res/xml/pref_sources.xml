@@ -81,4 +81,16 @@
         android:summary="@string/handle_links_summary"
         android:title="@string/handle_links" />
 
+	<PreferenceCategory
+		android:title="@string/migrate"
+		app:allowDividerAbove="true">
+
+		<org.draken.usagi.settings.utils.MultiAutoCompleteTextViewPreference
+			android:key="fix_exclude_sources"
+			android:summary="@string/fix_excluded_sources_summary"
+			android:title="@string/fix_excluded_sources"
+			app:useSimpleSummaryProvider="true" />
+
+	</PreferenceCategory>
+
 </androidx.preference.PreferenceScreen>

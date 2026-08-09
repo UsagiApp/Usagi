@@ -739,6 +739,8 @@
     <string name="no_fix_required">No fix required for \"%s\"</string>
     <string name="no_alternatives_found">No alternatives found for \"%s\"</string>
     <string name="manga_fix_prompt">This function will find alternative sources for the selected manga. The task will take some time and will proceed in the background</string>
+    <string name="fix_excluded_sources">Auto-fix exclude sources</string>
+    <string name="fix_excluded_sources_summary">Specify sources that you do not want to use in auto-fix manga feature</string>
     <string name="content_type_novel">Novel</string>
     <string name="content_type_manhua">Manhua</string>
     <string name="content_type_manhwa">Manhwa</string>

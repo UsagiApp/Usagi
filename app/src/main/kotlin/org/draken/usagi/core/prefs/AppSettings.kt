@@ -466,6 +466,15 @@ class AppSettings
 				return string.split(',').mapToSet { it.trim() }
 			}
 
+		val fixSourcesBlacklist: Set<String>
+			get() {
+				val string = prefs.getString(KEY_FIX_EXCLUDE_SOURCES, null)?.trimEnd(' ', ',')
+				if (string.isNullOrEmpty()) {
+					return emptySet()
+				}
+				return string.split(',').mapToSet { it.trim() }
+			}
+
 		val isReaderBarEnabled: Boolean
 			get() = prefs.getBoolean(KEY_READER_BAR, true)
 
@@ -843,6 +852,7 @@ class AppSettings
 			const val KEY_SUGGESTIONS_EXCLUDE_TAGS = "suggestions_exclude_tags"
 			const val KEY_SUGGESTIONS_DISABLED_SOURCES = "suggestions_disabled_sources"
 			const val KEY_SUGGESTIONS_NOTIFICATIONS = "suggestions_notifications"
+			const val KEY_FIX_EXCLUDE_SOURCES = "fix_exclude_sources"
 			const val KEY_SHIKIMORI = "shikimori"
 			const val KEY_ANILIST = "anilist"
 			const val KEY_MAL = "mal"
