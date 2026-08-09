@@ -99,10 +99,10 @@ class ImportPluginActivity : AppCompatActivity() {
 		AlertDialog.Builder(this)
 			.setTitle(R.string.import_plugin_from_url)
 			.setMessage(Html.fromHtml(message))
-			.setPositiveButton(R.string.ok) { _, _ ->
+			.setPositiveButton(android.R.string.ok) { _, _ ->
 				downloadAndInstall(url, info)
 			}
-			.setNegativeButton(R.string.cancel) { _, _ ->
+			.setNegativeButton(android.R.string.cancel) { _, _ ->
 				finish()
 			}
 			.setOnCancelListener {
