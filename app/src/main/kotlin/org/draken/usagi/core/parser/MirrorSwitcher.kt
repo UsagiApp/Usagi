@@ -3,9 +3,9 @@ package org.draken.usagi.core.parser
 import android.util.Log
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.network.MangaHttpClient
 import org.draken.usagi.core.network.cookies.MutableCookieJar
@@ -103,7 +103,10 @@ class MirrorSwitcher
 			}
 		}
 
-		private fun transferCookies(oldDomain: String, newDomain: String) {
+		private fun transferCookies(
+			oldDomain: String,
+			newDomain: String,
+		) {
 			if (!areDomainsRelated(oldDomain, newDomain)) {
 				logd { "Skipping cookie transfer: domains not related ($oldDomain -> $newDomain)" }
 				return
@@ -121,7 +124,10 @@ class MirrorSwitcher
 			}
 		}
 
-		private fun areDomainsRelated(oldDomain: String, newDomain: String): Boolean {
+		private fun areDomainsRelated(
+			oldDomain: String,
+			newDomain: String,
+		): Boolean {
 			val oldParts = oldDomain.lowercase().split(".")
 			val newParts = newDomain.lowercase().split(".")
 			if (oldParts.size < 2 || newParts.size < 2) return false

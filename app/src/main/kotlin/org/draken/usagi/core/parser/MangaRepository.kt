@@ -13,6 +13,7 @@ import org.draken.usagi.core.model.MangaSourceInfo
 import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.model.TestMangaSource
 import org.draken.usagi.core.model.UnknownMangaSource
+import org.draken.usagi.core.model.resolve
 import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.parser.external.ExternalMangaRepository
 import org.draken.usagi.core.parser.external.ExternalMangaSource
@@ -29,6 +30,7 @@ import tsuki.model.SortOrder
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
 import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
 import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as ExternalRepository
@@ -82,12 +84,20 @@ interface MangaRepository {
 			private val loaderContext: MangaLoaderContext,
 			private val contentCache: MemoryContentCache,
 			private val mirrorSwitcher: MirrorSwitcher,
+			private val mangaRepository: MangaDynamicRepository,
+			private val externalManager: ExternalManager,
 		) {
 			private val cache = ArrayMap<MangaSource, WeakReference<MangaRepository>>()
 			private var cacheVersion = -1
 
 			@AnyThread
 			fun create(source: MangaSource): MangaRepository {
+				var target = source.resolve()
+				if (target is org.draken.usagi.core.model.UnresolvedMangaSource || MangaSourceRegistry.sources.isEmpty()) {
+					resolve()
+					target = source.resolve()
+				}
+
 				val currentVersion = MangaSourceRegistry.version
 				if (cacheVersion != currentVersion) {
 					synchronized(cache) {
@@ -98,20 +108,20 @@ interface MangaRepository {
 					}
 				}
 
-				when (source) {
-					is MangaSourceInfo -> return create(source.mangaSource)
+				when (target) {
+					is MangaSourceInfo -> return create(target.mangaSource)
 					LocalMangaSource -> return localMangaRepository
-					UnknownMangaSource -> return EmptyMangaRepository(source)
+					UnknownMangaSource -> return EmptyMangaRepository(target)
 				}
-				cache[source]?.get()?.let { return it }
+				cache[target]?.get()?.let { return it }
 				return synchronized(cache) {
-					cache[source]?.get()?.let { return it }
-					val repository = createRepository(source)
-					if (repository != null) {
-						cache[source] = WeakReference(repository)
+					cache[target]?.get()?.let { return it }
+					val repository = createRepository(target)
+					if (repository != null && repository !is EmptyMangaRepository) {
+						cache[target] = WeakReference(repository)
 						repository
 					} else {
-						EmptyMangaRepository(source)
+						EmptyMangaRepository(target)
 					}
 				}
 			}
@@ -162,6 +172,19 @@ interface MangaRepository {
 						}
 					}
 				}
+
+			private fun resolve() {
+				synchronized(this) {
+					if (MangaSourceRegistry.sources.isEmpty()) {
+						runCatching {
+							mangaRepository.load(mangaRepository.getDir())
+							kotlinx.coroutines.runBlocking {
+								externalManager.ensureReady()
+							}
+						}
+					}
+				}
+			}
 		}
 
 	companion object {
