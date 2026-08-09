@@ -322,6 +322,9 @@ class AppSettings
 		val isMirrorSwitchingEnabled: Boolean
 			get() = prefs.getBoolean(KEY_MIRROR_SWITCHING, false)
 
+		val isTransferCookiesOnRedirectEnabled: Boolean
+			get() = prefs.getBoolean(KEY_TRANSFER_COOKIES_ON_REDIRECT, false)
+
 		val isExitConfirmationEnabled: Boolean
 			get() = prefs.getBoolean(KEY_EXIT_CONFIRM, false)
 
@@ -895,6 +898,7 @@ class AppSettings
 			const val KEY_READER_AUTOSCROLL_SPEED = "as_speed"
 			const val KEY_READER_AUTOSCROLL_FAB = "as_fab"
 			const val KEY_MIRROR_SWITCHING = "mirror_switching"
+			const val KEY_TRANSFER_COOKIES_ON_REDIRECT = "transfer_cookies_on_redirect"
 			const val KEY_PROXY = "proxy"
 			const val KEY_PROXY_TYPE = "proxy_type_2"
 			const val KEY_PROXY_ADDRESS = "proxy_address"
