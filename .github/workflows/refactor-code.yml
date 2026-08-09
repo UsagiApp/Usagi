@@ -21,7 +21,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout repository 🌏
-                uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # v6.0.2
+                uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v6.0.2
                 with:
                     fetch-depth: 0
                     ref: ${{ github.event.pull_request.head.ref }}
