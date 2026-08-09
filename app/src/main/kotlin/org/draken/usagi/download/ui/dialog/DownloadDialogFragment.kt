@@ -227,7 +227,7 @@ class DownloadDialogFragment :
 							it.chaptersCount,
 						),
 					)
-				optionFirstChapters.subtitle = it.branch
+				optionFirstChapters.subtitle = if (options.wholeBranch != null) it.branch else null
 			}
 			// Next N unread chapters
 			optionUnreadChapters.isVisible = options.unreadChapters != null

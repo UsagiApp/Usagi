@@ -45,6 +45,7 @@ import java.util.EnumSet
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.enums.enumEntries
 
 @Singleton
 class AppSettings
@@ -531,7 +532,7 @@ class AppSettings
 		val proxyType: Proxy.Type
 			get() {
 				val raw = prefs.getString(KEY_PROXY_TYPE, null) ?: return Proxy.Type.DIRECT
-				return enumValues<Proxy.Type>().find { it.name == raw } ?: Proxy.Type.DIRECT
+				return enumEntries<Proxy.Type>().find { it.name == raw } ?: Proxy.Type.DIRECT
 			}
 
 		val proxyAddress: String?
