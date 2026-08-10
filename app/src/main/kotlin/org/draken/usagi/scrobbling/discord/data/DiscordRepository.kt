@@ -1,6 +1,8 @@
 package org.draken.usagi.scrobbling.discord.data
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Base64
 import dagger.Reusable
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -12,7 +14,9 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.closeQuietly
 import org.draken.usagi.R
 import org.draken.usagi.core.network.BaseHttpClient
@@ -21,6 +25,7 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.ensureSuccess
 import tsuki.util.await
 import tsuki.util.parseRaw
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.security.MessageDigest
 import java.util.UUID
@@ -40,17 +45,15 @@ class DiscordRepository
 		private val appId = context.getString(R.string.discord_app_id)
 
 		suspend fun getMediaProxyUrl(file: File): String? {
+			val (fileName, body) = resolve(file)
 			val requestBody =
 				MultipartBody
 					.Builder()
 					.setType(MultipartBody.FORM)
 					.addFormDataPart("reqtype", "fileupload")
 					.addFormDataPart("time", "24h")
-					.addFormDataPart(
-						"fileToUpload",
-						file.name,
-						file.asRequestBody("image/*".toMediaTypeOrNull()),
-					).build()
+					.addFormDataPart("fileToUpload", fileName, body)
+					.build()
 			val request =
 				Request
 					.Builder()
@@ -184,5 +187,31 @@ class DiscordRepository
 			val bytes = verifier.toByteArray(Charsets.US_ASCII)
 			val digest = MessageDigest.getInstance("SHA-256").digest(bytes)
 			return Base64.encodeToString(digest, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
+		}
+
+		private fun resolve(file: File): Pair<String, RequestBody> {
+			val bytes =
+				runCatching {
+					val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+					BitmapFactory.decodeFile(file.absolutePath, bounds)
+					val bm =
+						BitmapFactory.decodeFile(
+							file.absolutePath,
+							BitmapFactory.Options().apply {
+								inSampleSize = maxOf(1, maxOf(bounds.outWidth, bounds.outHeight) / 512)
+								inPreferredConfig = Bitmap.Config.RGB_565
+							},
+						) ?: return@runCatching null
+					ByteArrayOutputStream().use { out ->
+						bm.compress(Bitmap.CompressFormat.JPEG, 75, out)
+						bm.recycle()
+						out.toByteArray()
+					}
+				}.getOrNull()
+			return if (bytes != null) {
+				"cover.jpg" to bytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
+			} else {
+				file.name to file.asRequestBody("image/*".toMediaTypeOrNull())
+			}
 		}
 	}
