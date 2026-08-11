@@ -103,20 +103,20 @@
 
   <br>
   
-  **This project includes 2 main repositories. [This repository](#) contains the entire source code of the main application, [core-exts](https://github.com/UsagiApp/core-exts) is the repository containing all the classes compatible with external plugins / extensions for Usagi.**
+  **This project includes 3 main repositories. [This repository](#) contains the entire source code of the main application, [Tsuki](https://github.com/UsagiApp/Tsuki) & [TsukiMix](https://github.com/UsagiApp/TsukiMix) is the repository containing all the classes compatible with external plugins / extensions for Usagi.**
 
   <br>
 
-  <a href="https://github.com/UsagiApp/Usagi">
+  <a href="https://github.com/UsagiApp/Tsuki">
     <picture>
-      <source srcset="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&theme=github_dark" media="(prefers-color-scheme: dark)">
-      <img src="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=Usagi" alt="Usagi GitHub Repository">
+      <source srcset="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=Tsuki&theme=github_dark" media="(prefers-color-scheme: dark)">
+      <img src="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=Tsuki" alt="Tsuki GitHub Repository">
     </picture>
   </a>
-  <a href="https://github.com/UsagiApp/core-exts">
+  <a href="https://github.com/UsagiApp/TsukiMix">
     <picture>
-      <source srcset="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=core-exts&theme=github_dark" media="(prefers-color-scheme: dark)">
-      <img src="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=core-exts" alt="core-exts GitHub Repository">
+      <source srcset="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=TsukiMix&theme=github_dark" media="(prefers-color-scheme: dark)">
+      <img src="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=TsukiMix" alt="TsukiMix GitHub Repository">
     </picture>
   </a>
   

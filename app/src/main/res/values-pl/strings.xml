@@ -808,7 +808,7 @@
     <string name="no_write_permission_to_file">Nie ma uprawnień do zapisu pliku</string>
     <string name="simple">Prosty</string>
     <string name="manga_override_hint">Te zmiany wpłyną na sposób wyświetlania mangi w aplikacji</string>
-    <string name="open_telegram_bot_summary">Naciśnij, aby otworzyć czat z Kotatsu Backup Bot</string>
+    <string name="open_telegram_bot_summary">Naciśnij, aby otworzyć czat z Usagi Backup Bot</string>
     <string name="pages_slider">Suwak przełączania stron</string>
     <string name="link_to_manga_on_s">Link do mangi na %s</string>
     <string name="disable_captcha_notifications_summary">Nie będziesz otrzymywać powiadomień o rozwiązaniu CAPTCHA dla tego źródła, ale może to prowadzić do przerwania operacji w tle (sprawdzanie nowych rozdziałów, uzyskiwanie rekomendacji itp.)</string>

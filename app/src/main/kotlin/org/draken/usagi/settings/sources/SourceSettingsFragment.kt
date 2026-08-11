@@ -14,6 +14,7 @@ import org.draken.tsukimix.core.parser.tachiyomi.addLangToPref
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.SnackbarErrorObserver
 import org.draken.usagi.core.model.getTitle
+import org.draken.usagi.core.model.resolve
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.EmptyMangaRepository
@@ -42,7 +43,7 @@ class SourceSettingsFragment :
 	override fun onResume() {
 		super.onResume()
 		context?.let { ctx ->
-			setTitle(viewModel.source.getTitle(ctx))
+			setTitle(viewModel.source.resolve().getTitle(ctx))
 		}
 		viewModel.onResume()
 	}

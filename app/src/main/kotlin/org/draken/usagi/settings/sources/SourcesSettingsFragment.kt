@@ -9,6 +9,7 @@ import androidx.preference.Preference
 import androidx.preference.TwoStatePreference
 import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
+import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.MangaDynamicRepository
 import org.draken.usagi.core.prefs.AppSettings
@@ -17,7 +18,9 @@ import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.getQuantityStringSafe
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
+import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.explore.data.SourcesSortOrder
+import org.draken.usagi.settings.utils.MultiAutoCompleteTextViewPreference
 import tsuki.util.names
 import javax.inject.Inject
 
@@ -29,6 +32,9 @@ class SourcesSettingsFragment :
 
 	@Inject
 	lateinit var mangaDynamicRepository: MangaDynamicRepository
+
+	@Inject
+	lateinit var sourcesRepository: MangaSourcesRepository
 
 	override fun onCreatePreferences(
 		savedInstanceState: Bundle?,
@@ -43,6 +49,19 @@ class SourcesSettingsFragment :
 		findPreference<ListPreference>(AppSettings.KEY_INCOGNITO_NSFW)?.run {
 			entryValues = TriStateOption.entries.names()
 			setDefaultValueCompat(TriStateOption.ASK.name)
+		}
+		findPreference<MultiAutoCompleteTextViewPreference>(AppSettings.KEY_FIX_EXCLUDE_SOURCES)?.run {
+			autoCompleteProvider =
+				object : MultiAutoCompleteTextViewPreference.AutoCompleteProvider {
+					override suspend fun getSuggestions(query: String): List<String> =
+						sourcesRepository.allMangaSources
+							.map { it.getTitle(context) }
+							.filter { it.contains(query, true) }
+				}
+			summaryProvider =
+				MultiAutoCompleteTextViewPreference.SimpleSummaryProvider(
+					getString(R.string.fix_excluded_sources_summary),
+				)
 		}
 	}
 

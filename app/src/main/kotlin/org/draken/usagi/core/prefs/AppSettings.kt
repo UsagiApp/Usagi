@@ -45,6 +45,7 @@ import java.util.EnumSet
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.enums.enumEntries
 
 @Singleton
 class AppSettings
@@ -321,6 +322,9 @@ class AppSettings
 		val isMirrorSwitchingEnabled: Boolean
 			get() = prefs.getBoolean(KEY_MIRROR_SWITCHING, false)
 
+		val isTransferCookiesOnRedirectEnabled: Boolean
+			get() = prefs.getBoolean(KEY_TRANSFER_COOKIES_ON_REDIRECT, false)
+
 		val isExitConfirmationEnabled: Boolean
 			get() = prefs.getBoolean(KEY_EXIT_CONFIRM, false)
 
@@ -465,6 +469,15 @@ class AppSettings
 				return string.split(',').mapToSet { it.trim() }
 			}
 
+		val fixSourcesBlacklist: Set<String>
+			get() {
+				val string = prefs.getString(KEY_FIX_EXCLUDE_SOURCES, null)?.trimEnd(' ', ',')
+				if (string.isNullOrEmpty()) {
+					return emptySet()
+				}
+				return string.split(',').mapToSet { it.trim() }
+			}
+
 		val isReaderBarEnabled: Boolean
 			get() = prefs.getBoolean(KEY_READER_BAR, true)
 
@@ -531,7 +544,7 @@ class AppSettings
 		val proxyType: Proxy.Type
 			get() {
 				val raw = prefs.getString(KEY_PROXY_TYPE, null) ?: return Proxy.Type.DIRECT
-				return enumValues<Proxy.Type>().find { it.name == raw } ?: Proxy.Type.DIRECT
+				return enumEntries<Proxy.Type>().find { it.name == raw } ?: Proxy.Type.DIRECT
 			}
 
 		val proxyAddress: String?
@@ -842,6 +855,7 @@ class AppSettings
 			const val KEY_SUGGESTIONS_EXCLUDE_TAGS = "suggestions_exclude_tags"
 			const val KEY_SUGGESTIONS_DISABLED_SOURCES = "suggestions_disabled_sources"
 			const val KEY_SUGGESTIONS_NOTIFICATIONS = "suggestions_notifications"
+			const val KEY_FIX_EXCLUDE_SOURCES = "fix_exclude_sources"
 			const val KEY_SHIKIMORI = "shikimori"
 			const val KEY_ANILIST = "anilist"
 			const val KEY_MAL = "mal"
@@ -884,6 +898,7 @@ class AppSettings
 			const val KEY_READER_AUTOSCROLL_SPEED = "as_speed"
 			const val KEY_READER_AUTOSCROLL_FAB = "as_fab"
 			const val KEY_MIRROR_SWITCHING = "mirror_switching"
+			const val KEY_TRANSFER_COOKIES_ON_REDIRECT = "transfer_cookies_on_redirect"
 			const val KEY_PROXY = "proxy"
 			const val KEY_PROXY_TYPE = "proxy_type_2"
 			const val KEY_PROXY_ADDRESS = "proxy_address"

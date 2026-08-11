@@ -431,7 +431,7 @@
     <string name="disable_nsfw_notifications_summary">NSFW manga 업데이트에 대한 알림을 표시하지 마십시오</string>
     <string name="tracker_debug_info_summary">새로운 장에 대한 배경 검사에 관한 데뷔 정보</string>
     <string name="captcha_required_message">이 소스는 계속 captcha를 해결해야합니다</string>
-    <string name="open_telegram_bot_summary">Kotatsu Backup Bot과 채팅을 엽니 다</string>
+    <string name="open_telegram_bot_summary">Usagi Backup Bot과 채팅을 엽니 다</string>
     <string name="clear_database_summary">사용되지 않은 manga에 대한 정보를 삭제</string>
     <string name="enable_all_sources_summary">모든 유효한 manga 근원은 영구적으로 활성화될 것입니다</string>
     <string name="backup_restored_background">백업은 배경에 복원됩니다</string>

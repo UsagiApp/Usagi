@@ -104,7 +104,7 @@ class MangaParserRepository(
 			}
 		}
 
-	fun getAuthProvider(): MangaParserAuthProvider? = parser.authorizationProvider
+	fun getAuthProvider(): MangaParserAuthProvider? = parser.authorizationProvider?.takeIf { it.authUrl.isNotEmpty() }
 
 	fun getRequestHeaders() = parser.getRequestHeaders()
 

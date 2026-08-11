@@ -237,7 +237,12 @@ class FilterCoordinator
 				available.fold(
 					onSuccess = {
 						FilterProperty(
-							availableItems = it.availableLocales.sortedWithSafe(LocaleComparator()).addFirstDistinct(null),
+							availableItems =
+								if (it.availableLocales.isNotEmpty()) {
+									it.availableLocales.sortedWithSafe(LocaleComparator()).addFirstDistinct(null)
+								} else {
+									emptyList()
+								},
 							selectedItems = setOfNotNull(selected.locale),
 						)
 					},
@@ -256,7 +261,12 @@ class FilterCoordinator
 					available.fold(
 						onSuccess = {
 							FilterProperty(
-								availableItems = it.availableLocales.sortedWithSafe(LocaleComparator()).addFirstDistinct(null),
+								availableItems =
+									if (it.availableLocales.isNotEmpty()) {
+										it.availableLocales.sortedWithSafe(LocaleComparator()).addFirstDistinct(null)
+									} else {
+										emptyList()
+									},
 								selectedItems = setOfNotNull(selected.originalLocale),
 							)
 						},

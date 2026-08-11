@@ -17,10 +17,12 @@ import dagger.hilt.android.lifecycle.RetainedLifecycle
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import okio.utf8Size
 import org.draken.usagi.R
 import org.draken.usagi.core.LocalizedAppContext
@@ -28,8 +30,11 @@ import org.draken.usagi.core.model.appUrl
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.prefs.AppSettings
+import org.draken.usagi.core.util.ext.isFileUri
 import org.draken.usagi.core.util.ext.lifecycleScope
 import org.draken.usagi.core.util.ext.printStackTraceDebug
+import org.draken.usagi.core.util.ext.toFileOrNull
+import org.draken.usagi.core.util.ext.toUriOrNull
 import org.draken.usagi.reader.ui.pager.ReaderUiState
 import org.draken.usagi.scrobbling.discord.data.DiscordRepository
 import tsuki.model.Manga
@@ -37,6 +42,7 @@ import tsuki.util.runCatchingCancellable
 import java.io.File
 import java.util.Collections
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val STATUS_ONLINE = "online"
 private const val STATUS_IDLE = "idle"
@@ -145,7 +151,7 @@ class DiscordRpc
 					prevJob?.cancelAndJoin()
 					val debounceTime = lastUpdate + DEBOUNCE_TIMEOUT - SystemClock.elapsedRealtime()
 					if (debounceTime > 0) {
-						delay(debounceTime)
+						delay(debounceTime.milliseconds)
 					}
 					launch { getRpc() }
 					presence.setAssetsLargeImage(presence.assets["largeImage"]?.toMediaProxyUrl(isNsfw))
@@ -169,22 +175,30 @@ class DiscordRpc
 			if (repository.isMediaProxyUrl(this)) return this
 			return mpCache[this] ?: runCatchingCancellable {
 				val file = getCacheFile(this)
-				val upload = file?.let { repository.getMediaProxyUrl(it) }
+				val upload = file?.let { withContext(NonCancellable + Dispatchers.IO) { repository.getMediaProxyUrl(it) } }
 				val contentRating = if (isNsfw) 1 else 0
 				if (upload != null) {
-					getRegistrar()?.resolve(upload, contentRating)
+					withContext(NonCancellable + Dispatchers.IO) { getRegistrar()?.resolve(upload, contentRating) }
 				} else {
 					getRegistrar()?.resolve(this, contentRating)
 				}
-			}.onSuccess { url -> url?.let { mpCache[this] = it } }.onFailure { it.printStackTraceDebug() }.getOrNull()
+			}.onSuccess { url -> if (url != null && repository.isMediaProxyUrl(url)) mpCache[this] = url }
+				.onFailure {
+					it.printStackTraceDebug()
+				}.getOrNull()
 		}
 
 		private suspend fun getCacheFile(url: String): File? {
+			url
+				.toUriOrNull()
+				?.takeIf { it.isFileUri() }
+				?.toFileOrNull()
+				?.takeIf { it.exists() }
+				?.let { return it }
 			var snapshot = imageLoader.diskCache?.openSnapshot(url)
 			if (snapshot == null) {
 				val request = ImageRequest.Builder(context).data(url).build()
-				val result = imageLoader.execute(request)
-				if (result is SuccessResult) {
+				if (imageLoader.execute(request) is SuccessResult) {
 					snapshot = imageLoader.diskCache?.openSnapshot(url)
 				}
 			}

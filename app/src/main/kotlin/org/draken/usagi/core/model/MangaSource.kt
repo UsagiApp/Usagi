@@ -80,8 +80,8 @@ fun MangaSource(name: String?): MangaSource {
 	MangaSourceRegistry.resolveByName(name)?.let { return it }
 	// Backward compatibility for loaded database items saved as '1.jar:MANGADEX'
 	if (name.contains(':')) {
-		val name = name.substringAfter(":")
-		MangaSourceRegistry.resolveByName(name)?.let { return it }
+		val raw = name.substringAfter(":")
+		MangaSourceRegistry.resolveByName(raw)?.let { return it }
 	}
 	return UnresolvedMangaSource(name)
 }
@@ -96,6 +96,14 @@ fun String.toBackupSourceName(): String =
 fun Collection<String>.toMangaSources() = map(::MangaSource)
 
 fun MangaSource.isNsfw(): Boolean = contentType == ContentType.HENTAI
+
+fun MangaSource.resolve(): MangaSource =
+	if (this is UnresolvedMangaSource) {
+		val resolved = MangaSource(this.name)
+		if (resolved !is UnresolvedMangaSource) resolved else this
+	} else {
+		this
+	}
 
 @get:StringRes
 val ContentType.titleResId

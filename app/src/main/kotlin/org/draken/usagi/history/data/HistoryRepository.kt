@@ -145,9 +145,9 @@ class HistoryRepository
 						deletedAt = 0L,
 					),
 				)
-				newChaptersUseCaseProvider.get()(manga, chapterId)
-				scrobblers.forEach { it.tryScrobble(manga, chapterId) }
 			}
+			newChaptersUseCaseProvider.get()(manga, chapterId)
+			scrobblers.forEach { it.tryScrobble(manga, chapterId) }
 		}
 
 		suspend fun getOne(manga: Manga): MangaHistory? =

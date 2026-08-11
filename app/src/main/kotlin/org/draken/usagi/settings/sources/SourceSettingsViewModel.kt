@@ -10,6 +10,7 @@ import okhttp3.HttpUrl
 import org.draken.usagi.R
 import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.model.MangaSourceRegistry
+import org.draken.usagi.core.model.resolve
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.parser.CachingMangaRepository
@@ -39,7 +40,7 @@ class SourceSettingsViewModel
 		private val externalManager: ExternalManager,
 	) : BaseViewModel(),
 		SharedPreferences.OnSharedPreferenceChangeListener {
-		val source = MangaSource(savedStateHandle.get<String>(AppRouter.KEY_SOURCE))
+		val source = MangaSource(savedStateHandle.get<String>(AppRouter.KEY_SOURCE)).resolve()
 		val repository = mangaRepositoryFactory.create(source)
 
 		val onActionDone = MutableEventFlow<ReversibleAction>()

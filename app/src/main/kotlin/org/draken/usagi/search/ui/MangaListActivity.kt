@@ -21,11 +21,13 @@ import kotlinx.coroutines.flow.map
 import org.draken.usagi.R
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.MangaSource
+import org.draken.usagi.core.model.UnresolvedMangaSource
 import org.draken.usagi.core.model.getSummary
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.model.parcelable.ParcelableManga
 import org.draken.usagi.core.model.parcelable.ParcelableMangaListFilter
+import org.draken.usagi.core.model.resolve
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.ui.BaseActivity
@@ -97,9 +99,10 @@ class MangaListActivity :
 
 	override fun onResume() {
 		super.onResume()
-		val activeSource = resolve(source)
-		if (activeSource.name != source.name) {
-			source = activeSource
+		// should resolve source again after restart / crash
+		val active = resolve(source.resolve())
+		if (active.name != source.name || source is UnresolvedMangaSource) {
+			source = active
 			title = source.getTitle(this)
 			reload(source)
 		}

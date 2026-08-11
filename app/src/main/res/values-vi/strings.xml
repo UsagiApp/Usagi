@@ -393,6 +393,8 @@
     <string name="show_on_shelf">Hiển thị trên kệ sách</string>
     <string name="mirror_switching">Tự động chuyển sang dự phòng</string>
     <string name="mirror_switching_summary">Tự động chuyển sang tên miền dự phòng của nguồn đọc (nếu có) khi gặp lỗi</string>
+    <string name="transfer_cookies_on_redirect">Tự động chuyển cookies sang tên miền mới (beta)</string>
+    <string name="transfer_cookies_on_redirect_summary">Tự động sao chép và chuyển cookies từ tên miền cũ sang tên miền mới nếu phát hiện chuyển hướng tên miền của nguồn đọc sang tên miền khác</string>
     <string name="paused">Đã tạm dừng</string>
     <string name="images_proxy_title">Proxy tối ưu hình ảnh</string>
     <string name="images_procy_description">Sử dụng dịch vụ wsrv.nl để giảm dung lượng ảnh và tăng tốc quá trình tải ảnh nếu khả thi</string>
@@ -764,7 +766,7 @@
     <string name="telegram_chat_id_summary">Nhập Chat ID từ Telegram của bạn, nơi mà Bot sẽ gửi bản sao lưu dữ liệu của ứng dụng cho bạn</string>
     <string name="test_connection">Kiểm tra kết nối</string>
     <string name="send_backups_telegram">Gửi bản sao lưu dữ liệu vào Telegram</string>
-    <string name="open_telegram_bot_summary">Ấn vào đây để mở đoạn Chat với Kotatsu Backup Bot (cần cài đặt Telegram)</string>
+    <string name="open_telegram_bot_summary">Ấn vào đây để mở đoạn Chat với Usagi Backup Bot (cần cài đặt Telegram)</string>
     <string name="clear_database">Xóa database</string>
     <string name="clear_database_summary">Xoá thông tin dữ liệu về manga chưa từng được sử dụng (cache)</string>
     <string name="all_sources_enabled">Toàn bộ nguồn đọc đã được bật</string>
@@ -930,4 +932,9 @@
     <string name="proxy_webview_unavailable">Hiện không hỗ trợ Proxy cho WebView</string>
     <string name="check_app_update">Tự động kiểm tra bản cập nhật mới</string>
     <string name="check_app_update_summary">Tự động kiểm tra bản cập nhật mới có sẵn cho ứng dụng khi khởi động</string>
+    <string name="downscale_image">Giảm độ phân giải ảnh</string>
+    <string name="downscale_off">Tắt</string>
+    <string name="floating_navigation_bar">Thanh điều hướng nổi</string>
+    <string name="floating_navigation_bar_summary">Hiển thị thanh điều hướng của màn hình chính ở dạng thanh nổi (như là Google Photos)</string>
+    <string name="no_filters_available">Nguồn này không có bộ lọc nào ツ</string>
 </resources>
