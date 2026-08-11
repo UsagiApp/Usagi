@@ -19,6 +19,7 @@ import org.draken.usagi.core.util.ext.withArgs
 import org.draken.usagi.databinding.FragmentListBinding
 import org.draken.usagi.favourites.domain.FavouriteScope
 import org.draken.usagi.favourites.domain.FavouriteStage
+import org.draken.usagi.favourites.ui.FavouritesPage
 import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.domain.ListSortOrder
 import org.draken.usagi.list.ui.MangaListFragment
@@ -28,6 +29,7 @@ import org.draken.usagi.list.ui.model.MangaListModel
 @AndroidEntryPoint
 class FavouritesListFragment :
 	MangaListFragment(),
+	FavouritesPage,
 	PopupMenu.OnMenuItemClickListener {
 	override val viewModel by viewModels<FavouritesListViewModel>()
 
@@ -37,29 +39,21 @@ class FavouritesListFragment :
 		get() = viewModel.categoryId
 	val scope
 		get() = viewModel.scope
-	val selectedStage
-		get() = viewModel.selectedStage
-	val stageCounts
-		get() = viewModel.stageCounts
-	val availableRuleOptions
-		get() = viewModel.availableRuleOptions
-	val selectedRuleOptions
-		get() = viewModel.selectedRuleOptions
-	val isOrganizerRefreshing
-		get() = viewModel.isOrganizerRefreshing
-	val onOrganizerRefreshed
+	override val uiState
+		get() = viewModel.pageUiState
+	override val organizerRefreshResults
 		get() = viewModel.onOrganizerRefreshed
 
-	fun setStage(stage: FavouriteStage) = viewModel.setStage(stage)
+	override fun setStage(stage: FavouriteStage) = viewModel.setStage(stage)
 
-	fun setRuleOption(
+	override fun setRuleOption(
 		option: ListFilterOption,
 		isApplied: Boolean,
 	) = viewModel.setFilterOption(option, isApplied)
 
-	fun clearRuleOptions() = viewModel.clearFilter()
+	override fun clearRuleOptions() = viewModel.clearFilter()
 
-	fun refreshOrganizer() = viewModel.refreshOrganizer()
+	override fun refreshOrganizer() = viewModel.refreshOrganizer()
 
 	private val favouritesAdapter: MangaListAdapter?
 		get() = recyclerView?.adapter as? MangaListAdapter

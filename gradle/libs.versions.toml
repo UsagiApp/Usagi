@@ -23,8 +23,12 @@ documentfile = "1.1.0"
 fragment = "1.8.9"
 gradle = "8.13.2"
 guava = "33.5.0-android"
-#noinspection GradleDependency
-hilt = "1.2.0"
+# hilt-work 1.3 raises minSdk to 23, so keep the API 21-compatible runtime.
+# 1.3 is the first stable AndroidX Hilt compiler line targeting Kotlin 2 and newer KSP2 toolchains.
+#noinspection NewerVersionAvailable
+hiltWork = "1.2.0"
+#noinspection NewerVersionAvailable
+hiltCompiler = "1.3.0"
 json = "20251224"
 #noinspection NewerVersionAvailable
 jsoup = "1.17.2"
@@ -74,8 +78,8 @@ androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayo
 androidx-core = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 androidx-fragment = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment" }
-androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hilt" }
-androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hilt" }
+androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltCompiler" }
+androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
 androidx-junit = { module = "androidx.test.ext:junit-ktx", version.ref = "junitKtx" }
 androidx-lifecycle-common-java8 = { module = "androidx.lifecycle:lifecycle-common-java8", version.ref = "lifecycle" }
 androidx-preference = { module = "androidx.preference:preference-ktx", version.ref = "preference" }

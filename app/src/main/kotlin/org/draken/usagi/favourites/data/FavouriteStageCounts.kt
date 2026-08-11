@@ -20,8 +20,4 @@ data class FavouriteStageCounts(
 			FavouriteStage.COMPLETED -> completed
 			FavouriteStage.NEEDS_REVIEW -> needsReview
 		}
-
-	companion object {
-		val EMPTY = FavouriteStageCounts(0, 0, 0, 0, 0, 0)
-	}
 }

@@ -21,6 +21,7 @@ import org.draken.usagi.core.model.FavouriteCategory
 import org.draken.usagi.core.model.toMangaSources
 import org.draken.usagi.core.ui.util.ReversibleHandle
 import org.draken.usagi.core.util.ext.mapItems
+import org.draken.usagi.favourites.data.ALL_FAVORITES_CATEGORY_ID
 import org.draken.usagi.favourites.data.FavouriteCategoryEntity
 import org.draken.usagi.favourites.data.FavouriteEntity
 import org.draken.usagi.favourites.data.FavouriteStageCounts
@@ -225,6 +226,8 @@ class FavouritesRepository
 				it.mapTo(LinkedHashSet(it.size)) { x -> x.toFavouriteCategory() }
 			}
 
+		fun observeIsFavorite(mangaId: Long): Flow<Boolean> = db.getFavouritesDao().observeIsFavorite(mangaId)
+
 		suspend fun getCategory(id: Long): FavouriteCategory = db.getFavouriteCategoriesDao().find(id.toInt()).toFavouriteCategory()
 
 		suspend fun isFavorite(mangaId: Long): Boolean = db.getFavouritesDao().findCategoriesCount(mangaId) != 0
@@ -296,7 +299,10 @@ class FavouritesRepository
 		suspend fun removeCategories(ids: Collection<Long>) {
 			db.withTransaction {
 				for (id in ids) {
-					db.getFavouritesDao().deleteAll(id)
+					val dao = db.getFavouritesDao()
+					val mangaIds = dao.findAllIds(id).toList()
+					dao.deleteAll(id)
+					dao.recoverAllFavorites(mangaIds)
 					db.getFavouriteCategoriesDao().delete(id)
 				}
 				db.getChaptersDao().gc()
@@ -351,6 +357,10 @@ class FavouritesRepository
 					db.getFavouritesDao().insert(entity)
 				}
 			}
+		}
+
+		suspend fun addToFavourites(mangas: Collection<Manga>) {
+			addToCategory(ALL_FAVORITES_CATEGORY_ID, mangas)
 		}
 
 		suspend fun removeFromFavourites(ids: Collection<Long>): ReversibleHandle {

@@ -45,7 +45,10 @@ import org.draken.usagi.core.db.migrations.Migration25To26
 import org.draken.usagi.core.db.migrations.Migration26To27
 import org.draken.usagi.core.db.migrations.Migration27To28
 import org.draken.usagi.core.db.migrations.Migration28To29
+import org.draken.usagi.core.db.migrations.Migration29To30
 import org.draken.usagi.core.db.migrations.Migration2To3
+import org.draken.usagi.core.db.migrations.Migration30To31
+import org.draken.usagi.core.db.migrations.Migration31To32
 import org.draken.usagi.core.db.migrations.Migration3To4
 import org.draken.usagi.core.db.migrations.Migration4To5
 import org.draken.usagi.core.db.migrations.Migration5To6
@@ -74,7 +77,7 @@ import org.draken.usagi.tracker.data.TrackEntity
 import org.draken.usagi.tracker.data.TrackLogEntity
 import org.draken.usagi.tracker.data.TracksDao
 
-const val DATABASE_VERSION = 29
+const val DATABASE_VERSION = 32
 
 @Database(
 	entities = [
@@ -151,6 +154,9 @@ fun getDatabaseMigrations(context: Context): Array<Migration> =
 		Migration26To27(),
 		Migration27To28(),
 		Migration28To29(),
+		Migration29To30(),
+		Migration30To31(),
+		Migration31To32(),
 	)
 
 fun MangaDatabase(context: Context): MangaDatabase =

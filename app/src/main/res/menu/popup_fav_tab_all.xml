@@ -3,10 +3,6 @@
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<item
-		android:id="@+id/action_hide"
-		android:title="@string/hide" />
-
-	<item
 		android:id="@+id/action_manage"
 		android:title="@string/manage" />
 

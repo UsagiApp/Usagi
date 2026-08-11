@@ -4,20 +4,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewStub
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
-import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
 import org.draken.usagi.core.nav.router
@@ -30,34 +30,33 @@ import org.draken.usagi.core.util.ext.findCurrentPagerFragment
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.recyclerView
-import org.draken.usagi.core.util.ext.setTextAndVisible
+import org.draken.usagi.core.util.ext.setTabsEnabled
 import org.draken.usagi.databinding.FragmentFavouritesContainerBinding
-import org.draken.usagi.databinding.ItemEmptyStateBinding
 import org.draken.usagi.favourites.domain.FavouriteOrganizerRefreshResult
 import org.draken.usagi.favourites.domain.FavouriteScope
 import org.draken.usagi.favourites.domain.FavouriteStage
 import org.draken.usagi.favourites.domain.SmartFolderContent
 import org.draken.usagi.favourites.domain.SmartFolderDevice
 import org.draken.usagi.favourites.domain.SmartFolderRules
+import org.draken.usagi.favourites.ui.FavouritesPage
+import org.draken.usagi.favourites.ui.FavouritesPageUiState
 import org.draken.usagi.favourites.ui.list.FavouritesListFragment
 import org.draken.usagi.list.domain.ListFilterOption
-import java.util.Collections
 import java.util.EnumMap
-import java.util.WeakHashMap
 
 @AndroidEntryPoint
 class FavouritesContainerFragment :
 	BaseFragment<FragmentFavouritesContainerBinding>(),
 	ActionModeListener,
 	RecyclerViewOwner,
-	ViewStub.OnInflateListener,
 	View.OnClickListener {
 	private val viewModel: FavouritesContainerViewModel by viewModels()
 	private val stageChipIds = EnumMap<FavouriteStage, Int>(FavouriteStage::class.java)
-	private val observedFragments = Collections.newSetFromMap(WeakHashMap<FavouritesListFragment, Boolean>())
 	private var isBindingStage = false
+	private var pageBinding: FavouritesPageBinding? = null
 	private var pageChangeCallback: ViewPager2.OnPageChangeCallback? = null
 	private var pagerAdapter: FavouritesContainerAdapter? = null
+	private var tabLayoutMediator: TabLayoutMediator? = null
 
 	override val recyclerView: RecyclerView?
 		get() = (findCurrentFragment() as? RecyclerViewOwner)?.recyclerView
@@ -79,36 +78,49 @@ class FavouritesContainerFragment :
 		binding.pager.adapter = pagerAdapter
 		binding.pager.offscreenPageLimit = 1
 		binding.pager.recyclerView?.isNestedScrollingEnabled = false
-		binding.buttonScope.setOnClickListener(this)
+		tabLayoutMediator =
+			TabLayoutMediator(
+				binding.tabs,
+				binding.pager,
+				FavouritesTabConfigurationStrategy(pagerAdapter, viewModel, router),
+			).also(TabLayoutMediator::attach)
 		binding.buttonRules.setOnClickListener(this)
-		binding.buttonEditScope.setOnClickListener(this)
 		binding.buttonAddScope.setOnClickListener(this)
 		binding.buttonRefreshOrganizer.setOnClickListener(this)
 		binding.textRulesSummary.setOnClickListener(this)
+		pageBinding =
+			FavouritesPageBinding(
+				scope = viewLifecycleOwner.lifecycleScope,
+				render = ::renderCurrentPage,
+				showRefreshResult = ::showRefreshResult,
+			)
 		pageChangeCallback =
 			object : ViewPager2.OnPageChangeCallback() {
 				override fun onPageSelected(position: Int) {
+					pageBinding?.clear()
 					binding.pager.post(::bindCurrentPage)
 				}
 			}.also(binding.pager::registerOnPageChangeCallback)
-		binding.stubEmpty.setOnInflateListener(this)
 		actionModeDelegate.addListener(this)
 		viewModel.categories.observe(viewLifecycleOwner, pagerAdapter)
 		viewModel.categories.observe(viewLifecycleOwner) {
+			pageBinding?.clear()
 			binding.pager.post(::bindCurrentPage)
 		}
-		viewModel.isEmpty.observe(viewLifecycleOwner, ::onEmptyStateChanged)
 		addMenuProvider(FavouritesContainerMenuProvider(router))
 		viewModel.onActionDone.observeEvent(viewLifecycleOwner, ReversibleActionObserver(binding.pager))
 		binding.pager.post(::bindCurrentPage)
 	}
 
 	override fun onDestroyView() {
+		tabLayoutMediator?.detach()
+		tabLayoutMediator = null
 		pageChangeCallback?.let { callback -> viewBinding?.pager?.unregisterOnPageChangeCallback(callback) }
 		pageChangeCallback = null
 		pagerAdapter = null
 		stageChipIds.clear()
-		observedFragments.clear()
+		pageBinding?.clear()
+		pageBinding = null
 		actionModeDelegate.removeListener(this)
 		super.onDestroyView()
 	}
@@ -121,8 +133,11 @@ class FavouritesContainerFragment :
 	override fun onActionModeStarted(mode: ActionMode) {
 		viewBinding?.run {
 			pager.isUserInputEnabled = false
+			tabs.setTabsEnabled(false)
+			buttonAddScope.isEnabled = false
 			stageChips.children.forEach { child -> child.isEnabled = false }
-			organizerHeader.children.forEach { child -> child.isEnabled = false }
+			buttonRules.isEnabled = false
+			buttonRefreshOrganizer.isEnabled = false
 			textRulesSummary.isEnabled = false
 		}
 	}
@@ -130,49 +145,24 @@ class FavouritesContainerFragment :
 	override fun onActionModeFinished(mode: ActionMode) {
 		viewBinding?.run {
 			pager.isUserInputEnabled = true
+			tabs.setTabsEnabled(true)
+			buttonAddScope.isEnabled = true
 			stageChips.children.forEach { child -> child.isEnabled = true }
-			organizerHeader.children.forEach { child -> child.isEnabled = true }
+			buttonRules.isEnabled = true
+			buttonRefreshOrganizer.isEnabled = true
 			textRulesSummary.isEnabled = true
 		}
 	}
 
-	override fun onInflate(
-		stub: ViewStub?,
-		inflated: View,
-	) {
-		val stubBinding = ItemEmptyStateBinding.bind(inflated)
-		stubBinding.icon.setImageAsync(R.drawable.ic_empty_favourites)
-		stubBinding.textPrimary.setText(R.string.text_empty_holder_primary)
-		stubBinding.textSecondary.setTextAndVisible(R.string.empty_favourite_categories)
-		stubBinding.buttonRetry.setTextAndVisible(R.string.manage)
-		stubBinding.buttonRetry.setOnClickListener(this)
-	}
-
 	override fun onClick(v: View) {
 		when (v.id) {
-			R.id.button_retry -> router.openFavoriteCategories()
-
-			R.id.button_scope -> showScopeSelector()
-
 			R.id.button_rules,
 			R.id.text_rules_summary,
 			-> showRuleSelector()
 
-			R.id.button_edit_scope -> editCurrentScope()
-
 			R.id.button_add_scope -> router.openSmartFolderCreate()
 
-			R.id.button_refresh_organizer -> (findCurrentFragment() as? FavouritesListFragment)?.refreshOrganizer()
-		}
-	}
-
-	private fun onEmptyStateChanged(isEmpty: Boolean) {
-		viewBinding?.run {
-			pager.isGone = isEmpty
-			organizerHeader.isGone = isEmpty
-			textRulesSummary.isGone = isEmpty
-			stageChips.isGone = isEmpty
-			stubEmpty.isVisible = isEmpty
+			R.id.button_refresh_organizer -> findCurrentPage()?.refreshOrganizer()
 		}
 	}
 
@@ -191,56 +181,51 @@ class FavouritesContainerFragment :
 			if (isBindingStage) return@setOnCheckedStateChangeListener
 			val checkedId = checkedIds.singleOrNull() ?: return@setOnCheckedStateChangeListener
 			val stage = stageChipIds.entries.firstOrNull { entry -> entry.value == checkedId }?.key ?: return@setOnCheckedStateChangeListener
-			(findCurrentFragment() as? FavouritesListFragment)?.setStage(stage)
+			findCurrentPage()?.setStage(stage)
 		}
 	}
 
 	private fun bindCurrentPage() {
-		val fragment = findCurrentFragment() as? FavouritesListFragment ?: return
-		if (observedFragments.add(fragment)) {
-			fragment.selectedStage.observe(viewLifecycleOwner) {
-				if (findCurrentFragment() === fragment) renderStages(fragment)
+		val fragment =
+			findCurrentFragment() ?: run {
+				pageBinding?.clear()
+				return
 			}
-			fragment.stageCounts.observe(viewLifecycleOwner) {
-				if (findCurrentFragment() === fragment) renderStages(fragment)
+		val page =
+			fragment as? FavouritesPage ?: run {
+				pageBinding?.clear()
+				return
 			}
-			fragment.availableRuleOptions.observe(viewLifecycleOwner) {
-				if (findCurrentFragment() === fragment) renderOrganizerHeader(fragment)
-			}
-			fragment.selectedRuleOptions.observe(viewLifecycleOwner) {
-				if (findCurrentFragment() === fragment) renderOrganizerHeader(fragment)
-			}
-			fragment.isOrganizerRefreshing.observe(viewLifecycleOwner) {
-				if (findCurrentFragment() === fragment) renderOrganizerHeader(fragment)
-			}
-			fragment.onOrganizerRefreshed.observeEvent(viewLifecycleOwner, ::showRefreshResult)
-		}
-		renderStages(fragment)
-		renderOrganizerHeader(fragment)
+		pageBinding?.bind(page, fragment.viewLifecycleOwner)
 	}
 
-	private fun renderStages(fragment: FavouritesListFragment) {
+	private fun renderCurrentPage(state: FavouritesPageUiState) {
+		renderStages(state)
+		renderOrganizerHeader(state)
+	}
+
+	private fun renderStages(state: FavouritesPageUiState) {
 		val binding = viewBinding ?: return
-		val counts = fragment.stageCounts.value
+		val counts = state.stageCounts
 		FavouriteStage.entries.forEach { stage ->
 			val chip = binding.stageChips.findViewById<Chip>(stageChipIds.getValue(stage))
 			val title = getString(stage.titleResId)
-			chip.text = getString(R.string.favourite_stage_with_count, title, counts[stage])
+			chip.text = counts?.let { getString(R.string.favourite_stage_with_count, title, it[stage]) } ?: title
 		}
 		isBindingStage = true
-		binding.stageChips.check(stageChipIds.getValue(fragment.selectedStage.value))
+		binding.stageChips.check(stageChipIds.getValue(state.selectedStage))
 		isBindingStage = false
 	}
 
-	private fun renderOrganizerHeader(fragment: FavouritesListFragment) {
+	private fun renderOrganizerHeader(state: FavouritesPageUiState) {
 		val binding = viewBinding ?: return
 		val tab = pagerAdapter?.getItemOrNull(binding.pager.currentItem) ?: return
-		binding.buttonScope.text = tab.title ?: getString(R.string.all_favourites)
-		binding.buttonEditScope.isVisible = tab.scope != FavouriteScope.All
-		binding.buttonRules.isEnabled = fragment.availableRuleOptions.value.isNotEmpty()
-		binding.buttonRefreshOrganizer.isEnabled = !fragment.isOrganizerRefreshing.value
-		binding.buttonRefreshOrganizer.alpha = if (fragment.isOrganizerRefreshing.value) 0.5f else 1f
-		binding.textRulesSummary.text = buildRulesSummary(tab, fragment.selectedRuleOptions.value)
+		binding.buttonRules.isEnabled = state.availableRuleOptions.isNotEmpty()
+		binding.buttonRefreshOrganizer.isEnabled = !state.isOrganizerRefreshing
+		binding.buttonRefreshOrganizer.alpha = if (state.isOrganizerRefreshing) 0.5f else 1f
+		val selectedFilters = state.selectedRuleOptions
+		binding.textRulesSummary.text = buildRulesSummary(tab, selectedFilters)
+		binding.textRulesSummary.isVisible = tab.rulesError != null || tab.rules != null || selectedFilters.isNotEmpty()
 	}
 
 	private fun buildRulesSummary(
@@ -289,24 +274,12 @@ class FavouritesContainerFragment :
 			}
 		}.joinToString(" · ")
 
-	private fun showScopeSelector() {
-		val binding = viewBinding ?: return
-		val tabs = viewModel.categories.value
-		if (tabs.isEmpty()) return
-		val titles = tabs.map { tab -> tab.title ?: getString(R.string.all_favourites) }.toTypedArray()
-		MaterialAlertDialogBuilder(binding.root.context)
-			.setTitle(R.string.favourite_organizer_scope)
-			.setSingleChoiceItems(titles, binding.pager.currentItem) { dialog, which ->
-				binding.pager.setCurrentItem(which, false)
-				dialog.dismiss()
-			}.show()
-	}
-
 	private fun showRuleSelector() {
-		val fragment = findCurrentFragment() as? FavouritesListFragment ?: return
-		val options = fragment.availableRuleOptions.value
+		val page = findCurrentPage() ?: return
+		val state = page.uiState.value
+		val options = state.availableRuleOptions
 		if (options.isEmpty()) return
-		val selected = fragment.selectedRuleOptions.value.toMutableSet()
+		val selected = state.selectedRuleOptions.toMutableSet()
 		val titles = options.map(::getFilterTitle).toTypedArray()
 		val checked = BooleanArray(options.size) { index -> options[index] in selected }
 		MaterialAlertDialogBuilder(requireContext())
@@ -325,11 +298,11 @@ class FavouritesContainerFragment :
 				} else {
 					selected -= option
 				}
-			}.setNeutralButton(R.string.reset_filter) { _, _ -> fragment.clearRuleOptions() }
+			}.setNeutralButton(R.string.reset_filter) { _, _ -> page.clearRuleOptions() }
 			.setNegativeButton(android.R.string.cancel, null)
 			.setPositiveButton(R.string.apply) { _, _ ->
-				fragment.clearRuleOptions()
-				options.filter(selected::contains).forEach { option -> fragment.setRuleOption(option, true) }
+				page.clearRuleOptions()
+				options.filter(selected::contains).forEach { option -> page.setRuleOption(option, true) }
 			}.show()
 	}
 
@@ -343,18 +316,6 @@ class FavouritesContainerFragment :
 			ListFilterOption.Macro.NSFW -> ListFilterOption.SFW
 			else -> null
 		}
-
-	private fun editCurrentScope() {
-		when (val scope = pagerAdapter?.getItemOrNull(viewBinding?.pager?.currentItem ?: return)?.scope) {
-			is FavouriteScope.Category -> router.openFavoriteCategoryEdit(scope.id)
-
-			is FavouriteScope.SmartFolder -> router.openSmartFolderEdit(scope.id)
-
-			FavouriteScope.All,
-			null,
-			-> Unit
-		}
-	}
 
 	private fun showRefreshResult(result: FavouriteOrganizerRefreshResult) {
 		val binding = viewBinding ?: return
@@ -383,4 +344,6 @@ class FavouritesContainerFragment :
 			viewBinding?.pager ?: return null,
 		)
 	}
+
+	private fun findCurrentPage(): FavouritesPage? = findCurrentFragment() as? FavouritesPage
 }

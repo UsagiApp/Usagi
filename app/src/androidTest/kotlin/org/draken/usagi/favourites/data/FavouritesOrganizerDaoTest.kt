@@ -32,6 +32,7 @@ class FavouritesOrganizerDaoTest {
 				.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), MangaDatabase::class.java)
 				.allowMainThreadQueries()
 				.build()
+		database.openHelper.writableDatabase.createAllFavoritesInfrastructure()
 	}
 
 	@After
@@ -141,6 +142,111 @@ class FavouritesOrganizerDaoTest {
 
 			database.openHelper.writableDatabase.execSQL("UPDATE manga SET state = 'ABANDONED' WHERE manga_id = 1")
 			assertEquals(stageCounts(needsReview = 1), counts())
+		}
+
+	@Test
+	fun deletingTheLastFolderKeepsGlobalFavoriteMembership() =
+		runTest {
+			insertCategory(1, "Read later")
+			insertManga(1, source = "source-a", isNsfw = false, state = "ONGOING")
+			insertFavourite(1, 1)
+			val dao = database.getFavouritesDao()
+
+			val mangaIds = dao.findAllIds(1).toList()
+			dao.deleteAll(1)
+			dao.recoverAllFavorites(mangaIds)
+			database.getFavouriteCategoriesDao().delete(1)
+
+			assertEquals(setOf(1L), observeIds(FavouriteScope.All))
+			assertEquals(emptySet<Long>(), observeIds(FavouriteScope.Category(1)))
+		}
+
+	@Test
+	fun removingLastManualMembershipKeepsGlobalFavoriteMembership() =
+		runTest {
+			insertCategory(1, "Read later")
+			insertManga(1, source = "source-a", isNsfw = false, state = "ONGOING")
+			insertFavourite(1, 1)
+
+			database.getFavouritesDao().delete(categoryId = 1, mangaId = 1)
+
+			assertEquals(setOf(1L), observeIds(FavouriteScope.All))
+			assertEquals(emptySet<Long>(), observeIds(FavouriteScope.Category(1)))
+		}
+
+	@Test
+	fun globalMembershipIsObservedWithoutManualCategories() =
+		runTest {
+			insertManga(1, source = "source-a", isNsfw = false, state = "ONGOING")
+			val dao = database.getFavouritesDao()
+
+			assertEquals(false, dao.observeIsFavorite(1).first())
+			dao.upsert(
+				FavouriteEntity(
+					mangaId = 1,
+					categoryId = ALL_FAVORITES_CATEGORY_ID,
+					sortKey = 0,
+					isPinned = false,
+					createdAt = 1,
+					deletedAt = 0,
+				),
+			)
+
+			assertEquals(true, dao.observeIsFavorite(1).first())
+		}
+
+	@Test
+	fun explicitFavoriteRemovalDeactivatesGlobalAndManualMemberships() =
+		runTest {
+			insertCategory(1, "Read later")
+			insertManga(1, source = "source-a", isNsfw = false, state = "ONGOING")
+			insertFavourite(1, 1)
+
+			database.getFavouritesDao().delete(mangaId = 1)
+
+			assertEquals(emptySet<Long>(), observeIds(FavouriteScope.All))
+			assertEquals(emptySet<Long>(), observeIds(FavouriteScope.Category(1)))
+		}
+
+	@Test
+	fun recoveringManualMembershipCreatesMissingGlobalMembership() =
+		runTest {
+			insertCategory(1, "Read later")
+			insertManga(1, source = "source-a", isNsfw = false, state = "ONGOING")
+			insertFavourite(1, 1)
+			database.openHelper.writableDatabase.execSQL(
+				"UPDATE favourites SET deleted_at = 10 WHERE manga_id = 1 AND category_id = 1",
+			)
+			database.openHelper.writableDatabase.execSQL(
+				"DELETE FROM favourites WHERE manga_id = 1 AND category_id = 0",
+			)
+
+			database.getFavouritesDao().upsert(
+				FavouriteEntity(
+					mangaId = 1,
+					categoryId = 1,
+					sortKey = 1,
+					isPinned = false,
+					createdAt = 1,
+					deletedAt = 0,
+				),
+			)
+
+			assertEquals(setOf(1L), observeIds(FavouriteScope.All))
+		}
+
+	@Test
+	fun backupIncludesActiveAndSoftDeletedSmartFolders() =
+		runTest {
+			val repository = SmartFoldersRepository(database)
+			val active = repository.create("Active", ListSortOrder.NEWEST, SmartFolderRules(sources = setOf("source-a")))
+			val deleted = repository.create("Deleted", ListSortOrder.NEWEST, SmartFolderRules(sources = setOf("source-b")))
+			repository.delete(deleted.id)
+
+			val backup = database.getSmartFoldersDao().findAllForBackup()
+
+			assertEquals(setOf(active.id, deleted.id), backup.mapTo(linkedSetOf()) { folder -> folder.id })
+			assertEquals(true, backup.single { folder -> folder.id == deleted.id }.deletedAt > 0L)
 		}
 
 	private fun stageCounts(

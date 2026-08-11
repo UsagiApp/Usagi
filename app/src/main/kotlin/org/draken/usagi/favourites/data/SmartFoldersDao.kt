@@ -15,7 +15,7 @@ interface SmartFoldersDao {
 	@Query("SELECT * FROM smart_folders WHERE deleted_at = 0 ORDER BY sort_key, created_at")
 	fun observeAll(): Flow<List<SmartFolderEntity>>
 
-	@Query("SELECT * FROM smart_folders WHERE deleted_at = 0 ORDER BY sort_key, created_at")
+	@Query("SELECT * FROM smart_folders ORDER BY sort_key, created_at")
 	suspend fun findAllForBackup(): List<SmartFolderEntity>
 
 	@Insert(onConflict = OnConflictStrategy.ABORT)

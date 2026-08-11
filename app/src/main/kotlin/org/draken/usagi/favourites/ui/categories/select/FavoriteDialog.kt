@@ -56,7 +56,7 @@ class FavoriteDialog :
 		item: MangaCategoryItem,
 		view: View,
 	) {
-		viewModel.setChecked(item.category.id, item.checkedState != MaterialCheckBox.STATE_CHECKED)
+		viewModel.setChecked(item, item.checkedState != MaterialCheckBox.STATE_CHECKED)
 	}
 
 	override fun onClick(

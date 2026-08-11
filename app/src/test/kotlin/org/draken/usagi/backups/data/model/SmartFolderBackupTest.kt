@@ -23,7 +23,7 @@ class SmartFolderBackupTest {
 				rules = "{\"version\":1,\"device\":\"ON_DEVICE\"}",
 				createdAt = 100L,
 				updatedAt = 200L,
-				deletedAt = 0L,
+				deletedAt = 300L,
 			)
 
 		assertEquals(entity, SmartFolderBackup(entity).toEntity())

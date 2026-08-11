@@ -42,19 +42,39 @@ The system SHALL require at least one effective condition and SHALL never broade
 - **THEN** the UI shows an explicit error and the folder returns no favorites
 
 ### Requirement: Organizer UI composition
-The system SHALL expose All first, then visible manual categories, then smart folders through one compact preset selector, with editable rule actions and wrapped single-selection lifecycle chips below it.
+The system SHALL expose All first, then visible manual categories, then smart folders through the familiar scrollable folder tabs, with an adjacent smart-folder create action, long-press management for editable folders, and single-selection automatic lifecycle subfolders below them.
+
+#### Scenario: Smart folder is created from Favorites
+- **WHEN** a user activates the add action beside the folder tabs
+- **THEN** the smart-folder editor opens without replacing or migrating existing manual categories
+
+#### Scenario: Editable folder is long-pressed
+- **WHEN** a user long-presses a manual category or smart folder tab
+- **THEN** the existing edit and management actions for that folder type are available
 
 #### Scenario: Favorites quick filters are shown
 - **WHEN** a user opens the rule filter control in Favorites
 - **THEN** Downloaded, New chapters, SFW/NSFW, source, and tag filters remain available while the redundant Completed filter is absent
 
+#### Scenario: Folder fixes a rule dimension
+- **WHEN** the selected smart folder already constrains source, tag, content, or device
+- **THEN** transient filters from that dimension are hidden and any previously applied conflicting option for that folder is cleared
+
+#### Scenario: User switches to an unrestricted folder
+- **WHEN** the user switches from a constrained smart folder to All, a manual category, or a folder without that constraint
+- **THEN** the transient filter dimension is available again and the destination folder retains its own transient filter state
+
 #### Scenario: Narrow Favorites screen
 - **WHEN** available width cannot fit every lifecycle stage
-- **THEN** stage controls wrap without requiring a second persistent horizontal carousel
+- **THEN** lifecycle subfolders remain reachable without reducing the manga list to a multi-row organizer header
 
 #### Scenario: Existing scope presets
-- **WHEN** the compact selector is opened
+- **WHEN** Favorites opens
 - **THEN** All, existing manual categories, and existing smart folders remain selectable without migrating or duplicating them
+
+#### Scenario: No editable folders exist
+- **WHEN** no visible manual categories or active smart folders exist
+- **THEN** All remains the first selectable folder and displays its Favorites list instead of a missing-categories container state
 
 #### Scenario: Existing Read later category exists
 - **WHEN** the organizer is enabled for an existing installation

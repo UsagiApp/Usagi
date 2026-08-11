@@ -9,7 +9,6 @@ import org.draken.usagi.R
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.ui.dialog.buildAlertDialog
 import org.draken.usagi.favourites.domain.FavouriteScope
-import org.draken.usagi.favourites.ui.list.FavouritesListFragment
 
 class FavouriteTabPopupMenuProvider(
 	private val context: Context,
@@ -55,8 +54,8 @@ class FavouriteTabPopupMenuProvider(
 
 	private fun hide() {
 		when (val scope = tab.scope) {
-			FavouriteScope.All -> viewModel.hide(FavouritesListFragment.NO_ID)
-			is FavouriteScope.Category -> viewModel.hide(scope.id)
+			FavouriteScope.All -> Unit
+			is FavouriteScope.Category -> viewModel.hideCategory(scope.id)
 			is FavouriteScope.SmartFolder -> Unit
 		}
 	}

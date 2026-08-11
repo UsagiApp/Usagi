@@ -13,8 +13,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
@@ -35,6 +36,9 @@ import org.draken.usagi.favourites.domain.FavouriteScope
 import org.draken.usagi.favourites.domain.FavouriteStage
 import org.draken.usagi.favourites.domain.FavouritesRepository
 import org.draken.usagi.favourites.domain.RefreshFavouriteOrganizerUseCase
+import org.draken.usagi.favourites.domain.SmartFolderRules
+import org.draken.usagi.favourites.domain.SmartFolderRulesResult
+import org.draken.usagi.favourites.ui.FavouritesPageUiState
 import org.draken.usagi.favourites.ui.list.FavouritesListFragment.Companion.KEY_SCOPE_TYPE
 import org.draken.usagi.favourites.ui.list.FavouritesListFragment.Companion.KEY_STAGE
 import org.draken.usagi.favourites.ui.list.FavouritesListFragment.Companion.NO_ID
@@ -90,15 +94,58 @@ class FavouritesListViewModel
 		val selectedRuleOptions = quickFilter.appliedOptions
 		val isOrganizerRefreshing = mutableOrganizerRefreshing.asStateFlow()
 		val onOrganizerRefreshed = MutableEventFlow<FavouriteOrganizerRefreshResult>()
+		private val persistentRules =
+			when (val currentScope = scope) {
+				is FavouriteScope.SmartFolder -> {
+					repository.observeSmartFolder(currentScope.id).map { folder ->
+						(folder?.rules as? SmartFolderRulesResult.Success)?.rules
+					}
+				}
+
+				FavouriteScope.All,
+				is FavouriteScope.Category,
+				-> {
+					flowOf(null)
+				}
+			}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, null)
 		val availableRuleOptions =
-			flow { emit(quickFilter.availableOptions()) }
-				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, emptyList())
+			persistentRules
+				.mapLatest { rules: SmartFolderRules? ->
+					quickFilter.availableOptions(rules).also(quickFilter::retainOptions)
+				}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, emptyList())
 
 		val stageCounts =
 			repository
 				.observeStageCounts(scope)
-				.catch { emit(FavouriteStageCounts.EMPTY) }
-				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, FavouriteStageCounts.EMPTY)
+				.map<FavouriteStageCounts, FavouriteStageCounts?> { counts -> counts }
+				.withErrorHandling()
+				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, null)
+		val pageUiState =
+			combine(
+				selectedStage,
+				stageCounts,
+				availableRuleOptions,
+				selectedRuleOptions,
+				isOrganizerRefreshing,
+			) { selectedStage, stageCounts, availableRuleOptions, selectedRuleOptions, isRefreshing ->
+				FavouritesPageUiState(
+					selectedStage = selectedStage,
+					stageCounts = stageCounts,
+					availableRuleOptions = availableRuleOptions,
+					selectedRuleOptions = selectedRuleOptions,
+					isOrganizerRefreshing = isRefreshing,
+				)
+			}.stateIn(
+				viewModelScope + Dispatchers.Default,
+				SharingStarted.Eagerly,
+				FavouritesPageUiState(
+					selectedStage = selectedStage.value,
+					stageCounts = stageCounts.value,
+					availableRuleOptions = availableRuleOptions.value,
+					selectedRuleOptions = selectedRuleOptions.value,
+					isOrganizerRefreshing = isOrganizerRefreshing.value,
+				),
+			)
 
 		override val listMode =
 			settings

@@ -3,6 +3,34 @@
 ### Requirement: Favorites scopes
 The system SHALL query Favorites through All, manual Category, and Smart Folder scopes without modifying favorite membership.
 
+#### Scenario: Manual folder is deleted
+- **WHEN** a user deletes a manual category
+- **THEN** its folder membership is removed while each title remains in global All favorites until explicitly removed from favorites
+
+#### Scenario: Existing installation is missing global membership
+- **WHEN** an active manual favorite membership exists without its reserved global membership during schema migration
+- **THEN** the migration creates the missing global membership without removing any existing global favorites
+
+#### Scenario: Manual membership is recovered
+- **WHEN** cloud sync, local backup restore, or a local undo reactivates a manual favorite membership
+- **THEN** the reserved global membership is inserted or reactivated in the same database transaction
+
+#### Scenario: Title is added without editable folders
+- **WHEN** a user selects All favorites for a title while no manual categories exist
+- **THEN** the reserved global membership is inserted or reactivated and the title appears in All favorites
+
+#### Scenario: Last manual membership is cleared
+- **WHEN** a user removes a title from its last manual category without explicitly removing it from favorites
+- **THEN** its reserved global membership remains active and the title remains in All favorites
+
+#### Scenario: Title is explicitly removed from favorites
+- **WHEN** a user clears the title's All favorites membership
+- **THEN** the reserved membership and every manual-category membership for that title are removed together
+
+#### Scenario: Details favorite indicator
+- **WHEN** a title has active reserved global membership but no active manual-category membership
+- **THEN** manga details shows the title as favorited and labels it All favorites
+
 #### Scenario: Manual category scope
 - **WHEN** a user selects a manual category
 - **THEN** only favorites assigned to that category are eligible for display

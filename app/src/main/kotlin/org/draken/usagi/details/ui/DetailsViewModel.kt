@@ -33,6 +33,7 @@ import org.draken.usagi.details.data.MangaDetails
 import org.draken.usagi.details.domain.BranchComparator
 import org.draken.usagi.details.domain.DetailsInteractor
 import org.draken.usagi.details.domain.DetailsLoadUseCase
+import org.draken.usagi.details.domain.FavouriteDetailsState
 import org.draken.usagi.details.domain.ProgressUpdateUseCase
 import org.draken.usagi.details.domain.ReadingTimeUseCase
 import org.draken.usagi.details.domain.RelatedMangaUseCase
@@ -100,11 +101,15 @@ class DetailsViewModel
 				}.withErrorHandling()
 				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, null)
 
-		val favouriteCategories =
+		val favouriteState =
 			interactor
 				.observeFavourite(mangaId)
 				.withErrorHandling()
-				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, emptySet())
+				.stateIn(
+					viewModelScope + Dispatchers.Default,
+					SharingStarted.Eagerly,
+					FavouriteDetailsState(isFavorite = false, categories = emptySet()),
+				)
 
 		val isStatsAvailable =
 			statsRepository
