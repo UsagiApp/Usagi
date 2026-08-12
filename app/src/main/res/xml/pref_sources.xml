@@ -76,12 +76,6 @@
         app:allowDividerAbove="true" />
 
     <SwitchPreferenceCompat
-        android:defaultValue="false"
-        android:key="transfer_cookies_on_redirect"
-        android:summary="@string/transfer_cookies_on_redirect_summary"
-        android:title="@string/transfer_cookies_on_redirect" />
-
-    <SwitchPreferenceCompat
         android:key="handle_links"
         android:persistent="false"
         android:summary="@string/handle_links_summary"
