@@ -954,9 +954,7 @@
 	<string name="overwrite_plugin_summary">A plugin file named %1$s is already installed. Replace it with this one?</string>
 	<string name="plugin_name">Plugin name</string>
 	<string name="set_plugin_name">Set name for this plugin</string>
-	<string name="import_plugin_from_url">Import plugin from URL</string>
-	<string name="import_plugin_confirm">Do you want to import plugin &lt;b&gt;%1$s&lt;/b&gt; from &lt;b&gt;%2$s&lt;/b&gt;?</string>
-	<string name="import_plugin_url_invalid">Invalid plugin URL. Please share a GitHub releases URL ending in .jar</string>
+	<string name="import_plugin_confirm">Do you want to import this plugin from &lt;b&gt;%1$s&lt;/b&gt;?</string>
 	<string name="updates_remind">Notify about app updates</string>
 	<string name="updates_remind_summary">Show a dialog on app start when an update is available</string>
 	<string name="update_available_message">A new version of Usagi is available. Do you want to update it now?</string>
