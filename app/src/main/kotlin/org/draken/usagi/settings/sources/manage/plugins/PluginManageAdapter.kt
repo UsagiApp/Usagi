@@ -74,13 +74,7 @@ class PluginManageAdapter(
 	) = adapterDelegateViewBinding<PluginManageItem.Tachiyomi, ListModel, ItemSourceConfigBinding>(
 		{ layoutInflater, parent -> ItemSourceConfigBinding.inflate(layoutInflater, parent, false) },
 	) {
-		bind {
-			val fallback = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.artifact.packageName)
-			binding.imageViewIcon.errorDrawable = fallback
-			binding.imageViewIcon.fallbackDrawable = fallback
-			if (item.artifact.iconUrl.isNullOrBlank()) binding.imageViewIcon.setImageDrawable(fallback) else binding.imageViewIcon.setImageAsync(item.artifact.iconUrl)
-			binding.imageViewIcon.background = null
-		}
+		binding.imageViewIcon.background = null
 		binding.imageViewMenu.setImageResource(R.drawable.ic_delete)
 		binding.imageViewMenu.contentDescription = context.getString(R.string.delete)
 		binding.imageViewAdd.setImageResource(R.drawable.ic_download)
@@ -89,6 +83,14 @@ class PluginManageAdapter(
 		itemView.setOnClickListener(null)
 
 		bind {
+			val fallback = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.artifact.packageName)
+			binding.imageViewIcon.errorDrawable = fallback
+			binding.imageViewIcon.fallbackDrawable = fallback
+			if (item.artifact.iconUrl.isNullOrBlank()) {
+				binding.imageViewIcon.setImageDrawable(fallback)
+			} else {
+				binding.imageViewIcon.setImageAsync(item.artifact.iconUrl)
+			}
 			binding.imageViewMenu.isVisible = true
 			binding.imageViewMenu.setOnClickListener { onRemoveClick(item) }
 			binding.imageViewAdd.isVisible = item.isCompatible && (!item.isInstalled || item.hasUpdate)
