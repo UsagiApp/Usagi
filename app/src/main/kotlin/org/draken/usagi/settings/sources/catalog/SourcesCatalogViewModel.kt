@@ -126,6 +126,8 @@ class SourcesCatalogViewModel
 
 		fun tachiyomiCatalogError(): String? = catalogProvider.lastLoadError
 
+		fun tachiyomiInstallError(): String? = directManager.lastInstallError
+
 		suspend fun addTachiyomiRepository(input: String): Boolean {
 			val artifacts = catalogProvider.load(input)
 			if (artifacts.isEmpty()) return false

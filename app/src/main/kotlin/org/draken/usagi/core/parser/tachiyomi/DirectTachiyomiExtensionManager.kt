@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Base64
 import androidx.core.content.edit
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.os.ConfigurationCompat
@@ -33,6 +34,7 @@ import java.io.File
 import java.io.IOException
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -51,7 +53,18 @@ class DirectTachiyomiExtensionManager
 		private val sourceByName = ConcurrentHashMap<String, TachiyomiMangaSource>()
 		private val sourceById = ConcurrentHashMap<Long, TachiyomiMangaSource>()
 		private val resolver = DirectLanguageResolver(context)
+		private val artifactClient by lazy {
+			httpClient
+				.newBuilder()
+				.apply {
+					interceptors().clear()
+					networkInterceptors().clear()
+					cache(null)
+					retryOnConnectionFailure(true)
+				}.build()
+		}
 		private val directory = File(context.filesDir, DIRECT_DIR).also { it.mkdirs() }
+
 		private val dexDirectory = File(context.codeCacheDir, DEX_DIR).also { it.mkdirs() }
 		private val metadataFile = File(directory, METADATA_FILE)
 
@@ -63,6 +76,10 @@ class DirectTachiyomiExtensionManager
 		val sources: StateFlow<List<TachiyomiMangaSource>> = _sources
 		val installed: StateFlow<List<DirectTachiyomiInstalled>> = _installed
 		val failed: StateFlow<List<DirectTachiyomiFailure>> = _failed
+
+		@Volatile
+		var lastInstallError: String? = null
+			private set
 
 		init {
 			activeInstance = this
@@ -87,25 +104,38 @@ class DirectTachiyomiExtensionManager
 					val destination = File(directory, "$packageName.apk")
 					val backup = File(directory, "$packageName.backup")
 					val candidates = listOfNotNull(artifact.apkUrl, artifact.jarUrl).distinct()
-					if (candidates.isEmpty()) return@withContext false
+					if (candidates.isEmpty()) {
+						lastInstallError = "Catalog entry has no APK artifact URL"
+						return@withContext false
+					}
 
+					val errors = ArrayList<String>(candidates.size)
 					var loaded: TachiyomiLoadResult.Success? = null
 					var selectedUrl: String? = null
 					for (url in candidates) {
 						downloaded.delete()
 						staging.delete()
-						if (!download(url, downloaded)) continue
-						if (!prepareDexArtifact(downloaded, staging)) continue
+						val downloadError = download(url, downloaded)
+						if (downloadError != null) {
+							errors += "$url → $downloadError"
+							continue
+						}
+						if (!prepareDexArtifact(downloaded, staging)) {
+							errors += "$url → Download is not an Android APK with DEX code"
+							continue
+						}
 						val result = loadArtifact(staging, artifact)
 						if (result is TachiyomiLoadResult.Success) {
 							loaded = result
 							selectedUrl = url
 							break
 						}
+						errors += "$url → ${(result as TachiyomiLoadResult.Error).message}"
 					}
 					downloaded.delete()
 					if (loaded == null || selectedUrl == null) {
 						staging.delete()
+						lastInstallError = errors.takeLast(2).joinToString("\n").ifBlank { "No compatible extension artifact could be loaded" }
 						return@withContext false
 					}
 
@@ -139,6 +169,7 @@ class DirectTachiyomiExtensionManager
 					writeRecords((readRecords().filterNot { it.packageName == packageName } + record))
 					backup.delete()
 					reload()
+					lastInstallError = null
 					true
 				}
 			}
@@ -325,23 +356,24 @@ class DirectTachiyomiExtensionManager
 		private fun download(
 			url: String,
 			destination: File,
-		): Boolean =
+		): String? =
 			runCatching {
 				val request =
 					Request
 						.Builder()
 						.url(url)
+						.header("User-Agent", "Usagi-TachiyomiExtension/1.0")
 						.get()
 						.build()
-				httpClient.newCall(request).execute().use { response ->
-					if (!response.isSuccessful) return false
-					val body = response.body ?: return false
+				artifactClient.newCall(request).execute().use { response ->
+					if (!response.isSuccessful) error("HTTP ${response.code} ${response.message}")
+					val body = response.body ?: error("Empty response body")
 					body.byteStream().use { input ->
 						destination.outputStream().use { output -> input.copyTo(output) }
 					}
 				}
-				true
-			}.getOrDefault(false)
+				null
+			}.getOrElse { error -> error.message ?: error.javaClass.simpleName }
 
 		private fun prepareDexArtifact(
 			input: File,
@@ -615,7 +647,22 @@ class TachiyomiExtensionCatalogProvider
 				.apply {
 					interceptors().clear()
 					networkInterceptors().clear()
+					cache(null)
+					retryOnConnectionFailure(true)
+					followRedirects(true)
+					followSslRedirects(true)
 				}.build()
+		}
+		private val directCatalogClient by lazy {
+			OkHttpClient
+				.Builder()
+				.connectTimeout(20, TimeUnit.SECONDS)
+				.readTimeout(90, TimeUnit.SECONDS)
+				.writeTimeout(20, TimeUnit.SECONDS)
+				.retryOnConnectionFailure(true)
+				.followRedirects(true)
+				.followSslRedirects(true)
+				.build()
 		}
 
 		@Volatile
@@ -677,12 +724,14 @@ class TachiyomiExtensionCatalogProvider
 
 		suspend fun load(input: String): List<TachiyomiExtensionArtifact> =
 			withContext(Dispatchers.IO) {
-				val urls = candidateUrls(input)
+				val normalized = normalizeUrl(input)
+				val urls = normalized?.let(::candidateUrls).orEmpty()
 				if (urls.isEmpty()) {
 					lastLoadError = "Invalid repository URL"
 					return@withContext emptyList()
 				}
-				val errors = ArrayList<String>(urls.size)
+				val errors = ArrayList<String>(urls.size * 2)
+				val clients = listOf("configured network" to catalogClient, "direct network" to directCatalogClient)
 				for (url in urls) {
 					val request =
 						Request
@@ -692,27 +741,32 @@ class TachiyomiExtensionCatalogProvider
 							.header("User-Agent", "Usagi-TachiyomiCatalog/1.0")
 							.get()
 							.build()
-					val result =
-						runCatching {
-							catalogClient.newCall(request).execute().use { response ->
-								if (!response.isSuccessful) {
-									errors += "${response.code} ${response.message}"
-									return@use emptyList<TachiyomiExtensionArtifact>()
+					for ((clientName, client) in clients) {
+						val result =
+							runCatching {
+								client.newCall(request).execute().use { response ->
+									if (!response.isSuccessful) {
+										errors += "$clientName: $url → HTTP ${response.code} ${response.message}"
+										return@use emptyList<TachiyomiExtensionArtifact>()
+									}
+									val body = decodeCatalogBody(url, response.body?.string().orEmpty())
+									val parsed = parse(normalized ?: url, body)
+									if (parsed.isEmpty()) errors += "$clientName: $url → Catalog has no supported extensions"
+									parsed
 								}
-								val parsed = parse(url, response.body?.string().orEmpty())
-								if (parsed.isEmpty()) errors += "Catalog has no supported extensions"
-								parsed
+							}.getOrElse { error ->
+								errors += "$clientName: $url → ${error.message ?: error.javaClass.simpleName}"
+								emptyList()
 							}
-						}.getOrElse { error ->
-							errors += error.message ?: error.javaClass.simpleName
-							emptyList()
+						if (result.isNotEmpty()) {
+							lastLoadError = null
+							return@withContext result
 						}
-					if (result.isNotEmpty()) {
-						lastLoadError = null
-						return@withContext result
 					}
 				}
-				lastLoadError = errors.lastOrNull() ?: "Catalog could not be parsed"
+
+				lastLoadError = errors.takeLast(3).joinToString("\n").ifBlank { "Catalog could not be parsed" }
+
 				emptyList()
 			}
 
@@ -728,18 +782,28 @@ class TachiyomiExtensionCatalogProvider
 			return null
 		}
 
-		private fun candidateUrls(input: String): List<String> {
-			val normalized = normalizeUrl(input) ?: return emptyList()
+		private fun candidateUrls(normalized: String): List<String> {
 			val rawGithub = RAW_GITHUB_INDEX_REGEX.matchEntire(normalized)
 			if (rawGithub == null) return listOf(normalized)
 			val owner = rawGithub.groupValues[1]
 			val repository = rawGithub.groupValues[2]
-			return listOf(
-				"https://raw.githubusercontent.com/$owner/$repository/main/index.json",
-				"https://raw.githubusercontent.com/$owner/$repository/master/index.json",
-				"https://raw.githubusercontent.com/$owner/$repository/repo/index.json",
-				normalized,
-			).distinct()
+			val refs = listOf("main", "master", "repo")
+			val rawUrls = refs.map { ref -> "https://raw.githubusercontent.com/$owner/$repository/$ref/index.json" }
+			val cdnUrls = refs.map { ref -> "https://cdn.jsdelivr.net/gh/$owner/$repository@$ref/index.json" }
+			val apiUrls = refs.map { ref -> "https://api.github.com/repos/$owner/$repository/contents/index.json?ref=$ref" }
+			return (rawUrls + cdnUrls + apiUrls + normalized).distinct()
+		}
+
+		private fun decodeCatalogBody(
+			url: String,
+			body: String,
+		): String {
+			if (!url.startsWith("https://api.github.com/repos/")) return body
+			val response = JSONObject(body)
+			if (!response.optString("encoding").equals("base64", true)) return body
+			val content = response.optString("content").filterNot(Char::isWhitespace)
+			if (content.isBlank()) error("GitHub Contents API returned an empty catalog")
+			return Base64.decode(content, Base64.DEFAULT).toString(Charsets.UTF_8)
 		}
 
 		private companion object {
