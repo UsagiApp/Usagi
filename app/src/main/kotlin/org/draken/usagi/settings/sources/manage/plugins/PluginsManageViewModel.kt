@@ -241,6 +241,12 @@ class PluginsManageViewModel
 			selectedPlugins.value = if (jarName in current) current - jarName else current + jarName
 		}
 
+		fun toggleTachiyomiSelection(item: PluginManageItem.Tachiyomi) {
+			toggleSelection(tachiyomiSelectionKey(item.repositoryUrl))
+		}
+
+		fun isTachiyomiSelected(item: PluginManageItem.Tachiyomi): Boolean = tachiyomiSelectionKey(item.repositoryUrl) in selectedPlugins.value
+
 		fun clearSelection() {
 			selectedPlugins.value = emptySet()
 		}
@@ -252,16 +258,40 @@ class PluginsManageViewModel
 				val select = selectedPlugins.value
 				if (select.isEmpty()) return@withContext false
 				var allSuccess = true
-				for (jar in select) {
-					try {
-						mangaDynamicRepository.deletePlugin(jar)
-						updatePluginsProvider.clearDto(jar)
-					} catch (_: Throwable) {
-						allSuccess = false
+				var hasLocalPlugins = false
+				for (key in select) {
+					if (key.startsWith(TACHIYOMI_SELECTION_PREFIX)) {
+						val repositoryUrl = key.removePrefix(TACHIYOMI_SELECTION_PREFIX)
+						val item = tachiyomiSnapshot.firstOrNull { it.repositoryUrl == repositoryUrl }
+						if (item == null) {
+							allSuccess = false
+							continue
+						}
+						val removed =
+							item.artifacts
+								.map { it.packageName }
+								.plus(item.installed.map { it.packageName })
+								.distinct()
+								.all { directManager.remove(it) }
+						if (removed) {
+							item.artifacts.forEach { catalogProvider.restorePackage(it.packageName) }
+							catalogProvider.removeRepository(repositoryUrl)
+						} else {
+							allSuccess = false
+						}
+					} else {
+						hasLocalPlugins = true
+						try {
+							mangaDynamicRepository.deletePlugin(key)
+							updatePluginsProvider.clearDto(key)
+						} catch (_: Throwable) {
+							allSuccess = false
+						}
 					}
 				}
 				selectedPlugins.value = emptySet()
-				reloadPlugins(mangaDynamicRepository.getDir())
+				if (hasLocalPlugins) reloadPlugins(mangaDynamicRepository.getDir())
+				tachiyomiRuntime.ensureReady(forceRefresh = true)
 				allSuccess
 			}.also { if (it) refresh() }
 
@@ -350,8 +380,14 @@ class PluginsManageViewModel
 			}
 		}
 
+		private fun tachiyomiSelectionKey(repositoryUrl: String): String = TACHIYOMI_SELECTION_PREFIX + repositoryUrl
+
 		private suspend fun reloadPlugins(pluginsDir: File) {
 			mangaDynamicRepository.load(pluginsDir)
 			pluginKeyResolver.normalize(database, savedFiltersRepository)
+		}
+
+		private companion object {
+			const val TACHIYOMI_SELECTION_PREFIX = "tachiyomi:"
 		}
 	}

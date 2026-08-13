@@ -81,9 +81,12 @@ class PluginsManageFragment :
 				onRenameClick = ::onRenameClick,
 				onUpdateClick = ::onUpdateClick,
 				onTachiyomiRenameClick = ::onTachiyomiRenameClick,
+				onTachiyomiLongClick = ::onTachiyomiLongClick,
+				onTachiyomiClick = ::onTachiyomiClick,
 				onLongClick = ::onLongClick,
 				onClick = ::onClick,
 				isSelected = { item -> viewModel.isSelected(item.name) },
+				isTachiyomiSelected = viewModel::isTachiyomiSelected,
 			)
 		with(binding.recyclerView) {
 			setHasFixedSize(true)
@@ -226,6 +229,16 @@ class PluginsManageFragment :
 
 	private fun onLongClick(item: PluginManageItem.Plugin) {
 		viewModel.toggleSelection(item.name)
+	}
+
+	private fun onTachiyomiClick(item: PluginManageItem.Tachiyomi) {
+		if (viewModel.selectedPlugins.value.isNotEmpty()) {
+			viewModel.toggleTachiyomiSelection(item)
+		}
+	}
+
+	private fun onTachiyomiLongClick(item: PluginManageItem.Tachiyomi) {
+		viewModel.toggleTachiyomiSelection(item)
 	}
 
 	private fun showDeleteSelectedConfirm() {

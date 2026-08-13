@@ -18,13 +18,16 @@ class PluginManageAdapter(
 	onRenameClick: (PluginManageItem.Plugin) -> Unit,
 	onUpdateClick: (PluginManageItem.Plugin) -> Unit,
 	onTachiyomiRenameClick: (PluginManageItem.Tachiyomi) -> Unit,
+	onTachiyomiLongClick: (PluginManageItem.Tachiyomi) -> Unit,
+	onTachiyomiClick: (PluginManageItem.Tachiyomi) -> Unit,
 	onLongClick: (PluginManageItem.Plugin) -> Unit,
 	onClick: (PluginManageItem.Plugin) -> Unit,
 	isSelected: (PluginManageItem.Plugin) -> Boolean,
+	isTachiyomiSelected: (PluginManageItem.Tachiyomi) -> Boolean,
 ) : BaseListAdapter<ListModel>() {
 	init {
 		addDelegate(ListItemType.CHAPTER_LIST, pluginItemDelegate(onRenameClick, onUpdateClick, onLongClick, onClick, isSelected))
-		addDelegate(ListItemType.INFO, tachiyomiItemDelegate(onTachiyomiRenameClick))
+		addDelegate(ListItemType.INFO, tachiyomiItemDelegate(onTachiyomiRenameClick, onTachiyomiLongClick, onTachiyomiClick, isTachiyomiSelected))
 		addDelegate(ListItemType.HINT_EMPTY, pluginPlaceholderDelegate())
 	}
 
@@ -69,6 +72,9 @@ class PluginManageAdapter(
 
 	private fun tachiyomiItemDelegate(
 		onRenameClick: (PluginManageItem.Tachiyomi) -> Unit,
+		onLongClick: (PluginManageItem.Tachiyomi) -> Unit,
+		onClick: (PluginManageItem.Tachiyomi) -> Unit,
+		isSelected: (PluginManageItem.Tachiyomi) -> Boolean,
 	) = adapterDelegateViewBinding<PluginManageItem.Tachiyomi, ListModel, ItemSourceConfigBinding>(
 		{ layoutInflater, parent -> ItemSourceConfigBinding.inflate(layoutInflater, parent, false) },
 	) {
@@ -78,11 +84,16 @@ class PluginManageAdapter(
 
 		binding.imageViewRemove.isVisible = false
 		binding.imageViewAdd.isVisible = false
-		itemView.setOnLongClickListener(null)
-		itemView.setOnClickListener(null)
+		itemView.setOnLongClickListener {
+			onLongClick(item)
+			true
+		}
+		itemView.setOnClickListener { onClick(item) }
 
 		bind {
+			itemView.isSelected = isSelected(item)
 			val fallback = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.repositoryLabel)
+
 			binding.imageViewIcon.errorDrawable = fallback
 			binding.imageViewIcon.fallbackDrawable = fallback
 			val iconUrl = item.artifacts.firstNotNullOfOrNull { it.iconUrl }
