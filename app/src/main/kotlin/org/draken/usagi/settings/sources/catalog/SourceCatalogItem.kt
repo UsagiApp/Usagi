@@ -37,7 +37,6 @@ sealed interface SourceCatalogItem : ListModel {
 				listOf(
 					contentRatingLabel(context),
 					languageDisplayName(context),
-					artifact.versionName?.let { "v$it" } ?: context.getString(R.string.unknown),
 				).joinToString(", ")
 			return "$details • $pluginName"
 		}
