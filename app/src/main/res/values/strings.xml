@@ -945,7 +945,13 @@
 	<!--Plugins-->
 	<string name="confirm_delete_plugin">Are you sure you want to delete %1$s?</string>
 	<string name="delete_plugin">Delete plugin</string>
-	<string name="import_from_github">Import from GitHub</string>
+    <string name="import_from_github">Import from GitHub</string>
+    <string name="tachiyomi_catalog">Tachiyomi extension repository</string>
+    <string name="import_tachiyomi">Import Tachiyomi/Mihon extension</string>
+    <string name="import_tachiyomi_summary">Load a repository catalog, select an extension, and manage its direct source without installing the APK</string>
+    <string name="add_tachiyomi_repository">Add Tachiyomi repository</string>
+    <string name="installed">Installed</string>
+    <string name="tachiyomi_catalog_summary">Browse and install sources without installing extension APKs</string>
 	<string name="import_github_summary">You can enter a full GitHub URL or Username/Repository. Usagi will automatically find and install the plugin from the latest release.</string>
 	<string name="load_failed">Failed to load plugin</string>
 	<string name="load_from_storage">Import from local storage</string>
@@ -953,7 +959,7 @@
 	<string name="load_success">Plugin imported and loaded successfully</string>
 	<string name="manage_plugins">Manage plugins</string>
 	<string name="no_plugins">No plugins installed</string>
-	<string name="no_plugins_summary">Click + above to add external plugins</string>
+    <string name="no_plugins_summary">Click + above to add external plugins or a Tachiyomi repository</string>
 	<string name="overwrite_plugin">Overwrite plugin?</string>
 	<string name="overwrite_plugin_summary">A plugin file named %1$s is already installed. Replace it with this one?</string>
 	<string name="plugin_name">Plugin name</string>
@@ -964,6 +970,9 @@
 	<string name="check_app_update">Automatically check for updates</string>
 	<string name="check_app_update_summary">Check for app updates automatically at startup</string>
 	<string name="auto_update_plugins">Auto update plugins</string>
-	<string name="auto_update_plugins_summary">Automatically refresh and update all installed plugins at startup</string>
+    <string name="auto_update_plugins_summary">Automatically refresh and update all installed plugins at startup</string>
+    <string name="tachiyomi_catalog_input">Catalog URL or GitHub repository</string>
+    <string name="tachiyomi_catalog_loaded">Tachiyomi extension catalog loaded</string>
+    <string name="tachiyomi_catalog_failed">Could not load Tachiyomi extension catalog</string>
 	<string name="no_filters_available">This source has no filters</string>
 </resources>

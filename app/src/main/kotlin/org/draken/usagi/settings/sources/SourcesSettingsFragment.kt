@@ -12,6 +12,7 @@ import org.draken.usagi.R
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.MangaDynamicRepository
+import org.draken.usagi.core.parser.tachiyomi.DirectTachiyomiExtensionManager
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.TriStateOption
 import org.draken.usagi.core.ui.BasePreferenceFragment
@@ -35,6 +36,9 @@ class SourcesSettingsFragment :
 
 	@Inject
 	lateinit var sourcesRepository: MangaSourcesRepository
+
+	@Inject
+	lateinit var directTachiyomiManager: DirectTachiyomiExtensionManager
 
 	override fun onCreatePreferences(
 		savedInstanceState: Bundle?,
@@ -142,7 +146,7 @@ class SourcesSettingsFragment :
 	}
 
 	private fun updatePluginsSummary() {
-		val count = mangaDynamicRepository.get().size
+		val count = mangaDynamicRepository.get().size + directTachiyomiManager.installed.value.size
 		findPreference<Preference>("plugins_manager")?.summary =
 			resources.getQuantityStringSafe(R.plurals.items, count, count)
 		hideEmptyCatalog()
@@ -150,7 +154,7 @@ class SourcesSettingsFragment :
 
 	private fun hideEmptyCatalog() {
 		val catalog = viewModel.availableSourcesCount.value
-		val imported = mangaDynamicRepository.get().size
+		val imported = mangaDynamicRepository.get().size + directTachiyomiManager.installed.value.size
 		findPreference<Preference>(AppSettings.KEY_REMOTE_SOURCES)?.isVisible = !(catalog == 0 && imported == 0)
 	}
 }

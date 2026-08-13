@@ -17,6 +17,7 @@ import org.draken.usagi.core.parser.CachingMangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
+import org.draken.usagi.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.util.ReversibleAction
@@ -26,7 +27,6 @@ import org.draken.usagi.explore.data.MangaSourcesRepository
 import tsuki.MangaParserAuthProvider
 import tsuki.exception.AuthRequiredException
 import javax.inject.Inject
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
 import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 
 @HiltViewModel
@@ -37,7 +37,7 @@ class SourceSettingsViewModel
 		mangaRepositoryFactory: MangaRepository.Factory,
 		private val cookieJar: MutableCookieJar,
 		private val mangaSourcesRepository: MangaSourcesRepository,
-		private val externalManager: ExternalManager,
+		private val tachiyomiRuntime: TachiyomiRuntime,
 	) : BaseViewModel(),
 		SharedPreferences.OnSharedPreferenceChangeListener {
 		val source = MangaSource(savedStateHandle.get<String>(AppRouter.KEY_SOURCE)).resolve()
@@ -127,7 +127,7 @@ class SourceSettingsViewModel
 
 		fun publish() {
 			val e = MangaSourceRegistry.sources.filterNot { it is ExternalSource }
-			MangaSourceRegistry.publish(e + externalManager.getActiveSources())
+			MangaSourceRegistry.publish(e + tachiyomiRuntime.getActiveSources())
 		}
 
 		private fun loadUsername(authProvider: MangaParserAuthProvider?) {

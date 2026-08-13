@@ -30,6 +30,7 @@ import org.draken.usagi.core.model.parcelable.ParcelableMangaListFilter
 import org.draken.usagi.core.model.resolve
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
+import org.draken.usagi.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.ui.model.titleRes
 import org.draken.usagi.core.util.ViewBadge
@@ -57,7 +58,6 @@ import tsuki.model.SortOrder
 import javax.inject.Inject
 import kotlin.math.absoluteValue
 import com.google.android.material.R as materialR
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
 import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 import org.draken.usagi.filter.ui.external.sheet.FilterSheetFragment as ExternalSheetFragment
 
@@ -80,7 +80,7 @@ class MangaListActivity :
 	private lateinit var source: MangaSource
 
 	@Inject
-	lateinit var externalManager: ExternalManager
+	lateinit var tachiyomiRuntime: TachiyomiRuntime
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -213,7 +213,7 @@ class MangaListActivity :
 		}
 	}
 
-	private fun resolve(source: MangaSource): MangaSource = (source as? ExternalSource)?.let(externalManager::resolve) ?: source
+	private fun resolve(source: MangaSource): MangaSource = (source as? ExternalSource)?.let(tachiyomiRuntime::resolve) ?: source
 
 	private fun initFilter(filterOwner: FilterCoordinator.Owner) {
 		if (viewBinding.containerSide != null) {

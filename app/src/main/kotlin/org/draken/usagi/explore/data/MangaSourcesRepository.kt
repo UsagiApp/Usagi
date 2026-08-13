@@ -30,6 +30,7 @@ import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.model.isExternalSource
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.parser.external.ExternalMangaSource
+import org.draken.usagi.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.ui.util.ReversibleHandle
@@ -42,7 +43,6 @@ import tsuki.util.mapNotNullToSet
 import tsuki.util.mapToSet
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
 import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 
 @Singleton
@@ -52,7 +52,7 @@ class MangaSourcesRepository
 		@LocalizedAppContext private val context: Context,
 		private val db: MangaDatabase,
 		private val settings: AppSettings,
-		private val tachiyomiExtensionManager: dagger.Lazy<ExternalManager>? = null,
+		private val tachiyomiRuntime: dagger.Lazy<TachiyomiRuntime>? = null,
 	) {
 		private var assimilatedVersion = -1
 		private val dao: MangaSourcesDao
@@ -408,7 +408,7 @@ class MangaSourcesRepository
 						) {
 							launch(Dispatchers.Default) {
 								try {
-									tachiyomiExtensionManager?.get()?.ensureReady(forceRefresh = true)
+									tachiyomiRuntime?.get()?.ensureReady(forceRefresh = true)
 								} catch (_: Throwable) {
 								}
 							}

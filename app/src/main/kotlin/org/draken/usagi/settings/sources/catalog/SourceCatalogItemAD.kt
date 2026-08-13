@@ -19,45 +19,75 @@ import androidx.appcompat.R as appcompatR
 
 fun sourceCatalogItemSourceAD(listener: OnListItemClickListener<SourceCatalogItem.Source>) =
 	adapterDelegateViewBinding<SourceCatalogItem.Source, ListModel, ItemSourceCatalogBinding>(
-		{ layoutInflater, parent ->
-			ItemSourceCatalogBinding.inflate(layoutInflater, parent, false)
-		},
+		{ layoutInflater, parent -> ItemSourceCatalogBinding.inflate(layoutInflater, parent, false) },
 	) {
-		binding.imageViewAdd.setOnClickListener { v ->
-			listener.onItemLongClick(item, v)
-		}
-		binding.root.setOnClickListener { v ->
-			listener.onItemClick(item, v)
-		}
-		val basePadding =
-			context.getThemeDimensionPixelOffset(
-				appcompatR.attr.listPreferredItemPaddingEnd,
-				binding.root.paddingStart,
-			)
-		binding.root.updatePaddingRelative(
-			end = (basePadding - context.resources.getDimensionPixelOffset(R.dimen.margin_small)).coerceAtLeast(0),
-		)
-
+		binding.imageViewAdd.setOnClickListener { v -> listener.onItemLongClick(item, v) }
+		binding.root.setOnClickListener { v -> listener.onItemClick(item, v) }
+		val basePadding = context.getThemeDimensionPixelOffset(appcompatR.attr.listPreferredItemPaddingEnd, binding.root.paddingStart)
+		binding.root.updatePaddingRelative(end = (basePadding - context.resources.getDimensionPixelOffset(R.dimen.margin_small)).coerceAtLeast(0))
 		bind {
 			binding.textViewTitle.text = item.source.getTitle(context)
 			binding.textViewDescription.text = item.source.getSummary(context)
-			binding.textViewDescription.drawableStart =
-				if (item.source.isBroken) {
-					ContextCompat.getDrawable(context, R.drawable.ic_off_small)
-				} else {
-					null
-				}
+			binding.textViewDescription.drawableStart = if (item.source.isBroken) ContextCompat.getDrawable(context, R.drawable.ic_off_small) else null
 			FaviconDrawable(context, R.style.FaviconDrawable_Small, item.source.name)
 			binding.imageViewIcon.setImageAsync(item.source)
+			binding.imageViewAdd.isVisible = true
+			binding.imageViewAdd.setImageResource(R.drawable.ic_add)
+			binding.imageViewAdd.contentDescription = context.getString(R.string.add)
 		}
 	}
+
+fun sourceCatalogItemTachiyomiAD(
+	onClick: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
+	onInstall: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
+) = adapterDelegateViewBinding<SourceCatalogItem.Tachiyomi, ListModel, ItemSourceCatalogBinding>(
+	{ layoutInflater, parent -> ItemSourceCatalogBinding.inflate(layoutInflater, parent, false) },
+) {
+	binding.root.setOnClickListener { v -> onClick(item, v) }
+	binding.imageViewAdd.setOnClickListener { v -> onInstall(item, v) }
+	val basePadding = context.getThemeDimensionPixelOffset(appcompatR.attr.listPreferredItemPaddingEnd, binding.root.paddingStart)
+	binding.root.updatePaddingRelative(end = (basePadding - context.resources.getDimensionPixelOffset(R.dimen.margin_small)).coerceAtLeast(0))
+	bind {
+		val fallback = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.artifact.packageName)
+		binding.imageViewIcon.errorDrawable = fallback
+		binding.imageViewIcon.fallbackDrawable = fallback
+		if (item.artifact.iconUrl.isNullOrBlank()) {
+			binding.imageViewIcon.setImageDrawable(fallback)
+		} else {
+			binding.imageViewIcon.setImageAsync(item.artifact.iconUrl)
+		}
+		binding.imageViewIcon.background = null
+		binding.textViewTitle.text = item.displayName
+		binding.textViewDescription.text = item.description
+		binding.textViewDescription.drawableStart = if (item.isNsfw) ContextCompat.getDrawable(context, R.drawable.ic_nsfw) else null
+		binding.imageViewAdd.isVisible = true
+		binding.imageViewAdd.setImageResource(
+			if (item.hasUpdate) {
+				R.drawable.ic_updated
+			} else if (item.isInstalled) {
+				R.drawable.ic_check
+			} else {
+				R.drawable.ic_download
+			},
+		)
+		binding.imageViewAdd.contentDescription =
+			context.getString(
+				if (item.hasUpdate) {
+					R.string.update
+				} else if (item.isInstalled) {
+					R.string.installed
+				} else {
+					R.string.add
+				},
+			)
+	}
+}
 
 fun sourceCatalogItemHintAD() =
 	adapterDelegateViewBinding<SourceCatalogItem.Hint, ListModel, ItemEmptyHintBinding>(
 		{ inflater, parent -> ItemEmptyHintBinding.inflate(inflater, parent, false) },
 	) {
 		binding.buttonRetry.isVisible = false
-
 		bind {
 			binding.icon.setImageAsync(item.icon)
 			binding.textPrimary.setText(item.title)

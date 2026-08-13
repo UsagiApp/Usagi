@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.inSpans
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.external.ExternalMangaSource
+import org.draken.usagi.core.parser.tachiyomi.DirectTachiyomiExtensionManager
 import org.draken.usagi.core.util.ext.getDisplayName
 import org.draken.usagi.core.util.ext.toLocale
 import org.draken.usagi.core.util.ext.toLocaleOrNull
@@ -18,7 +19,6 @@ import tsuki.model.ContentType
 import tsuki.model.MangaSource
 import tsuki.util.splitTwoParts
 import java.util.Locale
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
 import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 
 data class PluginMangaSource(
@@ -75,7 +75,10 @@ fun MangaSource(name: String?): MangaSource {
 		val parts = name.substringAfter(':').splitTwoParts('/') ?: return UnknownMangaSource
 		return ExternalMangaSource(packageName = parts.first, authority = parts.second)
 	} else if (name.startsWith("EXTERNAL_")) {
-		ExternalManager.getByName(name)?.let { return it } // tachi
+		DirectTachiyomiExtensionManager.getByName(name)?.let { return it }
+		org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager
+			.getByName(name)
+			?.let { return it } // tachi
 	}
 	MangaSourceRegistry.resolveByName(name)?.let { return it }
 	// Backward compatibility for loaded database items saved as '1.jar:MANGADEX'

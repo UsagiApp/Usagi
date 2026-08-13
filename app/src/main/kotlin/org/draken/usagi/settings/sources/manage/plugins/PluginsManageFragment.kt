@@ -80,6 +80,8 @@ class PluginsManageFragment :
 			PluginManageAdapter(
 				onRenameClick = ::onRenameClick,
 				onUpdateClick = ::onUpdateClick,
+				onTachiyomiClick = ::onTachiyomiClick,
+				onTachiyomiRemoveClick = ::onTachiyomiRemoveClick,
 				onLongClick = ::onLongClick,
 				onClick = ::onClick,
 				isSelected = { item -> viewModel.isSelected(item.name) },
@@ -196,6 +198,14 @@ class PluginsManageFragment :
 				onResult = ::showImportResult,
 			)
 		}
+		binding.buttonTachiyomi.setOnClickListener {
+			dialog.dismiss()
+			viewLifecycleOwner.lifecycleScope.launch {
+				val input = askText(R.string.import_tachiyomi, "https://github.com/keiyoushi/extensions", R.string.tachiyomi_catalog_input)
+				val success = if (input.isNullOrBlank()) false else viewModel.importRepository(input)
+				showImportResult(success)
+			}
+		}
 		dialog.show()
 	}
 
@@ -245,6 +255,31 @@ class PluginsManageFragment :
 				}
 			}
 		}.show()
+	}
+
+	private fun onTachiyomiRemoveClick(item: PluginManageItem.Tachiyomi) {
+		buildAlertDialog(requireContext()) {
+			setTitle(R.string.delete_plugin)
+			setMessage(getString(R.string.confirm_delete_plugin, item.displayName))
+			setNegativeButton(android.R.string.cancel, null)
+			setPositiveButton(R.string.delete) { _, _ ->
+				viewLifecycleOwner.lifecycleScope.launch {
+					showImportResult(viewModel.removeTachiyomi(item))
+				}
+			}
+		}.show()
+	}
+
+	private fun onTachiyomiClick(item: PluginManageItem.Tachiyomi) {
+		if (item.isInstalled && !item.hasUpdate) {
+			viewLifecycleOwner.lifecycleScope.launch {
+				showImportResult(viewModel.removeTachiyomi(item))
+			}
+			return
+		}
+		viewLifecycleOwner.lifecycleScope.launch {
+			showImportResult(viewModel.installTachiyomi(item))
+		}
 	}
 
 	private fun onUpdateClick(item: PluginManageItem.Plugin) {

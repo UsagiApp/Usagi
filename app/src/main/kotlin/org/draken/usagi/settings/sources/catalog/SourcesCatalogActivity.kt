@@ -1,6 +1,7 @@
 package org.draken.usagi.settings.sources.catalog
 
 import android.os.Bundle
+import android.text.InputType
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -10,14 +11,19 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import org.draken.usagi.R
 import org.draken.usagi.core.model.titleResId
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.ui.BaseActivity
+import org.draken.usagi.core.ui.dialog.buildAlertDialog
+import org.draken.usagi.core.ui.dialog.setEditText
 import org.draken.usagi.core.ui.list.OnListItemClickListener
 import org.draken.usagi.core.ui.util.FadingAppbarMediator
 import org.draken.usagi.core.ui.util.ReversibleActionObserver
@@ -49,7 +55,13 @@ class SourcesCatalogActivity :
 		super.onCreate(savedInstanceState)
 		setContentView(ActivitySourcesCatalogBinding.inflate(layoutInflater))
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
-		val sourcesAdapter = SourcesCatalogAdapter(this)
+		val sourcesAdapter =
+			SourcesCatalogAdapter(
+				nativeListener = this,
+				onTachiyomiClick = { item, _ -> installTachiyomi(item) },
+				onTachiyomiInstall = { item, _ -> installTachiyomi(item) },
+			)
+
 		with(viewBinding.recyclerView) {
 			setHasFixedSize(true)
 			addItemDecoration(TypedListSpacingDecoration(context, false))
@@ -65,7 +77,7 @@ class SourcesCatalogActivity :
 		combine(viewModel.appliedFilter, viewModel.hasNewSources, viewModel.contentTypes, ::Triple).observe(this) {
 			updateFilers(it.first, it.second, it.third)
 		}
-		addMenuProvider(SourcesCatalogMenuProvider(this, viewModel, this))
+		addMenuProvider(SourcesCatalogMenuProvider(this, viewModel, this, ::showAddRepositoryDialog))
 	}
 
 	override fun onDestroy() {
@@ -119,6 +131,40 @@ class SourcesCatalogActivity :
 	): Boolean {
 		viewModel.addSource(item.source)
 		return false
+	}
+
+	private fun installTachiyomi(item: SourceCatalogItem.Tachiyomi) {
+		if (item.isInstalled && !item.hasUpdate) return
+		lifecycleScope.launch {
+			val success = viewModel.installTachiyomi(item)
+			Snackbar
+				.make(
+					viewBinding.recyclerView,
+					if (success) R.string.tachiyomi_catalog_loaded else R.string.tachiyomi_catalog_failed,
+					Snackbar.LENGTH_LONG,
+				).show()
+		}
+	}
+
+	private fun showAddRepositoryDialog() {
+		val input =
+			buildAlertDialog(this) {
+				setTitle(R.string.tachiyomi_catalog_input)
+				val editText = setEditText(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI, singleLine = true)
+				editText.setText("https://github.com/keiyoushi/extensions")
+				setNegativeButton(android.R.string.cancel, null)
+				setPositiveButton(R.string.add) { _, _ ->
+					lifecycleScope.launch {
+						val success = viewModel.addTachiyomiRepository(editText.text?.toString().orEmpty())
+						Snackbar
+							.make(
+								viewBinding.recyclerView,
+								if (success) R.string.tachiyomi_catalog_loaded else R.string.tachiyomi_catalog_failed,
+								Snackbar.LENGTH_LONG,
+							).show()
+					}
+				}
+			}.show()
 	}
 
 	override fun onMenuItemActionExpand(item: MenuItem): Boolean {

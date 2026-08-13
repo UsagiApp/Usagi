@@ -18,6 +18,7 @@ import org.draken.usagi.core.model.resolve
 import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.parser.external.ExternalMangaRepository
 import org.draken.usagi.core.parser.external.ExternalMangaSource
+import org.draken.usagi.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.local.data.LocalMangaRepository
 import tsuki.MangaLoaderContext
 import tsuki.model.Manga
@@ -31,7 +32,6 @@ import tsuki.model.SortOrder
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
 import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
 import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as ExternalRepository
@@ -86,7 +86,7 @@ interface MangaRepository {
 			private val contentCache: MemoryContentCache,
 			private val mirrorSwitcher: MirrorSwitcher,
 			private val mangaRepository: MangaDynamicRepository,
-			private val externalManager: ExternalManager,
+			private val tachiyomiRuntime: TachiyomiRuntime,
 		) {
 			private val cache = ArrayMap<MangaSource, WeakReference<MangaRepository>>()
 			private var cacheVersion = -1
@@ -180,7 +180,7 @@ interface MangaRepository {
 						runCatching {
 							mangaRepository.load(mangaRepository.getDir())
 							kotlinx.coroutines.runBlocking {
-								externalManager.ensureReady()
+								tachiyomiRuntime.ensureReady()
 							}
 						}
 					}
