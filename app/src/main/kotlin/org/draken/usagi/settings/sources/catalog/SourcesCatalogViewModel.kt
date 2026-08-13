@@ -196,7 +196,8 @@ class SourcesCatalogViewModel
 							val rating = source.contentRating.takeUnless { it == TachiyomiContentRating.UNSPECIFIED } ?: artifact.contentRating
 							val type = if (rating.isNsfw) ContentType.HENTAI else ContentType.MANGA
 							if (settings.isNsfwContentDisabled && type == ContentType.HENTAI) return@mapNotNull null
-							if (filter.locale != null && source.language != filter.locale) return@mapNotNull null
+							if (!matchesLocale(source.language, filter.locale)) return@mapNotNull null
+
 							if (filter.types.isNotEmpty() && type !in filter.types) return@mapNotNull null
 							if (filter.plugin != null && artifact.repositoryUrl != filter.plugin) return@mapNotNull null
 
@@ -222,6 +223,21 @@ class SourcesCatalogViewModel
 		}
 
 		@WorkerThread
+		private fun matchesLocale(
+			sourceLanguage: String,
+			filterLocale: String?,
+		): Boolean {
+			if (filterLocale == null) return true
+			val source = sourceLanguage.trim()
+			val filter = filterLocale.trim()
+			val wantsVarious = filter.isBlank() || filter.equals("all", true)
+			return if (wantsVarious) {
+				source.isBlank() || source.equals("all", true)
+			} else {
+				source.equals(filter, true)
+			}
+		}
+
 		private fun tachiyomiPluginLabel(repositoryUrl: String): String {
 			val path =
 				runCatching {

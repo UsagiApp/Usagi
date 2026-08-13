@@ -202,7 +202,7 @@ class SourcesCatalogActivity :
 			)
 		chips +=
 			ChipModel(
-				title = appliedFilter.locale?.toLocale().getDisplayName(this),
+				title = localeDisplayName(appliedFilter.locale),
 				icon = R.drawable.ic_language,
 				isDropdown = true,
 			)
@@ -226,21 +226,24 @@ class SourcesCatalogActivity :
 	}
 
 	private fun showLocalesMenu(anchor: View) {
-		val locales =
-			viewModel.locales.mapTo(ArrayList(viewModel.locales.size)) {
-				it to it?.toLocale()
-			}
-		locales.sortWith(compareBy(nullsFirst(LocaleComparator())) { it.second })
+		val locales = viewModel.locales.sortedWith(compareBy { localeDisplayName(it) })
 		val menu = PopupMenu(this, anchor)
-		for ((i, lc) in locales.withIndex()) {
-			menu.menu.add(Menu.NONE, Menu.NONE, i, lc.second.getDisplayName(this))
+		for ((i, locale) in locales.withIndex()) {
+			menu.menu.add(Menu.NONE, Menu.NONE, i, localeDisplayName(locale))
 		}
 		menu.setOnMenuItemClickListener {
-			viewModel.setLocale(locales.getOrNull(it.order)?.first)
+			viewModel.setLocale(locales.getOrNull(it.order))
 			true
 		}
 		menu.show()
 	}
+
+	private fun localeDisplayName(value: String?): String =
+		when {
+			value.isNullOrBlank() -> getString(R.string.all_languages)
+			value.equals("all", true) -> getString(R.string.various_languages)
+			else -> value.toLocale().getDisplayName(this)
+		}
 
 	private fun showPluginsMenu(anchor: View) {
 		val menu = PopupMenu(this, anchor)
