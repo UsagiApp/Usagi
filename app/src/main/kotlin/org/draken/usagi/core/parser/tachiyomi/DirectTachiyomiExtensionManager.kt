@@ -652,35 +652,54 @@ class TachiyomiExtensionCatalogProvider
 
 		suspend fun load(input: String): List<TachiyomiExtensionArtifact> =
 			withContext(Dispatchers.IO) {
-				val url = normalizeUrl(input) ?: return@withContext emptyList()
-				val request =
-					Request
-						.Builder()
-						.url(url)
-						.get()
-						.build()
-				val body =
-					httpClient.newCall(request).execute().use { response ->
-						if (!response.isSuccessful) return@withContext emptyList()
-						response.body?.string().orEmpty()
-					}
-				parse(url, body)
+				for (url in candidateUrls(input)) {
+					val request =
+						Request
+							.Builder()
+							.url(url)
+							.get()
+							.build()
+					val result =
+						runCatching {
+							httpClient.newCall(request).execute().use { response ->
+								if (!response.isSuccessful) return@use emptyList<TachiyomiExtensionArtifact>()
+								parse(url, response.body?.string().orEmpty())
+							}
+						}.getOrDefault(emptyList())
+					if (result.isNotEmpty()) return@withContext result
+				}
+				emptyList()
 			}
 
 		fun normalizeUrl(input: String): String? {
 			val raw = input.trim().removeSuffix("/")
 			if (raw.isBlank()) return null
 			val github = GITHUB_REPOSITORY_REGEX.matchEntire(raw)
-			if (github != null) return "https://raw.githubusercontent.com/${github.groupValues[1]}/${github.groupValues[2]}/repo/index.json"
+			if (github != null) return "https://raw.githubusercontent.com/${github.groupValues[1]}/${github.groupValues[2]}/main/index.json"
 			if (raw.startsWith("https://") || raw.startsWith("http://")) return raw
 			val repo = raw.removePrefix("github.com/").removePrefix("www.github.com/")
 			val parts = repo.split('/').filter { it.isNotBlank() }
-			if (parts.size == 2) return "https://raw.githubusercontent.com/${parts[0]}/${parts[1]}/repo/index.json"
+			if (parts.size == 2) return "https://raw.githubusercontent.com/${parts[0]}/${parts[1]}/main/index.json"
 			return null
+		}
+
+		private fun candidateUrls(input: String): List<String> {
+			val normalized = normalizeUrl(input) ?: return emptyList()
+			val rawGithub = RAW_GITHUB_INDEX_REGEX.matchEntire(normalized)
+			if (rawGithub == null) return listOf(normalized)
+			val owner = rawGithub.groupValues[1]
+			val repository = rawGithub.groupValues[2]
+			return listOf(
+				"https://raw.githubusercontent.com/$owner/$repository/main/index.json",
+				"https://raw.githubusercontent.com/$owner/$repository/master/index.json",
+				"https://raw.githubusercontent.com/$owner/$repository/repo/index.json",
+				normalized,
+			).distinct()
 		}
 
 		private companion object {
 			val GITHUB_REPOSITORY_REGEX = Regex("(?i)^https?://(?:www\\.)?github\\.com/([^/]+)/([^/]+?)(?:/.*)?$")
+			val RAW_GITHUB_INDEX_REGEX = Regex("(?i)^https?://raw\\.githubusercontent\\.com/([^/]+)/([^/]+)/[^/]+/index\\.json$")
 		}
 
 		private fun parse(
