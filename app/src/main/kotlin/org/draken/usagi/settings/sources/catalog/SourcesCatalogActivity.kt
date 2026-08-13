@@ -1,10 +1,13 @@
 package org.draken.usagi.settings.sources.catalog
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.os.Bundle
 import android.text.InputType
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
@@ -50,6 +53,7 @@ class SourcesCatalogActivity :
 		get() = viewBinding.appbar
 
 	private val viewModel by viewModels<SourcesCatalogViewModel>()
+	private var navigationBarBottomInset = 0
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -90,6 +94,7 @@ class SourcesCatalogActivity :
 		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+		navigationBarBottomInset = bars.bottom
 		viewBinding.recyclerView.updatePadding(
 			left = bars.left,
 			right = bars.right,
@@ -137,16 +142,11 @@ class SourcesCatalogActivity :
 		if (item.isInstalled && !item.hasUpdate) return
 		lifecycleScope.launch {
 			val success = viewModel.installTachiyomi(item)
-			Snackbar
-				.make(
-					viewBinding.recyclerView,
-					if (success) {
-						getString(R.string.tachiyomi_catalog_loaded)
-					} else {
-						listOfNotNull(getString(R.string.load_failed), viewModel.tachiyomiInstallError()).joinToString(": ")
-					},
-					Snackbar.LENGTH_LONG,
-				).show()
+			if (success) {
+				showInsetSnackbar(getString(R.string.tachiyomi_catalog_loaded), Snackbar.LENGTH_LONG)
+			} else {
+				showTachiyomiError(viewModel.tachiyomiInstallError())
+			}
 		}
 	}
 
@@ -160,16 +160,11 @@ class SourcesCatalogActivity :
 				setPositiveButton(R.string.add) { _, _ ->
 					lifecycleScope.launch {
 						val success = viewModel.addTachiyomiRepository(editText.text?.toString().orEmpty())
-						Snackbar
-							.make(
-								viewBinding.recyclerView,
-								if (success) {
-									getString(R.string.tachiyomi_catalog_loaded)
-								} else {
-									listOfNotNull(getString(R.string.tachiyomi_catalog_failed), viewModel.tachiyomiCatalogError()).joinToString(": ")
-								},
-								Snackbar.LENGTH_LONG,
-							).show()
+						if (success) {
+							showInsetSnackbar(getString(R.string.tachiyomi_catalog_loaded), Snackbar.LENGTH_LONG)
+						} else {
+							showTachiyomiError(viewModel.tachiyomiCatalogError())
+						}
 					}
 				}
 			}.show()
@@ -227,6 +222,34 @@ class SourcesCatalogActivity :
 			)
 		}
 		viewBinding.chipsFilter.setChips(chips)
+	}
+
+	private fun showTachiyomiError(detail: String?) {
+		val text = listOfNotNull(getString(R.string.tachiyomi_catalog_failed), detail?.takeIf { it.isNotBlank() }).joinToString(": ")
+		val snackbar = Snackbar.make(viewBinding.recyclerView, text, Snackbar.LENGTH_LONG)
+		snackbar.setAction(R.string.copy_error) {
+			val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+			clipboard.setPrimaryClip(ClipData.newPlainText("Usagi error", text))
+			showInsetSnackbar(getString(R.string.error_copied), Snackbar.LENGTH_SHORT)
+		}
+		showInsetSnackbar(snackbar)
+	}
+
+	private fun showInsetSnackbar(
+		message: CharSequence,
+		duration: Int,
+	) {
+		showInsetSnackbar(Snackbar.make(viewBinding.recyclerView, message, duration))
+	}
+
+	private fun showInsetSnackbar(snackbar: Snackbar) {
+		val view = snackbar.view
+		val params = view.layoutParams as? ViewGroup.MarginLayoutParams
+		if (params != null) {
+			params.bottomMargin += navigationBarBottomInset
+			view.layoutParams = params
+		}
+		snackbar.show()
 	}
 
 	private fun showLocalesMenu(anchor: View) {

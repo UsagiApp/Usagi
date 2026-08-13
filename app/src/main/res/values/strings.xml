@@ -954,6 +954,8 @@
 			<string name="import_url_summary">Enter a GitHub repository URL for a Usagi plugin or a Tachiyomi/Mihon extension repository. Usagi will detect the format automatically.</string>
 
 	<string name="load_failed">Failed to load plugin</string>
+	<string name="copy_error">Copy error</string>
+	<string name="error_copied">Error copied</string>
 	<string name="load_from_storage">Import from local storage</string>
 	<string name="load_storage_summary">You can select a JAR file from local storage, that file will be recognized as a plugin.</string>
 	<string name="load_success">Plugin imported and loaded successfully</string>
