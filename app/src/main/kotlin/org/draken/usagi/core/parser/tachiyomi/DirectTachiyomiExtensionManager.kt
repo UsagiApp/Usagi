@@ -10,10 +10,10 @@ import androidx.core.os.ConfigurationCompat
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceScreen
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dalvik.system.DexClassLoader
 import eu.kanade.tachiyomi.source.CatalogueSource
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.SourceFactory
-import eu.kanade.tachiyomi.util.system.ChildFirstPathClassLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,7 +52,9 @@ class DirectTachiyomiExtensionManager
 		private val sourceById = ConcurrentHashMap<Long, TachiyomiMangaSource>()
 		private val resolver = DirectLanguageResolver(context)
 		private val directory = File(context.filesDir, DIRECT_DIR).also { it.mkdirs() }
+		private val dexDirectory = File(context.codeCacheDir, DEX_DIR).also { it.mkdirs() }
 		private val metadataFile = File(directory, METADATA_FILE)
+
 		private val _sources = MutableStateFlow<List<TachiyomiMangaSource>>(emptyList())
 		private val _installed = MutableStateFlow<List<DirectTachiyomiInstalled>>(emptyList())
 		private val _failed = MutableStateFlow<List<DirectTachiyomiFailure>>(emptyList())
@@ -277,7 +279,12 @@ class DirectTachiyomiExtensionManager
 			val effectiveRating = if (manifestRating != TachiyomiContentRating.UNSPECIFIED) manifestRating else artifact.contentRating
 			val loader =
 				runCatching {
-					ChildFirstPathClassLoader(file.absolutePath, appInfo.nativeLibraryDir ?: context.applicationInfo.nativeLibraryDir, context.classLoader)
+					DirectDexClassLoader(
+						file.absolutePath,
+						dexDirectory.absolutePath,
+						appInfo.nativeLibraryDir ?: context.applicationInfo.nativeLibraryDir,
+						context.classLoader,
+					)
 				}.getOrElse { return TachiyomiLoadResult.Error(artifact.packageName, "Cannot create extension classloader", it) }
 			return runCatching {
 				val sources = loadSources(packageInfo.packageName, sourceClassNames, loader)
@@ -389,7 +396,9 @@ class DirectTachiyomiExtensionManager
 
 		companion object {
 			private const val DIRECT_DIR = "tachiyomi-direct"
+			private const val DEX_DIR = "tachiyomi-direct-dex"
 			private const val METADATA_FILE = "installed.json"
+
 			private const val METADATA_SOURCE_CLASS = "tachiyomi.extension.class"
 			private const val METADATA_SOURCE_FACTORY = "tachiyomi.extension.factory"
 			private const val METADATA_EXTENSION_LIB = "tachiyomix.extensionLib"
@@ -600,6 +609,14 @@ class TachiyomiExtensionCatalogProvider
 		@BaseHttpClient private val httpClient: OkHttpClient,
 	) {
 		private val preferences by lazy { context.getSharedPreferences("tachiyomi_catalogs", Context.MODE_PRIVATE) }
+		private val catalogClient by lazy {
+			httpClient
+				.newBuilder()
+				.apply {
+					interceptors().clear()
+					networkInterceptors().clear()
+				}.build()
+		}
 
 		@Volatile
 		var lastLoadError: String? = null
@@ -671,11 +688,13 @@ class TachiyomiExtensionCatalogProvider
 						Request
 							.Builder()
 							.url(url)
+							.header("Accept", "application/json")
+							.header("User-Agent", "Usagi-TachiyomiCatalog/1.0")
 							.get()
 							.build()
 					val result =
 						runCatching {
-							httpClient.newCall(request).execute().use { response ->
+							catalogClient.newCall(request).execute().use { response ->
 								if (!response.isSuccessful) {
 									errors += "${response.code} ${response.message}"
 									return@use emptyList<TachiyomiExtensionArtifact>()
@@ -733,8 +752,13 @@ class TachiyomiExtensionCatalogProvider
 			body: String,
 		): List<TachiyomiExtensionArtifact> =
 			runCatching {
-				val root = JSONObject(body)
-				val extensions = root.optJSONObject("extensionList")?.optJSONArray("extensions") ?: JSONArray()
+				val root = JSONObject(body.removePrefix("\uFEFF"))
+				val extensionList = root.optJSONObject("extensionList")
+				val extensions =
+					extensionList?.optJSONArray("extensions")
+						?: root.optJSONArray("extensions")
+						?: JSONArray()
+
 				buildList {
 					for (index in 0 until extensions.length()) {
 						val obj = extensions.optJSONObject(index) ?: continue
@@ -781,8 +805,34 @@ class TachiyomiExtensionCatalogProvider
 						)
 					}
 				}
-			}.getOrDefault(emptyList())
+			}.getOrElse { error ->
+				throw IllegalArgumentException("Catalog JSON parse failed: ${error.message ?: error.javaClass.simpleName}", error)
+			}
 	}
+
+private class DirectDexClassLoader(
+	dexPath: String,
+	optimizedDirectory: String,
+	librarySearchPath: String?,
+	parent: ClassLoader,
+) : DexClassLoader(dexPath, optimizedDirectory, librarySearchPath, parent) {
+	private val systemClassLoader = ClassLoader.getSystemClassLoader()
+
+	override fun loadClass(
+		name: String,
+		resolve: Boolean,
+	): Class<*> {
+		var loaded = findLoadedClass(name)
+		if (loaded == null) {
+			loaded = runCatching { systemClassLoader?.loadClass(name) }.getOrNull()
+		}
+		if (loaded == null) {
+			loaded = runCatching { findClass(name) }.getOrElse { super.loadClass(name, false) }
+		}
+		if (resolve) resolveClass(loaded)
+		return loaded
+	}
+}
 
 private class DirectLanguageResolver(
 	private val context: Context,
