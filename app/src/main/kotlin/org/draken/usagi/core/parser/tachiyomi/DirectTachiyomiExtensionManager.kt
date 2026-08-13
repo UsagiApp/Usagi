@@ -602,6 +602,12 @@ class TachiyomiExtensionCatalogProvider
 			preferences.edit { putStringSet(CATALOG_KEY_REPOSITORIES, current + normalized) }
 		}
 
+		fun removeRepository(input: String) {
+			val normalized = normalizeUrl(input) ?: return
+			val current = preferences.getStringSet(CATALOG_KEY_REPOSITORIES, emptySet()).orEmpty()
+			preferences.edit { putStringSet(CATALOG_KEY_REPOSITORIES, current - normalized) }
+		}
+
 		fun ignorePackage(packageName: String) {
 			val current = preferences.getStringSet(CATALOG_KEY_IGNORED_PACKAGES, emptySet()).orEmpty()
 			preferences.edit { putStringSet(CATALOG_KEY_IGNORED_PACKAGES, current + packageName) }

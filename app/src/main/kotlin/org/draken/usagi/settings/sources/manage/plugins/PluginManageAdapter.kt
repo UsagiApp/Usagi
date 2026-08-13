@@ -17,7 +17,6 @@ import org.draken.usagi.settings.sources.manage.plugins.model.PluginManageItem
 class PluginManageAdapter(
 	onRenameClick: (PluginManageItem.Plugin) -> Unit,
 	onUpdateClick: (PluginManageItem.Plugin) -> Unit,
-	onTachiyomiClick: (PluginManageItem.Tachiyomi) -> Unit,
 	onTachiyomiRemoveClick: (PluginManageItem.Tachiyomi) -> Unit,
 	onLongClick: (PluginManageItem.Plugin) -> Unit,
 	onClick: (PluginManageItem.Plugin) -> Unit,
@@ -25,7 +24,7 @@ class PluginManageAdapter(
 ) : BaseListAdapter<ListModel>() {
 	init {
 		addDelegate(ListItemType.CHAPTER_LIST, pluginItemDelegate(onRenameClick, onUpdateClick, onLongClick, onClick, isSelected))
-		addDelegate(ListItemType.INFO, tachiyomiItemDelegate(onTachiyomiClick, onTachiyomiRemoveClick))
+		addDelegate(ListItemType.INFO, tachiyomiItemDelegate(onTachiyomiRemoveClick))
 		addDelegate(ListItemType.HINT_EMPTY, pluginPlaceholderDelegate())
 	}
 
@@ -60,16 +59,16 @@ class PluginManageAdapter(
 			binding.textViewTitle.text = item.displayName
 			binding.textViewDescription.text =
 				buildList {
-					item.repository?.takeIf { it.isNotBlank() }?.let(::add)
+					item.repository?.takeIf { it.isNotBlank() }?.let { add(repositoryLabel(it)) } ?: add(item.name)
+					add(context.getString(if (item.repository.isNullOrBlank()) R.string.local_plugin else R.string.github_plugin))
 					item.installedTag?.takeIf { it.isNotBlank() }?.let(::add)
-				}.ifEmpty { listOf(item.name) }.joinToString(" • ")
+				}.joinToString(" • ")
 			binding.imageViewAdd.isVisible = item.hasUpdate
 			binding.imageViewAdd.setOnClickListener(if (item.hasUpdate) View.OnClickListener { onUpdateClick(item) } else null)
 		}
 	}
 
 	private fun tachiyomiItemDelegate(
-		onClick: (PluginManageItem.Tachiyomi) -> Unit,
 		onRemoveClick: (PluginManageItem.Tachiyomi) -> Unit,
 	) = adapterDelegateViewBinding<PluginManageItem.Tachiyomi, ListModel, ItemSourceConfigBinding>(
 		{ layoutInflater, parent -> ItemSourceConfigBinding.inflate(layoutInflater, parent, false) },
@@ -77,32 +76,30 @@ class PluginManageAdapter(
 		binding.imageViewIcon.background = null
 		binding.imageViewMenu.setImageResource(R.drawable.ic_delete)
 		binding.imageViewMenu.contentDescription = context.getString(R.string.delete)
-		binding.imageViewAdd.setImageResource(R.drawable.ic_download)
 		binding.imageViewRemove.isVisible = false
+		binding.imageViewAdd.isVisible = false
 		itemView.setOnLongClickListener(null)
 		itemView.setOnClickListener(null)
 
 		bind {
-			val fallback = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.artifact.packageName)
+			val fallback = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.repositoryLabel)
 			binding.imageViewIcon.errorDrawable = fallback
 			binding.imageViewIcon.fallbackDrawable = fallback
-			if (item.artifact.iconUrl.isNullOrBlank()) {
+			val iconUrl = item.artifacts.firstNotNullOfOrNull { it.iconUrl }
+			if (iconUrl.isNullOrBlank()) {
 				binding.imageViewIcon.setImageDrawable(fallback)
 			} else {
-				binding.imageViewIcon.setImageAsync(item.artifact.iconUrl)
+				binding.imageViewIcon.setImageAsync(iconUrl)
 			}
 			binding.imageViewMenu.isVisible = true
 			binding.imageViewMenu.setOnClickListener { onRemoveClick(item) }
-			binding.imageViewAdd.isVisible = item.isCompatible && (!item.isInstalled || item.hasUpdate)
-			binding.imageViewAdd.contentDescription = context.getString(if (item.hasUpdate) R.string.update else R.string.add)
-			binding.imageViewAdd.setOnClickListener(if (binding.imageViewAdd.isVisible) View.OnClickListener { onClick(item) } else null)
 			binding.textViewTitle.text = item.displayName
 			binding.textViewDescription.text =
 				buildList {
-					add(item.sourceSummary.ifBlank { context.getString(R.string.load_failed) })
-					add(item.artifact.packageName)
-					if (!item.isCompatible) add("incompatible")
-					item.errorMessage?.let(::add)
+					add(item.repositoryLabel)
+					add(context.getString(R.string.external_tachiyomi_plugin))
+					add(context.getString(R.string.tachiyomi_repository_extension_count, item.extensionCount, item.installedCount))
+					if (item.hasFailures) add(context.getString(R.string.load_failed))
 				}.joinToString(" • ")
 		}
 	}
@@ -117,4 +114,12 @@ class PluginManageAdapter(
 				binding.textSecondary.setTextAndVisible(item.summaryResId ?: 0)
 			}
 		}
+
+	private fun repositoryLabel(repository: String): String =
+		repository
+			.trim()
+			.removeSuffix("/")
+			.removePrefix("https://github.com/")
+			.removePrefix("http://github.com/")
+			.removePrefix("github.com/")
 }

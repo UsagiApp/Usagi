@@ -60,7 +60,7 @@ class PluginsManageViewModel
 
 		fun refresh() {
 			launchLoadingJob(Dispatchers.Default) {
-				runCatching { directManager.ensureReady() }
+				runCatching { tachiyomiRuntime.ensureReady() }
 				refreshTachiyomiItems(catalogProvider.loadSaved())
 
 				val localPlugins = loadPluginsLocal()
@@ -91,22 +91,13 @@ class PluginsManageViewModel
 			publishFiltered()
 		}
 
-		suspend fun installTachiyomi(item: PluginManageItem.Tachiyomi): Boolean {
-			if (!item.isCompatible) return false
-			catalogProvider.restorePackage(item.artifact.packageName)
-			return directManager.install(item.artifact).also {
-				if (it) {
-					tachiyomiRuntime.ensureReady(forceRefresh = true)
-					refresh()
-				}
-			}
-		}
-
 		suspend fun removeTachiyomi(item: PluginManageItem.Tachiyomi): Boolean {
-			val removed = if (item.isInstalled) directManager.remove(item.artifact.packageName) else true
+			val packageNames = (item.artifacts.map { it.packageName } + item.installed.map { it.packageName }).distinct()
+			val removed = packageNames.all { directManager.remove(it) }
 			if (removed) {
 				tachiyomiRuntime.ensureReady(forceRefresh = true)
-				catalogProvider.ignorePackage(item.artifact.packageName)
+				item.artifacts.forEach { catalogProvider.restorePackage(it.packageName) }
+				catalogProvider.removeRepository(item.repositoryUrl)
 				refresh()
 			}
 			return removed
@@ -283,19 +274,24 @@ class PluginsManageViewModel
 		fun isInstalled(fileName: String): Boolean = File(mangaDynamicRepository.getDir(), PluginFileLoader.resolve(fileName)).exists()
 
 		private fun refreshTachiyomiItems(artifacts: List<TachiyomiExtensionArtifact>) {
-			val failures = directManager.failed.value.associateBy { it.packageName }
-			val installed = directManager.installed.value.associateBy { it.packageName }
-			val catalogByPackage = artifacts.associateBy { it.packageName }
+			val failures = directManager.failed.value
+			val installed = directManager.installed.value
+			val artifactsByRepository = artifacts.groupBy { it.repositoryUrl }
+			val installedByRepository = installed.groupBy { record -> record.repositoryUrl.ifBlank { "installed://${record.packageName}" } }
+			val repositories = (artifactsByRepository.keys + installedByRepository.keys).distinct()
 			val items =
-				buildList {
-					artifacts.forEach { artifact ->
-						add(PluginManageItem.Tachiyomi(artifact, installed[artifact.packageName], failures[artifact.packageName]?.message))
-					}
-					installed.values.filter { it.packageName !in catalogByPackage }.forEach { record ->
-						add(PluginManageItem.Tachiyomi(record.toArtifact(), record, failures[record.packageName]?.message))
-					}
+				repositories.map { repositoryUrl ->
+					val repositoryArtifacts = artifactsByRepository[repositoryUrl].orEmpty()
+					val repositoryInstalled = installedByRepository[repositoryUrl].orEmpty()
+					val packageNames = (repositoryArtifacts.map { it.packageName } + repositoryInstalled.map { it.packageName }).toSet()
+					PluginManageItem.Tachiyomi(
+						repositoryUrl = repositoryUrl,
+						artifacts = repositoryArtifacts,
+						installed = repositoryInstalled,
+						failures = failures.filter { it.packageName in packageNames },
+					)
 				}
-			tachiyomiSnapshot = items.distinctBy { it.artifact.packageName }.sortedBy { it.displayName.lowercase() }
+			tachiyomiSnapshot = items.sortedBy { it.displayName.lowercase() }
 			publishFiltered()
 		}
 
@@ -314,7 +310,7 @@ class PluginsManageViewModel
 				all.filter { item ->
 					when (item) {
 						is PluginManageItem.Plugin -> item.name.contains(q, true) || item.repository?.contains(q, true) == true
-						is PluginManageItem.Tachiyomi -> item.displayName.contains(q, true) || item.artifact.packageName.contains(q, true) || item.artifact.repositoryUrl.contains(q, true)
+						is PluginManageItem.Tachiyomi -> item.displayName.contains(q, true) || item.repositoryLabel.contains(q, true) || item.repositoryUrl.contains(q, true)
 						is PluginManageItem.Placeholder -> false
 					}
 				}

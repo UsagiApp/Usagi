@@ -948,7 +948,7 @@
     <string name="import_from_github">Import from GitHub</string>
     <string name="tachiyomi_catalog">Tachiyomi extension repository</string>
     <string name="import_tachiyomi">Import Tachiyomi/Mihon extension</string>
-    <string name="import_tachiyomi_summary">Load a repository catalog, select an extension, and manage its direct source without installing the APK</string>
+    <string name="import_tachiyomi_summary">Add a Tachiyomi/Mihon extension repository. Browse and install its sources in Source catalogs without installing APKs.</string>
     <string name="add_tachiyomi_repository">Add Tachiyomi repository</string>
     <string name="installed">Installed</string>
     <string name="tachiyomi_catalog_summary">Browse and install sources without installing extension APKs</string>
@@ -959,7 +959,12 @@
 	<string name="load_success">Plugin imported and loaded successfully</string>
 	<string name="manage_plugins">Manage plugins</string>
 	<string name="no_plugins">No plugins installed</string>
-    <string name="no_plugins_summary">Click + above to add external plugins or a Tachiyomi repository</string>
+		<string name="no_plugins_summary">Click + above to add a local plugin, GitHub plugin, or Tachiyomi/Mihon extension repository</string>
+		<string name="local_plugin">Local plugin</string>
+		<string name="github_plugin">GitHub plugin</string>
+		<string name="external_tachiyomi_plugin">External plugin (Tachiyomi/Mihon extension)</string>
+		<string name="tachiyomi_repository_extension_count">%1$d extensions • %2$d installed</string>
+
 	<string name="overwrite_plugin">Overwrite plugin?</string>
 	<string name="overwrite_plugin_summary">A plugin file named %1$s is already installed. Replace it with this one?</string>
 	<string name="plugin_name">Plugin name</string>

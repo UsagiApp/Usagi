@@ -1,9 +1,11 @@
 package org.draken.usagi.settings.sources.manage.plugins.model
 
 import androidx.annotation.StringRes
+import org.draken.usagi.core.parser.tachiyomi.DirectTachiyomiFailure
 import org.draken.usagi.core.parser.tachiyomi.DirectTachiyomiInstalled
 import org.draken.usagi.core.parser.tachiyomi.TachiyomiExtensionArtifact
 import org.draken.usagi.list.ui.model.ListModel
+import java.net.URI
 
 sealed interface PluginManageItem : ListModel {
 	data class Plugin(
@@ -21,24 +23,42 @@ sealed interface PluginManageItem : ListModel {
 		override fun areItemsTheSame(other: ListModel): Boolean = other is Plugin && name == other.name
 	}
 
+	/** One imported Tachiyomi/Mihon repository is one external plugin row. */
 	data class Tachiyomi(
-		val artifact: TachiyomiExtensionArtifact,
-		val installed: DirectTachiyomiInstalled?,
-		val errorMessage: String? = null,
+		val repositoryUrl: String,
+		val artifacts: List<TachiyomiExtensionArtifact>,
+		val installed: List<DirectTachiyomiInstalled>,
+		val failures: List<DirectTachiyomiFailure>,
 	) : PluginManageItem {
-		val displayName: String get() = artifact.name
-		val isInstalled: Boolean get() = installed != null
-		val hasUpdate: Boolean get() = installed != null && artifact.versionCode != null && artifact.versionCode > installed.versionCode
-		val isCompatible: Boolean get() = artifact.extensionLib == null || artifact.extensionLib in 1.4..1.6
-		val sourceSummary: String get() =
-			buildList {
-				artifact.versionName?.let { add(it) }
-				if (artifact.sourceCount > 0) add("${artifact.sourceCount} sources")
-				artifact.extensionLib?.let { add("lib $it") }
-				installed?.let { add("installed ${it.versionName}") }
-			}.joinToString(" • ")
+		val repositoryLabel: String
+			get() =
+				runCatching {
+					val uri = URI(repositoryUrl)
+					val segments =
+						uri.path
+							.trim('/')
+							.split('/')
+							.filter { it.isNotBlank() }
+					when (uri.host?.lowercase()) {
+						"raw.githubusercontent.com" -> segments.take(2).joinToString("/")
+						"github.com", "www.github.com" -> segments.take(2).joinToString("/")
+						else -> uri.host.orEmpty().ifBlank { repositoryUrl }
+					}
+				}.getOrDefault(repositoryUrl)
 
-		override fun areItemsTheSame(other: ListModel): Boolean = other is Tachiyomi && artifact.packageName == other.artifact.packageName
+		val displayName: String
+			get() = repositoryLabel.substringBefore('/').ifBlank { "Tachiyomi/Mihon" }
+
+		val extensionCount: Int
+			get() = artifacts.size
+
+		val installedCount: Int
+			get() = installed.size
+
+		val hasFailures: Boolean
+			get() = failures.isNotEmpty()
+
+		override fun areItemsTheSame(other: ListModel): Boolean = other is Tachiyomi && repositoryUrl == other.repositoryUrl
 	}
 
 	data class Placeholder(

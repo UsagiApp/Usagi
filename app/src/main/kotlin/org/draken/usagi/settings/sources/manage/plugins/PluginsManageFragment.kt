@@ -80,7 +80,6 @@ class PluginsManageFragment :
 			PluginManageAdapter(
 				onRenameClick = ::onRenameClick,
 				onUpdateClick = ::onUpdateClick,
-				onTachiyomiClick = ::onTachiyomiClick,
 				onTachiyomiRemoveClick = ::onTachiyomiRemoveClick,
 				onLongClick = ::onLongClick,
 				onClick = ::onClick,
@@ -268,18 +267,6 @@ class PluginsManageFragment :
 				}
 			}
 		}.show()
-	}
-
-	private fun onTachiyomiClick(item: PluginManageItem.Tachiyomi) {
-		if (item.isInstalled && !item.hasUpdate) {
-			viewLifecycleOwner.lifecycleScope.launch {
-				showImportResult(viewModel.removeTachiyomi(item))
-			}
-			return
-		}
-		viewLifecycleOwner.lifecycleScope.launch {
-			showImportResult(viewModel.installTachiyomi(item))
-		}
 	}
 
 	private fun onUpdateClick(item: PluginManageItem.Plugin) {
