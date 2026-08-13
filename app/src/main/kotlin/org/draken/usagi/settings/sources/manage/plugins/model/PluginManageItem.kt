@@ -29,6 +29,7 @@ sealed interface PluginManageItem : ListModel {
 		val artifacts: List<TachiyomiExtensionArtifact>,
 		val installed: List<DirectTachiyomiInstalled>,
 		val failures: List<DirectTachiyomiFailure>,
+		val customName: String? = null,
 	) : PluginManageItem {
 		val repositoryLabel: String
 			get() =
@@ -47,7 +48,7 @@ sealed interface PluginManageItem : ListModel {
 				}.getOrDefault(repositoryUrl)
 
 		val displayName: String
-			get() = repositoryLabel.substringBefore('/').ifBlank { "Tachiyomi/Mihon" }
+			get() = customName?.trim()?.takeIf { it.isNotBlank() } ?: repositoryLabel.substringBefore('/').ifBlank { "Tachiyomi/Mihon" }
 
 		val extensionCount: Int
 			get() = artifacts.size

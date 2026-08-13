@@ -32,17 +32,5 @@
 		app:subtitle="@string/folder_with_images_import_description"
 		app:title="@string/folder_with_images" />
 
-	<org.draken.usagi.core.ui.widgets.TwoLinesItemView
-		android:id="@+id/button_tachiyomi"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:drawablePadding="?android:listPreferredItemPaddingStart"
-		android:minHeight="?android:listPreferredItemHeightSmall"
-		android:paddingStart="?android:listPreferredItemPaddingStart"
-		android:paddingEnd="?android:listPreferredItemPaddingEnd"
-		app:icon="@drawable/ic_open_external"
-		app:subtitle="@string/import_tachiyomi_summary"
-		app:title="@string/import_tachiyomi" />
-
 
 </LinearLayout>

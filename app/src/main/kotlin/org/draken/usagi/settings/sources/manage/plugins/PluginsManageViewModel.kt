@@ -179,7 +179,7 @@ class PluginsManageViewModel
 			}
 		}
 
-		fun import(
+		fun importUrl(
 			askInput: suspend () -> String?,
 			askSelect: suspend (List<String>) -> Int?,
 			askOverwrite: suspend (String) -> Boolean,
@@ -188,26 +188,42 @@ class PluginsManageViewModel
 			launchJob(Dispatchers.Default) {
 				val input = askInput()?.trim()?.takeIf { it.isNotBlank() } ?: return@launchJob
 				val releases = resolveGithubReleases(input)
-				if (releases.isEmpty()) {
-					withContext(Dispatchers.Main) { onResult(false) }
+				if (releases.isNotEmpty()) {
+					val select =
+						if (releases.size > 1) {
+							val index = askSelect(releases.map { it.fileName }) ?: return@launchJob
+							releases.getOrNull(index) ?: return@launchJob
+						} else {
+							releases.firstOrNull() ?: return@launchJob
+						}
+
+					val name = PluginFileLoader.resolve(select.fileName)
+					if (isInstalled(name) && !askOverwrite(name)) return@launchJob
+					val success = importFromGithub(select, name)
+					withContext(Dispatchers.Main) { onResult(success) }
 					return@launchJob
 				}
 
-				val select =
-					if (releases.size > 1) {
-						val index = askSelect(releases.map { it.fileName }) ?: return@launchJob
-						releases.getOrNull(index) ?: return@launchJob
-					} else {
-						releases.firstOrNull() ?: return@launchJob
-					}
-
-				val name = PluginFileLoader.resolve(select.fileName)
-				if (isInstalled(name) && !askOverwrite(name)) return@launchJob
-
-				val success = importFromGithub(select, name)
+				val artifacts = catalogProvider.load(input)
+				val success = artifacts.isNotEmpty()
+				if (success) {
+					catalogProvider.saveRepository(input)
+					artifacts.forEach { catalogProvider.restorePackage(it.packageName) }
+					refreshTachiyomiItems(catalogProvider.loadSaved() + artifacts)
+				}
 				withContext(Dispatchers.Main) { onResult(success) }
 			}
 		}
+
+		suspend fun renameTachiyomi(
+			item: PluginManageItem.Tachiyomi,
+			name: String,
+		): Boolean =
+			withContext(Dispatchers.Default) {
+				catalogProvider.setRepositoryName(item.repositoryUrl, name)
+				refresh()
+				true
+			}
 
 		suspend fun updatePlugin(item: PluginManageItem.Plugin): Boolean {
 			val repository = item.repository ?: return false
@@ -289,6 +305,7 @@ class PluginsManageViewModel
 						artifacts = repositoryArtifacts,
 						installed = repositoryInstalled,
 						failures = failures.filter { it.packageName in packageNames },
+						customName = catalogProvider.repositoryName(repositoryUrl),
 					)
 				}
 			tachiyomiSnapshot = items.sortedBy { it.displayName.lowercase() }

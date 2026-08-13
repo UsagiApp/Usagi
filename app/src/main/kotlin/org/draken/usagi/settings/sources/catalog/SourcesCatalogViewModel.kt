@@ -89,7 +89,7 @@ class SourcesCatalogViewModel
 						.groupBy { it.repositoryUrl }
 						.keys
 						.forEach { repositoryUrl ->
-							put(repositoryUrl, SourceCatalogPlugin(repositoryUrl, tachiyomiPluginLabel(repositoryUrl)))
+							put(repositoryUrl, SourceCatalogPlugin(repositoryUrl, catalogProvider.repositoryName(repositoryUrl) ?: tachiyomiPluginLabel(repositoryUrl)))
 						}
 				}.values.sortedBy { it.label.lowercase(Locale.ROOT) }
 

@@ -80,7 +80,7 @@ class PluginsManageFragment :
 			PluginManageAdapter(
 				onRenameClick = ::onRenameClick,
 				onUpdateClick = ::onUpdateClick,
-				onTachiyomiRemoveClick = ::onTachiyomiRemoveClick,
+				onTachiyomiRenameClick = ::onTachiyomiRenameClick,
 				onLongClick = ::onLongClick,
 				onClick = ::onClick,
 				isSelected = { item -> viewModel.isSelected(item.name) },
@@ -175,8 +175,9 @@ class PluginsManageFragment :
 		binding.buttonFile.title = getString(R.string.load_from_storage)
 		binding.buttonFile.subtitle = getString(R.string.load_storage_summary)
 		binding.buttonFile.setIconResource(R.drawable.ic_storage)
-		binding.buttonDir.title = getString(R.string.import_from_github)
-		binding.buttonDir.subtitle = getString(R.string.import_github_summary)
+		binding.buttonDir.title = getString(R.string.import_from_url)
+		binding.buttonDir.subtitle = getString(R.string.import_url_summary)
+
 		binding.buttonDir.setIconResource(R.drawable.ic_open_external)
 		val dialog =
 			buildAlertDialog(requireContext()) {
@@ -190,21 +191,14 @@ class PluginsManageFragment :
 		}
 		binding.buttonDir.setOnClickListener {
 			dialog.dismiss()
-			viewModel.import(
-				askInput = { askText(R.string.import_from_github, "", null) },
+			viewModel.importUrl(
+				askInput = { askText(R.string.import_from_url, "", R.string.import_url_summary) },
 				askSelect = ::askSelect,
 				askOverwrite = ::askOverwrite,
 				onResult = ::showImportResult,
 			)
 		}
-		binding.buttonTachiyomi.setOnClickListener {
-			dialog.dismiss()
-			viewLifecycleOwner.lifecycleScope.launch {
-				val input = askText(R.string.import_tachiyomi, "https://github.com/keiyoushi/extensions", R.string.tachiyomi_catalog_input)
-				val success = if (input.isNullOrBlank()) false else viewModel.importRepository(input)
-				showImportResult(success)
-			}
-		}
+
 		dialog.show()
 	}
 
@@ -256,17 +250,20 @@ class PluginsManageFragment :
 		}.show()
 	}
 
-	private fun onTachiyomiRemoveClick(item: PluginManageItem.Tachiyomi) {
-		buildAlertDialog(requireContext()) {
-			setTitle(R.string.delete_plugin)
-			setMessage(getString(R.string.confirm_delete_plugin, item.displayName))
-			setNegativeButton(android.R.string.cancel, null)
-			setPositiveButton(R.string.delete) { _, _ ->
-				viewLifecycleOwner.lifecycleScope.launch {
-					showImportResult(viewModel.removeTachiyomi(item))
-				}
+	private fun onTachiyomiRenameClick(item: PluginManageItem.Tachiyomi) {
+		viewLifecycleOwner.lifecycleScope.launch {
+			val newName = askText(R.string.rename, item.displayName, R.string.plugin_name)
+			if (!newName.isNullOrBlank()) {
+				val success = viewModel.renameTachiyomi(item, newName)
+				val binding = viewBinding ?: return@launch
+				Snackbar
+					.make(
+						binding.recyclerView,
+						if (success) R.string.load_success else R.string.load_failed,
+						Snackbar.LENGTH_SHORT,
+					).show()
 			}
-		}.show()
+		}
 	}
 
 	private fun onUpdateClick(item: PluginManageItem.Plugin) {
@@ -339,7 +336,7 @@ class PluginsManageFragment :
 			suspendCancellableCoroutine { cont ->
 				val dialog =
 					buildAlertDialog(requireContext()) {
-						setTitle(R.string.import_from_github)
+						setTitle(R.string.import_from_url)
 						setItems(fileNames.toTypedArray()) { _, w -> if (cont.isActive) cont.resume(w) }
 						setNegativeButton(android.R.string.cancel) { _, _ -> if (cont.isActive) cont.resume(null) }
 					}

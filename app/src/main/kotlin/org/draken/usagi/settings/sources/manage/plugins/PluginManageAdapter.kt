@@ -17,14 +17,14 @@ import org.draken.usagi.settings.sources.manage.plugins.model.PluginManageItem
 class PluginManageAdapter(
 	onRenameClick: (PluginManageItem.Plugin) -> Unit,
 	onUpdateClick: (PluginManageItem.Plugin) -> Unit,
-	onTachiyomiRemoveClick: (PluginManageItem.Tachiyomi) -> Unit,
+	onTachiyomiRenameClick: (PluginManageItem.Tachiyomi) -> Unit,
 	onLongClick: (PluginManageItem.Plugin) -> Unit,
 	onClick: (PluginManageItem.Plugin) -> Unit,
 	isSelected: (PluginManageItem.Plugin) -> Boolean,
 ) : BaseListAdapter<ListModel>() {
 	init {
 		addDelegate(ListItemType.CHAPTER_LIST, pluginItemDelegate(onRenameClick, onUpdateClick, onLongClick, onClick, isSelected))
-		addDelegate(ListItemType.INFO, tachiyomiItemDelegate(onTachiyomiRemoveClick))
+		addDelegate(ListItemType.INFO, tachiyomiItemDelegate(onTachiyomiRenameClick))
 		addDelegate(ListItemType.HINT_EMPTY, pluginPlaceholderDelegate())
 	}
 
@@ -60,7 +60,6 @@ class PluginManageAdapter(
 			binding.textViewDescription.text =
 				buildList {
 					item.repository?.takeIf { it.isNotBlank() }?.let { add(repositoryLabel(it)) } ?: add(item.name)
-					add(context.getString(if (item.repository.isNullOrBlank()) R.string.local_plugin else R.string.github_plugin))
 					item.installedTag?.takeIf { it.isNotBlank() }?.let(::add)
 				}.joinToString(" • ")
 			binding.imageViewAdd.isVisible = item.hasUpdate
@@ -69,13 +68,14 @@ class PluginManageAdapter(
 	}
 
 	private fun tachiyomiItemDelegate(
-		onRemoveClick: (PluginManageItem.Tachiyomi) -> Unit,
+		onRenameClick: (PluginManageItem.Tachiyomi) -> Unit,
 	) = adapterDelegateViewBinding<PluginManageItem.Tachiyomi, ListModel, ItemSourceConfigBinding>(
 		{ layoutInflater, parent -> ItemSourceConfigBinding.inflate(layoutInflater, parent, false) },
 	) {
 		binding.imageViewIcon.background = null
-		binding.imageViewMenu.setImageResource(R.drawable.ic_delete)
-		binding.imageViewMenu.contentDescription = context.getString(R.string.delete)
+		binding.imageViewMenu.setImageResource(R.drawable.ic_edit)
+		binding.imageViewMenu.contentDescription = context.getString(R.string.rename)
+
 		binding.imageViewRemove.isVisible = false
 		binding.imageViewAdd.isVisible = false
 		itemView.setOnLongClickListener(null)
@@ -92,12 +92,13 @@ class PluginManageAdapter(
 				binding.imageViewIcon.setImageAsync(iconUrl)
 			}
 			binding.imageViewMenu.isVisible = true
-			binding.imageViewMenu.setOnClickListener { onRemoveClick(item) }
+			binding.imageViewMenu.setOnClickListener { onRenameClick(item) }
+
 			binding.textViewTitle.text = item.displayName
 			binding.textViewDescription.text =
 				buildList {
 					add(item.repositoryLabel)
-					add(context.getString(R.string.external_tachiyomi_plugin))
+					add(context.getString(R.string.external_source))
 					add(context.getString(R.string.tachiyomi_repository_extension_count, item.extensionCount, item.installedCount))
 					if (item.hasFailures) add(context.getString(R.string.load_failed))
 				}.joinToString(" • ")

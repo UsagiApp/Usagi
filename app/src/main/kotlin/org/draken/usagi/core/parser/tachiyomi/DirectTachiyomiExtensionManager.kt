@@ -586,6 +586,7 @@ data class DirectTachiyomiFailure(
 
 private const val CATALOG_KEY_REPOSITORIES = "repositories"
 private const val CATALOG_KEY_IGNORED_PACKAGES = "ignored_packages"
+private const val CATALOG_KEY_REPOSITORY_NAMES = "repository_names"
 
 @Singleton
 class TachiyomiExtensionCatalogProvider
@@ -602,10 +603,31 @@ class TachiyomiExtensionCatalogProvider
 			preferences.edit { putStringSet(CATALOG_KEY_REPOSITORIES, current + normalized) }
 		}
 
+		fun repositoryName(input: String): String? {
+			val normalized = normalizeUrl(input) ?: return null
+			val names = runCatching { JSONObject(preferences.getString(CATALOG_KEY_REPOSITORY_NAMES, "{}").orEmpty()) }.getOrNull() ?: return null
+			return names.optString(normalized).takeIf { it.isNotBlank() }
+		}
+
+		fun setRepositoryName(
+			input: String,
+			name: String?,
+		) {
+			val normalized = normalizeUrl(input) ?: return
+			val names = runCatching { JSONObject(preferences.getString(CATALOG_KEY_REPOSITORY_NAMES, "{}").orEmpty()) }.getOrElse { JSONObject() }
+			if (name.isNullOrBlank()) names.remove(normalized) else names.put(normalized, name.trim())
+			preferences.edit { putString(CATALOG_KEY_REPOSITORY_NAMES, names.toString()) }
+		}
+
 		fun removeRepository(input: String) {
 			val normalized = normalizeUrl(input) ?: return
 			val current = preferences.getStringSet(CATALOG_KEY_REPOSITORIES, emptySet()).orEmpty()
-			preferences.edit { putStringSet(CATALOG_KEY_REPOSITORIES, current - normalized) }
+			val names = runCatching { JSONObject(preferences.getString(CATALOG_KEY_REPOSITORY_NAMES, "{}").orEmpty()) }.getOrElse { JSONObject() }
+			names.remove(normalized)
+			preferences.edit {
+				putStringSet(CATALOG_KEY_REPOSITORIES, current - normalized)
+				putString(CATALOG_KEY_REPOSITORY_NAMES, names.toString())
+			}
 		}
 
 		fun ignorePackage(packageName: String) {
