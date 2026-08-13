@@ -196,7 +196,6 @@ class PluginsManageFragment :
 			dialog.dismiss()
 			viewModel.importUrl(
 				askInput = { askText(R.string.import_from_url, "", R.string.import_url_summary) },
-				askSelect = ::askSelect,
 				askOverwrite = ::askOverwrite,
 				onResult = ::showImportResult,
 			)
@@ -340,20 +339,6 @@ class PluginsManageFragment :
 				dialog.setOnCancelListener {
 					if (cont.isActive) cont.resume(null)
 				}
-				dialog.show()
-			}
-		}
-
-	private suspend fun askSelect(fileNames: List<String>): Int? =
-		withContext(Dispatchers.Main) {
-			suspendCancellableCoroutine { cont ->
-				val dialog =
-					buildAlertDialog(requireContext()) {
-						setTitle(R.string.import_from_url)
-						setItems(fileNames.toTypedArray()) { _, w -> if (cont.isActive) cont.resume(w) }
-						setNegativeButton(android.R.string.cancel) { _, _ -> if (cont.isActive) cont.resume(null) }
-					}
-				dialog.setOnCancelListener { if (cont.isActive) cont.resume(null) }
 				dialog.show()
 			}
 		}
