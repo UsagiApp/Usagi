@@ -313,9 +313,18 @@ class PluginsManageViewModel
 
 		private fun refreshTachiyomiItems(artifacts: List<TachiyomiExtensionArtifact>) {
 			val failures = directManager.failed.value
-			val installed = directManager.installed.value
-			val artifactsByRepository = artifacts.groupBy { it.repositoryUrl }
-			val installedByRepository = installed.groupBy { record -> record.repositoryUrl.ifBlank { "installed://${record.packageName}" } }
+			val installed = directManager.installed.value.distinctBy { it.packageName }
+			val uniqueArtifacts = artifacts.distinctBy { it.packageName }
+			val artifactRepositoryByPackage = uniqueArtifacts.associate { it.packageName to canonicalRepository(it.repositoryUrl) }
+			val artifactsByRepository = uniqueArtifacts.groupBy { canonicalRepository(it.repositoryUrl) }
+			val installedByRepository =
+				installed.groupBy { record ->
+					record.repositoryUrl
+						.takeIf { it.isNotBlank() }
+						?.let(::canonicalRepository)
+						?: artifactRepositoryByPackage[record.packageName]
+						?: INSTALLED_REPOSITORY_FALLBACK
+				}
 			val repositories = (artifactsByRepository.keys + installedByRepository.keys).distinct()
 			val items =
 				repositories.map { repositoryUrl ->
@@ -333,6 +342,8 @@ class PluginsManageViewModel
 			tachiyomiSnapshot = items.sortedBy { it.displayName.lowercase() }
 			publishFiltered()
 		}
+
+		private fun canonicalRepository(value: String): String = catalogProvider.normalizeUrl(value) ?: value.trim().removeSuffix("/")
 
 		private fun publishFiltered() {
 			val all: List<PluginManageItem> = pluginsSnapshot + tachiyomiSnapshot
@@ -381,5 +392,6 @@ class PluginsManageViewModel
 
 		private companion object {
 			const val TACHIYOMI_SELECTION_PREFIX = "tachiyomi:"
+			const val INSTALLED_REPOSITORY_FALLBACK = "installed://direct"
 		}
 	}

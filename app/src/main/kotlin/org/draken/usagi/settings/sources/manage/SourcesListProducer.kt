@@ -76,7 +76,6 @@ class SourcesListProducer
 				repository.getEnabledSources().filter {
 					val unwrapped = it.unwrap()
 					unwrapped !is org.draken.usagi.core.parser.external.ExternalMangaSource &&
-						unwrapped !is org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource &&
 						unwrapped !is org.draken.usagi.core.model.LocalMangaSource &&
 						unwrapped !is org.draken.usagi.core.model.TestMangaSource &&
 						unwrapped !is org.draken.usagi.core.model.UnknownMangaSource
