@@ -3,14 +3,9 @@ package org.draken.usagi.settings.sources.manage.plugins
 import android.annotation.SuppressLint
 import android.view.View
 import androidx.core.view.isVisible
-import coil3.ImageLoader
-import coil3.request.ImageRequest
-import coil3.request.crossfade
-import coil3.toAndroidUri
 import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateViewBinding
 import org.draken.usagi.R
 import org.draken.usagi.core.ui.BaseListAdapter
-import org.draken.usagi.core.ui.image.FaviconDrawable
 import org.draken.usagi.core.util.ext.setTextAndVisible
 import org.draken.usagi.databinding.ItemEmptyHintBinding
 import org.draken.usagi.databinding.ItemSourceConfigBinding
@@ -76,18 +71,10 @@ class PluginManageAdapter(
 				if (item.hasUpdate) View.OnClickListener { onUpdateClick(item) } else null,
 			)
 
-			// Load GitHub avatar if available
+			// Load GitHub avatar if available, otherwise use default icon
 			val avatarUrl = item.avatarUrl
 			if (avatarUrl != null) {
-				val request = ImageRequest.Builder(context)
-					.data(avatarUrl.toAndroidUri())
-					.crossfade(true)
-					.target { drawable ->
-						binding.imageViewIcon.setImageDrawable(drawable)
-						binding.imageViewIcon.background = null
-					}
-					.build()
-				ImageLoader(context).enqueue(request)
+				binding.imageViewIcon.setImageAsync(avatarUrl)
 			} else {
 				binding.imageViewIcon.setImageResource(R.drawable.ic_services)
 				binding.imageViewIcon.background = null
