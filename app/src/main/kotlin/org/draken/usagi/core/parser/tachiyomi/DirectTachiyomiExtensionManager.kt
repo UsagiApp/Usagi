@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
 
 @Singleton
 class DirectTachiyomiExtensionManager
@@ -419,12 +420,23 @@ class DirectTachiyomiExtensionManager
 			versionName: String,
 		): Double? {
 			val raw = runCatching { metadata.get(METADATA_EXTENSION_LIB) }.getOrNull()
-			return when (raw) {
-				is Number -> raw.toDouble()
-				is String -> raw.toDoubleOrNull()
-				else -> versionName.substringBeforeLast('.').toDoubleOrNull()
-			}
+			val parsed =
+				when (raw) {
+					is Number -> raw.toDouble()
+					is String -> raw.toDoubleOrNull()
+					else -> versionName.substringBeforeLast('.').toDoubleOrNull()
+				}
+			return normalizeLibVersion(parsed)
 		}
+
+		private fun normalizeLibVersion(value: Double?): Double? =
+			value?.let {
+				when {
+					abs(it - 1.4) < 0.01 -> 1.4
+					abs(it - 1.6) < 0.01 -> 1.6
+					else -> it
+				}
+			}
 
 		companion object {
 			private const val DIRECT_DIR = "tachiyomi-direct"
