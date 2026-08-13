@@ -24,8 +24,10 @@ sealed interface SourceCatalogItem : ListModel {
 		val source: TachiyomiCatalogSource,
 		val artifact: TachiyomiExtensionArtifact,
 		val installed: DirectTachiyomiInstalled?,
+		val isLoaded: Boolean,
 	) : SourceCatalogItem {
 		val isInstalled: Boolean get() = installed != null
+
 		val hasUpdate: Boolean get() = installed != null && artifact.versionCode != null && artifact.versionCode > installed.versionCode
 		val contentRating: TachiyomiContentRating
 			get() = source.contentRating.takeUnless { it == TachiyomiContentRating.UNSPECIFIED } ?: artifact.contentRating

@@ -80,8 +80,10 @@ class MangaSourcesRepository
 					sortOrder = order,
 					hideBrokenSources = settings.isBrokenSourcesHidden,
 				).let { enabled ->
-					val external = getAllExtSources()
+					val disabledTachiyomi = getDisabledTachiyomiSourceNames()
+					val external = getAllExtSources().filterNot { it is ExternalSource && it.name in disabledTachiyomi }
 					val list = ArrayList<MangaSourceInfo>(enabled.size + external.size)
+
 					external.mapTo(list) { MangaSourceInfo(it, isEnabled = true, isPinned = true) }
 					list.addAll(enabled)
 					list
@@ -226,13 +228,22 @@ class MangaSourcesRepository
 				dao.observeAll(!allEnabled, order).map {
 					it.toSources(skipNsfw, order, hideBroken)
 				}
-			}.flattenLatest().combine(observeExternalSources()) { enabled, external ->
-				val external = external + getSpecialSources()
-				val list = ArrayList<MangaSourceInfo>(enabled.size + external.size)
-				external.mapTo(list) { MangaSourceInfo(it, isEnabled = true, isPinned = true) }
-				list.addAll(enabled)
-				list
-			}
+			}.flattenLatest()
+				.combine(observeExternalSources()) { enabled, external -> enabled to external }
+				.combine(dao.observeAll()) { (enabled, external), entities ->
+					val disabledTachiyomi =
+						entities
+							.asSequence()
+							.filterNot { it.isEnabled }
+							.map { it.source }
+							.toSet()
+					val allExternal = external + getSpecialSources().filterNot { it.name in disabledTachiyomi }
+					val list = ArrayList<MangaSourceInfo>(enabled.size + allExternal.size)
+
+					allExternal.mapTo(list) { MangaSourceInfo(it, isEnabled = true, isPinned = true) }
+					list.addAll(enabled)
+					list
+				}
 
 		fun observeAll(): Flow<List<Pair<MangaSource, Boolean>>> =
 			combine(
@@ -260,9 +271,11 @@ class MangaSourcesRepository
 		}
 
 		suspend fun disableAllSources() {
+			val tachiyomiSources = getSpecialSources()
 			db.withTransaction {
 				assimilateNewSources()
 				dao.disableAllSources()
+				tachiyomiSources.forEach { dao.setEnabled(it.name, false) }
 			}
 		}
 
@@ -451,6 +464,14 @@ class MangaSourcesRepository
 		private fun getSpecialSources(): List<ExternalSource> = allMangaSources.filterIsInstance<ExternalSource>()
 
 		private fun getAllExtSources(): List<MangaSource> = getExternalSources() + getSpecialSources()
+
+		private suspend fun getDisabledTachiyomiSourceNames(): Set<String> =
+			dao
+				.findAll()
+				.asSequence()
+				.filterNot { it.isEnabled }
+				.map { it.source }
+				.toSet()
 
 		private fun List<MangaSourceEntity>.toSources(
 			skipNsfwSources: Boolean,

@@ -139,7 +139,7 @@ class SourcesCatalogActivity :
 	}
 
 	private fun installTachiyomi(item: SourceCatalogItem.Tachiyomi) {
-		if (item.isInstalled && !item.hasUpdate) return
+		if (item.isLoaded && !item.hasUpdate) return
 		lifecycleScope.launch {
 			val success = viewModel.installTachiyomi(item)
 			if (success) {

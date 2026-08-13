@@ -122,6 +122,7 @@ class SourceSettingsViewModel
 		fun setEnabled(value: Boolean) {
 			launchJob(Dispatchers.Default) {
 				mangaSourcesRepository.setSourcesEnabled(setOf(source), value)
+				tachiyomiRuntime.ensureReady(forceRefresh = true)
 			}
 		}
 

@@ -2,10 +2,13 @@ package org.draken.usagi.core.parser.tachiyomi
 
 import androidx.preference.PreferenceScreen
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource
+import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.model.MangaSourceRegistry
+import org.draken.usagi.core.prefs.AppSettings
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -17,15 +20,35 @@ class TachiyomiRuntime
 	constructor(
 		private val installedManager: InstalledManager,
 		private val directManager: DirectTachiyomiExtensionManager,
+		private val database: MangaDatabase,
+		private val settings: AppSettings,
 	) {
+		private val disabledSourceNames = MutableStateFlow<Set<String>>(emptySet())
+
 		val sources: Flow<List<TachiyomiMangaSource>> =
-			combine(installedManager.sources, directManager.sources) { installed, direct ->
-				(direct + installed).distinctBy { it.sourceId }
+			combine(installedManager.sources, directManager.sources, disabledSourceNames) { installed, direct, disabled ->
+				(direct + installed).distinctBy { it.sourceId }.filterNot { it.name in disabled }
 			}.distinctUntilChanged()
+
+		suspend fun refreshSourceState() {
+			disabledSourceNames.value =
+				if (settings.isAllSourcesEnabled) {
+					emptySet()
+				} else {
+					database
+						.getSourcesDao()
+						.findAll()
+						.asSequence()
+						.filterNot { it.isEnabled }
+						.map { it.source }
+						.toSet()
+				}
+		}
 
 		suspend fun ensureReady(forceRefresh: Boolean = false) {
 			installedManager.ensureReady(forceRefresh)
 			directManager.ensureReady(forceRefresh)
+			refreshSourceState()
 			syncRegistry()
 		}
 
@@ -34,9 +57,13 @@ class TachiyomiRuntime
 			MangaSourceRegistry.publish(nonTachiyomi + getActiveSources())
 		}
 
-		fun getActiveSources(): List<TachiyomiMangaSource> = merge(installedManager.getActiveSources(), directManager.getActiveSources())
+		fun getActiveSources(): List<TachiyomiMangaSource> =
+			merge(installedManager.getActiveSources(), directManager.getActiveSources())
+				.filterNot { it.name in disabledSourceNames.value }
 
 		fun getSourceByName(name: String): TachiyomiMangaSource? = directManager.getSourceByName(name) ?: installedManager.getSourceByName(name)
+
+		fun getSourceById(id: Long): TachiyomiMangaSource? = directManager.getSourceById(id) ?: installedManager.getSourceById(id)
 
 		fun resolve(source: TachiyomiMangaSource): TachiyomiMangaSource = if (directManager.owns(source)) directManager.resolve(source) else installedManager.resolve(source)
 

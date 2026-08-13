@@ -74,7 +74,7 @@ fun sourceCatalogItemTachiyomiAD(
 		binding.imageViewAdd.setImageResource(
 			if (item.hasUpdate) {
 				R.drawable.ic_updated
-			} else if (item.isInstalled) {
+			} else if (item.isLoaded) {
 				R.drawable.ic_check
 			} else {
 				R.drawable.ic_download
@@ -84,7 +84,7 @@ fun sourceCatalogItemTachiyomiAD(
 			context.getString(
 				if (item.hasUpdate) {
 					R.string.update
-				} else if (item.isInstalled) {
+				} else if (item.isLoaded) {
 					R.string.installed
 				} else {
 					R.string.add

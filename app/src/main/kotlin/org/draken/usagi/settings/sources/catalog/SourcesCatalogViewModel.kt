@@ -95,15 +95,20 @@ class SourcesCatalogViewModel
 
 		val contentTypes = MutableStateFlow<List<ContentType>>(emptyList())
 
+		private val tachiyomiState =
+			combine(directManager.installed, tachiyomiRuntime.sources) { installed, loaded ->
+				installed to loaded.map { it.sourceId }.toSet()
+			}
+
 		val content: StateFlow<List<ListModel>> =
 			combine(
 				searchQuery,
 				appliedFilter,
 				db.invalidationTracker.createFlow(TABLE_SOURCES),
 				tachiyomiCatalog,
-				directManager.installed,
-			) { query, filter, _, artifacts, installed ->
-				buildSourcesList(filter, query, artifacts, installed)
+				tachiyomiState,
+			) { query, filter, _, artifacts, (installed, loaded) ->
+				buildSourcesList(filter, query, artifacts, installed, loaded)
 			}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, listOf(LoadingState))
 
 		init {
@@ -139,6 +144,12 @@ class SourcesCatalogViewModel
 
 		suspend fun installTachiyomi(item: SourceCatalogItem.Tachiyomi): Boolean =
 			runCatching {
+				if (item.isInstalled && !item.hasUpdate && !item.isLoaded) {
+					val source = tachiyomiRuntime.getSourceById(item.source.id) ?: return@runCatching false
+					repository.setSourcesEnabled(setOf(source), true)
+					tachiyomiRuntime.ensureReady(forceRefresh = true)
+					return@runCatching true
+				}
 				val installed = directManager.install(item.artifact)
 				if (installed) tachiyomiRuntime.ensureReady(forceRefresh = true)
 
@@ -176,6 +187,7 @@ class SourcesCatalogViewModel
 			query: String?,
 			artifacts: List<TachiyomiExtensionArtifact>,
 			installed: List<DirectTachiyomiInstalled>,
+			loadedSourceIds: Set<Long>,
 		): List<SourceCatalogItem> {
 			val sources =
 				repository.queryParserSources(
@@ -204,7 +216,12 @@ class SourcesCatalogViewModel
 							if (filter.plugin != null && artifact.repositoryUrl != filter.plugin) return@mapNotNull null
 
 							if (!query.isNullOrBlank() && !source.name.contains(query, true) && !artifact.name.contains(query, true) && !artifact.packageName.contains(query, true)) return@mapNotNull null
-							SourceCatalogItem.Tachiyomi(source, artifact, installedByPackage[artifact.packageName])
+							SourceCatalogItem.Tachiyomi(
+								source = source,
+								artifact = artifact,
+								installed = installedByPackage[artifact.packageName],
+								isLoaded = source.id in loadedSourceIds,
+							)
 						}
 					}
 				}

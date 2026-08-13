@@ -195,6 +195,8 @@ class DirectTachiyomiExtensionManager
 
 		fun getSourceByName(name: String): TachiyomiMangaSource? = sourceByName[name]
 
+		fun getSourceById(id: Long): TachiyomiMangaSource? = sourceById[id]
+
 		fun resolve(source: TachiyomiMangaSource): TachiyomiMangaSource = resolver.resolve(source, _sources.value)
 
 		fun getLanguage(source: TachiyomiMangaSource): List<TachiyomiMangaSource> = resolver.getVariants(source, _sources.value)
