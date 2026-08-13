@@ -26,6 +26,7 @@ import okio.Path.Companion.toOkioPath
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.CloudFlareProtectedException
 import org.draken.usagi.core.model.MangaSource
+import org.draken.usagi.core.model.PluginMangaSource
 import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
@@ -37,6 +38,7 @@ import org.draken.usagi.core.util.ext.toMimeTypeOrNull
 import org.draken.usagi.local.data.FaviconCache
 import org.draken.usagi.local.data.LocalMangaRepository
 import org.draken.usagi.local.data.LocalStorageCache
+import org.draken.usagi.settings.sources.manage.plugins.UpdatePluginsProvider
 import tsuki.util.runCatchingCancellable
 import java.io.File
 import javax.inject.Inject
@@ -49,9 +51,19 @@ class FaviconFetcher(
 	private val imageLoader: ImageLoader,
 	private val mangaRepositoryFactory: MangaRepository.Factory,
 	private val localStorageCache: LocalStorageCache,
+	private val updatePluginsProvider: UpdatePluginsProvider,
 ) : Fetcher {
 	override suspend fun fetch(): FetchResult? {
 		val mangaSource = MangaSource(uri.schemeSpecificPart)
+
+		// Check for GitHub avatar for plugin sources
+		if (mangaSource is PluginMangaSource) {
+			val jarName = mangaSource.jarName
+			val avatarUrl = updatePluginsProvider.getAvatarUrl(jarName)
+			if (avatarUrl != null) {
+				return imageLoader.fetch(avatarUrl, options)
+			}
+		}
 
 		return when (val repo = mangaRepositoryFactory.create(mangaSource)) {
 			is MangaParserRepository -> fetchParserFavicon(repo)
@@ -167,6 +179,7 @@ class FaviconFetcher(
 		constructor(
 			private val mangaRepositoryFactory: MangaRepository.Factory,
 			@FaviconCache private val faviconCache: LocalStorageCache,
+			private val updatePluginsProvider: UpdatePluginsProvider,
 		) : Fetcher.Factory<CoilUri> {
 			override fun create(
 				data: CoilUri,
@@ -174,7 +187,7 @@ class FaviconFetcher(
 				imageLoader: ImageLoader,
 			): Fetcher? =
 				if (data.scheme == URI_SCHEME_FAVICON) {
-					FaviconFetcher(data.toAndroidUri(), options, imageLoader, mangaRepositoryFactory, faviconCache)
+					FaviconFetcher(data.toAndroidUri(), options, imageLoader, mangaRepositoryFactory, faviconCache, updatePluginsProvider)
 				} else {
 					null
 				}

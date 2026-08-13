@@ -63,7 +63,7 @@ class UpdatePluginsProvider
 									val release = requestRelease(info.repository, name) ?: return@async null
 									if (release.tag == info.tag) return@async null
 									if (replacePlugin(release.downloadUrl, File(pluginsDir, name))) {
-										name to RemoteReleaseDto(info.repository, release.tag)
+										name to RemoteReleaseDto(info.repository, release.tag, info.avatarUrl)
 									} else {
 										null
 									}
@@ -226,7 +226,7 @@ class UpdatePluginsProvider
 			tag: String,
 		) {
 			updateDto {
-				it[fileName] = RemoteReleaseDto(repository, tag)
+				it[fileName] = RemoteReleaseDto(repository, tag, repository.toGitHubAvatarUrl())
 			}
 		}
 
@@ -268,8 +268,11 @@ class UpdatePluginsProvider
 					val obj = json.optJSONObject(key) ?: continue
 					val repository = obj.optString(KEY_REPOSITORY)
 					val tag = obj.optString(KEY_TAG)
+					val avatarUrl =
+						obj.optString(KEY_AVATAR_URL).takeIf { it.isNotBlank() }
+							?: repository.toGitHubAvatarUrl()
 					if (repository.isNotBlank() && tag.isNotBlank()) {
-						out[key] = RemoteReleaseDto(repository, tag)
+						out[key] = RemoteReleaseDto(repository, tag, avatarUrl)
 					}
 				}
 				out
@@ -279,16 +282,23 @@ class UpdatePluginsProvider
 		fun writeDto(meta: Map<String, RemoteReleaseDto>) {
 			val json = JSONObject()
 			meta.forEach { (fileName, value) ->
-				json.put(
-					fileName,
+				val obj =
 					JSONObject()
 						.put(KEY_REPOSITORY, value.repository)
-						.put(KEY_TAG, value.tag),
-				)
+						.put(KEY_TAG, value.tag)
+				value.avatarUrl?.let { obj.put(KEY_AVATAR_URL, it) }
+				json.put(fileName, obj)
 			}
 			prefs.edit {
 				putString(PREFS_KEY, json.toString())
 			}
+		}
+
+		fun getAvatarUrl(fileName: String): String? = readDto()[fileName]?.avatarUrl
+
+		private fun String.toGitHubAvatarUrl(): String? {
+			val owner = split('/', limit = 2).firstOrNull()?.trim()
+			return if (owner.isNullOrBlank()) null else "https://github.com/$owner.png"
 		}
 
 		companion object {
@@ -296,6 +306,7 @@ class UpdatePluginsProvider
 			private const val PREFS_KEY = "github_meta"
 			private const val KEY_REPOSITORY = "repository"
 			private const val KEY_TAG = "tag"
+			private const val KEY_AVATAR_URL = "avatarUrl"
 			private const val COOLDOWN = 600000L // 10m
 			val REPOSITORY_REGEX = Regex("""^\s*([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?\s*$""")
 			val GITHUB_URL_REGEX =
