@@ -9,6 +9,7 @@ sealed interface PluginManageItem : ListModel {
 		val repository: String?,
 		val installedTag: String?,
 		val latestTag: String?,
+		val avatarUrl: String? = null,
 	) : PluginManageItem {
 		val displayName: String
 			get() = name.removeSuffix(".jar")

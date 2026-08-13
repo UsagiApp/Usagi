@@ -277,6 +277,7 @@ class PluginsManageViewModel
 					repository = itemMeta?.repository,
 					installedTag = itemMeta?.tag,
 					latestTag = null,
+					avatarUrl = itemMeta?.avatarUrl,
 				)
 			}
 		}
