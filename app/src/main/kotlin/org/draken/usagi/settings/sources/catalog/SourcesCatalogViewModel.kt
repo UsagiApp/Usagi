@@ -75,20 +75,23 @@ class SourcesCatalogViewModel
 				.observeHasNewSources()
 				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, false)
 
-		val plugins: List<String>
+		val plugins: List<SourceCatalogPlugin>
 			get() =
-				buildSet {
-					addAll(
-						repository.allMangaSources.mapNotNull {
-							(
-								it as? org.draken.usagi.core.model.PluginMangaSource
-									?: (it as? MangaSourceInfo)?.mangaSource as? org.draken.usagi.core.model.PluginMangaSource
-							)?.jarName
-						},
-					)
-					addAll(tachiyomiCatalog.value.map { it.name })
-					addAll(tachiyomiCatalog.value.map { it.packageName })
-				}.sorted()
+				buildMap {
+					repository.allMangaSources.forEach { source ->
+						val plugin =
+							(source as? org.draken.usagi.core.model.PluginMangaSource)
+								?: (source as? MangaSourceInfo)?.mangaSource as? org.draken.usagi.core.model.PluginMangaSource
+						plugin?.let { put(it.jarName, SourceCatalogPlugin(it.jarName, it.jarName.removeSuffix(".jar"))) }
+					}
+					tachiyomiCatalog
+						.value
+						.groupBy { it.repositoryUrl }
+						.keys
+						.forEach { repositoryUrl ->
+							put(repositoryUrl, SourceCatalogPlugin(repositoryUrl, tachiyomiPluginLabel(repositoryUrl)))
+						}
+				}.values.sortedBy { it.label.lowercase(Locale.ROOT) }
 
 		val contentTypes = MutableStateFlow<List<ContentType>>(emptyList())
 
@@ -193,7 +196,8 @@ class SourcesCatalogViewModel
 							if (settings.isNsfwContentDisabled && type == ContentType.HENTAI) return@mapNotNull null
 							if (filter.locale != null && source.language != filter.locale) return@mapNotNull null
 							if (filter.types.isNotEmpty() && type !in filter.types) return@mapNotNull null
-							if (filter.plugin != null && artifact.packageName != filter.plugin && artifact.name != filter.plugin) return@mapNotNull null
+							if (filter.plugin != null && artifact.repositoryUrl != filter.plugin) return@mapNotNull null
+
 							if (!query.isNullOrBlank() && !source.name.contains(query, true) && !artifact.name.contains(query, true) && !artifact.packageName.contains(query, true)) return@mapNotNull null
 							SourceCatalogItem.Tachiyomi(source, artifact, installedByPackage[artifact.packageName])
 						}
@@ -213,6 +217,21 @@ class SourcesCatalogViewModel
 			} else {
 				result
 			}
+		}
+
+		@WorkerThread
+		private fun tachiyomiPluginLabel(repositoryUrl: String): String {
+			val path =
+				runCatching {
+					java.net
+						.URI(repositoryUrl)
+						.path
+						.trim('/')
+						.split('/')
+						.filter { it.isNotBlank() }
+				}.getOrDefault(emptyList())
+			val owner = path.firstOrNull().orEmpty()
+			return owner.ifBlank { repositoryUrl } + " (Mihon)"
 		}
 
 		@WorkerThread
