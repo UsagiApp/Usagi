@@ -3,6 +3,7 @@ package org.draken.usagi.settings.sources.manage.plugins
 import android.annotation.SuppressLint
 import android.view.View
 import androidx.core.view.isVisible
+import com.google.android.material.shape.CornerFamily
 import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateViewBinding
 import org.draken.usagi.R
 import org.draken.usagi.core.ui.BaseListAdapter
@@ -41,8 +42,8 @@ class PluginManageAdapter(
 	) = adapterDelegateViewBinding<PluginManageItem.Plugin, ListModel, ItemSourceConfigBinding>(
 		{ layoutInflater, parent -> ItemSourceConfigBinding.inflate(layoutInflater, parent, false) },
 	) {
-		binding.imageViewIcon.setImageResource(R.drawable.ic_services)
 		binding.imageViewIcon.background = null
+
 		binding.imageViewMenu.isVisible = true
 		binding.imageViewMenu.setImageResource(R.drawable.ic_edit)
 		binding.imageViewMenu.contentDescription = context.getString(R.string.rename)
@@ -59,7 +60,18 @@ class PluginManageAdapter(
 
 		bind {
 			itemView.isSelected = isSelected(item)
+			val avatarUrl = item.repository?.takeIf { it.isNotBlank() }?.let(::githubAvatarUrl)
+			val fallback = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.displayName)
+			binding.imageViewIcon.errorDrawable = fallback
+			binding.imageViewIcon.fallbackDrawable = fallback
+			if (avatarUrl.isNullOrBlank()) {
+				binding.imageViewIcon.setImageResource(R.drawable.ic_services)
+			} else {
+				applyRemoteIconShape(binding.imageViewIcon, context)
+				binding.imageViewIcon.setImageAsync(avatarUrl)
+			}
 			binding.textViewTitle.text = item.displayName
+
 			binding.textViewDescription.text =
 				buildList {
 					item.repository?.takeIf { it.isNotBlank() }?.let { add(repositoryLabel(it)) } ?: add(item.name)
@@ -92,16 +104,14 @@ class PluginManageAdapter(
 
 		bind {
 			itemView.isSelected = isSelected(item)
+			applyRemoteIconShape(binding.imageViewIcon, context)
 			val fallback = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.repositoryLabel)
 
 			binding.imageViewIcon.errorDrawable = fallback
 			binding.imageViewIcon.fallbackDrawable = fallback
-			val iconUrl = item.artifacts.firstNotNullOfOrNull { it.iconUrl }
-			if (iconUrl.isNullOrBlank()) {
-				binding.imageViewIcon.setImageDrawable(fallback)
-			} else {
-				binding.imageViewIcon.setImageAsync(iconUrl)
-			}
+			val avatarUrl = githubAvatarUrl(item.repositoryLabel)
+			binding.imageViewIcon.setImageAsync(avatarUrl)
+
 			binding.imageViewMenu.isVisible = true
 			binding.imageViewMenu.setOnClickListener { onRenameClick(item) }
 
@@ -126,6 +136,22 @@ class PluginManageAdapter(
 				binding.textSecondary.setTextAndVisible(item.summaryResId ?: 0)
 			}
 		}
+
+	private fun githubAvatarUrl(repository: String): String? {
+		val owner = repositoryLabel(repository).substringBefore('/').trim()
+		return owner.takeIf { it.isNotBlank() }?.let { "https://github.com/$it.png" }
+	}
+
+	private fun applyRemoteIconShape(
+		imageView: org.draken.usagi.core.ui.image.FaviconView,
+		context: android.content.Context,
+	) {
+		imageView.shapeAppearanceModel =
+			imageView.shapeAppearanceModel
+				.toBuilder()
+				.setAllCorners(CornerFamily.ROUNDED, context.resources.getDimension(R.dimen.margin_small))
+				.build()
+	}
 
 	private fun repositoryLabel(repository: String): String =
 		repository
