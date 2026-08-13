@@ -159,7 +159,11 @@ class SourcesCatalogActivity :
 						Snackbar
 							.make(
 								viewBinding.recyclerView,
-								if (success) R.string.tachiyomi_catalog_loaded else R.string.tachiyomi_catalog_failed,
+								if (success) {
+									getString(R.string.tachiyomi_catalog_loaded)
+								} else {
+									listOfNotNull(getString(R.string.tachiyomi_catalog_failed), viewModel.tachiyomiCatalogError()).joinToString(": ")
+								},
 								Snackbar.LENGTH_LONG,
 							).show()
 					}

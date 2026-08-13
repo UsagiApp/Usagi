@@ -79,7 +79,8 @@ class DirectTachiyomiExtensionManager
 			installMutex.withLock {
 				withContext(Dispatchers.IO) {
 					val packageName = artifact.packageName.trim().takeIf { PACKAGE_REGEX.matches(it) } ?: return@withContext false
-					val staging = File(directory, "$packageName.partial")
+					val staging = File(directory, "$packageName.staging.apk")
+
 					val downloaded = File(directory, "$packageName.download")
 					val destination = File(directory, "$packageName.apk")
 					val backup = File(directory, "$packageName.backup")
@@ -257,7 +258,10 @@ class DirectTachiyomiExtensionManager
 		): TachiyomiLoadResult {
 			val packageInfo = getPackageInfo(file) ?: return TachiyomiLoadResult.Error(artifact.packageName, "Invalid extension archive")
 			val appInfo = packageInfo.applicationInfo ?: return TachiyomiLoadResult.Error(artifact.packageName, "Missing application info")
+			appInfo.sourceDir = file.absolutePath
+			appInfo.publicSourceDir = file.absolutePath
 			val metadata = appInfo.metaData ?: return TachiyomiLoadResult.Error(artifact.packageName, "Missing extension metadata")
+
 			val versionName = packageInfo.versionName ?: artifact.versionName ?: "0.0.0"
 			val libVersion =
 				readLibVersion(metadata, versionName) ?: artifact.extensionLib
@@ -273,7 +277,7 @@ class DirectTachiyomiExtensionManager
 			val effectiveRating = if (manifestRating != TachiyomiContentRating.UNSPECIFIED) manifestRating else artifact.contentRating
 			val loader =
 				runCatching {
-					ChildFirstPathClassLoader(file.absolutePath, appInfo.nativeLibraryDir, context.classLoader)
+					ChildFirstPathClassLoader(file.absolutePath, appInfo.nativeLibraryDir ?: context.applicationInfo.nativeLibraryDir, context.classLoader)
 				}.getOrElse { return TachiyomiLoadResult.Error(artifact.packageName, "Cannot create extension classloader", it) }
 			return runCatching {
 				val sources = loadSources(packageInfo.packageName, sourceClassNames, loader)
@@ -597,6 +601,10 @@ class TachiyomiExtensionCatalogProvider
 	) {
 		private val preferences by lazy { context.getSharedPreferences("tachiyomi_catalogs", Context.MODE_PRIVATE) }
 
+		@Volatile
+		var lastLoadError: String? = null
+			private set
+
 		fun saveRepository(input: String) {
 			val normalized = normalizeUrl(input) ?: return
 			val current = preferences.getStringSet(CATALOG_KEY_REPOSITORIES, emptySet()).orEmpty()
@@ -652,7 +660,13 @@ class TachiyomiExtensionCatalogProvider
 
 		suspend fun load(input: String): List<TachiyomiExtensionArtifact> =
 			withContext(Dispatchers.IO) {
-				for (url in candidateUrls(input)) {
+				val urls = candidateUrls(input)
+				if (urls.isEmpty()) {
+					lastLoadError = "Invalid repository URL"
+					return@withContext emptyList()
+				}
+				val errors = ArrayList<String>(urls.size)
+				for (url in urls) {
 					val request =
 						Request
 							.Builder()
@@ -662,12 +676,24 @@ class TachiyomiExtensionCatalogProvider
 					val result =
 						runCatching {
 							httpClient.newCall(request).execute().use { response ->
-								if (!response.isSuccessful) return@use emptyList<TachiyomiExtensionArtifact>()
-								parse(url, response.body?.string().orEmpty())
+								if (!response.isSuccessful) {
+									errors += "${response.code} ${response.message}"
+									return@use emptyList<TachiyomiExtensionArtifact>()
+								}
+								val parsed = parse(url, response.body?.string().orEmpty())
+								if (parsed.isEmpty()) errors += "Catalog has no supported extensions"
+								parsed
 							}
-						}.getOrDefault(emptyList())
-					if (result.isNotEmpty()) return@withContext result
+						}.getOrElse { error ->
+							errors += error.message ?: error.javaClass.simpleName
+							emptyList()
+						}
+					if (result.isNotEmpty()) {
+						lastLoadError = null
+						return@withContext result
+					}
 				}
+				lastLoadError = errors.lastOrNull() ?: "Catalog could not be parsed"
 				emptyList()
 			}
 

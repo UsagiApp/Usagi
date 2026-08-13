@@ -48,7 +48,7 @@
 			android:drawablePadding="4dp"
 			android:ellipsize="end"
 			android:gravity="center_vertical"
-			android:singleLine="true"
+			android:maxLines="2"
 			android:textAppearance="?attr/textAppearanceBodySmall"
 			tools:drawableStart="@drawable/ic_off_small"
 			tools:text="English" />

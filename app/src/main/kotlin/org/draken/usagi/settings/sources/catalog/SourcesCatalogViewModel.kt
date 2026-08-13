@@ -124,6 +124,8 @@ class SourcesCatalogViewModel
 			appliedFilter.value = appliedFilter.value.copy(locale = value)
 		}
 
+		fun tachiyomiCatalogError(): String? = catalogProvider.lastLoadError
+
 		suspend fun addTachiyomiRepository(input: String): Boolean {
 			val artifacts = catalogProvider.load(input)
 			if (artifacts.isEmpty()) return false

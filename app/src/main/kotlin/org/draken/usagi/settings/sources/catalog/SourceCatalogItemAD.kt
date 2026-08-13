@@ -1,5 +1,6 @@
 package org.draken.usagi.settings.sources.catalog
 
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePaddingRelative
@@ -48,7 +49,15 @@ fun sourceCatalogItemTachiyomiAD(
 	val basePadding = context.getThemeDimensionPixelOffset(appcompatR.attr.listPreferredItemPaddingEnd, binding.root.paddingStart)
 	binding.root.updatePaddingRelative(end = (basePadding - context.resources.getDimensionPixelOffset(R.dimen.margin_small)).coerceAtLeast(0))
 	bind {
-		val fallback = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.artifact.packageName)
+		val iconSize = context.resources.getDimensionPixelSize(R.dimen.source_catalog_external_icon_size)
+		binding.imageViewIcon.layoutParams =
+			binding.imageViewIcon.layoutParams.apply {
+				width = iconSize
+				height = iconSize
+			}
+		binding.imageViewIcon.scaleType = ImageView.ScaleType.CENTER_CROP
+		val fallback = FaviconDrawable(context, R.style.FaviconDrawable, item.artifact.packageName)
+
 		binding.imageViewIcon.errorDrawable = fallback
 		binding.imageViewIcon.fallbackDrawable = fallback
 		if (item.artifact.iconUrl.isNullOrBlank()) {
@@ -58,8 +67,9 @@ fun sourceCatalogItemTachiyomiAD(
 		}
 		binding.imageViewIcon.background = null
 		binding.textViewTitle.text = item.displayName
-		binding.textViewDescription.text = item.description
-		binding.textViewDescription.drawableStart = if (item.isNsfw) ContextCompat.getDrawable(context, R.drawable.ic_nsfw) else null
+		binding.textViewDescription.text = item.description(context)
+		binding.textViewDescription.drawableStart = null
+
 		binding.imageViewAdd.isVisible = true
 		binding.imageViewAdd.setImageResource(
 			if (item.hasUpdate) {
