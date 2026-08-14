@@ -199,7 +199,7 @@ fun MangaSource.getSummary(context: Context): String? {
 	val baseSummary =
 		when (source) {
 			is ExternalSource -> {
-				val rating = context.getString(if (source.isNsfw) R.string.rating_adult else R.string.rating_safe)
+				val type = context.getString(source.contentType.titleResId)
 				val language =
 					if (source.locale.equals("all", ignoreCase = true)) {
 						context.getString(R.string.various_languages)
@@ -214,7 +214,7 @@ fun MangaSource.getSummary(context: Context): String? {
 							?: context.getString(R.string.external_source)
 					}
 
-				"$rating, $language • $sourceLabel"
+				"$type, $language • $sourceLabel"
 			}
 
 			is ExternalMangaSource -> {

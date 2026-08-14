@@ -51,7 +51,7 @@ testRules = "1.7.0"
 testRunner = "1.7.0"
 transition = "1.6.0"
 tsuki = "1.0.5"
-tsukimix = "8679c54b2fddbf3239116f09ede5140a3bdec678"
+tsukimix = "77d6e12cbd54654b4d4aef5c7891c003c8a1be01"
 usagiRpc = "1.0.2"
 usagi-serialization = "ad8b778c88"
 viewpager2 = "1.1.0"
@@ -131,7 +131,7 @@ injekt-core = { module = "com.github.null2264.injekt:injekt-core", version.ref =
 ssiv = { module = "com.github.UsagiApp:subsampling-scale-image-view", version.ref = "ssiv" }
 usagi-rpc = { module = "com.github.UsagiApp:OAuth2-RPC", version.ref = "usagiRpc" }
 tsuki = { module = "com.github.UsagiApp:Tsuki", version.ref = "tsuki" }
-tsukimix = { module = "com.github.UsagiApp:TsukiMix", version.ref = "tsukimix" }
+tsukimix = { module = "com.github.sang765:TsukiMix", version.ref = "tsukimix" }
 workinspector = { module = "com.github.UsagiApp:WorkInspector", version.ref = "workinspector" }
 androidx-window = { module = "androidx.window:window", version.ref = "window" }
 usagi-serialization-library = { module = "com.github.UsagiApp.serialization:library", version.ref = "usagi-serialization" }

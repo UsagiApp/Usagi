@@ -5,10 +5,10 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiInstalled
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiCatalogSource
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiContentRating
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionArtifact
 import org.draken.usagi.R
 import org.draken.usagi.list.ui.model.ListModel
+import tsuki.model.ContentType
 import tsuki.model.MangaSource
 import java.net.URI
 import java.util.Locale
@@ -35,26 +35,26 @@ sealed interface SourceCatalogItem : ListModel {
 				return availableVersion > installedVersion
 			}
 
-		val contentRating: TachiyomiContentRating
-			get() = source.contentRating.takeUnless { it == TachiyomiContentRating.UNSPECIFIED } ?: artifact.contentRating
-		val isNsfw: Boolean get() = contentRating.isNsfw
+		val contentType: ContentType
+			get() = source.contentType
+		val isNsfw: Boolean get() = contentType == ContentType.HENTAI
+
 		val displayName: String get() = source.name
 
 		fun description(context: Context): String {
 			val details =
 				listOf(
-					contentRatingLabel(context),
+					contentTypeLabel(context),
 					languageDisplayName(context),
 				).joinToString(", ")
 			return "$details • $pluginName"
 		}
 
-		private fun contentRatingLabel(context: Context): String =
-			when (contentRating) {
-				TachiyomiContentRating.SAFE -> context.getString(R.string.rating_safe)
-				TachiyomiContentRating.MIXED -> context.getString(R.string.rating_mixed)
-				TachiyomiContentRating.NSFW -> context.getString(R.string.rating_adult)
-				TachiyomiContentRating.UNSPECIFIED -> context.getString(R.string.unknown)
+		private fun contentTypeLabel(context: Context): String =
+			when (contentType) {
+				ContentType.MANGA -> context.getString(R.string.content_type_manga)
+				ContentType.HENTAI -> context.getString(R.string.content_type_hentai)
+				else -> context.getString(R.string.unknown)
 			}
 
 		private fun languageDisplayName(context: Context): String {

@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiExtensionManager
 import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiInstalled
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiContentRating
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionArtifact
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionCatalogProvider
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
@@ -221,8 +220,8 @@ class SourcesCatalogViewModel
 					val installedByPackage = installed.associateBy { it.packageName }
 					artifacts.flatMap { artifact ->
 						artifact.sources.mapNotNull { source ->
-							val rating = source.contentRating.takeUnless { it == TachiyomiContentRating.UNSPECIFIED } ?: artifact.contentRating
-							val type = if (rating.isNsfw) ContentType.HENTAI else ContentType.MANGA
+							val type = source.contentType
+
 							if (settings.isNsfwContentDisabled && type == ContentType.HENTAI) return@mapNotNull null
 							if (!matchesLocale(source.language, filter.locale)) return@mapNotNull null
 
@@ -281,8 +280,8 @@ class SourcesCatalogViewModel
 		@WorkerThread
 		private fun getContentTypes(isNsfwDisabled: Boolean): List<ContentType> {
 			val result = repository.allMangaSources.mapSortedByCount { it.contentType }.toMutableList()
-			if (tachiyomiCatalog.value.any { artifact -> artifact.sources.any { source -> (source.contentRating.takeUnless { it == TachiyomiContentRating.UNSPECIFIED } ?: artifact.contentRating).isNsfw.not() } } && ContentType.MANGA !in result) result += ContentType.MANGA
-			if (!isNsfwDisabled && tachiyomiCatalog.value.any { artifact -> artifact.sources.any { source -> (source.contentRating.takeUnless { it == TachiyomiContentRating.UNSPECIFIED } ?: artifact.contentRating).isNsfw } } && ContentType.HENTAI !in result) result += ContentType.HENTAI
+			if (tachiyomiCatalog.value.any { artifact -> artifact.sources.any { source -> source.contentType == ContentType.MANGA } } && ContentType.MANGA !in result) result += ContentType.MANGA
+			if (!isNsfwDisabled && tachiyomiCatalog.value.any { artifact -> artifact.sources.any { source -> source.contentType == ContentType.HENTAI } } && ContentType.HENTAI !in result) result += ContentType.HENTAI
 			return result
 		}
 	}
