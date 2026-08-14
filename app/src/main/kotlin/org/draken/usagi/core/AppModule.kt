@@ -295,7 +295,6 @@ interface AppModule {
 		fun provideTachiyomiRuntime(
 			installedManager: Manager,
 			directManager: DirectTachiyomiExtensionManager,
-			catalogProvider: TachiyomiExtensionCatalogProvider,
 			database: MangaDatabase,
 			settings: AppSettings,
 		): TachiyomiRuntime =
@@ -318,7 +317,7 @@ interface AppModule {
 					},
 				sourcesPublisher =
 					TachiyomiSourcesPublisher { sources ->
-						DirectTachiyomiPluginMetadata.update(directManager.installed.value, catalogProvider::repositoryName)
+						DirectTachiyomiPluginMetadata.update(directManager.installed.value)
 						val nonTachiyomi = MangaSourceRegistry.sources.filterNot { it is TachiyomiMangaSource }
 						MangaSourceRegistry.publish(nonTachiyomi + sources)
 					},

@@ -47,24 +47,21 @@ data class PluginMangaSource(
 }
 
 /**
- * Keeps the external plugin label for sources loaded from direct Tachiyomi DEX artifacts.
+ * Keeps the repository label for sources loaded from direct Tachiyomi DEX artifacts.
  *
  * Direct artifacts preserve their repository URL in installation metadata, whereas the source
  * model itself only exposes the individual extension label. The map lets shared source UI show
- * the repository/plugin identity consistently without changing source IDs or parser behavior.
+ * the repository identity consistently without changing source IDs or parser behavior.
  */
 object DirectTachiyomiPluginMetadata {
 	@Volatile
 	private var namesByPackage: Map<String, String> = emptyMap()
 
-	fun update(
-		installed: Collection<DirectTachiyomiInstalled>,
-		repositoryName: (String) -> String?,
-	) {
+	fun update(installed: Collection<DirectTachiyomiInstalled>) {
 		namesByPackage =
 			buildMap {
 				installed.forEach { record ->
-					val name = repositoryName(record.repositoryUrl)?.trim()?.takeIf { it.isNotBlank() } ?: deriveName(record.repositoryUrl)
+					val name = deriveName(record.repositoryUrl)
 					if (name != null) put(record.packageName, name)
 				}
 			}
@@ -209,20 +206,19 @@ fun MangaSource.getSummary(context: Context): String? {
 					} else {
 						source.locale.toLocaleOrNull().getDisplayName(context)
 					}
-				val extension =
+				val sourceLabel =
 					if (source.isPreInstalledApk) {
-						context.getString(R.string.tachiyomi_apk)
+						context.getString(R.string.external_source)
 					} else {
 						DirectTachiyomiPluginMetadata.get(source.pkgName)
-							?: source.extensionName
 							?: context.getString(R.string.external_source)
 					}
 
-				"$rating, $language • ${context.getString(R.string.external_source)} ($extension)"
+				"$rating, $language • $sourceLabel"
 			}
 
 			is ExternalMangaSource -> {
-				"${context.getString(R.string.external_source)} (${source.resolveName(context)})"
+				context.getString(R.string.external_source)
 			}
 
 			else -> {
