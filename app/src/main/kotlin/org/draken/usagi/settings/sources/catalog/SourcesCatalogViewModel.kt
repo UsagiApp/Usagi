@@ -51,6 +51,7 @@ class SourcesCatalogViewModel
 		val onActionDone = MutableEventFlow<ReversibleAction>()
 
 		private val tachiyomiCatalog = MutableStateFlow<List<TachiyomiExtensionArtifact>>(emptyList())
+		private val isInitialLoading = MutableStateFlow(true)
 		private val searchQuery = MutableStateFlow<String?>(null)
 
 		val locales: Set<String?>
@@ -97,8 +98,8 @@ class SourcesCatalogViewModel
 		val contentTypes = MutableStateFlow<List<ContentType>>(emptyList())
 
 		private val tachiyomiState =
-			combine(directManager.installed, tachiyomiRuntime.sources) { installed, loaded ->
-				installed to loaded.map { it.sourceId }.toSet()
+			combine(directManager.installed, tachiyomiRuntime.sources, isInitialLoading) { installed, loaded, loading ->
+				Triple(installed, loaded.map { it.sourceId }.toSet(), loading)
 			}
 
 		val content: StateFlow<List<ListModel>> =
@@ -108,17 +109,20 @@ class SourcesCatalogViewModel
 				db.invalidationTracker.createFlow(TABLE_SOURCES),
 				tachiyomiCatalog,
 				tachiyomiState,
-			) { query, filter, _, artifacts, (installed, loaded) ->
-				buildSourcesList(filter, query, artifacts, installed, loaded)
+			) { query, filter, _, artifacts, (installed, loaded, loading) ->
+				if (loading) listOf(LoadingState) else buildSourcesList(filter, query, artifacts, installed, loaded)
 			}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, listOf(LoadingState))
 
 		init {
 			repository.clearNewSourcesBadge()
 			launchJob(Dispatchers.Default) {
-				runCatching { tachiyomiRuntime.ensureReady() }
-
-				tachiyomiCatalog.value = catalogProvider.loadSaved()
-				contentTypes.value = getContentTypes(settings.isNsfwContentDisabled)
+				try {
+					runCatching { tachiyomiRuntime.ensureReady() }
+					tachiyomiCatalog.value = catalogProvider.loadSaved()
+					contentTypes.value = getContentTypes(settings.isNsfwContentDisabled)
+				} finally {
+					isInitialLoading.value = false
+				}
 			}
 		}
 
