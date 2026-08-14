@@ -31,6 +31,7 @@ import tsuki.model.MangaSource
 import tsuki.model.SortOrder
 import java.lang.ref.WeakReference
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
 import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
@@ -82,11 +83,11 @@ interface MangaRepository {
 		constructor(
 			@ApplicationContext private val context: Context,
 			private val localMangaRepository: LocalMangaRepository,
-			private val loaderContext: MangaLoaderContext,
+			private val loaderContext: Provider<MangaLoaderContext>,
 			private val contentCache: MemoryContentCache,
-			private val mirrorSwitcher: MirrorSwitcher,
+			private val mirrorSwitcher: Provider<MirrorSwitcher>,
 			private val mangaRepository: MangaDynamicRepository,
-			private val tachiyomiRuntime: TachiyomiRuntime,
+			private val tachiyomiRuntime: Provider<TachiyomiRuntime>,
 		) {
 			private val cache = ArrayMap<MangaSource, WeakReference<MangaRepository>>()
 			private var cacheVersion = -1
@@ -131,7 +132,7 @@ interface MangaRepository {
 				when (source) {
 					TestMangaSource -> {
 						TestMangaRepository(
-							loaderContext = loaderContext,
+							loaderContext = loaderContext.get(),
 							cache = contentCache,
 						)
 					}
@@ -164,9 +165,9 @@ interface MangaRepository {
 						try {
 							MangaParserRepository(
 								compoundSource = source,
-								parser = loaderContext.newParserInstance(source),
+								parser = loaderContext.get().newParserInstance(source),
 								cache = contentCache,
-								mirrorSwitcher = mirrorSwitcher,
+								mirrorSwitcher = mirrorSwitcher.get(),
 							)
 						} catch (_: Throwable) {
 							EmptyMangaRepository(source)
@@ -180,7 +181,7 @@ interface MangaRepository {
 						runCatching {
 							mangaRepository.load(mangaRepository.getDir())
 							kotlinx.coroutines.runBlocking {
-								tachiyomiRuntime.ensureReady()
+								tachiyomiRuntime.get().ensureReady()
 							}
 						}
 					}
