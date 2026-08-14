@@ -34,6 +34,7 @@ import org.draken.usagi.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.ui.util.ReversibleHandle
+import org.draken.usagi.core.util.canonicalLanguageCode
 import org.draken.usagi.core.util.ext.flattenLatest
 import org.draken.usagi.core.util.ext.processLifecycleScope
 import tsuki.model.ContentType
@@ -159,8 +160,10 @@ class MangaSourcesRepository
 						mapNotNullTo(ArrayList(size)) { it.mangaSource }
 					}
 			if (locale != null) {
-				sources.retainAll { it.locale == locale }
+				val canonicalLocale = canonicalLanguageCode(locale)
+				sources.retainAll { canonicalLanguageCode(it.locale) == canonicalLocale }
 			}
+
 			if (excludeBroken && !hideBrokenSources) {
 				sources.removeAll { it.isBroken }
 			}

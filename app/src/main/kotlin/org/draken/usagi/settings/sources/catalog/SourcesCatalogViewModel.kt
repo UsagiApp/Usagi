@@ -23,6 +23,7 @@ import org.draken.usagi.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.util.ReversibleAction
+import org.draken.usagi.core.util.canonicalLanguageCode
 import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.core.util.ext.mapSortedByCount
@@ -55,8 +56,8 @@ class SourcesCatalogViewModel
 		val locales: Set<String?>
 			get() =
 				buildSet {
-					addAll(repository.allMangaSources.map { it.locale })
-					addAll(tachiyomiCatalog.value.flatMap { artifact -> artifact.sources.map { it.language } })
+					addAll(repository.allMangaSources.map { canonicalLanguageCode(it.locale) })
+					addAll(tachiyomiCatalog.value.flatMap { artifact -> artifact.sources.map { canonicalLanguageCode(it.language) } })
 					add(null)
 				}
 
@@ -64,7 +65,7 @@ class SourcesCatalogViewModel
 			MutableStateFlow(
 				SourcesCatalogFilter(
 					types = emptySet(),
-					locale = Locale.getDefault().language.takeIf { it in locales },
+					locale = canonicalLanguageCode(Locale.getDefault().language).takeIf { it in locales },
 					isNewOnly = false,
 					plugin = null,
 				),
@@ -247,14 +248,7 @@ class SourcesCatalogViewModel
 			filterLocale: String?,
 		): Boolean {
 			if (filterLocale == null) return true
-			val source = sourceLanguage.trim()
-			val filter = filterLocale.trim()
-			val wantsVarious = filter.isBlank() || filter.equals("all", true)
-			return if (wantsVarious) {
-				source.isBlank() || source.equals("all", true)
-			} else {
-				source.equals(filter, true)
-			}
+			return canonicalLanguageCode(sourceLanguage) == canonicalLanguageCode(filterLocale)
 		}
 
 		private fun tachiyomiPluginLabel(repositoryUrl: String): String {
