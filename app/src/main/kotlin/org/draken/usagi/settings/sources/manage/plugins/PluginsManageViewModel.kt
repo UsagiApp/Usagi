@@ -9,6 +9,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiExtensionManager
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionArtifact
@@ -66,32 +67,35 @@ class PluginsManageViewModel
 		}
 
 		fun refresh() {
-			launchLoadingJob(Dispatchers.Default) {
-				runCatching { tachiyomiRuntime.ensureReady() }
-				refreshPreInstalledTachiyomiItem()
-				refreshTachiyomiItems(catalogProvider.loadSaved())
-
+			launchJob(Dispatchers.Default) {
 				val localPlugins = loadPluginsLocal()
 				pluginsSnapshot = localPlugins
+				refreshPreInstalledTachiyomiItem()
+				refreshTachiyomiItems(tachiyomiSnapshot.flatMap { it.artifacts })
 				publishFiltered()
 
-				if (localPlugins.isNotEmpty()) {
-					val updatedPlugins =
-						coroutineScope {
-							localPlugins
-								.map { plugin ->
-									async {
-										val repo = plugin.repository ?: return@async plugin
-										val latest = updatePluginsProvider.requestTag(repo) ?: return@async plugin
-										plugin.copy(latestTag = latest)
-									}
-								}.awaitAll()
-						}
-					pluginsSnapshot = updatedPlugins
-					publishFiltered()
+				launch {
+					runCatching { tachiyomiRuntime.ensureReady() }
+					refreshPreInstalledTachiyomiItem()
+					refreshTachiyomiItems(catalogProvider.loadSaved())
 				}
-				refreshPreInstalledTachiyomiItem()
-				refreshTachiyomiItems(catalogProvider.loadSaved())
+				if (localPlugins.isNotEmpty()) {
+					launch {
+						val updatedPlugins =
+							coroutineScope {
+								localPlugins
+									.map { plugin ->
+										async {
+											val repo = plugin.repository ?: return@async plugin
+											val latest = updatePluginsProvider.requestTag(repo) ?: return@async plugin
+											plugin.copy(latestTag = latest)
+										}
+									}.awaitAll()
+							}
+						pluginsSnapshot = updatedPlugins
+						publishFiltered()
+					}
+				}
 			}
 		}
 
