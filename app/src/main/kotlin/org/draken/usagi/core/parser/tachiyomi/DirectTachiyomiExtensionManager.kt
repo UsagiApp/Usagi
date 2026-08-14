@@ -125,7 +125,13 @@ class DirectTachiyomiExtensionManager
 							errors += "$url → Download is not an Android APK with DEX code"
 							continue
 						}
+						if (!makeReadOnly(staging)) {
+							errors += "$url → Cannot make staged APK read-only"
+							staging.delete()
+							continue
+						}
 						val result = loadArtifact(staging, artifact)
+
 						if (result is TachiyomiLoadResult.Success) {
 							loaded = result
 							selectedUrl = url
@@ -252,7 +258,12 @@ class DirectTachiyomiExtensionManager
 					failures += DirectTachiyomiFailure(record.packageName, "Artifact not found")
 					continue
 				}
+				if (!makeReadOnly(file)) {
+					failures += DirectTachiyomiFailure(record.packageName, "Artifact is writable and could not be made read-only")
+					continue
+				}
 				val result = loadArtifact(file, record.toArtifact())
+
 				if (result is TachiyomiLoadResult.Success) {
 					val updated =
 						record.copy(
@@ -406,6 +417,8 @@ class DirectTachiyomiExtensionManager
 			output: File,
 		): Boolean =
 			runCatching {
+				output.setWritable(true, false)
+				output.delete()
 				ZipFile(input).use { archive ->
 					val manifest = archive.getEntry("AndroidManifest.xml") ?: return@use false
 					val hasDex = archive.entries().asSequence().any { entry -> entry.name.matches(Regex("classes(\\d*)?\\.dex")) }
@@ -423,6 +436,13 @@ class DirectTachiyomiExtensionManager
 					false
 				}
 			}.getOrDefault(false)
+
+		private fun makeReadOnly(file: File): Boolean {
+			if (!file.exists() || !file.isFile) return false
+			file.setReadable(true, false)
+			file.setWritable(false, false)
+			return !file.canWrite()
+		}
 
 		private fun readRecords(): List<DirectTachiyomiInstalled> {
 			val array = runCatching { JSONArray(metadataFile.takeIf { it.exists() }?.readText().orEmpty()) }.getOrNull() ?: return emptyList()
