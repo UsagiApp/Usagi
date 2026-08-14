@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiExtensionManager
 import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiInstalled
@@ -116,12 +117,20 @@ class SourcesCatalogViewModel
 		init {
 			repository.clearNewSourcesBadge()
 			launchJob(Dispatchers.Default) {
-				try {
+				val cachedCatalog = catalogProvider.loadSavedCached()
+				tachiyomiCatalog.value = cachedCatalog
+				contentTypes.value = getContentTypes(settings.isNsfwContentDisabled)
+				isInitialLoading.value = false
+
+				launch {
 					runCatching { tachiyomiRuntime.ensureReady() }
-					tachiyomiCatalog.value = catalogProvider.loadSaved()
-					contentTypes.value = getContentTypes(settings.isNsfwContentDisabled)
-				} finally {
-					isInitialLoading.value = false
+				}
+				launch {
+					val refreshedCatalog = catalogProvider.loadSaved()
+					if (refreshedCatalog != cachedCatalog) {
+						tachiyomiCatalog.value = refreshedCatalog
+						contentTypes.value = getContentTypes(settings.isNsfwContentDisabled)
+					}
 				}
 			}
 		}
