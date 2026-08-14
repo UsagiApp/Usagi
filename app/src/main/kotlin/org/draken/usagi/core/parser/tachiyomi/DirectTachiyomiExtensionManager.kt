@@ -3,6 +3,7 @@ package org.draken.usagi.core.parser.tachiyomi
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import androidx.core.content.edit
@@ -30,13 +31,16 @@ import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource
 import org.draken.usagi.core.network.BaseHttpClient
 import org.json.JSONArray
 import org.json.JSONObject
-import org.xmlpull.v1.XmlPullParser
 import java.io.File
 import java.io.IOException
+import java.security.MessageDigest
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
+import java.util.zip.Adler32
+import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
@@ -435,22 +439,64 @@ class DirectTachiyomiExtensionManager
 				output.setWritable(true, false)
 				output.delete()
 				ZipFile(input).use { archive ->
-					val manifest = archive.getEntry("AndroidManifest.xml") ?: return@use false
-					val hasDex = archive.entries().asSequence().any { entry -> entry.name.matches(Regex("classes(\\d*)?\\.dex")) }
+					if (archive.getEntry("AndroidManifest.xml") == null) return@use false
+					val hasDex = archive.entries().asSequence().any { entry -> entry.name.matches(DEX_ENTRY_REGEX) }
+
 					if (hasDex) {
 						input.copyTo(output, overwrite = true)
-						return@use true
+						return@use normalizeLegacyDexArchive(output)
 					}
+
 					val nestedApk = archive.entries().asSequence().firstOrNull { it.name.endsWith(".apk", ignoreCase = true) }
 					if (nestedApk != null) {
 						archive.getInputStream(nestedApk).use { source -> output.outputStream().use { target -> source.copyTo(target) } }
-						return@use ZipFile(output).use { nested ->
-							nested.getEntry("AndroidManifest.xml") != null && nested.entries().asSequence().any { it.name.matches(Regex("classes(\\d*)?\\.dex")) }
-						}
+						val validNested =
+							ZipFile(output).use { nested ->
+								nested.getEntry("AndroidManifest.xml") != null && nested.entries().asSequence().any { it.name.matches(DEX_ENTRY_REGEX) }
+							}
+						return@use validNested && normalizeLegacyDexArchive(output)
 					}
 					false
 				}
 			}.getOrDefault(false)
+
+		private fun normalizeLegacyDexArchive(file: File): Boolean {
+			if (Build.VERSION.SDK_INT >= 26) return true
+			val transformed = File(file.parentFile, "${file.name}.legacy")
+			return runCatching {
+				ZipFile(file).use { archive ->
+					ZipOutputStream(transformed.outputStream().buffered()).use { output ->
+						archive.entries().asSequence().forEach { entry ->
+							val bytes = archive.getInputStream(entry).use { it.readBytes() }
+							val normalized = if (entry.name.matches(DEX_ENTRY_REGEX)) downgradeDex035(bytes) else bytes
+							val target = ZipEntry(entry.name).apply { time = entry.time }
+							output.putNextEntry(target)
+							output.write(normalized)
+							output.closeEntry()
+						}
+					}
+				}
+				if (!transformed.renameTo(file)) {
+					file.delete()
+					if (!transformed.renameTo(file)) error("Cannot replace APK with legacy DEX archive")
+				}
+				true
+			}.getOrElse {
+				transformed.delete()
+				false
+			}
+		}
+
+		private fun downgradeDex035(bytes: ByteArray): ByteArray {
+			if (bytes.size < 32 || !bytes.copyOfRange(0, 4).contentEquals(DEX_MAGIC)) return bytes
+			if (bytes[4] != '0'.code.toByte() || bytes[5] != '3'.code.toByte() || bytes[6] != '8'.code.toByte()) return bytes
+			bytes[6] = '5'.code.toByte()
+			val signature = MessageDigest.getInstance("SHA-1").digest(bytes.copyOfRange(32, bytes.size))
+			signature.copyInto(bytes, 12)
+			val checksum = Adler32().apply { update(bytes, 12, bytes.size - 12) }.value
+			for (offset in 0 until 4) bytes[8 + offset] = (checksum ushr (offset * 8)).toByte()
+			return bytes
+		}
 
 		private fun makeReadOnly(file: File): Boolean {
 			if (!file.exists() || !file.isFile) return false
@@ -499,6 +545,8 @@ class DirectTachiyomiExtensionManager
 			}
 
 		companion object {
+			private val DEX_MAGIC = byteArrayOf('d'.code.toByte(), 'e'.code.toByte(), 'x'.code.toByte(), '\n'.code.toByte())
+			private val DEX_ENTRY_REGEX = Regex("classes(\\d*)?\\.dex")
 			private const val DIRECT_DIR = "tachiyomi-direct"
 			private const val DEX_DIR = "tachiyomi-direct-dex"
 			private const val METADATA_FILE = "installed.json"
