@@ -7,6 +7,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.core.cache.MemoryContentCache
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.MangaSourceInfo
@@ -18,7 +19,6 @@ import org.draken.usagi.core.model.resolve
 import org.draken.usagi.core.network.CommonHeaders
 import org.draken.usagi.core.parser.external.ExternalMangaRepository
 import org.draken.usagi.core.parser.external.ExternalMangaSource
-import org.draken.usagi.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.local.data.LocalMangaRepository
 import tsuki.MangaLoaderContext
 import tsuki.model.Manga

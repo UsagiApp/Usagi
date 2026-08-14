@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.HttpUrl
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.R
 import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.model.MangaSourceRegistry
@@ -17,7 +18,6 @@ import org.draken.usagi.core.parser.CachingMangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
-import org.draken.usagi.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.util.ReversibleAction

@@ -8,11 +8,11 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.TwoStatePreference
 import dagger.hilt.android.AndroidEntryPoint
+import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiExtensionManager
 import org.draken.usagi.R
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.MangaDynamicRepository
-import org.draken.usagi.core.parser.tachiyomi.DirectTachiyomiExtensionManager
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.TriStateOption
 import org.draken.usagi.core.ui.BasePreferenceFragment

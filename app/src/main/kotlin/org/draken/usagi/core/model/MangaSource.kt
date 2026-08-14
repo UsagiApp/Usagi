@@ -9,9 +9,9 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.text.inSpans
+import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiExtensionManager
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.external.ExternalMangaSource
-import org.draken.usagi.core.parser.tachiyomi.DirectTachiyomiExtensionManager
 import org.draken.usagi.core.util.ext.getDisplayName
 import org.draken.usagi.core.util.ext.toLocale
 import org.draken.usagi.core.util.ext.toLocaleOrNull

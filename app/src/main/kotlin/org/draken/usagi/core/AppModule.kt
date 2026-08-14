@@ -30,6 +30,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import okhttp3.OkHttpClient
+import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiExtensionManager
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiDisabledSourceProvider
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionCatalogProvider
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiSourcesPublisher
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.backups.domain.BackupObserver
 import org.draken.usagi.core.db.MangaDatabase
@@ -38,6 +44,8 @@ import org.draken.usagi.core.image.AvifImageDecoder
 import org.draken.usagi.core.image.CbzFetcher
 import org.draken.usagi.core.image.ExternalSourceFetcher
 import org.draken.usagi.core.image.MangaSourceHeaderInterceptor
+import org.draken.usagi.core.model.MangaSourceRegistry
+import org.draken.usagi.core.network.BaseHttpClient
 import org.draken.usagi.core.network.MangaHttpClient
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor
 import org.draken.usagi.core.network.webview.WebViewExecutor
@@ -265,5 +273,52 @@ interface AppModule {
 			@ApplicationContext context: Context,
 			loader: Loader,
 		): Manager = Manager(context, loader)
+
+		@Provides
+		@Singleton
+		fun provideDirectTachiyomiExtensionManager(
+			@ApplicationContext context: Context,
+			@BaseHttpClient httpClient: OkHttpClient,
+			injektBridge: Bridge,
+		): DirectTachiyomiExtensionManager = DirectTachiyomiExtensionManager(context, httpClient, injektBridge)
+
+		@Provides
+		@Singleton
+		fun provideTachiyomiExtensionCatalogProvider(
+			@ApplicationContext context: Context,
+			@BaseHttpClient httpClient: OkHttpClient,
+		): TachiyomiExtensionCatalogProvider = TachiyomiExtensionCatalogProvider(context, httpClient)
+
+		@Provides
+		@Singleton
+		fun provideTachiyomiRuntime(
+			installedManager: Manager,
+			directManager: DirectTachiyomiExtensionManager,
+			database: MangaDatabase,
+			settings: AppSettings,
+		): TachiyomiRuntime =
+			TachiyomiRuntime(
+				installedManager = installedManager,
+				directManager = directManager,
+				disabledSourceProvider =
+					TachiyomiDisabledSourceProvider {
+						if (settings.isAllSourcesEnabled) {
+							emptySet()
+						} else {
+							database
+								.getSourcesDao()
+								.findAll()
+								.asSequence()
+								.filterNot { it.isEnabled }
+								.map { it.source }
+								.toSet()
+						}
+					},
+				sourcesPublisher =
+					TachiyomiSourcesPublisher { sources ->
+						val nonTachiyomi = MangaSourceRegistry.sources.filterNot { it is TachiyomiMangaSource }
+						MangaSourceRegistry.publish(nonTachiyomi + sources)
+					},
+			)
 	}
 }

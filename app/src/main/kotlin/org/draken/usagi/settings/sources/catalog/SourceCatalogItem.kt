@@ -3,11 +3,11 @@ package org.draken.usagi.settings.sources.catalog
 import android.content.Context
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiInstalled
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiCatalogSource
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiContentRating
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionArtifact
 import org.draken.usagi.R
-import org.draken.usagi.core.parser.tachiyomi.DirectTachiyomiInstalled
-import org.draken.usagi.core.parser.tachiyomi.TachiyomiCatalogSource
-import org.draken.usagi.core.parser.tachiyomi.TachiyomiContentRating
-import org.draken.usagi.core.parser.tachiyomi.TachiyomiExtensionArtifact
 import org.draken.usagi.list.ui.model.ListModel
 import tsuki.model.MangaSource
 import java.net.URI
@@ -28,7 +28,13 @@ sealed interface SourceCatalogItem : ListModel {
 	) : SourceCatalogItem {
 		val isInstalled: Boolean get() = installed != null
 
-		val hasUpdate: Boolean get() = installed != null && artifact.versionCode != null && artifact.versionCode > installed.versionCode
+		val hasUpdate: Boolean
+			get() {
+				val availableVersion = artifact.versionCode ?: return false
+				val installedVersion = installed?.versionCode ?: return false
+				return availableVersion > installedVersion
+			}
+
 		val contentRating: TachiyomiContentRating
 			get() = source.contentRating.takeUnless { it == TachiyomiContentRating.UNSPECIFIED } ?: artifact.contentRating
 		val isNsfw: Boolean get() = contentRating.isNsfw

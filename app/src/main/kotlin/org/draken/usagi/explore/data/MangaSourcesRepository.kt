@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
+import org.draken.tsukimix.core.util.canonicalLanguageCode
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.LocalizedAppContext
 import org.draken.usagi.core.db.MangaDatabase
@@ -30,11 +32,9 @@ import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.model.isExternalSource
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.parser.external.ExternalMangaSource
-import org.draken.usagi.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.ui.util.ReversibleHandle
-import org.draken.usagi.core.util.canonicalLanguageCode
 import org.draken.usagi.core.util.ext.flattenLatest
 import org.draken.usagi.core.util.ext.processLifecycleScope
 import tsuki.model.ContentType

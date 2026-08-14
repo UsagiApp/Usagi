@@ -1,9 +1,9 @@
 package org.draken.usagi.settings.sources.manage.plugins.model
 
 import androidx.annotation.StringRes
-import org.draken.usagi.core.parser.tachiyomi.DirectTachiyomiFailure
-import org.draken.usagi.core.parser.tachiyomi.DirectTachiyomiInstalled
-import org.draken.usagi.core.parser.tachiyomi.TachiyomiExtensionArtifact
+import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiFailure
+import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiInstalled
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionArtifact
 import org.draken.usagi.list.ui.model.ListModel
 import java.net.URI
 

@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.R
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.MangaSource
@@ -30,7 +31,6 @@ import org.draken.usagi.core.model.parcelable.ParcelableMangaListFilter
 import org.draken.usagi.core.model.resolve
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
-import org.draken.usagi.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.ui.model.titleRes
 import org.draken.usagi.core.util.ViewBadge

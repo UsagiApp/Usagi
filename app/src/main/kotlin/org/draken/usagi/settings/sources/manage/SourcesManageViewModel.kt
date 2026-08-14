@@ -4,10 +4,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.R
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.db.removeObserverAsync
-import org.draken.usagi.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.util.ReversibleAction

@@ -10,6 +10,7 @@ import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterNotNull
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.SnackbarErrorObserver
 import org.draken.usagi.core.model.getTitle
@@ -19,7 +20,6 @@ import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
-import org.draken.usagi.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.core.ui.BasePreferenceFragment
