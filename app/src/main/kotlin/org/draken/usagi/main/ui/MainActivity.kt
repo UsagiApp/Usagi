@@ -51,6 +51,7 @@ import kotlinx.coroutines.withContext
 import org.draken.usagi.R
 import org.draken.usagi.backups.ui.periodical.PeriodicalBackupService
 import org.draken.usagi.browser.AdListUpdateService
+import org.draken.usagi.core.PluginRuntimeInitializer
 import org.draken.usagi.core.exceptions.resolve.SnackbarErrorObserver
 import org.draken.usagi.core.github.AppVersion
 import org.draken.usagi.core.nav.router
@@ -100,6 +101,9 @@ class MainActivity :
 	SearchView.TransitionListener {
 	@Inject
 	lateinit var settings: AppSettings
+
+	@Inject
+	lateinit var pluginRuntimeInitializer: PluginRuntimeInitializer
 
 	private val viewModel by viewModels<MainViewModel>()
 	private val searchSuggestionViewModel by viewModels<SearchSuggestionViewModel>()
@@ -202,6 +206,16 @@ class MainActivity :
 		viewBinding.searchView.addTransitionListener(this)
 		viewBinding.searchView.addTransitionListener(exitCallback)
 		initSearch()
+	}
+
+	override fun onPostResume() {
+		super.onPostResume()
+		// Defer direct extension loading until after the first GUI frame is scheduled.
+		window.decorView.post {
+			lifecycleScope.launch {
+				pluginRuntimeInitializer.initialize()
+			}
+		}
 	}
 
 	override fun onRestoreInstanceState(savedInstanceState: Bundle) {

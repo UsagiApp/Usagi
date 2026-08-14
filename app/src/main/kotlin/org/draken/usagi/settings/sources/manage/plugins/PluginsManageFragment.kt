@@ -1,9 +1,6 @@
 package org.draken.usagi.settings.sources.manage.plugins
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
@@ -37,7 +34,6 @@ import org.draken.usagi.core.util.ext.container
 import org.draken.usagi.core.util.ext.end
 import org.draken.usagi.core.util.ext.start
 import org.draken.usagi.databinding.DialogImportBinding
-import org.draken.usagi.databinding.DialogTachiyomiPreinstalledExtensionsBinding
 import org.draken.usagi.databinding.FragmentSettingsSourcesBinding
 import org.draken.usagi.main.ui.owners.AppBarOwner
 import org.draken.usagi.settings.SettingsActivity
@@ -87,7 +83,6 @@ class PluginsManageFragment :
 				onTachiyomiRenameClick = ::onTachiyomiRenameClick,
 				onTachiyomiLongClick = ::onTachiyomiLongClick,
 				onTachiyomiClick = ::onTachiyomiClick,
-				onPreInstalledTachiyomiClick = ::onPreInstalledTachiyomiClick,
 				onLongClick = ::onLongClick,
 				onClick = ::onClick,
 				isSelected = { item -> viewModel.isSelected(item.name) },
@@ -243,46 +238,6 @@ class PluginsManageFragment :
 
 	private fun onTachiyomiLongClick(item: PluginManageItem.Tachiyomi) {
 		viewModel.toggleTachiyomiSelection(item)
-	}
-
-	private fun onPreInstalledTachiyomiClick(item: PluginManageItem.PreInstalledTachiyomi) {
-		val dialogBinding = DialogTachiyomiPreinstalledExtensionsBinding.inflate(layoutInflater)
-		lateinit var adapter: PreInstalledTachiyomiExtensionAdapter
-		adapter =
-			PreInstalledTachiyomiExtensionAdapter(
-				onToggleVisibility = { extension ->
-					viewModel.togglePreInstalledTachiyomiVisibility(extension)
-					adapter.submit(
-						item.extensions.map { candidate ->
-							if (candidate.packageName == extension.packageName) {
-								candidate.copy(isVisibleInExplore = !candidate.isVisibleInExplore)
-							} else {
-								candidate
-							}
-						},
-					)
-				},
-				onUninstall = { extension -> uninstallExternalPackage(extension.packageName) },
-			)
-		dialogBinding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-		dialogBinding.recyclerView.adapter = adapter
-		adapter.submit(item.extensions)
-		buildAlertDialog(requireContext()) {
-			setTitle(R.string.tachiyomi_preinstalled_extension)
-			setView(dialogBinding.root)
-			setNegativeButton(android.R.string.cancel, null)
-		}.show()
-	}
-
-	private fun uninstallExternalPackage(packageName: String) {
-		val action =
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-				Intent.ACTION_DELETE
-			} else {
-				@Suppress("DEPRECATION")
-				Intent.ACTION_UNINSTALL_PACKAGE
-			}
-		startActivity(Intent(action, Uri.fromParts("package", packageName, null)))
 	}
 
 	private fun showDeleteSelectedConfirm() {

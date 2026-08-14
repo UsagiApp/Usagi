@@ -22,13 +22,11 @@ import org.draken.usagi.core.parser.MangaDynamicRepository
 import org.draken.usagi.core.parser.PluginFileLoader
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseViewModel
-import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.draken.usagi.settings.sources.manage.plugins.model.PluginManageItem
 import tsuki.util.runCatchingCancellable
 import java.io.File
 import javax.inject.Inject
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as InstalledTachiyomiExtensionManager
 
 @HiltViewModel
 class PluginsManageViewModel
@@ -36,14 +34,12 @@ class PluginsManageViewModel
 	constructor(
 		@param:ApplicationContext private val context: Context,
 		private val database: MangaDatabase,
-		private val sourcesRepository: MangaSourcesRepository,
 		private val savedFiltersRepository: SavedFiltersRepository,
 		private val updatePluginsProvider: UpdatePluginsProvider,
 		private val settings: AppSettings,
 		private val mangaDynamicRepository: MangaDynamicRepository,
 		private val pluginKeyResolver: PluginKeyResolver,
 		private val directManager: DirectTachiyomiExtensionManager,
-		private val installedTachiyomiManager: InstalledTachiyomiExtensionManager,
 		private val tachiyomiRuntime: TachiyomiRuntime,
 		private val catalogProvider: TachiyomiExtensionCatalogProvider,
 	) : BaseViewModel() {
@@ -57,9 +53,6 @@ class PluginsManageViewModel
 		private var tachiyomiSnapshot = emptyList<PluginManageItem.Tachiyomi>()
 
 		@Volatile
-		private var preInstalledTachiyomiSnapshot: PluginManageItem.PreInstalledTachiyomi? = null
-
-		@Volatile
 		private var query = ""
 
 		init {
@@ -70,13 +63,11 @@ class PluginsManageViewModel
 			launchJob(Dispatchers.Default) {
 				val localPlugins = loadPluginsLocal()
 				pluginsSnapshot = localPlugins
-				refreshPreInstalledTachiyomiItem()
 				refreshTachiyomiItems(tachiyomiSnapshot.flatMap { it.artifacts })
 				publishFiltered()
 
 				launch {
 					runCatching { tachiyomiRuntime.ensureReady() }
-					refreshPreInstalledTachiyomiItem()
 					refreshTachiyomiItems(catalogProvider.loadSaved())
 				}
 				if (localPlugins.isNotEmpty()) {
@@ -324,50 +315,6 @@ class PluginsManageViewModel
 
 		fun isInstalled(fileName: String): Boolean = File(mangaDynamicRepository.getDir(), PluginFileLoader.resolve(fileName)).exists()
 
-		fun togglePreInstalledTachiyomiVisibility(item: PluginManageItem.InstalledTachiyomiExtension) {
-			launchJob(Dispatchers.Default) {
-				val sources = installedTachiyomiManager.sources.value.filter { it.pkgName == item.packageName }
-				if (sources.isEmpty()) return@launchJob
-				sourcesRepository.setSourcesEnabled(sources, !item.isVisibleInExplore)
-				tachiyomiRuntime.ensureReady(forceRefresh = true)
-				refresh()
-			}
-		}
-
-		private fun refreshPreInstalledTachiyomiItem() {
-			val sourceCountByPackage =
-				installedTachiyomiManager.sources.value
-					.groupingBy { it.pkgName }
-					.eachCount()
-			val visiblePackages = tachiyomiRuntime.getActiveSources().mapTo(HashSet()) { it.pkgName }
-			val successes =
-				installedTachiyomiManager.installedExtensions.value.map { extension ->
-					PluginManageItem.InstalledTachiyomiExtension(
-						packageName = extension.pkgName,
-						displayName = extension.appName,
-						versionName = extension.versionName,
-						sourceCount = sourceCountByPackage[extension.pkgName] ?: 0,
-						isVisibleInExplore = extension.pkgName in visiblePackages,
-					)
-				}
-			val failures =
-				installedTachiyomiManager.failedExtensions.value
-					.filterNot { failure -> successes.any { it.packageName == failure.pkgName } }
-					.map { failure ->
-						PluginManageItem.InstalledTachiyomiExtension(
-							packageName = failure.pkgName,
-							displayName = failure.pkgName.substringAfterLast('.'),
-							versionName = null,
-							sourceCount = sourceCountByPackage[failure.pkgName] ?: 0,
-							isVisibleInExplore = failure.pkgName in visiblePackages,
-							loadError = failure.message,
-						)
-					}
-			val extensions = (successes + failures).distinctBy { it.packageName }
-			preInstalledTachiyomiSnapshot =
-				extensions.takeIf { it.isNotEmpty() }?.let(PluginManageItem::PreInstalledTachiyomi)
-		}
-
 		private fun refreshTachiyomiItems(artifacts: List<TachiyomiExtensionArtifact>) {
 			val failures = directManager.failed.value
 			val installed = directManager.installed.value.distinctBy { it.packageName }
@@ -405,7 +352,6 @@ class PluginsManageViewModel
 		private fun publishFiltered() {
 			val all: List<PluginManageItem> =
 				buildList {
-					preInstalledTachiyomiSnapshot?.let(::add)
 					addAll(pluginsSnapshot)
 					addAll(tachiyomiSnapshot)
 				}
@@ -427,11 +373,6 @@ class PluginsManageViewModel
 
 						is PluginManageItem.Tachiyomi -> {
 							item.displayName.contains(q, true) || item.repositoryLabel.contains(q, true) || item.repositoryUrl.contains(q, true)
-						}
-
-						is PluginManageItem.PreInstalledTachiyomi -> {
-							context.getString(R.string.tachiyomi_preinstalled_extension).contains(q, true) ||
-								item.extensions.any { extension -> extension.displayName.contains(q, true) || extension.packageName.contains(q, true) }
 						}
 
 						is PluginManageItem.Placeholder -> {

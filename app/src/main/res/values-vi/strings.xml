@@ -911,7 +911,7 @@
     <string name="load_success">Tiện ích đã được thêm và tải thành công</string>
     <string name="manage_plugins">Quản lý tiện ích</string>
     <string name="no_plugins">Không có tiện ích nào có sẵn</string>
-    <string name="no_plugins_summary">Ấn vào biểu tượng + ở phía trên để thêm các tiện ích tích hợp từ bên ngoài</string>
+    <string name="no_plugins_summary">Nhấn dấu + ở trên để thêm tiện ích hoặc kho tiện ích mở rộng Tachiyomi/Mihon</string>
     <string name="overwrite_plugin">Ghi đè tiện ích?</string>
     <string name="overwrite_plugin_summary">Tiện ích tích hợp với tên %1$s đã được cài đặt trước đó. Thay thế nó với tiện ích này?</string>
     <string name="plugin_name">Tên tiện ích</string>
@@ -937,4 +937,20 @@
     <string name="floating_navigation_bar">Thanh điều hướng nổi</string>
     <string name="floating_navigation_bar_summary">Hiển thị thanh điều hướng của màn hình chính ở dạng thanh nổi (như là Google Photos)</string>
     <string name="no_filters_available">Nguồn này không có bộ lọc nào ツ</string>
+    <string name="uninstall">Gỡ cài đặt</string>
+    <string name="rating_mixed">Hỗn hợp</string>
+    <string name="unknown_language">Ngôn ngữ không xác định</string>
+    <string name="tachiyomi_apk">APK Tachiyomi</string>
+    <string name="import_from_url">Nhập từ URL</string>
+    <string name="tachiyomi_catalog">Kho tiện ích mở rộng Tachiyomi</string>
+    <string name="add_tachiyomi_repository">Thêm kho Tachiyomi</string>
+    <string name="installed">Đã cài đặt</string>
+    <string name="tachiyomi_catalog_summary">Duyệt và cài đặt các nguồn mà không cần cài đặt APK tiện ích mở rộng</string>
+    <string name="import_url_summary">Nhập URL của kho GitHub dành cho tiện ích Usagi hoặc kho tiện ích mở rộng Tachiyomi/Mihon. Usagi sẽ tự động nhận diện định dạng.</string>
+    <string name="copy_error">Sao chép lỗi</string>
+    <string name="error_copied">Đã sao chép lỗi</string>
+    <string name="tachiyomi_repository_extension_count">%1$d tiện ích mở rộng • %2$d đã cài đặt</string>
+    <string name="tachiyomi_catalog_input">URL danh mục hoặc kho GitHub</string>
+    <string name="tachiyomi_catalog_loaded">Đã tải danh mục tiện ích mở rộng Tachiyomi</string>
+    <string name="tachiyomi_catalog_failed">Không thể tải danh mục tiện ích mở rộng Tachiyomi</string>
 </resources>

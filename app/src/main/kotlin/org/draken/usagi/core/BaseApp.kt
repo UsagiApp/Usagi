@@ -12,8 +12,6 @@ import androidx.room.InvalidationTracker
 import androidx.work.Configuration
 import eu.kanade.tachiyomi.AppInfo
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -74,9 +72,6 @@ open class BaseApp :
 	lateinit var pluginKeyResolver: PluginKeyResolver
 
 	@Inject
-	lateinit var pluginRuntimeInitializer: PluginRuntimeInitializer
-
-	@Inject
 	@LocalStorageChanges
 	lateinit var localStorageChanges: MutableSharedFlow<LocalManga?>
 
@@ -104,20 +99,13 @@ open class BaseApp :
 			launch {
 				localStorageChanges.collect(localMangaIndexProvider.get())
 			}
-			val nativeSources =
-				async {
-					runCatching {
-						mangaDynamicRepository.load(mangaDynamicRepository.getDir())
-						withContext(Dispatchers.Default) {
-							pluginKeyResolver.normalize(database.get(), savedFiltersRepository)
-						}
-					}
+			// Publish native sources during startup. Tachiyomi is warmed after the first GUI frame.
+			runCatching {
+				mangaDynamicRepository.load(mangaDynamicRepository.getDir())
+				withContext(Dispatchers.Default) {
+					pluginKeyResolver.normalize(database.get(), savedFiltersRepository)
 				}
-			val externalSources =
-				async {
-					pluginRuntimeInitializer.initialize()
-				}
-			awaitAll(nativeSources, externalSources)
+			}
 			workScheduleManager.init()
 		}
 	}

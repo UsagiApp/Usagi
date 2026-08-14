@@ -17,13 +17,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.ExceptionResolver
@@ -69,9 +66,6 @@ abstract class BaseActivity<B : ViewBinding> :
 		exceptionResolver = entryPoint.exceptionResolverFactory.create(this)
 		enableEdgeToEdge()
 		super.onCreate(savedInstanceState)
-		lifecycleScope.launch(Dispatchers.IO) {
-			runCatching { entryPoint.tachiyomiRuntime.ensureReady() }
-		}
 	}
 
 	override fun onPostCreate(savedInstanceState: Bundle?) {

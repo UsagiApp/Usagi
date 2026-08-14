@@ -62,25 +62,6 @@ sealed interface PluginManageItem : ListModel {
 		override fun areItemsTheSame(other: ListModel): Boolean = other is Tachiyomi && repositoryUrl == other.repositoryUrl
 	}
 
-	/** A single system row for Tachiyomi/Mihon extension APKs installed through Android. */
-	data class PreInstalledTachiyomi(
-		val extensions: List<InstalledTachiyomiExtension>,
-	) : PluginManageItem {
-		val extensionCount: Int
-			get() = extensions.size
-
-		override fun areItemsTheSame(other: ListModel): Boolean = other is PreInstalledTachiyomi
-	}
-
-	data class InstalledTachiyomiExtension(
-		val packageName: String,
-		val displayName: String,
-		val versionName: String?,
-		val sourceCount: Int,
-		val isVisibleInExplore: Boolean,
-		val loadError: String? = null,
-	)
-
 	data class Placeholder(
 		@field:StringRes val titleResId: Int,
 		@field:StringRes val summaryResId: Int?,

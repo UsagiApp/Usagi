@@ -64,13 +64,6 @@
     <string name="_import">Import</string>
     <string name="delete">Delete</string>
     <string name="uninstall">Uninstall</string>
-    <string name="show_in_explore">Show in Explore</string>
-    <string name="hide_from_explore">Hide from Explore</string>
-    <plurals name="tachiyomi_preinstalled_source_count">
-        <item quantity="one">%d source</item>
-        <item quantity="other">%d sources</item>
-    </plurals>
-
     <string name="operation_not_supported">This operation is not supported</string>
     <string name="text_file_not_supported">Either pick a ZIP, PDF or CBZ file.</string>
     <string name="no_description">No description</string>
@@ -974,12 +967,6 @@
 	<string name="no_plugins">No plugins installed</string>
 		<string name="no_plugins_summary">Click + above to add a plugin or Tachiyomi/Mihon extension repository</string>
 		<string name="tachiyomi_repository_extension_count">%1$d extensions • %2$d installed</string>
-		<string name="tachiyomi_preinstalled_extension">Tachiyomi extension pre-installed</string>
-		<plurals name="tachiyomi_preinstalled_extension_summary">
-			<item quantity="one">%d extension source already installed as APK, click here to manage your installed extension</item>
-			<item quantity="other">%d extension sources already installed as APK, click here to manage your installed extensions</item>
-		</plurals>
-
 	<string name="overwrite_plugin">Overwrite plugin?</string>
 	<string name="overwrite_plugin_summary">A plugin file named %1$s is already installed. Replace it with this one?</string>
 	<string name="plugin_name">Plugin name</string>
