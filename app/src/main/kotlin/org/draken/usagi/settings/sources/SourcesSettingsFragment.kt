@@ -70,8 +70,11 @@ class SourcesSettingsFragment :
 		savedInstanceState: Bundle?,
 	) {
 		super.onViewCreated(view, savedInstanceState)
-		findPreference<Preference>(AppSettings.KEY_REMOTE_SOURCES)?.summary =
-			getString(R.string.sources_count_summary, viewModel.totalSourcesCount, viewModel.externalSourcesCount)
+		findPreference<Preference>(AppSettings.KEY_REMOTE_SOURCES)?.let { pref ->
+			viewModel.sourceCounts.observe(viewLifecycleOwner) { (total, external) ->
+				pref.summary = getString(R.string.sources_count_summary, total, external)
+			}
+		}
 
 		findPreference<Preference>(AppSettings.KEY_SOURCES_CATALOG)?.let { pref ->
 			viewModel.availableSourcesCount.observe(viewLifecycleOwner) {

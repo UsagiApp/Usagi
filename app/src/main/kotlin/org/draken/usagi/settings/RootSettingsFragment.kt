@@ -12,6 +12,7 @@ import org.draken.usagi.R
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.addMenuProvider
+import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.settings.search.SettingsSearchMenuProvider
 import org.draken.usagi.settings.search.SettingsSearchViewModel
 
@@ -41,7 +42,9 @@ class RootSettingsFragment : BasePreferenceFragment(0) {
 	) {
 		super.onViewCreated(view, savedInstanceState)
 		findPreference<Preference>(AppSettings.KEY_REMOTE_SOURCES)?.let { pref ->
-			pref.summary = getString(R.string.sources_count_summary, viewModel.totalSourcesCount, viewModel.externalSourcesCount)
+			viewModel.sourceCounts.observe(viewLifecycleOwner) { (total, external) ->
+				pref.summary = getString(R.string.sources_count_summary, total, external)
+			}
 		}
 
 		addMenuProvider(SettingsSearchMenuProvider(activityViewModel))

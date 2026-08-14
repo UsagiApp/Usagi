@@ -30,6 +30,7 @@ import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.model.PluginMangaSource
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.model.isExternalSource
+import org.draken.usagi.core.model.isManageableSource
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.parser.external.ExternalMangaSource
 import org.draken.usagi.core.prefs.AppSettings
@@ -220,6 +221,13 @@ class MangaSourcesRepository
 					!x.isExternalSource() && x.name !in enabled && (!skipNsfw || !x.isNsfw()) && (!hideBroken || !x.isBroken)
 				}
 			}.distinctUntilChanged()
+
+		fun observeManageableSourcesCount(): Flow<Pair<Int, Int>> =
+			observeEnabledSources()
+				.map { sources ->
+					val manageable = sources.filter { it.isManageableSource() }
+					manageable.size to manageable.count { it.isExternalSource() }
+				}.distinctUntilChanged()
 
 		fun observeEnabledSources(): Flow<List<MangaSourceInfo>> =
 			combine(

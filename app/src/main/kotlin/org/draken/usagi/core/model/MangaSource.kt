@@ -187,6 +187,12 @@ fun MangaSource.isExternalSource(): Boolean =
 		else -> false
 	}
 
+fun MangaSource.isManageableSource(): Boolean =
+	when (unwrap()) {
+		is ExternalMangaSource, is LocalMangaSource, is TestMangaSource, is UnknownMangaSource -> false
+		else -> true
+	}
+
 fun MangaSource.externalPackageName(): String? =
 	when (val source = unwrap()) {
 		is ExternalMangaSource -> source.packageName

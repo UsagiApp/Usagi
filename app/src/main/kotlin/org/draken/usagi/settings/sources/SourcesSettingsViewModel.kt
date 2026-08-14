@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionCatalogProvider
-import org.draken.usagi.core.model.isExternalSource
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import javax.inject.Inject
@@ -31,11 +30,10 @@ class SourcesSettingsViewModel
 	) : BaseViewModel() {
 		private val linksHandlerActivity = ComponentName(context, "org.draken.usagi.details.ui.DetailsByLinkActivity")
 
-		val totalSourcesCount: Int
-			get() = sourcesRepository.allMangaSources.size
-
-		val externalSourcesCount: Int
-			get() = sourcesRepository.allMangaSources.count { it.isExternalSource() }
+		val sourceCounts =
+			sourcesRepository
+				.observeManageableSourcesCount()
+				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, 0 to 0)
 
 		private val externalPluginCountState = MutableStateFlow(0)
 		val externalPluginCount = externalPluginCountState
