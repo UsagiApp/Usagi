@@ -982,4 +982,6 @@
     <string name="tachiyomi_catalog_loaded">Tachiyomi extension catalog loaded</string>
     <string name="tachiyomi_catalog_failed">Could not load Tachiyomi extension catalog</string>
 	<string name="no_filters_available">This source has no filters</string>
+	<string name="sources_count_summary">%1$d sources (%2$d external)</string>
+	<string name="available_sources_summary">Available: %1$d (%2$d external)</string>
 </resources>

@@ -8,7 +8,6 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.TwoStatePreference
 import dagger.hilt.android.AndroidEntryPoint
-import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiExtensionManager
 import org.draken.usagi.R
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.router
@@ -36,9 +35,6 @@ class SourcesSettingsFragment :
 
 	@Inject
 	lateinit var sourcesRepository: MangaSourcesRepository
-
-	@Inject
-	lateinit var directTachiyomiManager: DirectTachiyomiExtensionManager
 
 	override fun onCreatePreferences(
 		savedInstanceState: Bundle?,
@@ -74,39 +70,33 @@ class SourcesSettingsFragment :
 		savedInstanceState: Bundle?,
 	) {
 		super.onViewCreated(view, savedInstanceState)
-		findPreference<Preference>(AppSettings.KEY_REMOTE_SOURCES)?.let { pref ->
-			viewModel.enabledSourcesCount.observe(viewLifecycleOwner) {
-				pref.summary =
-					if (it >= 0) {
-						resources.getQuantityStringSafe(R.plurals.items, it, it)
-					} else {
-						null
-					}
-			}
-		}
+		findPreference<Preference>(AppSettings.KEY_REMOTE_SOURCES)?.summary =
+			getString(R.string.sources_count_summary, viewModel.totalSourcesCount, viewModel.externalSourcesCount)
+
 		findPreference<Preference>(AppSettings.KEY_SOURCES_CATALOG)?.let { pref ->
 			viewModel.availableSourcesCount.observe(viewLifecycleOwner) {
-				pref.summary =
-					when {
-						it == 0 -> getString(R.string.all_sources_enabled)
-						it > 0 -> getString(R.string.available_d, it)
-						else -> null
-					}
-				hideEmptyCatalog()
+				updateCatalogSummary(pref)
 			}
 		}
+
 		findPreference<TwoStatePreference>(AppSettings.KEY_HANDLE_LINKS)?.let { pref ->
 			viewModel.isLinksEnabled.observe(viewLifecycleOwner) {
 				pref.isChecked = it
 			}
 		}
 		updateEnableAllDependencies()
+		viewModel.externalPluginCount.observe(viewLifecycleOwner) { updatePluginsSummary() }
+		viewModel.externalCatalogSourceCount.observe(viewLifecycleOwner) {
+			findPreference<Preference>(AppSettings.KEY_SOURCES_CATALOG)?.let(::updateCatalogSummary)
+			hideEmptyCatalog()
+		}
 		updatePluginsSummary()
 		settings.subscribe(this)
 	}
 
 	override fun onResume() {
 		super.onResume()
+		viewModel.refreshExternalCounts()
 		updatePluginsSummary()
 	}
 
@@ -146,15 +136,29 @@ class SourcesSettingsFragment :
 	}
 
 	private fun updatePluginsSummary() {
-		val count = mangaDynamicRepository.get().size + directTachiyomiManager.installed.value.size
+		val count = mangaDynamicRepository.get().size + viewModel.externalPluginCount.value
 		findPreference<Preference>("plugins_manager")?.summary =
 			resources.getQuantityStringSafe(R.plurals.items, count, count)
 		hideEmptyCatalog()
 	}
 
+	private fun updateCatalogSummary(pref: Preference) {
+		val count = viewModel.availableSourcesCount.value
+		val external = viewModel.externalCatalogSourceCount.value
+		pref.summary =
+			when {
+				count == 0 -> getString(R.string.all_sources_enabled)
+				count > 0 && external > 0 -> getString(R.string.available_sources_summary, count, external)
+				count > 0 -> getString(R.string.available_d, count)
+				else -> null
+			}
+		hideEmptyCatalog()
+	}
+
 	private fun hideEmptyCatalog() {
 		val catalog = viewModel.availableSourcesCount.value
-		val imported = mangaDynamicRepository.get().size + directTachiyomiManager.installed.value.size
+		val imported = mangaDynamicRepository.get().size + viewModel.externalPluginCount.value
+
 		findPreference<Preference>(AppSettings.KEY_REMOTE_SOURCES)?.isVisible = !(catalog == 0 && imported == 0)
 	}
 }

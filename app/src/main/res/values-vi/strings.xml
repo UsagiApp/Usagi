@@ -953,4 +953,6 @@
     <string name="tachiyomi_catalog_input">URL danh mục hoặc kho GitHub</string>
     <string name="tachiyomi_catalog_loaded">Đã tải danh mục tiện ích mở rộng Tachiyomi</string>
     <string name="tachiyomi_catalog_failed">Không thể tải danh mục tiện ích mở rộng Tachiyomi</string>
+	<string name="sources_count_summary">%1$d nguồn (%2$d nguồn bên ngoài)</string>
+	<string name="available_sources_summary">Có sẵn: %1$d (%2$d nguồn bên ngoài)</string>
 </resources>
