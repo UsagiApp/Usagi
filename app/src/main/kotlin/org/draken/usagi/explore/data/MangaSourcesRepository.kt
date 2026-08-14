@@ -74,6 +74,7 @@ class MangaSourcesRepository
 		suspend fun getEnabledSources(): List<MangaSource> {
 			assimilateNewSources()
 			val order = settings.sourcesSortOrder
+			val entities = dao.findAll()
 			return dao
 				.findAll(!settings.isAllSourcesEnabled, order)
 				.toSources(
@@ -85,7 +86,7 @@ class MangaSourcesRepository
 					val external = getAllExtSources().filterNot { it is ExternalSource && it.name in disabledTachiyomi }
 					val list = ArrayList<MangaSourceInfo>(enabled.size + external.size)
 
-					external.mapTo(list) { MangaSourceInfo(it, isEnabled = true, isPinned = true) }
+					list.addAll(external.toSourceInfo(entities))
 					list.addAll(enabled)
 					list
 				}
@@ -243,8 +244,9 @@ class MangaSourcesRepository
 					val allExternal = external + getSpecialSources().filterNot { it.name in disabledTachiyomi }
 					val list = ArrayList<MangaSourceInfo>(enabled.size + allExternal.size)
 
-					allExternal.mapTo(list) { MangaSourceInfo(it, isEnabled = true, isPinned = true) }
+					list.addAll(allExternal.toSourceInfo(entities))
 					list.addAll(enabled)
+
 					list
 				}
 
@@ -365,7 +367,7 @@ class MangaSourcesRepository
 		): ReversibleHandle {
 			setSourcesPinnedImpl(sources, isPinned)
 			return ReversibleHandle {
-				setSourcesEnabledImpl(sources, !isPinned)
+				setSourcesPinnedImpl(sources, !isPinned)
 			}
 		}
 
@@ -468,7 +470,18 @@ class MangaSourcesRepository
 
 		private fun getAllExtSources(): List<MangaSource> = getExternalSources() + getSpecialSources()
 
+		private fun Collection<MangaSource>.toSourceInfo(entities: Collection<MangaSourceEntity>): List<MangaSourceInfo> {
+			val pinnedSources =
+				entities
+					.asSequence()
+					.filter { it.isPinned }
+					.map { it.source }
+					.toSet()
+			return map { source -> MangaSourceInfo(source, isEnabled = true, isPinned = source.name in pinnedSources) }
+		}
+
 		private suspend fun getDisabledTachiyomiSourceNames(): Set<String> =
+
 			dao
 				.findAll()
 				.asSequence()
