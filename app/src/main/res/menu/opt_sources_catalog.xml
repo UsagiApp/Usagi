@@ -10,10 +10,4 @@
 		app:actionViewClass="androidx.appcompat.widget.SearchView"
 		app:showAsAction="ifRoom|collapseActionView" />
 
-	<item
-		android:id="@+id/action_add_tachiyomi_repository"
-		android:icon="@drawable/ic_add"
-		android:title="@string/add_tachiyomi_repository"
-		app:showAsAction="ifRoom" />
-
 </menu>

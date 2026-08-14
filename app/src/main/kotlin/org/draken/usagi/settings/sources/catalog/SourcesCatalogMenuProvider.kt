@@ -13,7 +13,6 @@ class SourcesCatalogMenuProvider(
 	private val activity: Activity,
 	private val viewModel: SourcesCatalogViewModel,
 	private val expandListener: MenuItem.OnActionExpandListener,
-	private val onAddRepository: () -> Unit,
 ) : MenuProvider,
 	MenuItem.OnActionExpandListener,
 	SearchView.OnQueryTextListener {
@@ -30,13 +29,7 @@ class SourcesCatalogMenuProvider(
 		searchView.queryHint = searchMenuItem.title
 	}
 
-	override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
-		if (menuItem.itemId == R.id.action_add_tachiyomi_repository) {
-			onAddRepository()
-			true
-		} else {
-			false
-		}
+	override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
 
 	override fun onMenuItemActionExpand(item: MenuItem): Boolean {
 		(activity as? AppBarOwner)?.appBar?.setExpanded(true, true)

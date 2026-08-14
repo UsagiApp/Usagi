@@ -3,7 +3,6 @@ package org.draken.usagi.settings.sources.catalog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.os.Bundle
-import android.text.InputType
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -12,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.Insets
+import androidx.core.os.ConfigurationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
@@ -25,14 +25,11 @@ import org.draken.usagi.R
 import org.draken.usagi.core.model.titleResId
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.ui.BaseActivity
-import org.draken.usagi.core.ui.dialog.buildAlertDialog
-import org.draken.usagi.core.ui.dialog.setEditText
 import org.draken.usagi.core.ui.list.OnListItemClickListener
 import org.draken.usagi.core.ui.util.FadingAppbarMediator
 import org.draken.usagi.core.ui.util.ReversibleActionObserver
 import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.core.ui.widgets.ChipsView.ChipModel
-import org.draken.usagi.core.util.LocaleComparator
 import org.draken.usagi.core.util.ext.getDisplayName
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
@@ -41,6 +38,7 @@ import org.draken.usagi.databinding.ActivitySourcesCatalogBinding
 import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.main.ui.owners.AppBarOwner
 import tsuki.model.ContentType
+import java.util.Locale
 
 @AndroidEntryPoint
 class SourcesCatalogActivity :
@@ -81,7 +79,7 @@ class SourcesCatalogActivity :
 		combine(viewModel.appliedFilter, viewModel.hasNewSources, viewModel.contentTypes, ::Triple).observe(this) {
 			updateFilers(it.first, it.second, it.third)
 		}
-		addMenuProvider(SourcesCatalogMenuProvider(this, viewModel, this, ::showAddRepositoryDialog))
+		addMenuProvider(SourcesCatalogMenuProvider(this, viewModel, this))
 	}
 
 	override fun onDestroy() {
@@ -148,26 +146,6 @@ class SourcesCatalogActivity :
 				showTachiyomiError(viewModel.tachiyomiInstallError())
 			}
 		}
-	}
-
-	private fun showAddRepositoryDialog() {
-		val input =
-			buildAlertDialog(this) {
-				setTitle(R.string.tachiyomi_catalog_input)
-				val editText = setEditText(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI, singleLine = true)
-				editText.setText("https://github.com/keiyoushi/extensions")
-				setNegativeButton(android.R.string.cancel, null)
-				setPositiveButton(R.string.add) { _, _ ->
-					lifecycleScope.launch {
-						val success = viewModel.addTachiyomiRepository(editText.text?.toString().orEmpty())
-						if (success) {
-							showInsetSnackbar(getString(R.string.tachiyomi_catalog_loaded), Snackbar.LENGTH_LONG)
-						} else {
-							showTachiyomiError(viewModel.tachiyomiCatalogError())
-						}
-					}
-				}
-			}.show()
 	}
 
 	override fun onMenuItemActionExpand(item: MenuItem): Boolean {
@@ -265,12 +243,24 @@ class SourcesCatalogActivity :
 		menu.show()
 	}
 
-	private fun localeDisplayName(value: String?): String =
-		when {
-			value.isNullOrBlank() -> getString(R.string.all_languages)
-			value.equals("all", true) -> getString(R.string.various_languages)
-			else -> value.toLocale().getDisplayName(this)
-		}
+	private fun localeDisplayName(value: String?): String {
+		val code = value?.trim().orEmpty()
+		if (code.isEmpty()) return getString(R.string.all_languages)
+		if (code.equals("all", true)) return getString(R.string.various_languages)
+
+		val locale = code.replace('_', '-').toLocale()
+		val displayLocale = ConfigurationCompat.getLocales(resources.configuration)[0] ?: Locale.getDefault()
+		val localizedName = locale.getDisplayLanguage(displayLocale).trim()
+		if (!localizedName.isLocaleCode(locale)) return localizedName
+
+		val englishName = locale.getDisplayLanguage(Locale.ENGLISH).trim()
+		return englishName.takeUnless { it.isLocaleCode(locale) } ?: getString(R.string.unknown_language)
+	}
+
+	private fun String.isLocaleCode(locale: Locale): Boolean {
+		val normalized = trim().lowercase(Locale.ROOT)
+		return normalized.isEmpty() || normalized == locale.language.lowercase(Locale.ROOT) || normalized == locale.toLanguageTag().lowercase(Locale.ROOT)
+	}
 
 	private fun showPluginsMenu(anchor: View) {
 		val menu = PopupMenu(this, anchor)
