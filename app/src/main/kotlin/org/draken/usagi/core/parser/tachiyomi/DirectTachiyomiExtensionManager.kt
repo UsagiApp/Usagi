@@ -3,9 +3,6 @@ package org.draken.usagi.core.parser.tachiyomi
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.content.res.AssetManager
-import android.content.res.XmlResourceParser
-import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import androidx.core.content.edit
@@ -308,20 +305,10 @@ class DirectTachiyomiExtensionManager
 			artifact: TachiyomiExtensionArtifact,
 		): TachiyomiLoadResult {
 			val packageInfo = getPackageInfo(file)
-			val minSdk = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N || packageInfo == null) getArchiveMinSdk(file) else null
-			if (minSdk != null && minSdk > Build.VERSION.SDK_INT) {
-				return TachiyomiLoadResult.Error(
-					artifact.packageName,
-					"Requires Android API $minSdk, but this device is API ${Build.VERSION.SDK_INT}",
-				)
-			}
-			val resolvedPackageInfo = packageInfo ?: return TachiyomiLoadResult.Error(artifact.packageName, "Invalid extension archive")
-			val appInfo = resolvedPackageInfo.applicationInfo ?: return TachiyomiLoadResult.Error(artifact.packageName, "Missing application info")
-			appInfo.sourceDir = file.absolutePath
-			appInfo.publicSourceDir = file.absolutePath
-			val metadata = appInfo.metaData ?: return TachiyomiLoadResult.Error(artifact.packageName, "Missing extension metadata")
+			val packageName = packageInfo?.packageName?.takeIf { PACKAGE_REGEX.matches(it) } ?: artifact.packageName
+			val metadata = packageInfo?.applicationInfo?.metaData ?: catalogMetadata(packageName, artifact)
 
-			val versionName = resolvedPackageInfo.versionName ?: artifact.versionName ?: "0.0.0"
+			val versionName = packageInfo?.versionName ?: artifact.versionName ?: "0.0.0"
 			val libVersion =
 				readLibVersion(metadata, versionName) ?: artifact.extensionLib
 					?: return TachiyomiLoadResult.Error(artifact.packageName, "Missing extension library version")
@@ -360,21 +347,21 @@ class DirectTachiyomiExtensionManager
 				}
 
 			return runCatching {
-				val sources = loadSources(resolvedPackageInfo.packageName, sourceClassNames, loader)
+				val sources = loadSources(packageName, sourceClassNames, loader)
 
 				if (sources.isEmpty()) error("No sources loaded")
 				classLoaders[artifact.packageName] = loader
 				TachiyomiLoadResult.Success(
 					pkgName = artifact.packageName,
 					appName = artifact.name,
-					versionCode = PackageInfoCompat.getLongVersionCode(resolvedPackageInfo),
+					versionCode = packageInfo?.let(PackageInfoCompat::getLongVersionCode) ?: artifact.versionCode ?: 0L,
 					versionName = versionName,
 					libVersion = libVersion,
 					lang = sources.mapNotNull { (it as? CatalogueSource)?.lang }.distinct().let { if (it.size == 1) it.first() else "all" },
 					isNsfw = effectiveRating.isNsfw,
 					sources = sources,
 				)
-			}.getOrElse { TachiyomiLoadResult.Error(artifact.packageName, it.message ?: "Failed to load extension", it) }
+			}.getOrElse { TachiyomiLoadResult.Error(artifact.packageName, "Failed to load extension: ${it.describeFailure()}", it) }
 		}
 
 		private fun Throwable.describeFailure(): String =
@@ -403,46 +390,20 @@ class DirectTachiyomiExtensionManager
 				context.packageManager.getPackageArchiveInfo(file.absolutePath, PACKAGE_FLAGS)
 			}.getOrNull()
 
-		private fun getArchiveMinSdk(file: File): Int? =
-			runCatching {
-				val assets =
-					AssetManager::class.java
-						.getDeclaredConstructor()
-						.apply { isAccessible = true }
-						.newInstance()
-				try {
-					val addAssetPath = AssetManager::class.java.getDeclaredMethod("addAssetPath", String::class.java).apply { isAccessible = true }
-					val cookie = addAssetPath.invoke(assets, file.absolutePath) as? Int
-					if (cookie == null || cookie == 0) {
-						null
-					} else {
-						val openParser =
-							AssetManager::class.java
-								.getDeclaredMethod("openXmlResourceParser", Int::class.javaPrimitiveType, String::class.java)
-								.apply { isAccessible = true }
-						val parser = openParser.invoke(assets, cookie, "AndroidManifest.xml") as? XmlResourceParser
-						if (parser == null) {
-							null
-						} else {
-							try {
-								var minSdk: Int? = null
-								while (parser.eventType != XmlPullParser.END_DOCUMENT) {
-									if (parser.eventType == XmlPullParser.START_TAG && parser.name == "uses-sdk") {
-										minSdk = parser.getAttributeValue(ANDROID_NAMESPACE, "minSdkVersion")?.toIntOrNull()
-										break
-									}
-									parser.next()
-								}
-								minSdk
-							} finally {
-								parser.close()
-							}
-						}
-					}
-				} finally {
-					assets.close()
+		private fun catalogMetadata(
+			packageName: String,
+			artifact: TachiyomiExtensionArtifact,
+		): Bundle =
+			Bundle().apply {
+				putString(METADATA_SOURCE_CLASS, "$packageName.ExtensionGenerated")
+				artifact.extensionLib?.let { putDouble(METADATA_EXTENSION_LIB, it) }
+				when (artifact.contentRating) {
+					TachiyomiContentRating.SAFE -> putInt(METADATA_CONTENT_WARNING, 0)
+					TachiyomiContentRating.MIXED -> putInt(METADATA_CONTENT_WARNING, 1)
+					TachiyomiContentRating.NSFW -> putInt(METADATA_CONTENT_WARNING, 2)
+					TachiyomiContentRating.UNSPECIFIED -> Unit
 				}
-			}.getOrNull()
+			}
 
 		private fun download(
 			url: String,
@@ -538,7 +499,6 @@ class DirectTachiyomiExtensionManager
 			}
 
 		companion object {
-			private const val ANDROID_NAMESPACE = "http://schemas.android.com/apk/res/android"
 			private const val DIRECT_DIR = "tachiyomi-direct"
 			private const val DEX_DIR = "tachiyomi-direct-dex"
 			private const val METADATA_FILE = "installed.json"
