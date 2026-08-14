@@ -3,14 +3,20 @@ package org.draken.usagi.settings.sources.manage.plugins
 import android.content.Context
 import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.model.PluginKeyResolver
 import org.draken.usagi.core.network.BaseHttpClient
@@ -20,7 +26,6 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.json.JSONArray
 import org.json.JSONObject
-import tsuki.util.await
 import tsuki.util.runCatchingCancellable
 import java.io.File
 import java.io.IOException
@@ -102,6 +107,55 @@ class UpdatePluginsProvider
 			pluginKeyResolver.normalize(database, savedFiltersRepository)
 		}
 
+		@OptIn(InternalCoroutinesApi::class)
+		private suspend fun Call.awaitCancellable(): Response =
+			suspendCancellableCoroutine { continuation ->
+				continuation.invokeOnCancellation { cancel() }
+				try {
+					enqueue(
+						object : Callback {
+							override fun onFailure(
+								call: Call,
+								e: IOException,
+							) {
+								resumeFailure(continuation, e)
+							}
+
+							override fun onResponse(
+								call: Call,
+								response: Response,
+							) {
+								resumeResponse(continuation, response)
+							}
+						},
+					)
+				} catch (t: Throwable) {
+					resumeFailure(continuation, t)
+				}
+			}
+
+		@OptIn(InternalCoroutinesApi::class)
+		private fun resumeFailure(
+			continuation: CancellableContinuation<Response>,
+			error: Throwable,
+		) {
+			val token = continuation.tryResumeWithException(error)
+			if (token != null) continuation.completeResume(token)
+		}
+
+		@OptIn(InternalCoroutinesApi::class)
+		private fun resumeResponse(
+			continuation: CancellableContinuation<Response>,
+			response: Response,
+		) {
+			val token = continuation.tryResume(response)
+			if (token != null) {
+				continuation.completeResume(token)
+			} else {
+				response.close()
+			}
+		}
+
 		suspend fun requestRelease(
 			repository: String,
 			name: String? = null,
@@ -121,7 +175,7 @@ class UpdatePluginsProvider
 						.get()
 						.url("https://github.com/$repository/releases/latest")
 						.build()
-				okHttpClient.newCall(request).await().use { response ->
+				okHttpClient.newCall(request).awaitCancellable().use { response ->
 					if (!response.isSuccessful) return null
 					val pathSegments = response.request.url.pathSegments
 					val tagIndex = pathSegments.indexOf("tag")
@@ -155,7 +209,7 @@ class UpdatePluginsProvider
 						.get()
 						.url(url)
 						.build()
-				okHttpClient.newCall(request).await().use { response ->
+				okHttpClient.newCall(request).awaitCancellable().use { response ->
 					if (!response.isSuccessful) return emptyList()
 					val body = response.body.string()
 					if (body.isBlank()) return emptyList()
@@ -206,7 +260,7 @@ class UpdatePluginsProvider
 						.get()
 						.url(url)
 						.build()
-				okHttpClient.newCall(request).await().use { response ->
+				okHttpClient.newCall(request).awaitCancellable().use { response ->
 					if (!response.isSuccessful) throw IOException()
 					PluginFileLoader.copyFromStream(dest, response.body.byteStream())
 				}
