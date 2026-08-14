@@ -313,13 +313,29 @@ class DirectTachiyomiExtensionManager
 			val effectiveRating = if (manifestRating != TachiyomiContentRating.UNSPECIFIED) manifestRating else artifact.contentRating
 			val loader =
 				runCatching {
+					val optimizedDirectory =
+						File(dexDirectory, artifact.packageName).also { directory ->
+							if (!directory.exists() && !directory.mkdirs()) {
+								error("Cannot create optimized DEX directory: ${directory.absolutePath}")
+							}
+							if (!directory.isDirectory || !directory.canWrite()) {
+								error("Optimized DEX directory is not writable: ${directory.absolutePath}")
+							}
+						}
 					DirectDexClassLoader(
 						file.absolutePath,
-						dexDirectory.absolutePath,
-						appInfo.nativeLibraryDir ?: context.applicationInfo.nativeLibraryDir,
-						context.classLoader,
+						optimizedDirectory.absolutePath,
+						librarySearchPath = null,
+						parent = context.classLoader,
 					)
-				}.getOrElse { return TachiyomiLoadResult.Error(artifact.packageName, "Cannot create extension classloader", it) }
+				}.getOrElse {
+					return TachiyomiLoadResult.Error(
+						artifact.packageName,
+						"Cannot create extension classloader: ${it.describeFailure()}",
+						it,
+					)
+				}
+
 			return runCatching {
 				val sources = loadSources(packageInfo.packageName, sourceClassNames, loader)
 				if (sources.isEmpty()) error("No sources loaded")
@@ -336,6 +352,13 @@ class DirectTachiyomiExtensionManager
 				)
 			}.getOrElse { TachiyomiLoadResult.Error(artifact.packageName, it.message ?: "Failed to load extension", it) }
 		}
+
+		private fun Throwable.describeFailure(): String =
+			generateSequence(this) { it.cause }
+				.mapNotNull { error -> error.message?.takeIf { it.isNotBlank() } }
+				.distinct()
+				.joinToString(" <- ")
+				.ifBlank { javaClass.simpleName }
 
 		private fun loadSources(
 			packageName: String,
