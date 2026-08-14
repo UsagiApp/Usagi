@@ -190,7 +190,7 @@ fun MangaSource.isExternalSource(): Boolean =
 fun MangaSource.externalPackageName(): String? =
 	when (val source = unwrap()) {
 		is ExternalMangaSource -> source.packageName
-		is ExternalSource -> source.pkgName
+		is ExternalSource -> source.pkgName.takeIf { source.isPreInstalledApk }
 		else -> null
 	}
 
