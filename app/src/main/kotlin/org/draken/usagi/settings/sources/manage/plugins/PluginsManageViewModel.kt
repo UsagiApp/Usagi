@@ -26,6 +26,7 @@ import org.draken.usagi.settings.sources.manage.plugins.model.PluginManageItem
 import tsuki.util.runCatchingCancellable
 import java.io.File
 import javax.inject.Inject
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as InstalledTachiyomiExtensionManager
 
 @HiltViewModel
 class PluginsManageViewModel
@@ -39,6 +40,7 @@ class PluginsManageViewModel
 		private val mangaDynamicRepository: MangaDynamicRepository,
 		private val pluginKeyResolver: PluginKeyResolver,
 		private val directManager: DirectTachiyomiExtensionManager,
+		private val installedTachiyomiManager: InstalledTachiyomiExtensionManager,
 		private val tachiyomiRuntime: TachiyomiRuntime,
 		private val catalogProvider: TachiyomiExtensionCatalogProvider,
 	) : BaseViewModel() {
@@ -52,6 +54,9 @@ class PluginsManageViewModel
 		private var tachiyomiSnapshot = emptyList<PluginManageItem.Tachiyomi>()
 
 		@Volatile
+		private var preInstalledTachiyomiSnapshot: PluginManageItem.PreInstalledTachiyomi? = null
+
+		@Volatile
 		private var query = ""
 
 		init {
@@ -61,6 +66,7 @@ class PluginsManageViewModel
 		fun refresh() {
 			launchLoadingJob(Dispatchers.Default) {
 				runCatching { tachiyomiRuntime.ensureReady() }
+				refreshPreInstalledTachiyomiItem()
 				refreshTachiyomiItems(catalogProvider.loadSaved())
 
 				val localPlugins = loadPluginsLocal()
@@ -82,6 +88,7 @@ class PluginsManageViewModel
 					pluginsSnapshot = updatedPlugins
 					publishFiltered()
 				}
+				refreshPreInstalledTachiyomiItem()
 				refreshTachiyomiItems(catalogProvider.loadSaved())
 			}
 		}
@@ -311,6 +318,31 @@ class PluginsManageViewModel
 
 		fun isInstalled(fileName: String): Boolean = File(mangaDynamicRepository.getDir(), PluginFileLoader.resolve(fileName)).exists()
 
+		private fun refreshPreInstalledTachiyomiItem() {
+			val successes =
+				installedTachiyomiManager.installedExtensions.value.map { extension ->
+					PluginManageItem.InstalledTachiyomiExtension(
+						packageName = extension.pkgName,
+						displayName = extension.appName,
+						versionName = extension.versionName,
+					)
+				}
+			val failures =
+				installedTachiyomiManager.failedExtensions.value
+					.filterNot { failure -> successes.any { it.packageName == failure.pkgName } }
+					.map { failure ->
+						PluginManageItem.InstalledTachiyomiExtension(
+							packageName = failure.pkgName,
+							displayName = failure.pkgName.substringAfterLast('.'),
+							versionName = null,
+							loadError = failure.message,
+						)
+					}
+			val extensions = (successes + failures).distinctBy { it.packageName }
+			preInstalledTachiyomiSnapshot =
+				extensions.takeIf { it.isNotEmpty() }?.let(PluginManageItem::PreInstalledTachiyomi)
+		}
+
 		private fun refreshTachiyomiItems(artifacts: List<TachiyomiExtensionArtifact>) {
 			val failures = directManager.failed.value
 			val installed = directManager.installed.value.distinctBy { it.packageName }
@@ -346,7 +378,12 @@ class PluginsManageViewModel
 		private fun canonicalRepository(value: String): String = catalogProvider.normalizeUrl(value) ?: value.trim().removeSuffix("/")
 
 		private fun publishFiltered() {
-			val all: List<PluginManageItem> = pluginsSnapshot + tachiyomiSnapshot
+			val all: List<PluginManageItem> =
+				buildList {
+					preInstalledTachiyomiSnapshot?.let(::add)
+					addAll(pluginsSnapshot)
+					addAll(tachiyomiSnapshot)
+				}
 			if (all.isEmpty()) {
 				content.value = listOf(PluginManageItem.Placeholder(R.string.no_plugins, R.string.no_plugins_summary))
 				return
@@ -359,9 +396,22 @@ class PluginsManageViewModel
 			val filtered =
 				all.filter { item ->
 					when (item) {
-						is PluginManageItem.Plugin -> item.name.contains(q, true) || item.repository?.contains(q, true) == true
-						is PluginManageItem.Tachiyomi -> item.displayName.contains(q, true) || item.repositoryLabel.contains(q, true) || item.repositoryUrl.contains(q, true)
-						is PluginManageItem.Placeholder -> false
+						is PluginManageItem.Plugin -> {
+							item.name.contains(q, true) || item.repository?.contains(q, true) == true
+						}
+
+						is PluginManageItem.Tachiyomi -> {
+							item.displayName.contains(q, true) || item.repositoryLabel.contains(q, true) || item.repositoryUrl.contains(q, true)
+						}
+
+						is PluginManageItem.PreInstalledTachiyomi -> {
+							context.getString(R.string.tachiyomi_preinstalled_extension).contains(q, true) ||
+								item.extensions.any { extension -> extension.displayName.contains(q, true) || extension.packageName.contains(q, true) }
+						}
+
+						is PluginManageItem.Placeholder -> {
+							false
+						}
 					}
 				}
 			content.value = filtered.ifEmpty { listOf(PluginManageItem.Placeholder(R.string.nothing_found, null)) }

@@ -21,6 +21,7 @@ class PluginManageAdapter(
 	onTachiyomiRenameClick: (PluginManageItem.Tachiyomi) -> Unit,
 	onTachiyomiLongClick: (PluginManageItem.Tachiyomi) -> Unit,
 	onTachiyomiClick: (PluginManageItem.Tachiyomi) -> Unit,
+	onPreInstalledTachiyomiClick: (PluginManageItem.PreInstalledTachiyomi) -> Unit,
 	onLongClick: (PluginManageItem.Plugin) -> Unit,
 	onClick: (PluginManageItem.Plugin) -> Unit,
 	isSelected: (PluginManageItem.Plugin) -> Boolean,
@@ -29,6 +30,7 @@ class PluginManageAdapter(
 	init {
 		addDelegate(ListItemType.CHAPTER_LIST, pluginItemDelegate(onRenameClick, onUpdateClick, onLongClick, onClick, isSelected))
 		addDelegate(ListItemType.INFO, tachiyomiItemDelegate(onTachiyomiRenameClick, onTachiyomiLongClick, onTachiyomiClick, isTachiyomiSelected))
+		addDelegate(ListItemType.TIP, preInstalledTachiyomiDelegate(onPreInstalledTachiyomiClick))
 		addDelegate(ListItemType.HINT_EMPTY, pluginPlaceholderDelegate())
 	}
 
@@ -123,6 +125,31 @@ class PluginManageAdapter(
 					add(context.getString(R.string.tachiyomi_repository_extension_count, item.extensionCount, item.installedCount))
 					if (item.hasFailures) add(context.getString(R.string.load_failed))
 				}.joinToString(" • ")
+		}
+	}
+
+	private fun preInstalledTachiyomiDelegate(
+		onClick: (PluginManageItem.PreInstalledTachiyomi) -> Unit,
+	) = adapterDelegateViewBinding<PluginManageItem.PreInstalledTachiyomi, ListModel, ItemSourceConfigBinding>(
+		{ layoutInflater, parent -> ItemSourceConfigBinding.inflate(layoutInflater, parent, false) },
+	) {
+		binding.imageViewIcon.background = null
+		binding.imageViewMenu.isVisible = false
+		binding.imageViewRemove.isVisible = false
+		binding.imageViewAdd.isVisible = false
+		itemView.setOnLongClickListener(null)
+		itemView.setOnClickListener { onClick(item) }
+
+		bind {
+			itemView.isSelected = false
+			binding.imageViewIcon.setImageResource(R.drawable.ic_tachiyomi_extension_package)
+			binding.textViewTitle.setText(R.string.tachiyomi_preinstalled_extension)
+			binding.textViewDescription.text =
+				context.resources.getQuantityString(
+					R.plurals.tachiyomi_preinstalled_extension_summary,
+					item.extensionCount,
+					item.extensionCount,
+				)
 		}
 	}
 

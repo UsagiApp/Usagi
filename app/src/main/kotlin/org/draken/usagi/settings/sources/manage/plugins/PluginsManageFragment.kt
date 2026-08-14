@@ -1,7 +1,10 @@
 package org.draken.usagi.settings.sources.manage.plugins
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -83,6 +86,7 @@ class PluginsManageFragment :
 				onTachiyomiRenameClick = ::onTachiyomiRenameClick,
 				onTachiyomiLongClick = ::onTachiyomiLongClick,
 				onTachiyomiClick = ::onTachiyomiClick,
+				onPreInstalledTachiyomiClick = ::onPreInstalledTachiyomiClick,
 				onLongClick = ::onLongClick,
 				onClick = ::onClick,
 				isSelected = { item -> viewModel.isSelected(item.name) },
@@ -238,6 +242,33 @@ class PluginsManageFragment :
 
 	private fun onTachiyomiLongClick(item: PluginManageItem.Tachiyomi) {
 		viewModel.toggleTachiyomiSelection(item)
+	}
+
+	private fun onPreInstalledTachiyomiClick(item: PluginManageItem.PreInstalledTachiyomi) {
+		if (item.extensions.size == 1) {
+			openInstalledExtensionSettings(item.extensions.first())
+			return
+		}
+		val labels =
+			item.extensions.map { extension ->
+				listOfNotNull(
+					extension.displayName,
+					extension.versionName?.let { version -> "v$version" },
+					extension.loadError?.let { getString(R.string.load_failed) },
+				).joinToString(" • ")
+			}
+		buildAlertDialog(requireContext()) {
+			setTitle(R.string.tachiyomi_preinstalled_extension)
+			setItems(labels.toTypedArray()) { _, index ->
+				openInstalledExtensionSettings(item.extensions[index])
+			}
+			setNegativeButton(android.R.string.cancel, null)
+		}.show()
+	}
+
+	private fun openInstalledExtensionSettings(item: PluginManageItem.InstalledTachiyomiExtension) {
+		val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", item.packageName, null))
+		startActivity(intent)
 	}
 
 	private fun showDeleteSelectedConfirm() {
