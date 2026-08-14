@@ -44,6 +44,7 @@ import org.draken.usagi.core.image.AvifImageDecoder
 import org.draken.usagi.core.image.CbzFetcher
 import org.draken.usagi.core.image.ExternalSourceFetcher
 import org.draken.usagi.core.image.MangaSourceHeaderInterceptor
+import org.draken.usagi.core.model.DirectTachiyomiPluginMetadata
 import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.network.BaseHttpClient
 import org.draken.usagi.core.network.MangaHttpClient
@@ -294,6 +295,7 @@ interface AppModule {
 		fun provideTachiyomiRuntime(
 			installedManager: Manager,
 			directManager: DirectTachiyomiExtensionManager,
+			catalogProvider: TachiyomiExtensionCatalogProvider,
 			database: MangaDatabase,
 			settings: AppSettings,
 		): TachiyomiRuntime =
@@ -316,6 +318,7 @@ interface AppModule {
 					},
 				sourcesPublisher =
 					TachiyomiSourcesPublisher { sources ->
+						DirectTachiyomiPluginMetadata.update(directManager.installed.value, catalogProvider::repositoryName)
 						val nonTachiyomi = MangaSourceRegistry.sources.filterNot { it is TachiyomiMangaSource }
 						MangaSourceRegistry.publish(nonTachiyomi + sources)
 					},

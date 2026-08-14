@@ -10,6 +10,7 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.text.inSpans
 import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiExtensionManager
+import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiInstalled
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.external.ExternalMangaSource
 import org.draken.usagi.core.util.ext.getDisplayName
@@ -18,6 +19,7 @@ import org.draken.usagi.core.util.ext.toLocaleOrNull
 import tsuki.model.ContentType
 import tsuki.model.MangaSource
 import tsuki.util.splitTwoParts
+import java.net.URI
 import java.util.Locale
 import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
 
@@ -42,6 +44,52 @@ data class PluginMangaSource(
 
 	override val isBroken: Boolean
 		get() = delegate.isBroken
+}
+
+/**
+ * Keeps the external plugin label for sources loaded from direct Tachiyomi DEX artifacts.
+ *
+ * Direct artifacts preserve their repository URL in installation metadata, whereas the source
+ * model itself only exposes the individual extension label. The map lets shared source UI show
+ * the repository/plugin identity consistently without changing source IDs or parser behavior.
+ */
+object DirectTachiyomiPluginMetadata {
+	@Volatile
+	private var namesByPackage: Map<String, String> = emptyMap()
+
+	fun update(
+		installed: Collection<DirectTachiyomiInstalled>,
+		repositoryName: (String) -> String?,
+	) {
+		namesByPackage =
+			buildMap {
+				installed.forEach { record ->
+					val name = repositoryName(record.repositoryUrl)?.trim()?.takeIf { it.isNotBlank() } ?: deriveName(record.repositoryUrl)
+					if (name != null) put(record.packageName, name)
+				}
+			}
+	}
+
+	fun get(packageName: String): String? = namesByPackage[packageName]
+
+	private fun deriveName(repositoryUrl: String): String? =
+		runCatching {
+			val uri = URI(repositoryUrl)
+			val host = uri.host?.lowercase(Locale.ROOT).orEmpty()
+			when {
+				host.endsWith(".github.io") -> {
+					host.removeSuffix(".github.io")
+				}
+
+				else -> {
+					uri.path
+						.trim('/')
+						.substringBefore('/')
+						.takeIf { it.isNotBlank() }
+						?: host.takeIf { it.isNotBlank() }
+				}
+			}
+		}.getOrNull()
 }
 
 data object LocalMangaSource : MangaSource {
@@ -165,8 +213,11 @@ fun MangaSource.getSummary(context: Context): String? {
 					if (source.isPreInstalledApk) {
 						context.getString(R.string.tachiyomi_apk)
 					} else {
-						source.extensionName ?: context.getString(R.string.external_source)
+						DirectTachiyomiPluginMetadata.get(source.pkgName)
+							?: source.extensionName
+							?: context.getString(R.string.external_source)
 					}
+
 				"$rating, $language • ${context.getString(R.string.external_source)} ($extension)"
 			}
 

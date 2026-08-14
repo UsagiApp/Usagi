@@ -217,6 +217,7 @@ class PluginsManageViewModel
 		): Boolean =
 			withContext(Dispatchers.Default) {
 				catalogProvider.setRepositoryName(item.repositoryUrl, name)
+				tachiyomiRuntime.ensureReady(forceRefresh = true)
 				refresh()
 				true
 			}
