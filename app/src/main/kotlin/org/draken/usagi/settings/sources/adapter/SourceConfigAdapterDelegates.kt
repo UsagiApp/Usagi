@@ -42,8 +42,11 @@ fun sourceConfigItemDelegate2(listener: SourceConfigListener) =
 
 		bind {
 			binding.textViewTitle.text = item.source.getTitle(context)
+			val isPreInstalledTachiyomi = item.uninstallPackageName != null
 			binding.imageViewAdd.isGone = item.isEnabled || !item.isAvailable
-			binding.imageViewRemove.isVisible = item.isEnabled && item.isDisableAvailable
+			binding.imageViewRemove.isVisible = item.isEnabled && (item.isDisableAvailable || isPreInstalledTachiyomi)
+			binding.imageViewRemove.setImageResource(if (isPreInstalledTachiyomi) R.drawable.ic_delete else R.drawable.ic_disable)
+			binding.imageViewRemove.contentDescription = context.getString(if (isPreInstalledTachiyomi) R.string.uninstall else R.string.disable)
 			binding.imageViewMenu.isVisible = item.isEnabled
 			binding.textViewTitle.drawableStart = if (item.isPinned) iconPinned else null
 		

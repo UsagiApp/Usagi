@@ -76,6 +76,8 @@ sealed interface PluginManageItem : ListModel {
 		val packageName: String,
 		val displayName: String,
 		val versionName: String?,
+		val sourceCount: Int,
+		val isVisibleInExplore: Boolean,
 		val loadError: String? = null,
 	)
 

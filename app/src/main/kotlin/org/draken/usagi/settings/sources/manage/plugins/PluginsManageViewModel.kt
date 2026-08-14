@@ -21,6 +21,7 @@ import org.draken.usagi.core.parser.MangaDynamicRepository
 import org.draken.usagi.core.parser.PluginFileLoader
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.BaseViewModel
+import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.draken.usagi.settings.sources.manage.plugins.model.PluginManageItem
 import tsuki.util.runCatchingCancellable
@@ -34,6 +35,7 @@ class PluginsManageViewModel
 	constructor(
 		@param:ApplicationContext private val context: Context,
 		private val database: MangaDatabase,
+		private val sourcesRepository: MangaSourcesRepository,
 		private val savedFiltersRepository: SavedFiltersRepository,
 		private val updatePluginsProvider: UpdatePluginsProvider,
 		private val settings: AppSettings,
@@ -318,13 +320,30 @@ class PluginsManageViewModel
 
 		fun isInstalled(fileName: String): Boolean = File(mangaDynamicRepository.getDir(), PluginFileLoader.resolve(fileName)).exists()
 
+		fun togglePreInstalledTachiyomiVisibility(item: PluginManageItem.InstalledTachiyomiExtension) {
+			launchJob(Dispatchers.Default) {
+				val sources = installedTachiyomiManager.sources.value.filter { it.pkgName == item.packageName }
+				if (sources.isEmpty()) return@launchJob
+				sourcesRepository.setSourcesEnabled(sources, !item.isVisibleInExplore)
+				tachiyomiRuntime.ensureReady(forceRefresh = true)
+				refresh()
+			}
+		}
+
 		private fun refreshPreInstalledTachiyomiItem() {
+			val sourceCountByPackage =
+				installedTachiyomiManager.sources.value
+					.groupingBy { it.pkgName }
+					.eachCount()
+			val visiblePackages = tachiyomiRuntime.getActiveSources().mapTo(HashSet()) { it.pkgName }
 			val successes =
 				installedTachiyomiManager.installedExtensions.value.map { extension ->
 					PluginManageItem.InstalledTachiyomiExtension(
 						packageName = extension.pkgName,
 						displayName = extension.appName,
 						versionName = extension.versionName,
+						sourceCount = sourceCountByPackage[extension.pkgName] ?: 0,
+						isVisibleInExplore = extension.pkgName in visiblePackages,
 					)
 				}
 			val failures =
@@ -335,6 +354,8 @@ class PluginsManageViewModel
 							packageName = failure.pkgName,
 							displayName = failure.pkgName.substringAfterLast('.'),
 							versionName = null,
+							sourceCount = sourceCountByPackage[failure.pkgName] ?: 0,
+							isVisibleInExplore = failure.pkgName in visiblePackages,
 							loadError = failure.message,
 						)
 					}

@@ -14,6 +14,8 @@ sealed interface SourceConfigItem : ListModel {
 		val isAvailable: Boolean,
 		val isPinned: Boolean,
 		val isDisableAvailable: Boolean,
+		/** Non-null only for a Tachiyomi extension installed by Android as an APK package. */
+		val uninstallPackageName: String? = null,
 	) : SourceConfigItem {
 		val isNsfw: Boolean
 			get() = source.isNsfw()

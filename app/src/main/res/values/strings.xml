@@ -63,6 +63,14 @@
     <string name="share_image">Share image</string>
     <string name="_import">Import</string>
     <string name="delete">Delete</string>
+    <string name="uninstall">Uninstall</string>
+    <string name="show_in_explore">Show in Explore</string>
+    <string name="hide_from_explore">Hide from Explore</string>
+    <plurals name="tachiyomi_preinstalled_source_count">
+        <item quantity="one">%d source</item>
+        <item quantity="other">%d sources</item>
+    </plurals>
+
     <string name="operation_not_supported">This operation is not supported</string>
     <string name="text_file_not_supported">Either pick a ZIP, PDF or CBZ file.</string>
     <string name="no_description">No description</string>
@@ -713,6 +721,8 @@
     <string name="chapters_read">Chapters read</string>
     <string name="chapters_left">Chapters left</string>
     <string name="external_source">External/plugin</string>
+    <string name="tachiyomi_apk">Tachiyomi APK</string>
+
     <string name="plugin_incompatible">Incompatible plugin or internal error. Make sure you are using the latest version of the plugin and Usagi</string>
     <string name="plugin_incompatible_with_cause">Plugin error: %s\n Make sure you are using the latest version of the plugin and Usagi</string>
     <string name="connection_ok">Connection is OK</string>

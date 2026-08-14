@@ -24,8 +24,10 @@ import org.draken.usagi.core.util.ext.lifecycleScope
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.explore.data.SourcesSortOrder
 import org.draken.usagi.settings.sources.model.SourceConfigItem
+import tsuki.model.MangaSource
 import tsuki.util.mapToSet
 import javax.inject.Inject
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as TachiyomiSource
 
 @ViewModelScoped
 class SourcesListProducer
@@ -99,6 +101,7 @@ class SourcesListProducer
 							isAvailable = !isNsfwDisabled || !it.isNsfw(),
 							isPinned = it.name in pinned,
 							isDisableAvailable = isDisableAvailable,
+							uninstallPackageName = it.preInstalledTachiyomiPackageName(),
 						)
 					}.ifEmpty {
 						listOf(SourceConfigItem.EmptySearchResult)
@@ -122,11 +125,17 @@ class SourcesListProducer
 						isAvailable = false,
 						isPinned = it.name in pinned,
 						isDisableAvailable = isDisableAvailable,
+						uninstallPackageName = it.preInstalledTachiyomiPackageName(),
 					)
 				}
 			}
 			return result
 		}
+
+		private fun MangaSource.preInstalledTachiyomiPackageName(): String? =
+			(unwrap() as? TachiyomiSource)
+				?.takeIf { it.isPreInstalledApk }
+				?.pkgName
 
 		companion object {
 			const val TIP_REORDER = "src_reorder"

@@ -150,20 +150,42 @@ fun MangaSource.externalPackageName(): String? =
 	}
 
 fun MangaSource.getSummary(context: Context): String? {
+	val source = unwrap()
 	val baseSummary =
-		when {
-			isExternalSource() -> {
-				context.getString(R.string.external_source)
+		when (source) {
+			is ExternalSource -> {
+				val rating = context.getString(if (source.isNsfw) R.string.rating_adult else R.string.rating_safe)
+				val language =
+					if (source.locale.equals("all", ignoreCase = true)) {
+						context.getString(R.string.various_languages)
+					} else {
+						source.locale.toLocaleOrNull().getDisplayName(context)
+					}
+				val extension =
+					if (source.isPreInstalledApk) {
+						context.getString(R.string.tachiyomi_apk)
+					} else {
+						source.extensionName ?: context.getString(R.string.external_source)
+					}
+				"$rating, $language • ${context.getString(R.string.external_source)} ($extension)"
 			}
 
-			this === LocalMangaSource || this === TestMangaSource || this === UnknownMangaSource -> {
-				null
+			is ExternalMangaSource -> {
+				"${context.getString(R.string.external_source)} (${source.resolveName(context)})"
 			}
 
 			else -> {
-				val type = context.getString(contentType.titleResId)
-				val loc = locale.toLocale().getDisplayName(context)
-				context.getString(R.string.source_summary_pattern, type, loc)
+				when {
+					this === LocalMangaSource || this === TestMangaSource || this === UnknownMangaSource -> {
+						null
+					}
+
+					else -> {
+						val type = context.getString(contentType.titleResId)
+						val loc = locale.toLocale().getDisplayName(context)
+						context.getString(R.string.source_summary_pattern, type, loc)
+					}
+				}
 			}
 		}
 	val pluginSource =
