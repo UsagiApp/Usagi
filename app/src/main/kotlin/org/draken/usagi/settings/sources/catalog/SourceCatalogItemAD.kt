@@ -41,11 +41,16 @@ fun sourceCatalogItemSourceAD(listener: OnListItemClickListener<SourceCatalogIte
 fun sourceCatalogItemTachiyomiAD(
 	onClick: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
 	onInstall: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
+	onSideload: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
 ) = adapterDelegateViewBinding<SourceCatalogItem.Tachiyomi, ListModel, ItemSourceCatalogBinding>(
 	{ layoutInflater, parent -> ItemSourceCatalogBinding.inflate(layoutInflater, parent, false) },
 ) {
 	binding.root.setOnClickListener { v -> onClick(item, v) }
 	binding.imageViewAdd.setOnClickListener { v -> onInstall(item, v) }
+	binding.imageViewAdd.setOnLongClickListener { v ->
+		onSideload(item, v)
+		true
+	}
 	val basePadding = context.getThemeDimensionPixelOffset(appcompatR.attr.listPreferredItemPaddingEnd, binding.root.paddingStart)
 	binding.root.updatePaddingRelative(end = (basePadding - context.resources.getDimensionPixelOffset(R.dimen.margin_small)).coerceAtLeast(0))
 	bind {

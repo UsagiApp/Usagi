@@ -1,8 +1,15 @@
 package org.draken.usagi.settings.sources.catalog
 
+import android.app.DownloadManager
+import android.content.ActivityNotFoundException
+import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Environment
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -10,7 +17,9 @@ import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.Insets
+import androidx.core.net.toUri
 import androidx.core.os.ConfigurationCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -51,7 +60,22 @@ class SourcesCatalogActivity :
 		get() = viewBinding.appbar
 
 	private val viewModel by viewModels<SourcesCatalogViewModel>()
+	private val downloadManager by lazy { getSystemService(DOWNLOAD_SERVICE) as DownloadManager }
+	private val sideloadDownloadIds = mutableSetOf<Long>()
 	private var navigationBarBottomInset = 0
+	private val downloadReceiver =
+		object : BroadcastReceiver() {
+			override fun onReceive(
+				context: Context,
+				intent: Intent,
+			) {
+				if (intent.action != DownloadManager.ACTION_DOWNLOAD_COMPLETE) return
+				val downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L)
+				if (downloadId != 0L && sideloadDownloadIds.remove(downloadId)) {
+					openDownloadedApk(downloadId)
+				}
+			}
+		}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -60,8 +84,9 @@ class SourcesCatalogActivity :
 		val sourcesAdapter =
 			SourcesCatalogAdapter(
 				nativeListener = this,
-				onTachiyomiClick = { item, _ -> installTachiyomi(item) },
+				onTachiyomiClick = { _, _ -> showExternalSourceUnsupported() },
 				onTachiyomiInstall = { item, _ -> installTachiyomi(item) },
+				onTachiyomiSideload = ::showTachiyomiSideloadMenu,
 			)
 
 		with(viewBinding.recyclerView) {
@@ -72,6 +97,12 @@ class SourcesCatalogActivity :
 		viewBinding.chipsFilter.onChipClickListener = this
 		FadingAppbarMediator(viewBinding.appbar, viewBinding.toolbar).bind()
 		viewModel.content.observe(this, sourcesAdapter)
+		ContextCompat.registerReceiver(
+			this,
+			downloadReceiver,
+			IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+			ContextCompat.RECEIVER_EXPORTED,
+		)
 		viewModel.onActionDone.observeEvent(
 			this,
 			ReversibleActionObserver(viewBinding.recyclerView),
@@ -83,6 +114,7 @@ class SourcesCatalogActivity :
 	}
 
 	override fun onDestroy() {
+		unregisterReceiver(downloadReceiver)
 		viewBinding.recyclerView.adapter = null
 		super.onDestroy()
 	}
@@ -146,6 +178,71 @@ class SourcesCatalogActivity :
 				showTachiyomiError(viewModel.tachiyomiInstallError())
 			}
 		}
+	}
+
+	private fun showExternalSourceUnsupported() {
+		showInsetSnackbar(getString(R.string.external_source_view_unsupported), Snackbar.LENGTH_LONG)
+	}
+
+	private fun showTachiyomiSideloadMenu(
+		item: SourceCatalogItem.Tachiyomi,
+		anchor: View,
+	) {
+		val menu = PopupMenu(this, anchor)
+		menu.menu.add(Menu.NONE, Menu.NONE, 0, R.string.import_by_sideload)
+		menu.setOnMenuItemClickListener {
+			downloadTachiyomiApk(item)
+			true
+		}
+		menu.show()
+	}
+
+	private fun downloadTachiyomiApk(item: SourceCatalogItem.Tachiyomi) {
+		val apkUrl =
+			item.artifact.apkUrl
+				?.trim()
+				?.takeIf { it.isNotEmpty() }
+		if (apkUrl == null) {
+			showInsetSnackbar(getString(R.string.tachiyomi_apk_unavailable), Snackbar.LENGTH_LONG)
+			return
+		}
+
+		val uri = apkUrl.toUri()
+		val fileName =
+			uri.lastPathSegment
+				?.takeIf { it.endsWith(".apk", ignoreCase = true) }
+				?: "${item.artifact.packageName}-${item.artifact.versionName ?: item.artifact.versionCode ?: "latest"}.apk"
+		val request =
+			DownloadManager
+				.Request(uri)
+				.setTitle(getString(R.string.sideload_download_title, item.displayName))
+				.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+				.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+				.setMimeType(APK_MIME_TYPE)
+		val downloadId = downloadManager.enqueue(request)
+		sideloadDownloadIds += downloadId
+		showInsetSnackbar(getString(R.string.tachiyomi_apk_download_started), Snackbar.LENGTH_SHORT)
+	}
+
+	@Suppress("DEPRECATION")
+	private fun openDownloadedApk(downloadId: Long) {
+		val apkUri = downloadManager.getUriForDownloadedFile(downloadId)
+		if (apkUri == null) {
+			showInsetSnackbar(getString(R.string.tachiyomi_apk_download_failed), Snackbar.LENGTH_LONG)
+			return
+		}
+		val installerIntent =
+			Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+				flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+				setDataAndType(apkUri, APK_MIME_TYPE)
+				putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+			}
+		runCatching { startActivity(installerIntent) }
+			.onFailure { error ->
+				if (error is ActivityNotFoundException) {
+					showInsetSnackbar(getString(R.string.tachiyomi_apk_download_failed), Snackbar.LENGTH_LONG)
+				}
+			}
 	}
 
 	override fun onMenuItemActionExpand(item: MenuItem): Boolean {
@@ -275,5 +372,9 @@ class SourcesCatalogActivity :
 			true
 		}
 		menu.show()
+	}
+
+	private companion object {
+		const val APK_MIME_TYPE = "application/vnd.android.package-archive"
 	}
 }

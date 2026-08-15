@@ -955,6 +955,12 @@
     <string name="add_tachiyomi_repository">Add Tachiyomi repository</string>
     <string name="installed">Installed</string>
     <string name="tachiyomi_catalog_summary">Browse and install sources without installing extension APKs</string>
+    <string name="external_source_view_unsupported">Viewing sources from external plugins is not supported.\nImport the source to view it.</string>
+    <string name="import_by_sideload">Import by sideload</string>
+    <string name="sideload_download_title">Downloading APK for %s</string>
+    <string name="tachiyomi_apk_download_started">Downloading extension APK…</string>
+    <string name="tachiyomi_apk_unavailable">APK download is unavailable for this source</string>
+    <string name="tachiyomi_apk_download_failed">Unable to open the downloaded APK</string>
 			<string name="import_url_summary">Enter a GitHub repository URL for a Usagi plugin or a Tachiyomi/Mihon extension repository. Usagi will detect the format automatically.</string>
 
 	<string name="load_failed">Failed to load plugin</string>
