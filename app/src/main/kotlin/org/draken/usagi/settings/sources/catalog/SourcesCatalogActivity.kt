@@ -257,10 +257,14 @@ class SourcesCatalogActivity :
 			DownloadManager
 				.Request(uri)
 				.setTitle(getString(R.string.sideload_download_title, item.displayName))
-				.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+				.setDestinationInExternalFilesDir(this, Environment.DIRECTORY_DOWNLOADS, fileName)
 				.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
 				.setMimeType(APK_MIME_TYPE)
-		val downloadId = downloadManager.enqueue(request)
+		val downloadId =
+			runCatching { downloadManager.enqueue(request) }.getOrElse {
+				showInsetSnackbar(getString(R.string.tachiyomi_apk_download_failed), Snackbar.LENGTH_LONG)
+				return
+			}
 		sideloadDownloadIds += downloadId
 		showInsetSnackbar(getString(R.string.tachiyomi_apk_download_started), Snackbar.LENGTH_SHORT)
 	}
