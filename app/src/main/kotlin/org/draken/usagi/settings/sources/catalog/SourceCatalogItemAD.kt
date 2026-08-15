@@ -41,15 +41,27 @@ fun sourceCatalogItemSourceAD(listener: OnListItemClickListener<SourceCatalogIte
 fun sourceCatalogItemTachiyomiAD(
 	onClick: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
 	onInstall: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
+	onUnload: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
+	onUninstall: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
 	onSideload: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
 ) = adapterDelegateViewBinding<SourceCatalogItem.Tachiyomi, ListModel, ItemSourceCatalogBinding>(
 	{ layoutInflater, parent -> ItemSourceCatalogBinding.inflate(layoutInflater, parent, false) },
 ) {
 	binding.root.setOnClickListener { v -> onClick(item, v) }
-	binding.imageViewAdd.setOnClickListener { v -> onInstall(item, v) }
+	binding.imageViewAdd.setOnClickListener { v ->
+		when {
+			item.isPreInstalledApk -> onUninstall(item, v)
+			item.isLoaded && !item.hasUpdate -> onUnload(item, v)
+			else -> onInstall(item, v)
+		}
+	}
 	binding.imageViewAdd.setOnLongClickListener { v ->
-		onSideload(item, v)
-		true
+		if (item.isPreInstalledApk) {
+			true
+		} else {
+			onSideload(item, v)
+			true
+		}
 	}
 	val basePadding = context.getThemeDimensionPixelOffset(appcompatR.attr.listPreferredItemPaddingEnd, binding.root.paddingStart)
 	binding.root.updatePaddingRelative(end = (basePadding - context.resources.getDimensionPixelOffset(R.dimen.margin_small)).coerceAtLeast(0))
@@ -77,22 +89,20 @@ fun sourceCatalogItemTachiyomiAD(
 
 		binding.imageViewAdd.isVisible = true
 		binding.imageViewAdd.setImageResource(
-			if (item.hasUpdate) {
-				R.drawable.ic_updated
-			} else if (item.isLoaded) {
-				R.drawable.ic_check
-			} else {
-				R.drawable.ic_download
+			when {
+				item.isPreInstalledApk -> R.drawable.ic_delete
+				item.hasUpdate -> R.drawable.ic_updated
+				item.isLoaded -> R.drawable.ic_check
+				else -> R.drawable.ic_download
 			},
 		)
 		binding.imageViewAdd.contentDescription =
 			context.getString(
-				if (item.hasUpdate) {
-					R.string.update
-				} else if (item.isLoaded) {
-					R.string.installed
-				} else {
-					R.string.add
+				when {
+					item.isPreInstalledApk -> R.string.uninstall
+					item.hasUpdate -> R.string.update
+					item.isLoaded -> R.string.disable
+					else -> R.string.add
 				},
 			)
 	}

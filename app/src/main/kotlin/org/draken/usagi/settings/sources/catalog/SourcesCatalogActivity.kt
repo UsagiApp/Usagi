@@ -8,6 +8,8 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.view.Menu
@@ -86,6 +88,8 @@ class SourcesCatalogActivity :
 				nativeListener = this,
 				onTachiyomiClick = { item, _ -> openTachiyomiSource(item) },
 				onTachiyomiInstall = { item, _ -> installTachiyomi(item) },
+				onTachiyomiUnload = { item, _ -> unloadTachiyomi(item) },
+				onTachiyomiUninstall = { item, _ -> uninstallTachiyomi(item) },
 				onTachiyomiSideload = ::showTachiyomiSideloadMenu,
 			)
 
@@ -111,6 +115,11 @@ class SourcesCatalogActivity :
 			updateFilers(it.first, it.second, it.third)
 		}
 		addMenuProvider(SourcesCatalogMenuProvider(this, viewModel, this))
+	}
+
+	override fun onResume() {
+		super.onResume()
+		viewModel.refreshTachiyomiRuntime()
 	}
 
 	override fun onDestroy() {
@@ -178,6 +187,27 @@ class SourcesCatalogActivity :
 				showTachiyomiError(viewModel.tachiyomiInstallError())
 			}
 		}
+	}
+
+	private fun unloadTachiyomi(item: SourceCatalogItem.Tachiyomi) {
+		lifecycleScope.launch {
+			if (viewModel.unloadTachiyomi(item)) {
+				showInsetSnackbar(getString(R.string.source_disabled), Snackbar.LENGTH_SHORT)
+			} else {
+				showTachiyomiError(viewModel.tachiyomiInstallError())
+			}
+		}
+	}
+
+	private fun uninstallTachiyomi(item: SourceCatalogItem.Tachiyomi) {
+		val action =
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+				Intent.ACTION_DELETE
+			} else {
+				@Suppress("DEPRECATION")
+				Intent.ACTION_UNINSTALL_PACKAGE
+			}
+		startActivity(Intent(action, Uri.fromParts("package", item.artifact.packageName, null)))
 	}
 
 	private fun openTachiyomiSource(item: SourceCatalogItem.Tachiyomi) {

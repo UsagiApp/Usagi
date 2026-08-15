@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiExtensionManager
 import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiInstalled
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiCatalogSource
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionArtifact
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionCatalogProvider
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
@@ -37,6 +38,7 @@ import tsuki.model.MangaSource
 import java.util.EnumSet
 import java.util.Locale
 import javax.inject.Inject
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as InstalledTachiyomiExtensionManager
 
 @HiltViewModel
 class SourcesCatalogViewModel
@@ -46,6 +48,7 @@ class SourcesCatalogViewModel
 		db: MangaDatabase,
 		private val settings: AppSettings,
 		private val directManager: DirectTachiyomiExtensionManager,
+		private val installedTachiyomiManager: InstalledTachiyomiExtensionManager,
 		private val tachiyomiRuntime: TachiyomiRuntime,
 		private val catalogProvider: TachiyomiExtensionCatalogProvider,
 	) : BaseViewModel() {
@@ -99,8 +102,8 @@ class SourcesCatalogViewModel
 		val contentTypes = MutableStateFlow<List<ContentType>>(emptyList())
 
 		private val tachiyomiState =
-			combine(directManager.installed, tachiyomiRuntime.sources, isInitialLoading) { installed, loaded, loading ->
-				Triple(installed, loaded.map { it.sourceId }.toSet(), loading)
+			combine(directManager.installed, tachiyomiRuntime.sources, installedTachiyomiManager.sources, isInitialLoading) { installed, loaded, preInstalled, loading ->
+				CatalogTachiyomiState(installed, loaded.map { it.sourceId }.toSet(), preInstalled.filter { it.isPreInstalledApk }, loading)
 			}
 
 		val content: StateFlow<List<ListModel>> =
@@ -110,8 +113,8 @@ class SourcesCatalogViewModel
 				db.invalidationTracker.createFlow(TABLE_SOURCES),
 				tachiyomiCatalog,
 				tachiyomiState,
-			) { query, filter, _, artifacts, (installed, loaded, loading) ->
-				if (loading) listOf(LoadingState) else buildSourcesList(filter, query, artifacts, installed, loaded)
+			) { query, filter, _, artifacts, (installed, loaded, preInstalled, loading) ->
+				if (loading) listOf(LoadingState) else buildSourcesList(filter, query, artifacts, installed, loaded, preInstalled)
 			}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, listOf(LoadingState))
 
 		init {
@@ -147,6 +150,12 @@ class SourcesCatalogViewModel
 
 		fun tachiyomiInstallError(): String? = directManager.lastInstallError
 
+		fun refreshTachiyomiRuntime() {
+			launchJob(Dispatchers.Default) {
+				runCatching { tachiyomiRuntime.ensureReady(forceRefresh = true) }
+			}
+		}
+
 		suspend fun addTachiyomiRepository(input: String): Boolean {
 			val artifacts = catalogProvider.load(input)
 			if (artifacts.isEmpty()) return false
@@ -170,16 +179,35 @@ class SourcesCatalogViewModel
 				installed
 			}.getOrDefault(false)
 
+		suspend fun unloadTachiyomi(item: SourceCatalogItem.Tachiyomi): Boolean {
+			val source = getImportedTachiyomiSource(item) ?: return false
+			repository.setSourcesEnabled(setOf(source), false)
+			tachiyomiRuntime.ensureReady(forceRefresh = true)
+			return true
+		}
+
 		suspend fun getImportedTachiyomiSource(item: SourceCatalogItem.Tachiyomi): MangaSource? {
 			tachiyomiRuntime.ensureReady()
 			return tachiyomiRuntime.getSourceById(item.source.id)
 				?: directManager.sources.value.firstOrNull { source -> source.matchesCatalogItem(item) }
 		}
 
-		private fun TachiyomiMangaSource.matchesCatalogItem(item: SourceCatalogItem.Tachiyomi): Boolean =
-			pkgName == item.artifact.packageName &&
-				displayName.equals(item.displayName, ignoreCase = true) &&
-				canonicalLanguageCode(locale) == canonicalLanguageCode(item.source.language)
+		private fun TachiyomiMangaSource.matchesCatalogItem(item: SourceCatalogItem.Tachiyomi): Boolean = matchesCatalogSource(item.artifact, item.source)
+
+		private fun TachiyomiMangaSource.matchesCatalogSource(
+			artifact: TachiyomiExtensionArtifact,
+			source: TachiyomiCatalogSource,
+		): Boolean =
+			pkgName == artifact.packageName &&
+				displayName.equals(source.name, ignoreCase = true) &&
+				canonicalLanguageCode(locale) == canonicalLanguageCode(source.language)
+
+		private data class CatalogTachiyomiState(
+			val installed: List<DirectTachiyomiInstalled>,
+			val loadedSourceIds: Set<Long>,
+			val preInstalledSources: List<TachiyomiMangaSource>,
+			val loading: Boolean,
+		)
 
 		fun addSource(source: MangaSource) {
 			launchJob(Dispatchers.Default) {
@@ -213,6 +241,7 @@ class SourcesCatalogViewModel
 			artifacts: List<TachiyomiExtensionArtifact>,
 			installed: List<DirectTachiyomiInstalled>,
 			loadedSourceIds: Set<Long>,
+			preInstalledSources: List<TachiyomiMangaSource>,
 		): List<SourceCatalogItem> {
 			val sources =
 				repository.queryParserSources(
@@ -246,6 +275,7 @@ class SourcesCatalogViewModel
 								artifact = artifact,
 								installed = installedByPackage[artifact.packageName],
 								isLoaded = source.id in loadedSourceIds,
+								isPreInstalledApk = preInstalledSources.any { installedSource -> installedSource.matchesCatalogSource(artifact, source) },
 							)
 						}
 					}

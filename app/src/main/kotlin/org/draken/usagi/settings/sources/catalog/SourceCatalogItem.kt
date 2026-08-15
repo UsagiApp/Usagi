@@ -25,6 +25,7 @@ sealed interface SourceCatalogItem : ListModel {
 		val artifact: TachiyomiExtensionArtifact,
 		val installed: DirectTachiyomiInstalled?,
 		val isLoaded: Boolean,
+		val isPreInstalledApk: Boolean,
 	) : SourceCatalogItem {
 		val isInstalled: Boolean get() = installed != null
 
