@@ -220,6 +220,29 @@ class UpdatePluginsProvider
 			}.getOrDefault(emptyList())
 		}
 
+		suspend fun importFromUrl(url: String): Boolean {
+			val info = parseDownloadUrl(url) ?: return false
+			val release =
+				ExternalPluginDto(
+					repository = info.repository,
+					tag = info.tag,
+					fileName = info.fileName,
+					downloadUrl = url,
+				)
+			return installPlugin(release, info.fileName)
+		}
+
+		private fun parseDownloadUrl(url: String): ParsedDownloadUrl? {
+			val match = DOWNLOAD_URL_REGEX.matchEntire(url.trim()) ?: return null
+			val (owner, repo, tag, fileName) = match.destructured
+			if (owner.isBlank() || repo.isBlank() || tag.isBlank() || fileName.isBlank()) return null
+			return ParsedDownloadUrl(
+				repository = "$owner/$repo",
+				tag = tag,
+				fileName = fileName,
+			)
+		}
+
 		fun resolve(input: String): String? {
 			val trimmed = input.trim().takeIf { it.isNotEmpty() } ?: return null
 			return (GITHUB_URL_REGEX.matchEntire(trimmed) ?: REPOSITORY_REGEX.matchEntire(trimmed))
@@ -356,5 +379,16 @@ class UpdatePluginsProvider
 				Regex(
 					"""(?i)^\s*(?:https?://)?(?:www\.)?github\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?(?:/.*)?\s*$""",
 				)
+			private val DOWNLOAD_URL_REGEX =
+				Regex(
+					"""https?://(?:www\.)?github\.com/([^/]+)/([^/]+)/releases/download/([^/]+)/(.+\.jar)""",
+					RegexOption.IGNORE_CASE,
+				)
 		}
+
+		private data class ParsedDownloadUrl(
+			val repository: String,
+			val tag: String,
+			val fileName: String,
+		)
 	}

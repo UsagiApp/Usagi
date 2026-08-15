@@ -52,13 +52,15 @@ class PluginsManageFragment :
 			ActivityResultContracts.OpenDocument(),
 		) { uri ->
 			if (uri != null && isAdded) {
-				viewModel.importPlugin(
-					uri = uri,
-					getOriginalName = { DocumentFile.fromSingleUri(requireContext().applicationContext, it)?.name },
-					askName = { askText(R.string.set_plugin_name, it, R.string.plugin_name) },
-					askOverwrite = ::askOverwrite,
-					onResult = ::showImportResult,
-				)
+				viewLifecycleOwnerLiveData.value?.lifecycleScope?.launch {
+					viewModel
+						.importPlugin(
+							uri = uri,
+							getOriginalName = { DocumentFile.fromSingleUri(requireContext().applicationContext, it)?.name },
+							askName = { askText(R.string.set_plugin_name, it, R.string.plugin_name) },
+							askOverwrite = ::askOverwrite,
+						)?.let(::showImportResult)
+				}
 			}
 		}
 
@@ -194,11 +196,13 @@ class PluginsManageFragment :
 		}
 		binding.buttonDir.setOnClickListener {
 			dialog.dismiss()
-			viewModel.importUrl(
-				askInput = { askText(R.string.import_from_url, "", R.string.import_url_summary) },
-				askOverwrite = ::askOverwrite,
-				onResult = ::showImportResult,
-			)
+			viewLifecycleOwner.lifecycleScope.launch {
+				viewModel
+					.importUrl(
+						askInput = { askText(R.string.import_from_url, "", R.string.import_url_summary) },
+						askOverwrite = ::askOverwrite,
+					)?.let(::showImportResult)
+			}
 		}
 
 		dialog.show()
@@ -309,6 +313,9 @@ class PluginsManageFragment :
 				dialog.setOnCancelListener {
 					if (cont.isActive) cont.resume(false)
 				}
+				cont.invokeOnCancellation {
+					dialog.dismiss()
+				}
 				dialog.show()
 			}
 		}
@@ -338,6 +345,15 @@ class PluginsManageFragment :
 					}
 				dialog.setOnCancelListener {
 					if (cont.isActive) cont.resume(null)
+				}
+				dialog.setOnDismissListener {
+					input.setCursorVisible(false)
+				}
+				cont.invokeOnCancellation {
+					input.post {
+						input.setCursorVisible(false)
+						if (dialog.isShowing) dialog.dismiss()
+					}
 				}
 				dialog.show()
 			}

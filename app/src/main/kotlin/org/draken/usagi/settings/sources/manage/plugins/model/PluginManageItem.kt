@@ -50,12 +50,6 @@ sealed interface PluginManageItem : ListModel {
 		val displayName: String
 			get() = customName?.trim()?.takeIf { it.isNotBlank() } ?: repositoryLabel.substringBefore('/').ifBlank { "Tachiyomi/Mihon" }
 
-		val extensionCount: Int
-			get() = artifacts.size
-
-		val installedCount: Int
-			get() = installed.size
-
 		val hasFailures: Boolean
 			get() = failures.isNotEmpty()
 

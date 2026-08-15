@@ -120,7 +120,6 @@ class PluginManageAdapter(
 				buildList {
 					add(item.repositoryLabel)
 					add(context.getString(R.string.external_source))
-					add(context.getString(R.string.tachiyomi_repository_extension_count, item.extensionCount, item.installedCount))
 					if (item.hasFailures) add(context.getString(R.string.load_failed))
 				}.joinToString(" • ")
 		}

@@ -972,8 +972,7 @@
 	<string name="manage_plugins">Manage plugins</string>
 	<string name="no_plugins">No plugins installed</string>
 		<string name="no_plugins_summary">Click + above to add a plugin or Tachiyomi/Mihon extension repository</string>
-		<string name="tachiyomi_repository_extension_count">%1$d extensions • %2$d installed</string>
-	<string name="overwrite_plugin">Overwrite plugin?</string>
+		<string name="overwrite_plugin">Overwrite plugin?</string>
 	<string name="overwrite_plugin_summary">A plugin file named %1$s is already installed. Replace it with this one?</string>
 	<string name="plugin_name">Plugin name</string>
 	<string name="set_plugin_name">Set name for this plugin</string>

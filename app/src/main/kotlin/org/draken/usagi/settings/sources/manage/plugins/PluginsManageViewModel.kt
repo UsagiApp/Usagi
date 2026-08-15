@@ -163,53 +163,45 @@ class PluginsManageViewModel
 				.installPlugin(release, PluginFileLoader.resolve(fileName))
 				.also { if (it) refresh() }
 
-		fun importPlugin(
+		suspend fun importPlugin(
 			uri: Uri,
 			getOriginalName: (Uri) -> String?,
 			askName: suspend (String) -> String?,
 			askOverwrite: suspend (String) -> Boolean,
-			onResult: (Boolean) -> Unit,
-		) {
-			launchJob(Dispatchers.Default) {
+		): Boolean? =
+			withContext(Dispatchers.Default) {
 				val originalName = getOriginalName(uri) ?: "plugin_${System.currentTimeMillis()}.jar"
 				val pluginName = askName(originalName.removeSuffix(".jar"))?.trim().orEmpty()
-				if (pluginName.isBlank()) return@launchJob
+				if (pluginName.isBlank()) return@withContext null
 
 				val fileName = PluginFileLoader.resolve(pluginName)
-				if (isInstalled(fileName) && !askOverwrite(fileName)) return@launchJob
+				if (isInstalled(fileName) && !askOverwrite(fileName)) return@withContext null
 
-				val success = importFromUri(uri, fileName)
-				withContext(Dispatchers.Main) { onResult(success) }
+				importFromUri(uri, fileName)
 			}
-		}
 
-		fun importUrl(
+		suspend fun importUrl(
 			askInput: suspend () -> String?,
 			askOverwrite: suspend (String) -> Boolean,
-			onResult: (Boolean) -> Unit,
-		) {
-			launchJob(Dispatchers.Default) {
-				val input = askInput()?.trim()?.takeIf { it.isNotBlank() } ?: return@launchJob
+		): Boolean? =
+			withContext(Dispatchers.Default) {
+				val input = askInput()?.trim()?.takeIf { it.isNotBlank() } ?: return@withContext null
 				val artifacts = catalogProvider.load(input)
 				if (artifacts.isNotEmpty()) {
 					artifacts.forEach { catalogProvider.restorePackage(it.packageName) }
 					catalogProvider.saveRepository(input)
 					refreshTachiyomiItems(catalogProvider.loadSaved() + artifacts)
-					withContext(Dispatchers.Main) { onResult(true) }
-					return@launchJob
+					return@withContext true
 				}
 
+				if (updatePluginsProvider.importFromUrl(input)) return@withContext true
+
 				val select = resolveGithubReleases(input).firstOrNull()
-				if (select == null) {
-					withContext(Dispatchers.Main) { onResult(false) }
-					return@launchJob
-				}
+				if (select == null) return@withContext false
 				val name = PluginFileLoader.resolve(select.fileName)
-				if (isInstalled(name) && !askOverwrite(name)) return@launchJob
-				val success = importFromGithub(select, name)
-				withContext(Dispatchers.Main) { onResult(success) }
+				if (isInstalled(name) && !askOverwrite(name)) return@withContext null
+				importFromGithub(select, name)
 			}
-		}
 
 		suspend fun renameTachiyomi(
 			item: PluginManageItem.Tachiyomi,

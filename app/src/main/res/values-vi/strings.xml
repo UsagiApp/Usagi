@@ -955,7 +955,7 @@
     <string name="import_url_summary">Nhập URL của kho GitHub dành cho tiện ích Usagi hoặc kho tiện ích mở rộng Tachiyomi/Mihon. Usagi sẽ tự động nhận diện định dạng.</string>
     <string name="copy_error">Sao chép lỗi</string>
     <string name="error_copied">Đã sao chép lỗi</string>
-    <string name="tachiyomi_repository_extension_count">%1$d tiện ích mở rộng • %2$d đã cài đặt</string>
+
     <string name="tachiyomi_catalog_input">URL danh mục hoặc kho GitHub</string>
     <string name="tachiyomi_catalog_loaded">Đã tải danh mục tiện ích mở rộng Tachiyomi</string>
     <string name="tachiyomi_catalog_failed">Không thể tải danh mục tiện ích mở rộng Tachiyomi</string>
