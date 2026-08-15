@@ -169,6 +169,15 @@ class SourcesCatalogViewModel
 				installed
 			}.getOrDefault(false)
 
+		suspend fun getImportedTachiyomiSource(item: SourceCatalogItem.Tachiyomi): MangaSource? {
+			if (!item.isInstalled) return null
+			return tachiyomiRuntime.getSourceById(item.source.id)
+				?: run {
+					tachiyomiRuntime.ensureReady()
+					tachiyomiRuntime.getSourceById(item.source.id)
+				}
+		}
+
 		fun addSource(source: MangaSource) {
 			launchJob(Dispatchers.Default) {
 				val rollback = repository.setSourcesEnabled(setOf(source), true)

@@ -946,7 +946,7 @@
     <string name="add_tachiyomi_repository">Thêm kho Tachiyomi</string>
     <string name="installed">Đã cài đặt</string>
     <string name="tachiyomi_catalog_summary">Duyệt và cài đặt các nguồn mà không cần cài đặt APK tiện ích mở rộng</string>
-    <string name="external_source_view_unsupported">Chức năng xem source của plugin bên ngoài không thể hỗ trợ,\nhãy import source để có thể xem source.</string>
+    <string name="external_source_view_unsupported">Vui lòng import source trước để có thể xem source</string>
     <string name="import_by_sideload">Import bằng cách sideload</string>
     <string name="sideload_download_title">Đang tải APK của %s</string>
     <string name="tachiyomi_apk_download_started">Đang tải APK tiện ích mở rộng…</string>

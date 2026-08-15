@@ -84,7 +84,7 @@ class SourcesCatalogActivity :
 		val sourcesAdapter =
 			SourcesCatalogAdapter(
 				nativeListener = this,
-				onTachiyomiClick = { _, _ -> showExternalSourceUnsupported() },
+				onTachiyomiClick = { item, _ -> openTachiyomiSource(item) },
 				onTachiyomiInstall = { item, _ -> installTachiyomi(item) },
 				onTachiyomiSideload = ::showTachiyomiSideloadMenu,
 			)
@@ -180,8 +180,19 @@ class SourcesCatalogActivity :
 		}
 	}
 
+	private fun openTachiyomiSource(item: SourceCatalogItem.Tachiyomi) {
+		lifecycleScope.launch {
+			val source = runCatching { viewModel.getImportedTachiyomiSource(item) }.getOrNull()
+			if (source == null) {
+				showExternalSourceUnsupported()
+			} else {
+				router.openList(source, null, null)
+			}
+		}
+	}
+
 	private fun showExternalSourceUnsupported() {
-		showInsetSnackbar(getString(R.string.external_source_view_unsupported), Snackbar.LENGTH_LONG)
+		showInsetSnackbar(getString(R.string.external_source_view_unsupported), Snackbar.LENGTH_SHORT)
 	}
 
 	private fun showTachiyomiSideloadMenu(
