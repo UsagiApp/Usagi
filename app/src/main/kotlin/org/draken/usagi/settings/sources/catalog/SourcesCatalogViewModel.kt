@@ -16,6 +16,7 @@ import org.draken.tsukimix.core.parser.tachiyomi.DirectTachiyomiInstalled
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionArtifact
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionCatalogProvider
 import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource
 import org.draken.tsukimix.core.util.canonicalLanguageCode
 import org.draken.usagi.R
 import org.draken.usagi.core.db.MangaDatabase
@@ -170,13 +171,15 @@ class SourcesCatalogViewModel
 			}.getOrDefault(false)
 
 		suspend fun getImportedTachiyomiSource(item: SourceCatalogItem.Tachiyomi): MangaSource? {
-			if (!item.isInstalled) return null
+			tachiyomiRuntime.ensureReady()
 			return tachiyomiRuntime.getSourceById(item.source.id)
-				?: run {
-					tachiyomiRuntime.ensureReady()
-					tachiyomiRuntime.getSourceById(item.source.id)
-				}
+				?: directManager.sources.value.firstOrNull { source -> source.matchesCatalogItem(item) }
 		}
+
+		private fun TachiyomiMangaSource.matchesCatalogItem(item: SourceCatalogItem.Tachiyomi): Boolean =
+			pkgName == item.artifact.packageName &&
+				displayName.equals(item.displayName, ignoreCase = true) &&
+				canonicalLanguageCode(locale) == canonicalLanguageCode(item.source.language)
 
 		fun addSource(source: MangaSource) {
 			launchJob(Dispatchers.Default) {
