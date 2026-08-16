@@ -30,6 +30,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
 import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.commit
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.transition.TransitionManager
 import coil3.ImageLoader
@@ -102,6 +103,7 @@ import org.draken.usagi.details.data.ReadingTime
 import org.draken.usagi.details.service.MangaPrefetchService
 import org.draken.usagi.details.ui.model.ChapterListItem
 import org.draken.usagi.details.ui.model.HistoryInfo
+import org.draken.usagi.details.ui.pager.chapters.ChaptersFragment
 import org.draken.usagi.details.ui.scrobbling.ScrobblingItemDecoration
 import org.draken.usagi.details.ui.scrobbling.ScrollingInfoAdapter
 import org.draken.usagi.download.ui.worker.DownloadStartedObserver
@@ -148,7 +150,7 @@ class DetailsActivity :
 	private var faviconDisposable: Disposable? = null
 
 	override val bottomSheet: View?
-		get() = viewBinding.containerBottomSheet
+		get() = viewBinding.containerBottomSheet.takeIf { !settings.isChaptersInlineEnabled }
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -202,13 +204,27 @@ class DetailsActivity :
 		if (settings.isDescriptionExpanded) {
 			viewBinding.textViewDescription.maxLines = Int.MAX_VALUE - 1
 		}
-		viewBinding.containerBottomSheet?.let { sheet ->
-			sheet.setOnClickListener(this)
-			sheet.addOnLayoutChangeListener(this)
-			onBackPressedDispatcher.addCallback(BottomSheetCollapseCallback(sheet))
-			BottomSheetBehavior.from(sheet).addBottomSheetCallback(
-				DetailsBottomSheetCallback(viewBinding.swipeRefreshLayout, checkNotNull(viewBinding.navbarDim)),
-			)
+		if (settings.isChaptersInlineEnabled) {
+			viewBinding.groupChaptersInline?.isVisible = true
+			viewBinding.containerBottomSheet?.isGone = true
+			viewBinding.navbarDim?.isGone = true
+			viewBinding.containerChaptersInline?.let { container ->
+				if (supportFragmentManager.findFragmentById(container.id) == null) {
+					supportFragmentManager.commit { add(container.id, ChaptersFragment()) }
+				}
+			}
+			viewBinding.splitButtonChaptersRead?.let { splitButton ->
+				ReadButtonDelegate(splitButton, viewModel, router).attach(this)
+			}
+		} else {
+			viewBinding.containerBottomSheet?.let { sheet ->
+				sheet.setOnClickListener(this)
+				sheet.addOnLayoutChangeListener(this)
+				onBackPressedDispatcher.addCallback(BottomSheetCollapseCallback(sheet))
+				BottomSheetBehavior.from(sheet).addBottomSheetCallback(
+					DetailsBottomSheetCallback(viewBinding.swipeRefreshLayout, checkNotNull(viewBinding.navbarDim)),
+				)
+			}
 		}
 		val appRouter = router
 		viewModel.mangaDetails.filterNotNull().observe(this, ::onMangaUpdated)
@@ -222,7 +238,7 @@ class DetailsActivity :
 				DetailsErrorObserver(
 					activity = this,
 					snackbarHost = viewBinding.scrollView,
-					bottomSheet = viewBinding.containerBottomSheet,
+					bottomSheet = viewBinding.containerBottomSheet.takeIf { !settings.isChaptersInlineEnabled },
 					viewModel = viewModel,
 					resolver = exceptionResolver,
 				),
@@ -397,6 +413,7 @@ class DetailsActivity :
 		oldRight: Int,
 		oldBottom: Int,
 	) {
+		if (settings.isChaptersInlineEnabled) return
 		viewBinding.containerBottomSheet?.let { sheet ->
 			val peekHeight = BottomSheetBehavior.from(sheet).peekHeight
 			if (viewBinding.scrollView.paddingBottom != peekHeight) {
@@ -435,7 +452,9 @@ class DetailsActivity :
 			}
 			return insets.consume(v, typeMask, bottom = true, end = true)
 		} else {
-			viewBinding.navbarDim?.updateLayoutParams { height = barsInsets.bottom }
+			if (!settings.isChaptersInlineEnabled) {
+				viewBinding.navbarDim?.updateLayoutParams { height = barsInsets.bottom }
+			}
 			viewBinding.appbar.updatePadding(top = barsInsets.top)
 			viewBinding.swipeRefreshLayout.setProgressViewOffset(false, barsInsets.top, barsInsets.top + 180)
 			if (!settings.isBackdropEnabled) {

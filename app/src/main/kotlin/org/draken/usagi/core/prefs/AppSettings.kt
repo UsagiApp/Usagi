@@ -125,6 +125,9 @@ class AppSettings
 			get() = prefs.getInt(KEY_DETAILS_BACKDROP_BLUR_AMOUNT, 60)
 			set(value) = prefs.edit { putInt(KEY_DETAILS_BACKDROP_BLUR_AMOUNT, value.coerceIn(0, 100)) }
 
+		val isChaptersInlineEnabled: Boolean
+			get() = prefs.getBoolean(KEY_DETAILS_CHAPTERS_INLINE, false)
+
 		var historyListMode: ListMode
 			get() = prefs.getEnumValue(KEY_LIST_MODE_HISTORY, listMode)
 			set(value) = prefs.edit { putEnumValue(KEY_LIST_MODE_HISTORY, value) }
@@ -942,6 +945,7 @@ class AppSettings
 			const val KEY_COLLAPSE_DESCRIPTION = "description_collapse"
 			const val KEY_DETAILS_BACKDROP = "details_backdrop"
 			const val KEY_DETAILS_BACKDROP_BLUR_AMOUNT = "details_backdrop_blur_amount"
+			const val KEY_DETAILS_CHAPTERS_INLINE = "details_chapters_inline"
 			const val KEY_BACKUP_TG_ENABLED = "backup_periodic_tg_enabled"
 			const val KEY_BACKUP_TG_CHAT = "backup_periodic_tg_chat_id"
 			const val KEY_MANGA_LIST_BADGES = "manga_list_badges"

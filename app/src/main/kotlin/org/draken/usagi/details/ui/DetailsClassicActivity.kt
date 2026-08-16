@@ -25,6 +25,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
 import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.commit
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.transition.TransitionManager
 import coil3.ImageLoader
@@ -87,6 +88,7 @@ import org.draken.usagi.details.data.MangaDetails
 import org.draken.usagi.details.service.MangaPrefetchService
 import org.draken.usagi.details.ui.model.ChapterListItem
 import org.draken.usagi.details.ui.model.HistoryInfo
+import org.draken.usagi.details.ui.pager.chapters.ChaptersFragment
 import org.draken.usagi.details.ui.scrobbling.ScrobblingItemDecoration
 import org.draken.usagi.details.ui.scrobbling.ScrollingInfoAdapter
 import org.draken.usagi.download.ui.worker.DownloadStartedObserver
@@ -130,8 +132,8 @@ class DetailsClassicActivity :
 	private var statusBarInset: Int = 0
 	private var faviconDisposable: Disposable? = null
 
-	override val bottomSheet: View
-		get() = viewBinding.containerBottomSheet
+	override val bottomSheet: View?
+		get() = viewBinding.containerBottomSheet.takeIf { !settings.isChaptersInlineEnabled }
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -189,10 +191,21 @@ class DetailsClassicActivity :
 					supportActionBar?.setDisplayShowTitleEnabled(titleBottom < appBarBottom)
 				},
 			)
-			containerBottomSheet.let { sheet ->
-				val behavior = (sheet.layoutParams as? CoordinatorLayout.LayoutParams)?.behavior as? BottomSheetBehavior<*>
-				if (behavior != null) {
-					onBackPressedDispatcher.addCallback(BottomSheetCollapseCallback(sheet, behavior))
+			if (settings.isChaptersInlineEnabled) {
+				containerBottomSheet.isGone = true
+				navbarDim?.isGone = true
+				groupChaptersInline?.isVisible = true
+				containerChaptersInline?.let { container ->
+					if (supportFragmentManager.findFragmentById(container.id) == null) {
+						supportFragmentManager.commit { add(container.id, ChaptersFragment()) }
+					}
+				}
+			} else {
+				containerBottomSheet.let { sheet ->
+					val behavior = (sheet.layoutParams as? CoordinatorLayout.LayoutParams)?.behavior as? BottomSheetBehavior<*>
+					if (behavior != null) {
+						onBackPressedDispatcher.addCallback(BottomSheetCollapseCallback(sheet, behavior))
+					}
 				}
 			}
 		}
@@ -209,7 +222,7 @@ class DetailsClassicActivity :
 				DetailsErrorObserver(
 					activity = this,
 					snackbarHost = viewBinding.scrollView,
-					bottomSheet = viewBinding.containerBottomSheet,
+					bottomSheet = viewBinding.containerBottomSheet.takeIf { !settings.isChaptersInlineEnabled },
 					viewModel = viewModel,
 					resolver = exceptionResolver,
 				),
@@ -490,11 +503,18 @@ class DetailsClassicActivity :
 			}
 			return insets.consume(v, typeMask, bottom = true, end = true)
 		} else {
-			viewBinding.navbarDim?.updateLayoutParams { height = barsInsets.bottom }
-			viewBinding.scrollView.updatePadding(
-				top = actionBarSize + barsInsets.top,
-				bottom = barsInsets.bottom + resources.getDimensionPixelOffset(R.dimen.details_bs_peek_height),
-			)
+			if (settings.isChaptersInlineEnabled) {
+				viewBinding.scrollView.updatePadding(
+					top = actionBarSize + barsInsets.top,
+					bottom = barsInsets.bottom,
+				)
+			} else {
+				viewBinding.navbarDim?.updateLayoutParams { height = barsInsets.bottom }
+				viewBinding.scrollView.updatePadding(
+					top = actionBarSize + barsInsets.top,
+					bottom = barsInsets.bottom + resources.getDimensionPixelOffset(R.dimen.details_bs_peek_height),
+				)
+			}
 			if (!settings.isBackdropEnabled) {
 				viewBinding.contentContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> {
 					topMargin = resources.getDimensionPixelOffset(R.dimen.margin_normal)
