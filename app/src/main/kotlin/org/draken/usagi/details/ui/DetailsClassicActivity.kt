@@ -133,7 +133,7 @@ class DetailsClassicActivity :
 	private var faviconDisposable: Disposable? = null
 
 	override val bottomSheet: View?
-		get() = viewBinding.containerBottomSheet.takeIf { !settings.isChaptersInlineEnabled }
+		get() = viewBinding.containerBottomSheet
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -192,20 +192,17 @@ class DetailsClassicActivity :
 				},
 			)
 			if (settings.isChaptersInlineEnabled) {
-				containerBottomSheet.isGone = true
-				navbarDim?.isGone = true
 				groupChaptersInline?.isVisible = true
 				containerChaptersInline?.let { container ->
 					if (supportFragmentManager.findFragmentById(container.id) == null) {
 						supportFragmentManager.commit { add(container.id, ChaptersFragment()) }
 					}
 				}
-			} else {
-				containerBottomSheet.let { sheet ->
-					val behavior = (sheet.layoutParams as? CoordinatorLayout.LayoutParams)?.behavior as? BottomSheetBehavior<*>
-					if (behavior != null) {
-						onBackPressedDispatcher.addCallback(BottomSheetCollapseCallback(sheet, behavior))
-					}
+			}
+			containerBottomSheet.let { sheet ->
+				val behavior = (sheet.layoutParams as? CoordinatorLayout.LayoutParams)?.behavior as? BottomSheetBehavior<*>
+				if (behavior != null) {
+					onBackPressedDispatcher.addCallback(BottomSheetCollapseCallback(sheet, behavior))
 				}
 			}
 		}
@@ -222,7 +219,7 @@ class DetailsClassicActivity :
 				DetailsErrorObserver(
 					activity = this,
 					snackbarHost = viewBinding.scrollView,
-					bottomSheet = viewBinding.containerBottomSheet.takeIf { !settings.isChaptersInlineEnabled },
+					bottomSheet = viewBinding.containerBottomSheet,
 					viewModel = viewModel,
 					resolver = exceptionResolver,
 				),
@@ -503,18 +500,12 @@ class DetailsClassicActivity :
 			}
 			return insets.consume(v, typeMask, bottom = true, end = true)
 		} else {
-			if (settings.isChaptersInlineEnabled) {
-				viewBinding.scrollView.updatePadding(
-					top = actionBarSize + barsInsets.top,
-					bottom = barsInsets.bottom,
-				)
-			} else {
-				viewBinding.navbarDim?.updateLayoutParams { height = barsInsets.bottom }
-				viewBinding.scrollView.updatePadding(
-					top = actionBarSize + barsInsets.top,
-					bottom = barsInsets.bottom + resources.getDimensionPixelOffset(R.dimen.details_bs_peek_height),
-				)
-			}
+			viewBinding.navbarDim?.updateLayoutParams { height = barsInsets.bottom }
+			viewBinding.scrollView.updatePadding(
+				top = actionBarSize + barsInsets.top,
+				bottom = barsInsets.bottom + resources.getDimensionPixelOffset(R.dimen.details_bs_peek_height),
+			)
+
 			if (!settings.isBackdropEnabled) {
 				viewBinding.contentContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> {
 					topMargin = resources.getDimensionPixelOffset(R.dimen.margin_normal)

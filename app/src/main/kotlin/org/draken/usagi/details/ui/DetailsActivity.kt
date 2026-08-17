@@ -150,7 +150,7 @@ class DetailsActivity :
 	private var faviconDisposable: Disposable? = null
 
 	override val bottomSheet: View?
-		get() = viewBinding.containerBottomSheet.takeIf { !settings.isChaptersInlineEnabled }
+		get() = viewBinding.containerBottomSheet
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -206,8 +206,6 @@ class DetailsActivity :
 		}
 		if (settings.isChaptersInlineEnabled) {
 			viewBinding.groupChaptersInline?.isVisible = true
-			viewBinding.containerBottomSheet?.isGone = true
-			viewBinding.navbarDim?.isGone = true
 			viewBinding.containerChaptersInline?.let { container ->
 				if (supportFragmentManager.findFragmentById(container.id) == null) {
 					supportFragmentManager.commit { add(container.id, ChaptersFragment()) }
@@ -216,16 +214,16 @@ class DetailsActivity :
 			viewBinding.splitButtonChaptersRead?.let { splitButton ->
 				ReadButtonDelegate(splitButton, viewModel, router).attach(this)
 			}
-		} else {
-			viewBinding.containerBottomSheet?.let { sheet ->
-				sheet.setOnClickListener(this)
-				sheet.addOnLayoutChangeListener(this)
-				onBackPressedDispatcher.addCallback(BottomSheetCollapseCallback(sheet))
-				BottomSheetBehavior.from(sheet).addBottomSheetCallback(
-					DetailsBottomSheetCallback(viewBinding.swipeRefreshLayout, checkNotNull(viewBinding.navbarDim)),
-				)
-			}
 		}
+		viewBinding.containerBottomSheet?.let { sheet ->
+			sheet.setOnClickListener(this)
+			sheet.addOnLayoutChangeListener(this)
+			onBackPressedDispatcher.addCallback(BottomSheetCollapseCallback(sheet))
+			BottomSheetBehavior.from(sheet).addBottomSheetCallback(
+				DetailsBottomSheetCallback(viewBinding.swipeRefreshLayout, checkNotNull(viewBinding.navbarDim)),
+			)
+		}
+
 		val appRouter = router
 		viewModel.mangaDetails.filterNotNull().observe(this, ::onMangaUpdated)
 		viewModel.coverUrl.observe(this, ::loadCover)
@@ -238,7 +236,7 @@ class DetailsActivity :
 				DetailsErrorObserver(
 					activity = this,
 					snackbarHost = viewBinding.scrollView,
-					bottomSheet = viewBinding.containerBottomSheet.takeIf { !settings.isChaptersInlineEnabled },
+					bottomSheet = viewBinding.containerBottomSheet,
 					viewModel = viewModel,
 					resolver = exceptionResolver,
 				),
@@ -413,7 +411,6 @@ class DetailsActivity :
 		oldRight: Int,
 		oldBottom: Int,
 	) {
-		if (settings.isChaptersInlineEnabled) return
 		viewBinding.containerBottomSheet?.let { sheet ->
 			val peekHeight = BottomSheetBehavior.from(sheet).peekHeight
 			if (viewBinding.scrollView.paddingBottom != peekHeight) {
@@ -452,9 +449,8 @@ class DetailsActivity :
 			}
 			return insets.consume(v, typeMask, bottom = true, end = true)
 		} else {
-			if (!settings.isChaptersInlineEnabled) {
-				viewBinding.navbarDim?.updateLayoutParams { height = barsInsets.bottom }
-			}
+			viewBinding.navbarDim?.updateLayoutParams { height = barsInsets.bottom }
+
 			viewBinding.appbar.updatePadding(top = barsInsets.top)
 			viewBinding.swipeRefreshLayout.setProgressViewOffset(false, barsInsets.top, barsInsets.top + 180)
 			if (!settings.isBackdropEnabled) {
