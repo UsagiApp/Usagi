@@ -192,6 +192,7 @@ class DetailsClassicActivity :
 				},
 			)
 			if (settings.isChaptersInlineEnabled) {
+				buttonRead.isGone = true
 				groupChaptersInline?.isVisible = true
 				containerChaptersInline?.let { container ->
 					if (supportFragmentManager.findFragmentById(container.id) == null) {

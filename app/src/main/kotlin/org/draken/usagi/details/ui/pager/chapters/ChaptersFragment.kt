@@ -93,16 +93,16 @@ class ChaptersFragment :
 				(binding.root.layoutParams ?: ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)).apply {
 					height = ViewGroup.LayoutParams.WRAP_CONTENT
 				}
-			binding.recyclerViewChapters.layoutParams =
-				(binding.recyclerViewChapters.layoutParams ?: ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)).apply {
-					height = ViewGroup.LayoutParams.WRAP_CONTENT
-				}
+			(binding.recyclerViewChapters.layoutParams as? android.widget.RelativeLayout.LayoutParams)?.apply {
+				height = ViewGroup.LayoutParams.WRAP_CONTENT
+				removeRule(android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM)
+			}
 			binding.recyclerViewChapters.isNestedScrollingEnabled = false
 		}
 		with(binding.recyclerViewChapters) {
 			addItemDecoration(TypedListSpacingDecoration(context, true))
 			checkNotNull(selectionController).attachToRecyclerView(this)
-			setHasFixedSize(true)
+			setHasFixedSize(!isInline)
 			PagerNestedScrollHelper(this).bind(viewLifecycleOwner)
 			adapter = chaptersAdapter
 			ChapterGridSpanHelper.attach(this)
