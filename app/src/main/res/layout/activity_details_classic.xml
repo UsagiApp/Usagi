@@ -440,11 +440,22 @@
 						android:singleLine="true"
 						android:text="@string/chapters"
 						android:textAppearance="?textAppearanceTitleSmall"
-						app:layout_constraintEnd_toEndOf="parent"
+						app:layout_constraintEnd_toStartOf="@id/button_chapters_order"
 						app:layout_constraintStart_toStartOf="parent"
 						app:layout_constraintTop_toBottomOf="@id/recyclerView_related" />
 
-					<androidx.fragment.app.FragmentContainerView
+					<Button
+						android:id="@+id/button_chapters_order"
+						style="@style/Widget.Usagi.Button.More"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginEnd="8dp"
+						android:text="@string/order_oldest"
+						android:visibility="gone"
+						app:layout_constraintBaseline_toBaselineOf="@id/textView_chapters_title"
+						app:layout_constraintEnd_toEndOf="parent" />
+
+						<androidx.fragment.app.FragmentContainerView
 						android:id="@+id/container_chapters_inline"
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
@@ -457,7 +468,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:visibility="gone"
-						app:constraint_referenced_ids="container_chapters_inline,textView_chapters_title"
+						app:constraint_referenced_ids="container_chapters_inline,textView_chapters_title,button_chapters_order"
 						tools:visibility="visible" />
 
 					<com.google.android.material.progressindicator.LinearProgressIndicator

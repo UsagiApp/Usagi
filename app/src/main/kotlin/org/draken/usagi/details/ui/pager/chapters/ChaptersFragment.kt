@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -89,6 +90,7 @@ class ChaptersFragment :
 				}
 		}
 		if (isInline) {
+			setupInlineOrderButton()
 			binding.root.layoutParams =
 				(binding.root.layoutParams ?: ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)).apply {
 					height = ViewGroup.LayoutParams.WRAP_CONTENT
@@ -185,6 +187,17 @@ class ChaptersFragment :
 			)
 		}
 		return WindowInsetsCompat.CONSUMED
+	}
+
+	private fun setupInlineOrderButton() {
+		val orderButton = requireActivity().findViewById<TextView>(R.id.button_chapters_order) ?: return
+		orderButton.isVisible = true
+		orderButton.setOnClickListener {
+			viewModel.setChaptersReversed(viewModel.isChaptersReversed.value != true)
+		}
+		viewModel.isChaptersReversed.observe(viewLifecycleOwner) { reversed ->
+			orderButton.setText(if (reversed) R.string.newest else R.string.order_oldest)
+		}
 	}
 
 	private fun onChaptersChanged(list: List<ListModel>) {
