@@ -194,6 +194,15 @@ class DetailsClassicActivity :
 			if (settings.isChaptersInlineEnabled) {
 				buttonRead.isGone = true
 				groupChaptersInline?.isVisible = true
+				buttonChaptersOrder?.apply {
+					isVisible = true
+					setOnClickListener {
+						viewModel.setChaptersReversed(viewModel.isChaptersReversed.value != true)
+					}
+					viewModel.isChaptersReversed.observe(this@DetailsClassicActivity) { reversed ->
+						setText(if (reversed) R.string.newest else R.string.order_oldest)
+					}
+				}
 				containerChaptersInline?.let { container ->
 					if (supportFragmentManager.findFragmentById(container.id) == null) {
 						supportFragmentManager.commit { add(container.id, ChaptersFragment()) }

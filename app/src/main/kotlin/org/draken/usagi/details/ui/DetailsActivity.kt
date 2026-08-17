@@ -206,6 +206,15 @@ class DetailsActivity :
 		}
 		if (settings.isChaptersInlineEnabled) {
 			viewBinding.groupChaptersInline?.isVisible = true
+			viewBinding.buttonChaptersOrder?.apply {
+				isVisible = true
+				setOnClickListener {
+					viewModel.setChaptersReversed(viewModel.isChaptersReversed.value != true)
+				}
+				viewModel.isChaptersReversed.observe(this@DetailsActivity) { reversed ->
+					setText(if (reversed) R.string.newest else R.string.order_oldest)
+				}
+			}
 			viewBinding.containerChaptersInline?.let { container ->
 				if (supportFragmentManager.findFragmentById(container.id) == null) {
 					supportFragmentManager.commit { add(container.id, ChaptersFragment()) }
