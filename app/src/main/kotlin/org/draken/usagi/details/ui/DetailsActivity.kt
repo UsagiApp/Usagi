@@ -211,9 +211,7 @@ class DetailsActivity :
 					supportFragmentManager.commit { add(container.id, ChaptersFragment()) }
 				}
 			}
-			viewBinding.splitButtonChaptersRead?.let { splitButton ->
-				ReadButtonDelegate(splitButton, viewModel, router).attach(this)
-			}
+			viewBinding.splitButtonChaptersRead?.isGone = true
 		}
 		viewBinding.containerBottomSheet?.let { sheet ->
 			sheet.setOnClickListener(this)

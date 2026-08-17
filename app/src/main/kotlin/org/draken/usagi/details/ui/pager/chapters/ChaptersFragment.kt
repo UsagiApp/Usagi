@@ -69,6 +69,7 @@ class ChaptersFragment :
 	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		val isClassic = activity is org.draken.usagi.details.ui.DetailsClassicActivity
+		val isInline = parentFragment == null
 		chaptersAdapter = ChaptersAdapter(this)
 		selectionController =
 			ListSelectionController(
@@ -86,6 +87,17 @@ class ChaptersFragment :
 				} else {
 					LinearLayoutManager(context)
 				}
+		}
+		if (isInline) {
+			binding.root.layoutParams =
+				(binding.root.layoutParams ?: ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)).apply {
+					height = ViewGroup.LayoutParams.WRAP_CONTENT
+				}
+			binding.recyclerViewChapters.layoutParams =
+				(binding.recyclerViewChapters.layoutParams ?: ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)).apply {
+					height = ViewGroup.LayoutParams.WRAP_CONTENT
+				}
+			binding.recyclerViewChapters.isNestedScrollingEnabled = false
 		}
 		with(binding.recyclerViewChapters) {
 			addItemDecoration(TypedListSpacingDecoration(context, true))
