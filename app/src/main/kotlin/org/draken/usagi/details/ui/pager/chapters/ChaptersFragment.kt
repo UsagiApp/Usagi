@@ -103,9 +103,7 @@ class ChaptersFragment :
 			addItemDecoration(TypedListSpacingDecoration(context, true))
 			checkNotNull(selectionController).attachToRecyclerView(this)
 			setHasFixedSize(!isInline)
-			if (!isInline) {
-				PagerNestedScrollHelper(this).bind(viewLifecycleOwner)
-			}
+			PagerNestedScrollHelper(this).bind(viewLifecycleOwner)
 			adapter = chaptersAdapter
 			ChapterGridSpanHelper.attach(this)
 		}

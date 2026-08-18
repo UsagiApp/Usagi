@@ -26,7 +26,6 @@ import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.commit
-import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.transition.TransitionManager
 import coil3.ImageLoader
@@ -190,13 +189,11 @@ class DetailsClassicActivity :
 					appbar.getLocationOnScreen(loc)
 					val appBarBottom = loc[1] + appbar.height
 					supportActionBar?.setDisplayShowTitleEnabled(titleBottom < appBarBottom)
-					updateInlineChapterListBounds()
 				},
 			)
 			if (settings.isChaptersInlineEnabled) {
 				buttonRead.isGone = true
 				groupChaptersInline?.isVisible = true
-				containerChaptersInline?.addOnLayoutChangeListener(this@DetailsClassicActivity)
 				buttonChaptersOrder?.apply {
 					isVisible = true
 					setOnClickListener {
@@ -474,35 +471,6 @@ class DetailsClassicActivity :
 		viewBinding.run {
 			buttonDescriptionMore.isVisible = textViewDescription.isTextTruncated
 		}
-		updateInlineChapterListBounds()
-	}
-
-	private fun updateInlineChapterListBounds() {
-		val container = viewBinding.containerChaptersInline ?: return
-		if (!settings.isChaptersInlineEnabled || !container.isVisible) return
-		val sheet = viewBinding.containerBottomSheet
-		val location = IntArray(2)
-		val titleView = viewBinding.textViewChaptersTitle ?: return
-		titleView.getLocationOnScreen(location)
-		val titleTop = location[1]
-		viewBinding.appbar.getLocationOnScreen(location)
-		val appBarBottom = location[1] + viewBinding.appbar.height
-		if (titleTop > appBarBottom) {
-			container.findViewById<RecyclerView>(R.id.recyclerView_chapters)?.also { list ->
-				list.updateLayoutParams { height = ViewGroup.LayoutParams.WRAP_CONTENT }
-				list.isNestedScrollingEnabled = false
-			}
-			return
-		}
-		container.getLocationOnScreen(location)
-		val listTop = maxOf(location[1], appBarBottom)
-		sheet.getLocationOnScreen(location)
-		val maxHeight = (location[1] - listTop).coerceAtLeast(0)
-		container.findViewById<RecyclerView>(R.id.recyclerView_chapters)?.also { list ->
-			list.updateLayoutParams { height = maxHeight }
-			list.isNestedScrollingEnabled = maxHeight > 0
-		}
-		container.requestLayout()
 	}
 
 	override fun onApplyWindowInsets(
