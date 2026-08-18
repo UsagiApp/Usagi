@@ -17,7 +17,7 @@ import java.lang.reflect.Proxy
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as External
+import org.draken.tsukimix.core.parser.tachiyomi.model.Manga as External
 
 @Singleton
 class MangaDynamicRepository

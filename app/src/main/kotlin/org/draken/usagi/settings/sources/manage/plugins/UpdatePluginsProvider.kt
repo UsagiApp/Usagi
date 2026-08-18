@@ -6,11 +6,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.model.PluginKeyResolver
 import org.draken.usagi.core.network.BaseHttpClient
@@ -20,7 +24,6 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.json.JSONArray
 import org.json.JSONObject
-import tsuki.util.await
 import tsuki.util.runCatchingCancellable
 import java.io.File
 import java.io.IOException
@@ -102,6 +105,28 @@ class UpdatePluginsProvider
 			pluginKeyResolver.normalize(database, savedFiltersRepository)
 		}
 
+		private suspend fun Call.await(): Response =
+			suspendCancellableCoroutine { continuation ->
+				continuation.invokeOnCancellation { cancel() }
+				enqueue(
+					object : Callback {
+						override fun onFailure(
+							call: Call,
+							e: IOException,
+						) {
+							if (!continuation.isCancelled) continuation.resumeWith(Result.failure(e))
+						}
+
+						override fun onResponse(
+							call: Call,
+							response: Response,
+						) {
+							continuation.resumeWith(Result.success(response))
+						}
+					},
+				)
+			}
+
 		suspend fun requestRelease(
 			repository: String,
 			name: String? = null,
@@ -166,10 +191,59 @@ class UpdatePluginsProvider
 			}.getOrDefault(emptyList())
 		}
 
+		suspend fun importFromUrl(url: String): Boolean {
+			val trimmed = url.trim()
+			val info = parseDownloadUrl(trimmed)
+			if (info != null) {
+				val release =
+					ExternalPluginDto(
+						repository = info.repository,
+						tag = info.tag,
+						fileName = info.fileName,
+						downloadUrl = trimmed,
+					)
+				return installPlugin(release, info.fileName)
+			}
+			if (trimmed.endsWith(".jar", ignoreCase = true) || trimmed.contains(".jar?", ignoreCase = true)) {
+				val rawName = trimmed.substringBefore('?').substringAfterLast('/')
+				val fileName = PluginFileLoader.resolve(rawName)
+				val dest = File(mangaDynamicRepository.getDir(), fileName)
+				return runCatchingCancellable {
+					val request =
+						Request
+							.Builder()
+							.url(trimmed)
+							.header("User-Agent", "Usagi-PluginDownloader/1.0")
+							.build()
+					okHttpClient.newCall(request).await().use { response ->
+						if (!response.isSuccessful) throw IOException("HTTP ${response.code}")
+						val body = response.body
+						PluginFileLoader.copyFromStream(dest, body.byteStream())
+					}
+					reloadPlugins(mangaDynamicRepository.getDir())
+					true
+				}.getOrDefault(false)
+			}
+			return false
+		}
+
+		private fun parseDownloadUrl(url: String): ParsedDownloadUrl? {
+			val match = DOWNLOAD_URL_REGEX.matchEntire(url.trim()) ?: return null
+			val (owner, repo, tag, fileName) = match.destructured
+			if (owner.isBlank() || repo.isBlank() || tag.isBlank() || fileName.isBlank()) return null
+			return ParsedDownloadUrl(
+				repository = "$owner/$repo",
+				tag = tag,
+				fileName = fileName,
+			)
+		}
+
 		fun resolve(input: String): String? {
 			val trimmed = input.trim().takeIf { it.isNotEmpty() } ?: return null
 			return (GITHUB_URL_REGEX.matchEntire(trimmed) ?: REPOSITORY_REGEX.matchEntire(trimmed))
-				?.let { "${it.groupValues[1]}/${it.groupValues[2]}" }
+				?.groupValues
+				?.takeIf { it.size >= 3 }
+				?.let { "${it[1]}/${it[2]}" }
 		}
 
 		fun splitRepository(repository: String): Pair<String, String>? {
@@ -208,7 +282,8 @@ class UpdatePluginsProvider
 						.build()
 				okHttpClient.newCall(request).await().use { response ->
 					if (!response.isSuccessful) throw IOException()
-					PluginFileLoader.copyFromStream(dest, response.body.byteStream())
+					val body = response.body
+					PluginFileLoader.copyFromStream(dest, body.byteStream())
 				}
 			}.isSuccess
 
@@ -302,5 +377,16 @@ class UpdatePluginsProvider
 				Regex(
 					"""(?i)^\s*(?:https?://)?(?:www\.)?github\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?(?:/.*)?\s*$""",
 				)
+			private val DOWNLOAD_URL_REGEX =
+				Regex(
+					"""https?://(?:www\.)?github\.com/([^/]+)/([^/]+)/releases/download/([^/]+)/(.+\.jar)""",
+					RegexOption.IGNORE_CASE,
+				)
 		}
+
+		private data class ParsedDownloadUrl(
+			val repository: String,
+			val tag: String,
+			val fileName: String,
+		)
 	}

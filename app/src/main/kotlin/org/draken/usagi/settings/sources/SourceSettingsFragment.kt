@@ -10,7 +10,7 @@ import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterNotNull
-import org.draken.tsukimix.core.parser.tachiyomi.addLangToPref
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.SnackbarErrorObserver
 import org.draken.usagi.core.model.getTitle
@@ -29,7 +29,6 @@ import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.withArgs
 import tsuki.model.MangaSource
 import javax.inject.Inject
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
 
 @AndroidEntryPoint
 class SourceSettingsFragment :
@@ -38,7 +37,7 @@ class SourceSettingsFragment :
 	private val viewModel: SourceSettingsViewModel by viewModels()
 
 	@Inject
-	lateinit var externalManager: ExternalManager
+	lateinit var tachiyomiRuntime: TachiyomiRuntime
 
 	override fun onResume() {
 		super.onResume()
@@ -56,7 +55,7 @@ class SourceSettingsFragment :
 		addPreferencesFromResource(R.xml.pref_source)
 		addPreferencesFromRepository(viewModel.repository)
 		(viewModel.repository as? ExternalMangaRepository)?.source?.let {
-			externalManager.addLangToPref(preferenceScreen, it, getString(R.string.language), viewModel::publish)
+			tachiyomiRuntime.addLangToPref(preferenceScreen, it, getString(R.string.language), viewModel::publish)
 		}
 		val isValidSource = viewModel.repository !is EmptyMangaRepository
 

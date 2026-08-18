@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
+import org.draken.tsukimix.core.parser.tachiyomi.ExtensionProvider
+import org.draken.tsukimix.core.parser.tachiyomi.NativeExtManager
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import javax.inject.Inject
@@ -23,15 +25,19 @@ class SourcesSettingsViewModel
 	@Inject
 	constructor(
 		sourcesRepository: MangaSourcesRepository,
+		private val catalogProvider: ExtensionProvider,
+		private val directManager: NativeExtManager,
 		@ApplicationContext private val context: Context,
 	) : BaseViewModel() {
 		private val linksHandlerActivity = ComponentName(context, "org.draken.usagi.details.ui.DetailsByLinkActivity")
 
-		val enabledSourcesCount =
+		val sourceCounts =
 			sourcesRepository
-				.observeEnabledSourcesCount()
-				.withErrorHandling()
-				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, -1)
+				.observeManageableSourcesCount()
+				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, 0 to 0)
+
+		private val externalPluginCountState = MutableStateFlow(calculateExternalCount())
+		val externalPluginCount = externalPluginCountState
 
 		val availableSourcesCount =
 			sourcesRepository
@@ -40,6 +46,29 @@ class SourcesSettingsViewModel
 				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, -1)
 
 		val isLinksEnabled = MutableStateFlow(isLinksEnabled())
+
+		init {
+			refreshExternalCounts()
+		}
+
+		private fun calculateExternalCount(): Int {
+			val cached = catalogProvider.getSavedRepositories().map { catalogProvider.canonicalKey(it) }
+			val installed = directManager.installed.value.map { catalogProvider.canonicalKey(it.repositoryUrl) }
+			return (cached + installed).filter { it.isNotBlank() }.toSet().size
+		}
+
+		fun refreshExternalCounts() {
+			launchJob(Dispatchers.Default) {
+				val artifacts = catalogProvider.loadSavedCached()
+				val repos =
+					(
+						artifacts.map { catalogProvider.canonicalKey(it.repositoryUrl) } +
+							directManager.installed.value.map { catalogProvider.canonicalKey(it.repositoryUrl) }
+					).filter { it.isNotBlank() }
+						.toSet()
+				externalPluginCountState.value = repos.size
+			}
+		}
 
 		fun setLinksEnabled(isEnabled: Boolean) {
 			context.packageManager.setComponentEnabledSetting(

@@ -1,15 +1,18 @@
 package org.draken.usagi.core.parser.tachiyomi
 
 import android.content.Context
+import androidx.collection.LruCache
 import eu.kanade.tachiyomi.source.model.FilterList
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.online.HttpSource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
 import org.draken.tsukimix.core.parser.tachiyomi.model.toManga
 import org.draken.tsukimix.core.parser.tachiyomi.model.toMangaChapter
 import org.draken.tsukimix.core.parser.tachiyomi.model.toMangaPage
@@ -31,16 +34,18 @@ import tsuki.util.runCatchingCancellable
 import tsuki.util.suspendlazy.suspendLazy
 import java.io.IOException
 import java.util.EnumSet
-import java.util.concurrent.ConcurrentHashMap
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiSourceSettings as externalSettings
+import org.draken.tsukimix.core.parser.tachiyomi.ExtensionSourceSettings as externalSettings
+import org.draken.tsukimix.core.parser.tachiyomi.model.Manga as TachiyomiMangaSource
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
 
 class ExternalMangaRepository(
-	private val context: Context,
+	context: Context,
 	override val source: TachiyomiMangaSource,
 	cache: MemoryContentCache,
+	private val runtime: TachiyomiRuntime? = null,
 ) : CachingMangaRepository(cache),
 	FilterHost {
+	private val appContext = context.applicationContext
 	val external = source.catalogueSource
 	private val filterListLazy =
 		suspendLazy(Dispatchers.Default) {
@@ -108,23 +113,18 @@ class ExternalMangaRepository(
 						lastOffset = 0
 						hasMorePages = true
 					} else if (offset > lastOffset) {
+						if (!hasMorePages) return@withContext emptyList()
+						currentPage++
 						lastOffset = offset
-						currentPage += 1
 					}
 					currentPage
 				}
 
-			if (offset > 0 && !hasMorePages) return@withContext emptyList()
-			val query = filter?.query?.trim().orEmpty()
-			val hasFilters =
-				filter?.let {
-					it.query?.isNotBlank() == true || it.tags.isNotEmpty() || it.tagsExclude.isNotEmpty()
-				} ?: false
-
+			val query = filter?.query
 			val mangasPage =
 				try {
 					when {
-						hasFilters -> {
+						!query.isNullOrBlank() || filter?.isEmpty() == false -> {
 							val mihonFilters =
 								try {
 									external.getFilterList()
@@ -132,7 +132,7 @@ class ExternalMangaRepository(
 									FilterList()
 								}
 							FilterMapper.decode(mihonFilters, filter)
-							external.getSearchManga(page, query, mihonFilters)
+							external.getSearchManga(page, query ?: "", mihonFilters)
 						}
 
 						(order ?: defaultSortOrder).isLatest() && source.supportsLatest -> {
@@ -166,31 +166,60 @@ class ExternalMangaRepository(
 					throw mapException(e)
 				}
 			val details = update.manga.toManga(source, fallbackUrl = manga.url, fallbackTitle = manga.title)
+			val primaryChapters =
+				update.chapters.asReversed().mapIndexed { index, chapter ->
+					chapter.toMangaChapter(source, details.title, index)
+				}
+			val siblings = runtime?.getSiblingSources(source)?.filter { it.sourceId != source.sourceId }.orEmpty()
+			val allChapters =
+				if (siblings.isEmpty()) {
+					primaryChapters
+				} else {
+					val siblingChapters =
+						siblings
+							.map { sibling ->
+								async {
+									runCatching {
+										val siblingUpdate =
+											sibling.catalogueSource.getMangaUpdate(
+												original,
+												emptyList(),
+												fetchDetails = false,
+												fetchChapters = true,
+											)
+										siblingUpdate.chapters.asReversed().mapIndexed { index, chapter ->
+											chapter.toMangaChapter(sibling, details.title, index)
+										}
+									}.getOrDefault(emptyList())
+								}
+							}.awaitAll()
+							.flatten()
+					primaryChapters + siblingChapters
+				}
 			details.copy(
-				chapters =
-					update.chapters.asReversed().mapIndexed { index, chapter ->
-						chapter.toMangaChapter(source, details.title, index)
-					},
+				chapters = allChapters,
 				source = source,
 			)
 		}
 
 	override suspend fun getPagesImpl(chapter: MangaChapter): List<MangaPage> =
 		withContext(Dispatchers.IO) {
+			val chapterSource = (chapter.source as? TachiyomiMangaSource)?.catalogueSource ?: external
+			val targetSource = chapter.source as? TachiyomiMangaSource ?: source
 			val pageList =
 				try {
-					external.getPageList(chapter.toSChapter())
+					chapterSource.getPageList(chapter.toSChapter())
 				} catch (e: Throwable) {
 					throw mapException(e)
 				}
 			pageList.map { page ->
 				val resolved =
 					page.imageUrl
-						?: (external as? HttpSource)?.getImageUrl(page)
+						?: (chapterSource as? HttpSource)?.getImageUrl(page)
 						?: page.url
 				page.imageUrl = resolved
-				pageCache[pageCacheKey(source, resolved)] = page
-				page.toMangaPage(source, resolved)
+				pageCache.put(pageCacheKey(targetSource, resolved), page)
+				page.toMangaPage(targetSource, resolved)
 			}
 		}
 
@@ -200,9 +229,11 @@ class ExternalMangaRepository(
 	}
 
 	override suspend fun getPageRequest(page: MangaPage): Request {
-		val httpSource = external as? HttpSource ?: return super.getPageRequest(page)
+		val pageSource = (page.source as? TachiyomiMangaSource)?.catalogueSource ?: external
+		val targetSource = page.source as? TachiyomiMangaSource ?: source
+		val httpSource = pageSource as? HttpSource ?: return super.getPageRequest(page)
 		val tachiyomiPage =
-			pageCache[pageCacheKey(source, page.url)]
+			pageCache[pageCacheKey(targetSource, page.url)]
 				?: Page(index = 0, url = page.url, imageUrl = page.url)
 		return withContext(Dispatchers.IO) {
 			val imageRequest =
@@ -213,7 +244,7 @@ class ExternalMangaRepository(
 				}
 			imageRequest
 				.newBuilder()
-				.tag(tsuki.model.MangaSource::class.java, source)
+				.tag(tsuki.model.MangaSource::class.java, targetSource)
 				.build()
 		}
 	}
@@ -223,9 +254,11 @@ class ExternalMangaRepository(
 		okHttp: OkHttpClient,
 		interceptor: Interceptor,
 	): Response {
-		val httpSource = external as? HttpSource ?: return super.getPageResponse(page, okHttp, interceptor)
+		val pageSource = (page.source as? TachiyomiMangaSource)?.catalogueSource ?: external
+		val targetSource = page.source as? TachiyomiMangaSource ?: source
+		val httpSource = pageSource as? HttpSource ?: return super.getPageResponse(page, okHttp, interceptor)
 		val tachiyomiPage =
-			pageCache[pageCacheKey(source, page.url)]
+			pageCache[pageCacheKey(targetSource, page.url)]
 				?: Page(index = 0, url = page.url, imageUrl = page.url)
 		return withContext(Dispatchers.IO) {
 			try {
@@ -240,15 +273,15 @@ class ExternalMangaRepository(
 
 	override suspend fun getExternalFilters(): Any = filterListLazy.get()
 
-	fun getBrowserUrl(): String? = externalSettings.browserUrl(context, source)
+	fun getBrowserUrl(): String? = externalSettings.browserUrl(appContext, source)
 
-	fun getSettingsPreferences() = externalSettings.preferences(context, source)
+	fun getSettingsPreferences() = externalSettings.preferences(appContext, source)
 
 	fun refreshDomainOverride() {
-		externalSettings.refreshDomainOverride(context, source)
+		externalSettings.refreshDomainOverride(appContext, source)
 	}
 
-	fun isSlowdownEnabled(): Boolean = externalSettings.isSlowdownEnabled(context, source)
+	fun isSlowdownEnabled(): Boolean = externalSettings.isSlowdownEnabled(appContext, source)
 
 	override suspend fun getRelatedMangaImpl(seed: Manga): List<Manga> {
 		val httpSource = external as? HttpSource ?: return emptyList()
@@ -267,12 +300,20 @@ class ExternalMangaRepository(
 		val httpSource = external as? HttpSource
 		if (httpSource != null && error.hasMessage("cloudflare bypass failed")) {
 			return CloudFlareProtectedException(
-				url = externalSettings.browserUrl(context, source) ?: httpSource.getHomeUrl(),
+				url = externalSettings.browserUrl(appContext, source) ?: httpSource.getHomeUrl(),
 				source = source,
 				headers = httpSource.headers,
 			)
 		}
-		return error as? IOException ?: IOException(error.message ?: error.toString(), error)
+		if (error is IOException) return error
+		val causeMessage = error.localizedMessage ?: error.message
+		val message =
+			if (!causeMessage.isNullOrBlank()) {
+				appContext.getString(org.draken.usagi.R.string.plugin_incompatible_with_cause, causeMessage)
+			} else {
+				appContext.getString(org.draken.usagi.R.string.plugin_incompatible)
+			}
+		return IOException(message, error)
 	}
 
 	private fun SortOrder.isLatest(): Boolean = this == SortOrder.NEWEST || this == SortOrder.UPDATED
@@ -287,7 +328,7 @@ class ExternalMangaRepository(
 	}
 
 	private companion object {
-		val pageCache = ConcurrentHashMap<String, Page>()
+		val pageCache = LruCache<String, Page>(500)
 
 		fun pageCacheKey(
 			source: TachiyomiMangaSource,

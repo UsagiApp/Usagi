@@ -30,6 +30,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import okhttp3.OkHttpClient
+import org.draken.tsukimix.core.parser.tachiyomi.ExtensionProvider
+import org.draken.tsukimix.core.parser.tachiyomi.NativeExtManager
+import org.draken.tsukimix.core.parser.tachiyomi.RuntimeInitializer
+import org.draken.tsukimix.core.parser.tachiyomi.model.Manga
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.backups.domain.BackupObserver
 import org.draken.usagi.core.db.MangaDatabase
@@ -38,6 +42,9 @@ import org.draken.usagi.core.image.AvifImageDecoder
 import org.draken.usagi.core.image.CbzFetcher
 import org.draken.usagi.core.image.ExternalSourceFetcher
 import org.draken.usagi.core.image.MangaSourceHeaderInterceptor
+import org.draken.usagi.core.model.DirectTachiyomiPluginMetadata
+import org.draken.usagi.core.model.MangaSourceRegistry
+import org.draken.usagi.core.network.BaseHttpClient
 import org.draken.usagi.core.network.MangaHttpClient
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor
 import org.draken.usagi.core.network.webview.WebViewExecutor
@@ -69,9 +76,10 @@ import tsuki.MangaLoaderContext
 import tsuki.network.UserAgents
 import javax.inject.Provider
 import javax.inject.Singleton
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionLoader as Loader
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as Manager
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiInjektBridge as Bridge
+import org.draken.tsukimix.core.parser.tachiyomi.ExtensionBridge as Bridge
+import org.draken.tsukimix.core.parser.tachiyomi.ExtensionLoader as Loader
+import org.draken.tsukimix.core.parser.tachiyomi.ExtensionManager as Manager
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime as Runtime
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -265,5 +273,60 @@ interface AppModule {
 			@ApplicationContext context: Context,
 			loader: Loader,
 		): Manager = Manager(context, loader)
+
+		@Provides
+		@Singleton
+		fun provideNativeExtManager(
+			@ApplicationContext context: Context,
+			@BaseHttpClient httpClient: OkHttpClient,
+			injektBridge: Bridge,
+		): NativeExtManager = NativeExtManager(context, httpClient, injektBridge)
+
+		@Provides
+		@Singleton
+		fun provideExtensionProvider(
+			@ApplicationContext context: Context,
+			@BaseHttpClient httpClient: OkHttpClient,
+		): ExtensionProvider = ExtensionProvider(context, httpClient)
+
+		@Provides
+		@Singleton
+		fun provideTachiyomiRuntime(
+			installedManager: Manager,
+			directManager: NativeExtManager,
+			catalogProvider: ExtensionProvider,
+			database: MangaDatabase,
+			settings: AppSettings,
+		): Runtime =
+			Runtime(
+				installedManager = installedManager,
+				directManager = directManager,
+				disabledSourceProvider =
+					{
+						if (settings.isAllSourcesEnabled) {
+							emptySet()
+						} else {
+							database
+								.getSourcesDao()
+								.findAll()
+								.asSequence()
+								.filterNot { it.isEnabled }
+								.map { it.source }
+								.toSet()
+						}
+					},
+				sourcesPublisher =
+					{ sources ->
+						DirectTachiyomiPluginMetadata.update(directManager.installed.value) { catalogProvider.repositoryName(it) }
+						val nonTachiyomi = MangaSourceRegistry.sources.filterNot { it is Manga }
+						MangaSourceRegistry.publish(nonTachiyomi + sources)
+					},
+			)
+
+		@Provides
+		@Singleton
+		fun providePluginRuntimeInitializer(
+			tachiyomiRuntime: Provider<Runtime>,
+		): RuntimeInitializer = RuntimeInitializer { tachiyomiRuntime.get() }
 	}
 }

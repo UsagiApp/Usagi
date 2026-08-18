@@ -1,7 +1,12 @@
 package org.draken.usagi.settings.sources.manage.plugins.model
 
 import androidx.annotation.StringRes
+import org.draken.tsukimix.core.parser.tachiyomi.model.DirectTachiyomiFailure
+import org.draken.tsukimix.core.parser.tachiyomi.model.DirectTachiyomiInstalled
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiExtensionArtifact
+import org.draken.usagi.R
 import org.draken.usagi.list.ui.model.ListModel
+import java.net.URI
 
 sealed interface PluginManageItem : ListModel {
 	data class Plugin(
@@ -19,10 +24,65 @@ sealed interface PluginManageItem : ListModel {
 		override fun areItemsTheSame(other: ListModel): Boolean = other is Plugin && name == other.name
 	}
 
+	data class Tachiyomi(
+		val repositoryUrl: String,
+		val artifacts: List<TachiyomiExtensionArtifact>,
+		val installed: List<DirectTachiyomiInstalled>,
+		val failures: List<DirectTachiyomiFailure>,
+		val customName: String? = null,
+	) : PluginManageItem {
+		val isLocal: Boolean
+			get() = repositoryUrl.startsWith("local:") || repositoryUrl.startsWith("installed:")
+
+		val repositoryLabel: String
+			get() =
+				if (isLocal) {
+					R.string.local_storage.toString()
+				} else {
+					runCatching {
+						val uri = URI(repositoryUrl)
+						val segments =
+							uri.path
+								.trim('/')
+								.split('/')
+								.filter { it.isNotBlank() }
+						when (uri.host?.lowercase()) {
+							"raw.githubusercontent.com" -> segments.take(2).joinToString("/")
+							"github.com", "www.github.com" -> segments.take(2).joinToString("/")
+							else -> uri.host.orEmpty().ifBlank { repositoryUrl }
+						}
+					}.getOrDefault(repositoryUrl)
+				}
+
+		val displayName: String
+			get() {
+				customName?.trim()?.takeIf { it.isNotBlank() }?.let { return it }
+				if (isLocal) {
+					installed
+						.firstOrNull()
+						?.name
+						?.takeIf { it.isNotBlank() }
+						?.let { return it }
+				}
+				return repositoryLabel.substringBefore('/').ifBlank { "Tachiyomi/Mihon" }
+			}
+
+		val hasFailures: Boolean
+			get() = failures.isNotEmpty()
+
+		override fun areItemsTheSame(other: ListModel): Boolean = other is Tachiyomi && repositoryUrl == other.repositoryUrl
+	}
+
 	data class Placeholder(
 		@field:StringRes val titleResId: Int,
 		@field:StringRes val summaryResId: Int?,
 	) : PluginManageItem {
 		override fun areItemsTheSame(other: ListModel): Boolean = other is Placeholder && titleResId == other.titleResId && summaryResId == other.summaryResId
+	}
+
+	data class Loading(
+		val targetUrl: String,
+	) : PluginManageItem {
+		override fun areItemsTheSame(other: ListModel): Boolean = other is Loading && targetUrl == other.targetUrl
 	}
 }

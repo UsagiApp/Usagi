@@ -4,12 +4,10 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.view.ActionMode
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.documentfile.provider.DocumentFile
@@ -24,6 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.draken.usagi.R
+import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.PluginFileLoader
 import org.draken.usagi.core.ui.BaseFragment
 import org.draken.usagi.core.ui.dialog.buildAlertDialog
@@ -52,13 +51,15 @@ class PluginsManageFragment :
 			ActivityResultContracts.OpenDocument(),
 		) { uri ->
 			if (uri != null && isAdded) {
-				viewModel.importPlugin(
-					uri = uri,
-					getOriginalName = { DocumentFile.fromSingleUri(requireContext().applicationContext, it)?.name },
-					askName = { askText(R.string.set_plugin_name, it, R.string.plugin_name) },
-					askOverwrite = ::askOverwrite,
-					onResult = ::showImportResult,
-				)
+				viewLifecycleOwnerLiveData.value?.lifecycleScope?.launch {
+					viewModel
+						.importPlugin(
+							uri = uri,
+							getOriginalName = { DocumentFile.fromSingleUri(requireContext().applicationContext, it)?.name },
+							askName = { askText(R.string.set_plugin_name, it, R.string.plugin_name) },
+							askOverwrite = ::askOverwrite,
+						)?.let(::showImportResult)
+				}
 			}
 		}
 
@@ -80,9 +81,13 @@ class PluginsManageFragment :
 			PluginManageAdapter(
 				onRenameClick = ::onRenameClick,
 				onUpdateClick = ::onUpdateClick,
+				onTachiyomiRenameClick = ::onTachiyomiRenameClick,
+				onTachiyomiLongClick = ::onTachiyomiLongClick,
+				onTachiyomiClick = ::onTachiyomiClick,
 				onLongClick = ::onLongClick,
 				onClick = ::onClick,
 				isSelected = { item -> viewModel.isSelected(item.name) },
+				isTachiyomiSelected = viewModel::isTachiyomiSelected,
 			)
 		with(binding.recyclerView) {
 			setHasFixedSize(true)
@@ -176,6 +181,7 @@ class PluginsManageFragment :
 		binding.buttonFile.setIconResource(R.drawable.ic_storage)
 		binding.buttonDir.title = getString(R.string.import_from_github)
 		binding.buttonDir.subtitle = getString(R.string.import_github_summary)
+
 		binding.buttonDir.setIconResource(R.drawable.ic_open_external)
 		val dialog =
 			buildAlertDialog(requireContext()) {
@@ -189,13 +195,15 @@ class PluginsManageFragment :
 		}
 		binding.buttonDir.setOnClickListener {
 			dialog.dismiss()
-			viewModel.import(
-				askInput = { askText(R.string.import_from_github, "", null) },
-				askSelect = ::askSelect,
-				askOverwrite = ::askOverwrite,
-				onResult = ::showImportResult,
-			)
+			viewLifecycleOwner.lifecycleScope.launch {
+				viewModel
+					.importUrl(
+						askInput = { askText(R.string.import_from_github, "", R.string.import_github_summary) },
+						askOverwrite = ::askOverwrite,
+					)?.let(::showImportResult)
+			}
 		}
+
 		dialog.show()
 	}
 
@@ -225,6 +233,18 @@ class PluginsManageFragment :
 		viewModel.toggleSelection(item.name)
 	}
 
+	private fun onTachiyomiClick(item: PluginManageItem.Tachiyomi) {
+		if (viewModel.selectedPlugins.value.isNotEmpty()) {
+			viewModel.toggleTachiyomiSelection(item)
+		} else {
+			router.openPluginCatalog(item.repositoryUrl, item.displayName)
+		}
+	}
+
+	private fun onTachiyomiLongClick(item: PluginManageItem.Tachiyomi) {
+		viewModel.toggleTachiyomiSelection(item)
+	}
+
 	private fun showDeleteSelectedConfirm() {
 		val count = viewModel.selectedPlugins.value.size
 		val itemsText = resources.getQuantityString(R.plurals.items, count, count)
@@ -238,7 +258,7 @@ class PluginsManageFragment :
 					val binding = viewBinding ?: return@launch
 					Snackbar
 						.make(
-							binding.recyclerView,
+							binding.root,
 							if (success) R.string.removal_completed else R.string.load_failed,
 							Snackbar.LENGTH_SHORT,
 						).show()
@@ -247,13 +267,29 @@ class PluginsManageFragment :
 		}.show()
 	}
 
+	private fun onTachiyomiRenameClick(item: PluginManageItem.Tachiyomi) {
+		viewLifecycleOwner.lifecycleScope.launch {
+			val newName = askText(R.string.rename, item.displayName, R.string.plugin_name)
+			if (!newName.isNullOrBlank()) {
+				val success = viewModel.renameTachiyomi(item, newName)
+				val binding = viewBinding ?: return@launch
+				Snackbar
+					.make(
+						binding.root,
+						if (success) R.string.load_success else R.string.load_failed,
+						Snackbar.LENGTH_SHORT,
+					).show()
+			}
+		}
+	}
+
 	private fun onUpdateClick(item: PluginManageItem.Plugin) {
 		viewLifecycleOwner.lifecycleScope.launch {
 			val success = viewModel.updatePlugin(item)
 			val binding = viewBinding ?: return@launch
 			Snackbar
 				.make(
-					binding.recyclerView,
+					binding.root,
 					if (success) R.string.load_success else R.string.load_failed,
 					Snackbar.LENGTH_SHORT,
 				).show()
@@ -277,6 +313,9 @@ class PluginsManageFragment :
 					}
 				dialog.setOnCancelListener {
 					if (cont.isActive) cont.resume(false)
+				}
+				cont.invokeOnCancellation {
+					dialog.dismiss()
 				}
 				dialog.show()
 			}
@@ -308,20 +347,15 @@ class PluginsManageFragment :
 				dialog.setOnCancelListener {
 					if (cont.isActive) cont.resume(null)
 				}
-				dialog.show()
-			}
-		}
-
-	private suspend fun askSelect(fileNames: List<String>): Int? =
-		withContext(Dispatchers.Main) {
-			suspendCancellableCoroutine { cont ->
-				val dialog =
-					buildAlertDialog(requireContext()) {
-						setTitle(R.string.import_from_github)
-						setItems(fileNames.toTypedArray()) { _, w -> if (cont.isActive) cont.resume(w) }
-						setNegativeButton(android.R.string.cancel) { _, _ -> if (cont.isActive) cont.resume(null) }
+				dialog.setOnDismissListener {
+					input.setCursorVisible(false)
+				}
+				cont.invokeOnCancellation {
+					input.post {
+						input.setCursorVisible(false)
+						if (dialog.isShowing) dialog.dismiss()
 					}
-				dialog.setOnCancelListener { if (cont.isActive) cont.resume(null) }
+				}
 				dialog.show()
 			}
 		}
@@ -330,7 +364,7 @@ class PluginsManageFragment :
 		val binding = viewBinding ?: return
 		Snackbar
 			.make(
-				binding.recyclerView,
+				binding.root,
 				if (isSuccess) R.string.load_success else R.string.load_failed,
 				Snackbar.LENGTH_LONG,
 			).show()

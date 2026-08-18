@@ -48,6 +48,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.draken.tsukimix.core.parser.tachiyomi.RuntimeInitializer
 import org.draken.usagi.R
 import org.draken.usagi.backups.ui.periodical.PeriodicalBackupService
 import org.draken.usagi.browser.AdListUpdateService
@@ -57,7 +58,6 @@ import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.os.VoiceInputContract
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.NavItem
-import org.draken.usagi.core.ui.AppCrashActivity
 import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.ui.dialog.BigButtonsAlertDialog
 import org.draken.usagi.core.ui.util.FadingAppbarMediator
@@ -100,6 +100,9 @@ class MainActivity :
 	SearchView.TransitionListener {
 	@Inject
 	lateinit var settings: AppSettings
+
+	@Inject
+	lateinit var runtimeInit: RuntimeInitializer
 
 	private val viewModel by viewModels<MainViewModel>()
 	private val searchSuggestionViewModel by viewModels<SearchSuggestionViewModel>()
@@ -202,6 +205,15 @@ class MainActivity :
 		viewBinding.searchView.addTransitionListener(this)
 		viewBinding.searchView.addTransitionListener(exitCallback)
 		initSearch()
+	}
+
+	override fun onPostResume() {
+		super.onPostResume()
+		window.decorView.post {
+			lifecycleScope.launch {
+				runtimeInit.initialize()
+			}
+		}
 	}
 
 	override fun onRestoreInstanceState(savedInstanceState: Bundle) {

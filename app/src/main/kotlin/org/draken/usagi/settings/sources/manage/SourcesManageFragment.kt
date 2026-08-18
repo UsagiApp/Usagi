@@ -1,5 +1,8 @@
 package org.draken.usagi.settings.sources.manage
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -141,7 +144,23 @@ class SourcesManageFragment :
 		item: SourceConfigItem.SourceItem,
 		isEnabled: Boolean,
 	) {
-		viewModel.setEnabled(item.source, isEnabled)
+		val packageName = item.uninstallPackageName
+		if (!isEnabled && packageName != null) {
+			uninstallExternalPackage(packageName)
+		} else {
+			viewModel.setEnabled(item.source, isEnabled)
+		}
+	}
+
+	private fun uninstallExternalPackage(packageName: String) {
+		val action =
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+				Intent.ACTION_DELETE
+			} else {
+				@Suppress("DEPRECATION")
+				Intent.ACTION_UNINSTALL_PACKAGE
+			}
+		startActivity(Intent(action, Uri.fromParts("package", packageName, null)))
 	}
 
 	override fun onCloseTip(tip: SourceConfigItem.Tip) {

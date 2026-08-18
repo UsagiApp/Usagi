@@ -9,7 +9,7 @@ import androidx.preference.SwitchPreferenceCompat
 import eu.kanade.tachiyomi.source.ConfigurableSource
 import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.source.preferenceKey
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiSourceSettings
+import org.draken.tsukimix.core.parser.tachiyomi.ExtensionSourceSettings
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
@@ -41,8 +41,8 @@ private fun PreferenceFragmentCompat.addPreferences(repository: ExternalMangaRep
 	// Let extension add its preferences first
 	configurableSource?.setupPreferenceScreen(preferenceScreen)
 	// Remove extension's domain preference if it added one — Usagi replaces it
-	TachiyomiSourceSettings.mergeDomainPreference(requireContext(), repository.source)
-	for (key in arrayOf(TachiyomiSourceSettings.KEY_DOMAIN, TachiyomiSourceSettings.KEY_OVERRIDE_BASE_URL)) {
+	ExtensionSourceSettings.mergeDomainPreference(requireContext(), repository.source)
+	for (key in arrayOf(ExtensionSourceSettings.KEY_DOMAIN, ExtensionSourceSettings.KEY_OVERRIDE_BASE_URL)) {
 		preferenceScreen.findPreference<Preference>(key)?.let { it.parent?.removePreference(it) }
 	}
 	// Add Usagi's EditTextPreference last so key lookup always returns it

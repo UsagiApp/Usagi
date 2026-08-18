@@ -8,3 +8,8 @@ data class SourcesCatalogFilter(
 	val isNewOnly: Boolean,
 	val plugin: String?,
 )
+
+data class SourceCatalogPlugin(
+	val key: String,
+	val label: String,
+)

@@ -65,6 +65,8 @@
 		android:id="@+id/imageView_add"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:minWidth="56dp"
+		android:minHeight="56dp"
 		android:background="?selectableItemBackgroundBorderless"
 		android:contentDescription="@string/add"
 		android:padding="@dimen/margin_normal"

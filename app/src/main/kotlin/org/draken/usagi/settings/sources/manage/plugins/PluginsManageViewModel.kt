@@ -9,9 +9,15 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.draken.tsukimix.core.parser.tachiyomi.ExtensionProvider
+import org.draken.tsukimix.core.parser.tachiyomi.NativeExtManager
+import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
+import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiExtensionArtifact
 import org.draken.usagi.R
 import org.draken.usagi.core.db.MangaDatabase
+import org.draken.usagi.core.model.DirectTachiyomiPluginMetadata
 import org.draken.usagi.core.model.PluginKeyResolver
 import org.draken.usagi.core.parser.MangaDynamicRepository
 import org.draken.usagi.core.parser.PluginFileLoader
@@ -34,6 +40,9 @@ class PluginsManageViewModel
 		private val settings: AppSettings,
 		private val mangaDynamicRepository: MangaDynamicRepository,
 		private val pluginKeyResolver: PluginKeyResolver,
+		private val directManager: NativeExtManager,
+		private val tachiyomiRuntime: TachiyomiRuntime,
+		private val catalogProvider: ExtensionProvider,
 	) : BaseViewModel() {
 		val content = MutableStateFlow<List<PluginManageItem>>(emptyList())
 		val selectedPlugins = MutableStateFlow<Set<String>>(emptySet())
@@ -42,32 +51,46 @@ class PluginsManageViewModel
 		private var pluginsSnapshot = emptyList<PluginManageItem.Plugin>()
 
 		@Volatile
+		private var tachiyomiSnapshot = emptyList<PluginManageItem.Tachiyomi>()
+
+		@Volatile
 		private var query = ""
+
+		@Volatile
+		private var pendingImportUrl: String? = null
 
 		init {
 			refresh()
 		}
 
 		fun refresh() {
-			launchLoadingJob(Dispatchers.Default) {
+			launchJob(Dispatchers.Default) {
 				val localPlugins = loadPluginsLocal()
 				pluginsSnapshot = localPlugins
+				refreshTachiyomiItems(catalogProvider.loadSavedCached())
 				publishFiltered()
 
+				launch {
+					runCatching { tachiyomiRuntime.ensureReady() }
+					val refreshed = catalogProvider.loadSaved()
+					refreshTachiyomiItems(refreshed)
+				}
 				if (localPlugins.isNotEmpty()) {
-					val updatedPlugins =
-						coroutineScope {
-							localPlugins
-								.map { plugin ->
-									async {
-										val repo = plugin.repository ?: return@async plugin
-										val latest = updatePluginsProvider.requestTag(repo) ?: return@async plugin
-										plugin.copy(latestTag = latest)
-									}
-								}.awaitAll()
-						}
-					pluginsSnapshot = updatedPlugins
-					publishFiltered()
+					launch {
+						val updatedPlugins =
+							coroutineScope {
+								localPlugins
+									.map { plugin ->
+										async {
+											val repo = plugin.repository ?: return@async plugin
+											val latest = updatePluginsProvider.requestTag(repo) ?: return@async plugin
+											plugin.copy(latestTag = latest)
+										}
+									}.awaitAll()
+							}
+						pluginsSnapshot = updatedPlugins
+						publishFiltered()
+					}
 				}
 			}
 		}
@@ -123,55 +146,118 @@ class PluginsManageViewModel
 				.installPlugin(release, PluginFileLoader.resolve(fileName))
 				.also { if (it) refresh() }
 
-		fun importPlugin(
+		suspend fun importPlugin(
 			uri: Uri,
 			getOriginalName: (Uri) -> String?,
 			askName: suspend (String) -> String?,
 			askOverwrite: suspend (String) -> Boolean,
-			onResult: (Boolean) -> Unit,
-		) {
-			launchJob(Dispatchers.Default) {
+		): Boolean? =
+			withContext(Dispatchers.Default) {
 				val originalName = getOriginalName(uri) ?: "plugin_${System.currentTimeMillis()}.jar"
-				val pluginName = askName(originalName.removeSuffix(".jar"))?.trim().orEmpty()
-				if (pluginName.isBlank()) return@launchJob
-
-				val fileName = PluginFileLoader.resolve(pluginName)
-				if (isInstalled(fileName) && !askOverwrite(fileName)) return@launchJob
-
-				val success = importFromUri(uri, fileName)
-				withContext(Dispatchers.Main) { onResult(success) }
-			}
-		}
-
-		fun import(
-			askInput: suspend () -> String?,
-			askSelect: suspend (List<String>) -> Int?,
-			askOverwrite: suspend (String) -> Boolean,
-			onResult: (Boolean) -> Unit,
-		) {
-			launchJob(Dispatchers.Default) {
-				val input = askInput()?.trim()?.takeIf { it.isNotBlank() } ?: return@launchJob
-				val releases = resolveGithubReleases(input)
-				if (releases.isEmpty()) {
-					withContext(Dispatchers.Main) { onResult(false) }
-					return@launchJob
+				val tempDir = File(context.cacheDir, "imports").also { it.mkdirs() }
+				val tempFile = File(tempDir, originalName)
+				try {
+					PluginFileLoader.copyFromUri(context, uri, tempFile)
+					val tachiyomiInstalled = directManager.installLocal(tempFile, originalName)
+					if (tachiyomiInstalled) {
+						tachiyomiRuntime.ensureReady(forceRefresh = true)
+						refresh()
+						return@withContext true
+					}
+				} finally {
+					tempFile.delete()
 				}
 
-				val select =
-					if (releases.size > 1) {
-						val index = askSelect(releases.map { it.fileName }) ?: return@launchJob
-						releases.getOrNull(index) ?: return@launchJob
-					} else {
-						releases.firstOrNull() ?: return@launchJob
+				val pluginName = askName(originalName.removeSuffix(".jar"))?.trim().orEmpty()
+				if (pluginName.isBlank()) return@withContext null
+
+				val fileName = PluginFileLoader.resolve(pluginName)
+				if (isInstalled(fileName) && !askOverwrite(fileName)) return@withContext null
+
+				importFromUri(uri, fileName)
+			}
+
+		suspend fun importUrl(
+			askInput: suspend () -> String?,
+			askOverwrite: suspend (String) -> Boolean,
+		): Boolean? =
+			withContext(Dispatchers.Default) {
+				val input = askInput()?.trim()?.takeIf { it.isNotBlank() } ?: return@withContext null
+				pendingImportUrl = input
+				publishFiltered()
+				try {
+					val trimmed = input.trim()
+					// 1. Direct .jar/.apk file URL or direct release download URL
+					if (trimmed.endsWith(".jar", ignoreCase = true) ||
+						trimmed.contains(".jar?", ignoreCase = true) ||
+						trimmed.endsWith(".apk", ignoreCase = true) ||
+						trimmed.contains(".apk?", ignoreCase = true) ||
+						trimmed.contains("/releases/download/")
+					) {
+						if (updatePluginsProvider.importFromUrl(trimmed)) {
+							refresh()
+							return@withContext true
+						}
 					}
 
-				val name = PluginFileLoader.resolve(select.fileName)
-				if (isInstalled(name) && !askOverwrite(name)) return@launchJob
+					// 2. Fast check: Tsuki/Kotatsu plugin repository on GitHub (single latest release with .jar plugin)
+					val releases = resolveGithubReleases(trimmed)
+					val select = releases.firstOrNull()
+					val isTsukiPlugin =
+						select != null &&
+							!select.fileName.startsWith("tachiyomi-", ignoreCase = true) &&
+							!select.fileName.startsWith("eu.kanade.tachiyomi", ignoreCase = true)
 
-				val success = importFromGithub(select, name)
-				withContext(Dispatchers.Main) { onResult(success) }
+					if (isTsukiPlugin) {
+						val name = PluginFileLoader.resolve(select.fileName)
+						if (isInstalled(name) && !askOverwrite(name)) return@withContext null
+						if (importFromGithub(select, name)) {
+							refresh()
+							return@withContext true
+						}
+					}
+
+					// 3. Tachiyomi/Mihon extensions repository
+					val artifacts = catalogProvider.load(trimmed)
+					if (artifacts.isNotEmpty()) {
+						artifacts.forEach { catalogProvider.restorePackage(it.packageName) }
+						catalogProvider.saveRepository(trimmed)
+						refreshTachiyomiItems(catalogProvider.loadSaved() + artifacts)
+						return@withContext true
+					}
+
+					// 4. Fallback: Any other GitHub release asset
+					if (select != null) {
+						val name = PluginFileLoader.resolve(select.fileName)
+						if (isInstalled(name) && !askOverwrite(name)) return@withContext null
+						if (importFromGithub(select, name)) {
+							refresh()
+							return@withContext true
+						}
+					}
+
+					if (updatePluginsProvider.importFromUrl(trimmed)) {
+						refresh()
+						return@withContext true
+					}
+
+					return@withContext false
+				} finally {
+					pendingImportUrl = null
+					publishFiltered()
+				}
 			}
-		}
+
+		suspend fun renameTachiyomi(
+			item: PluginManageItem.Tachiyomi,
+			name: String,
+		): Boolean =
+			withContext(Dispatchers.Default) {
+				catalogProvider.setRepositoryName(item.repositoryUrl, name)
+				DirectTachiyomiPluginMetadata.update(directManager.installed.value) { catalogProvider.repositoryName(it) }
+				refresh()
+				true
+			}
 
 		suspend fun updatePlugin(item: PluginManageItem.Plugin): Boolean {
 			val repository = item.repository ?: return false
@@ -189,6 +275,12 @@ class PluginsManageViewModel
 			selectedPlugins.value = if (jarName in current) current - jarName else current + jarName
 		}
 
+		fun toggleTachiyomiSelection(item: PluginManageItem.Tachiyomi) {
+			toggleSelection(tachiyomiSelectionKey(item.repositoryUrl))
+		}
+
+		fun isTachiyomiSelected(item: PluginManageItem.Tachiyomi): Boolean = tachiyomiSelectionKey(item.repositoryUrl) in selectedPlugins.value
+
 		fun clearSelection() {
 			selectedPlugins.value = emptySet()
 		}
@@ -200,16 +292,33 @@ class PluginsManageViewModel
 				val select = selectedPlugins.value
 				if (select.isEmpty()) return@withContext false
 				var allSuccess = true
-				for (jar in select) {
-					try {
-						mangaDynamicRepository.deletePlugin(jar)
-						updatePluginsProvider.clearDto(jar)
-					} catch (_: Throwable) {
-						allSuccess = false
+				var hasLocalPlugins = false
+				for (key in select) {
+					if (key.startsWith(TACHIYOMI_SELECTION_PREFIX)) {
+						val repositoryUrl = key.removePrefix(TACHIYOMI_SELECTION_PREFIX)
+						val item = tachiyomiSnapshot.firstOrNull { it.repositoryUrl == repositoryUrl }
+						if (item == null) {
+							allSuccess = false
+							continue
+						}
+						val installedPackages =
+							(item.installed.map { it.packageName } + listOfNotNull(item.repositoryUrl.removePrefix("local://").takeIf { item.isLocal })).distinct()
+						installedPackages.forEach { directManager.remove(it) }
+						item.artifacts.forEach { catalogProvider.restorePackage(it.packageName) }
+						catalogProvider.removeRepository(repositoryUrl)
+					} else {
+						hasLocalPlugins = true
+						try {
+							mangaDynamicRepository.deletePlugin(key)
+							updatePluginsProvider.clearDto(key)
+						} catch (_: Throwable) {
+							allSuccess = false
+						}
 					}
 				}
 				selectedPlugins.value = emptySet()
-				reloadPlugins(mangaDynamicRepository.getDir())
+				if (hasLocalPlugins) reloadPlugins(mangaDynamicRepository.getDir())
+				tachiyomiRuntime.ensureReady(forceRefresh = true)
 				allSuccess
 			}.also { if (it) refresh() }
 
@@ -237,16 +346,50 @@ class PluginsManageViewModel
 
 		fun isInstalled(fileName: String): Boolean = File(mangaDynamicRepository.getDir(), PluginFileLoader.resolve(fileName)).exists()
 
-		private fun publishFiltered() {
-			val all = pluginsSnapshot
-			if (all.isEmpty()) {
-				content.value =
-					listOf(
-						PluginManageItem.Placeholder(
-							titleResId = R.string.no_plugins,
-							summaryResId = R.string.no_plugins_summary,
-						),
+		private fun refreshTachiyomiItems(artifacts: List<TachiyomiExtensionArtifact>) {
+			val failures = directManager.failed.value
+			val installed = directManager.installed.value.distinctBy { it.packageName }
+			val uniqueArtifacts = artifacts.distinctBy { it.packageName }
+			val artifactRepositoryByPackage = uniqueArtifacts.associate { it.packageName to canonicalRepository(it.repositoryUrl) }
+			val artifactsByRepository = uniqueArtifacts.groupBy { canonicalRepository(it.repositoryUrl) }
+			val installedByRepository =
+				installed.groupBy { record ->
+					record.repositoryUrl
+						.takeIf { it.isNotBlank() }
+						?.let(::canonicalRepository)
+						?: artifactRepositoryByPackage[record.packageName]
+						?: INSTALLED_REPOSITORY_FALLBACK
+				}
+			val repositories = (artifactsByRepository.keys + installedByRepository.keys).distinct()
+			val items =
+				repositories.map { repositoryUrl ->
+					val repositoryArtifacts = artifactsByRepository[repositoryUrl].orEmpty()
+					val repositoryInstalled = installedByRepository[repositoryUrl].orEmpty()
+					val packageNames = (repositoryArtifacts.map { it.packageName } + repositoryInstalled.map { it.packageName }).toSet()
+					PluginManageItem.Tachiyomi(
+						repositoryUrl = repositoryUrl,
+						artifacts = repositoryArtifacts,
+						installed = repositoryInstalled,
+						failures = failures.filter { it.packageName in packageNames },
+						customName = catalogProvider.repositoryName(repositoryUrl),
 					)
+				}
+			DirectTachiyomiPluginMetadata.update(directManager.installed.value) { catalogProvider.repositoryName(it) }
+			tachiyomiSnapshot = items.sortedBy { it.displayName.lowercase() }
+			publishFiltered()
+		}
+
+		private fun canonicalRepository(value: String): String = catalogProvider.normalizeUrl(value) ?: value.trim().removeSuffix("/")
+
+		private fun publishFiltered() {
+			val all: List<PluginManageItem> =
+				buildList {
+					pendingImportUrl?.let { add(PluginManageItem.Loading(it)) }
+					addAll(pluginsSnapshot)
+					addAll(tachiyomiSnapshot)
+				}
+			if (all.isEmpty()) {
+				content.value = listOf(PluginManageItem.Placeholder(R.string.no_plugins, R.string.no_plugins_summary))
 				return
 			}
 			val q = query
@@ -255,14 +398,26 @@ class PluginsManageViewModel
 				return
 			}
 			val filtered =
-				all.filter { plugin ->
-					plugin.name.contains(q, true) ||
-						plugin.repository?.contains(q, true) == true
+				all.filter { item ->
+					when (item) {
+						is PluginManageItem.Loading -> {
+							true
+						}
+
+						is PluginManageItem.Plugin -> {
+							item.name.contains(q, true) || item.repository?.contains(q, true) == true
+						}
+
+						is PluginManageItem.Tachiyomi -> {
+							item.displayName.contains(q, true) || item.repositoryLabel.contains(q, true) || item.repositoryUrl.contains(q, true)
+						}
+
+						is PluginManageItem.Placeholder -> {
+							false
+						}
+					}
 				}
-			content.value =
-				filtered.ifEmpty {
-					listOf(PluginManageItem.Placeholder(titleResId = R.string.nothing_found, summaryResId = null))
-				}
+			content.value = filtered.ifEmpty { listOf(PluginManageItem.Placeholder(R.string.nothing_found, null)) }
 		}
 
 		private fun loadPluginsLocal(): List<PluginManageItem.Plugin> {
@@ -281,8 +436,15 @@ class PluginsManageViewModel
 			}
 		}
 
+		private fun tachiyomiSelectionKey(repositoryUrl: String): String = TACHIYOMI_SELECTION_PREFIX + repositoryUrl
+
 		private suspend fun reloadPlugins(pluginsDir: File) {
 			mangaDynamicRepository.load(pluginsDir)
 			pluginKeyResolver.normalize(database, savedFiltersRepository)
+		}
+
+		private companion object {
+			const val TACHIYOMI_SELECTION_PREFIX = "tachiyomi:"
+			const val INSTALLED_REPOSITORY_FALLBACK = "installed://direct"
 		}
 	}
