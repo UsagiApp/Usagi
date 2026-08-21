@@ -126,6 +126,7 @@ android {
             }
 		}
 	}
+	compileSdkMinor 1
 }
 dependencies {
 	implementation libs.usagi.serialization.library
