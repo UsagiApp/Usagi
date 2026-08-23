@@ -86,8 +86,6 @@ class FavouritesContainerFragment :
 				binding.pager,
 				FavouritesTabConfigurationStrategy(pagerAdapter, viewModel, router),
 			).also(TabLayoutMediator::attach)
-		binding.buttonRules.setOnClickListener { showFavouritesOptions() }
-		binding.buttonAddFolder.setOnClickListener { router.openSmartFolderCreate() }
 		binding.textRulesSummary.setOnClickListener { showFavouritesOptions() }
 		pageBinding =
 			FavouritesPageBinding(
@@ -136,8 +134,6 @@ class FavouritesContainerFragment :
 			pager.isUserInputEnabled = false
 			tabs.setTabsEnabled(false)
 			stageChips.children.forEach { child -> child.isEnabled = false }
-			buttonAddFolder.isEnabled = false
-			buttonRules.isEnabled = false
 			textRulesSummary.isEnabled = false
 		}
 	}
@@ -147,8 +143,6 @@ class FavouritesContainerFragment :
 			pager.isUserInputEnabled = true
 			tabs.setTabsEnabled(true)
 			stageChips.children.forEach { child -> child.isEnabled = true }
-			buttonAddFolder.isEnabled = true
-			buttonRules.isEnabled = true
 			textRulesSummary.isEnabled = true
 		}
 	}
@@ -207,7 +201,6 @@ class FavouritesContainerFragment :
 	private fun renderOrganizerHeader(state: FavouritesPageUiState) {
 		val binding = viewBinding ?: return
 		val tab = pagerAdapter?.getItemOrNull(binding.pager.currentItem) ?: return
-		binding.buttonRules.isEnabled = true
 		val selectedFilters = state.selectedRuleOptions
 		binding.textRulesSummary.text = buildRulesSummary(tab, selectedFilters)
 		binding.textRulesSummary.isVisible = tab.rulesError != null || tab.rules != null || selectedFilters.isNotEmpty()

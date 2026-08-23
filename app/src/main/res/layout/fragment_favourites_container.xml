@@ -22,15 +22,6 @@
 			app:tabGravity="start"
 			app:tabMode="scrollable" />
 
-		<com.google.android.material.button.MaterialButton
-			android:id="@+id/button_add_folder"
-			style="?attr/materialIconButtonStyle"
-			android:layout_width="48dp"
-			android:layout_height="48dp"
-			android:layout_marginEnd="4dp"
-			android:contentDescription="@string/create_smart_folder"
-			app:icon="@drawable/ic_add" />
-
 	</LinearLayout>
 
 	<LinearLayout
@@ -61,15 +52,6 @@
 				app:singleSelection="true" />
 
 		</HorizontalScrollView>
-
-		<com.google.android.material.button.MaterialButton
-			android:id="@+id/button_rules"
-			style="?attr/materialIconButtonStyle"
-			android:layout_width="48dp"
-			android:layout_height="48dp"
-			android:layout_marginStart="4dp"
-			android:contentDescription="@string/favourite_organizer_rules"
-			app:icon="@drawable/ic_filter_menu" />
 
 	</LinearLayout>
 
