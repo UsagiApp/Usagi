@@ -17,6 +17,7 @@ import org.draken.usagi.favourites.domain.FavouriteStage
 import org.draken.usagi.favourites.ui.FavouritesPage
 import org.draken.usagi.favourites.ui.FavouritesPageUiState
 import org.draken.usagi.list.domain.ListFilterOption
+import org.draken.usagi.list.domain.ListSortOrder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
@@ -97,9 +98,11 @@ class FavouritesPageBindingTest {
 		private val mutableUiState = MutableStateFlow(pageState(initialStage))
 		private val mutableOrganizerRefreshResults =
 			MutableStateFlow<Event<FavouriteOrganizerRefreshResult>?>(null)
+		private val mutableSortOrder = MutableStateFlow<ListSortOrder?>(null)
 
 		override val uiState = mutableUiState.asStateFlow()
 		override val organizerRefreshResults = mutableOrganizerRefreshResults.asStateFlow()
+		override val sortOrder = mutableSortOrder.asStateFlow()
 
 		fun emitStage(stage: FavouriteStage) {
 			mutableUiState.value = mutableUiState.value.copy(selectedStage = stage)
@@ -113,6 +116,10 @@ class FavouritesPageBindingTest {
 		) = Unit
 
 		override fun clearRuleOptions() = Unit
+
+		override fun setSortOrder(sortOrder: ListSortOrder) {
+			mutableSortOrder.value = sortOrder
+		}
 
 		override fun refreshOrganizer() = Unit
 	}

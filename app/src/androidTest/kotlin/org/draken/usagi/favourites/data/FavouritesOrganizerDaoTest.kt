@@ -119,6 +119,20 @@ class FavouritesOrganizerDaoTest {
 		}
 
 	@Test
+	fun emptyRulesSmartFolderMatchesAllFavorites() =
+		runTest {
+			insertManga(1, source = "source-a", isNsfw = false, state = "ONGOING")
+			insertManga(2, source = "source-b", isNsfw = true, state = "FINISHED")
+			insertFavourite(1, ALL_FAVORITES_CATEGORY_ID)
+			insertFavourite(2, ALL_FAVORITES_CATEGORY_ID)
+
+			assertEquals(
+				setOf(1L, 2L),
+				observeIds(FavouriteScope.SmartFolder(1), SmartFolderRules()),
+			)
+		}
+
+	@Test
 	fun stageCountsFollowHistoryTrackerAndSourceStateChanges() =
 		runTest {
 			insertCategory(1, "Read later")

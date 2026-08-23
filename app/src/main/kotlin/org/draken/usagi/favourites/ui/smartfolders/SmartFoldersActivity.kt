@@ -29,7 +29,7 @@ class SmartFoldersActivity :
 	SmartFoldersAdapter.Listener {
 	private val viewModel by viewModels<SmartFoldersViewModel>()
 	private val adapter = SmartFoldersAdapter(this)
-	private lateinit var reorderHelper: ItemTouchHelper
+	private var reorderHelper: ItemTouchHelper? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -47,6 +47,13 @@ class SmartFoldersActivity :
 			}
 		viewModel.folders.observe(this, adapter::setItems)
 		viewModel.onError.observeEvent(this, SnackbarErrorObserver(viewBinding.recyclerView, null))
+	}
+
+	override fun onDestroy() {
+		reorderHelper?.attachToRecyclerView(null)
+		reorderHelper = null
+		viewBinding.recyclerView.adapter = null
+		super.onDestroy()
 	}
 
 	override fun onApplyWindowInsets(
@@ -86,7 +93,7 @@ class SmartFoldersActivity :
 	}
 
 	override fun onStartDrag(holder: RecyclerView.ViewHolder) {
-		reorderHelper.startDrag(holder)
+		reorderHelper?.startDrag(holder)
 	}
 
 	private inner class ReorderCallback : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {

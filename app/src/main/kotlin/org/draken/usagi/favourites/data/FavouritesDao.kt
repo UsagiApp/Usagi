@@ -426,7 +426,7 @@ abstract class FavouritesDao : MangaQueryBuilder.ConditionCallback {
 			SmartFolderDevice.ON_DEVICE -> conditions += "EXISTS(SELECT 1 FROM local_index WHERE local_index.manga_id = favourites.manga_id)"
 			SmartFolderDevice.NOT_ON_DEVICE -> conditions += "NOT EXISTS(SELECT 1 FROM local_index WHERE local_index.manga_id = favourites.manga_id)"
 		}
-		return conditions.joinToString(separator = " AND ").ifEmpty { "0" }
+		return conditions.joinToString(separator = " AND ").ifEmpty { "1" }
 	}
 
 	private fun getStageCondition(stage: FavouriteStage): String =

@@ -44,7 +44,6 @@ sealed interface SmartFolderRulesResult {
 }
 
 enum class SmartFolderRulesError {
-	NO_CONDITIONS,
 	CORRUPTED,
 	UNSUPPORTED_VERSION,
 	MISSING_CATEGORY,
@@ -65,14 +64,6 @@ object SmartFolderRulesCodec {
 	fun validate(rules: SmartFolderRules): SmartFolderRulesResult =
 		if (rules.version != SmartFolderRules.CURRENT_VERSION) {
 			SmartFolderRulesResult.Error(SmartFolderRulesError.UNSUPPORTED_VERSION)
-		} else if (
-			rules.sources.isEmpty() &&
-			rules.categoryIds.isEmpty() &&
-			rules.tagIds.isEmpty() &&
-			rules.content == SmartFolderContent.ANY &&
-			rules.device == SmartFolderDevice.ANY
-		) {
-			SmartFolderRulesResult.Error(SmartFolderRulesError.NO_CONDITIONS)
 		} else {
 			SmartFolderRulesResult.Success(rules)
 		}

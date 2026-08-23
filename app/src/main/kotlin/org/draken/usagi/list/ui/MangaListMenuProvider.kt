@@ -7,6 +7,7 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import org.draken.usagi.R
 import org.draken.usagi.core.nav.router
+import org.draken.usagi.favourites.ui.FavouritesOptionsHost
 import org.draken.usagi.favourites.ui.list.FavouritesListFragment
 import org.draken.usagi.history.ui.HistoryListFragment
 import org.draken.usagi.list.ui.config.ListConfigSection
@@ -26,15 +27,20 @@ class MangaListMenuProvider(
 	override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
 		when (menuItem.itemId) {
 			R.id.action_list_mode -> {
-				val section: ListConfigSection =
-					when (fragment) {
-						is HistoryListFragment -> ListConfigSection.History
-						is SuggestionsFragment -> ListConfigSection.Suggestions
-						is FavouritesListFragment -> ListConfigSection.Favorites(fragment.categoryId)
-						is UpdatesFragment -> ListConfigSection.Updated
-						else -> ListConfigSection.General
-					}
-				fragment.router.showListConfigSheet(section)
+				if (fragment is FavouritesListFragment) {
+					requireNotNull(fragment.parentFragment as? FavouritesOptionsHost) {
+						"Favorites list must be hosted by FavouritesOptionsHost"
+					}.showFavouritesOptions()
+				} else {
+					val section: ListConfigSection =
+						when (fragment) {
+							is HistoryListFragment -> ListConfigSection.History
+							is SuggestionsFragment -> ListConfigSection.Suggestions
+							is UpdatesFragment -> ListConfigSection.Updated
+							else -> ListConfigSection.General
+						}
+					fragment.router.showListConfigSheet(section)
+				}
 				true
 			}
 

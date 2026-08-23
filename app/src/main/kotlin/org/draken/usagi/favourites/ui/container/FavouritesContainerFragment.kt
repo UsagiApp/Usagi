@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
@@ -15,11 +14,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.chip.Chip
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
+import org.draken.usagi.core.model.getTitle
+import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.ui.BaseFragment
 import org.draken.usagi.core.ui.util.ActionModeListener
@@ -31,17 +31,19 @@ import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.recyclerView
 import org.draken.usagi.core.util.ext.setTabsEnabled
+import org.draken.usagi.core.util.ext.withArgs
 import org.draken.usagi.databinding.FragmentFavouritesContainerBinding
 import org.draken.usagi.favourites.domain.FavouriteOrganizerRefreshResult
-import org.draken.usagi.favourites.domain.FavouriteScope
 import org.draken.usagi.favourites.domain.FavouriteStage
-import org.draken.usagi.favourites.domain.SmartFolderContent
-import org.draken.usagi.favourites.domain.SmartFolderDevice
-import org.draken.usagi.favourites.domain.SmartFolderRules
+import org.draken.usagi.favourites.ui.FavouritesOptionsHost
 import org.draken.usagi.favourites.ui.FavouritesPage
 import org.draken.usagi.favourites.ui.FavouritesPageUiState
 import org.draken.usagi.favourites.ui.list.FavouritesListFragment
+import org.draken.usagi.favourites.ui.smartfolders.formatSummary
 import org.draken.usagi.list.domain.ListFilterOption
+import org.draken.usagi.list.domain.ListSortOrder
+import org.draken.usagi.list.ui.config.ListConfigBottomSheet
+import org.draken.usagi.list.ui.config.ListConfigSection
 import java.util.EnumMap
 
 @AndroidEntryPoint
@@ -49,7 +51,7 @@ class FavouritesContainerFragment :
 	BaseFragment<FragmentFavouritesContainerBinding>(),
 	ActionModeListener,
 	RecyclerViewOwner,
-	View.OnClickListener {
+	FavouritesOptionsHost {
 	private val viewModel: FavouritesContainerViewModel by viewModels()
 	private val stageChipIds = EnumMap<FavouriteStage, Int>(FavouriteStage::class.java)
 	private var isBindingStage = false
@@ -84,10 +86,9 @@ class FavouritesContainerFragment :
 				binding.pager,
 				FavouritesTabConfigurationStrategy(pagerAdapter, viewModel, router),
 			).also(TabLayoutMediator::attach)
-		binding.buttonRules.setOnClickListener(this)
-		binding.buttonAddScope.setOnClickListener(this)
-		binding.buttonRefreshOrganizer.setOnClickListener(this)
-		binding.textRulesSummary.setOnClickListener(this)
+		binding.buttonRules.setOnClickListener { showFavouritesOptions() }
+		binding.buttonAddFolder.setOnClickListener { router.openSmartFolderCreate() }
+		binding.textRulesSummary.setOnClickListener { showFavouritesOptions() }
 		pageBinding =
 			FavouritesPageBinding(
 				scope = viewLifecycleOwner.lifecycleScope,
@@ -134,10 +135,9 @@ class FavouritesContainerFragment :
 		viewBinding?.run {
 			pager.isUserInputEnabled = false
 			tabs.setTabsEnabled(false)
-			buttonAddScope.isEnabled = false
 			stageChips.children.forEach { child -> child.isEnabled = false }
+			buttonAddFolder.isEnabled = false
 			buttonRules.isEnabled = false
-			buttonRefreshOrganizer.isEnabled = false
 			textRulesSummary.isEnabled = false
 		}
 	}
@@ -146,23 +146,10 @@ class FavouritesContainerFragment :
 		viewBinding?.run {
 			pager.isUserInputEnabled = true
 			tabs.setTabsEnabled(true)
-			buttonAddScope.isEnabled = true
 			stageChips.children.forEach { child -> child.isEnabled = true }
+			buttonAddFolder.isEnabled = true
 			buttonRules.isEnabled = true
-			buttonRefreshOrganizer.isEnabled = true
 			textRulesSummary.isEnabled = true
-		}
-	}
-
-	override fun onClick(v: View) {
-		when (v.id) {
-			R.id.button_rules,
-			R.id.text_rules_summary,
-			-> showRuleSelector()
-
-			R.id.button_add_scope -> router.openSmartFolderCreate()
-
-			R.id.button_refresh_organizer -> findCurrentPage()?.refreshOrganizer()
 		}
 	}
 
@@ -220,9 +207,7 @@ class FavouritesContainerFragment :
 	private fun renderOrganizerHeader(state: FavouritesPageUiState) {
 		val binding = viewBinding ?: return
 		val tab = pagerAdapter?.getItemOrNull(binding.pager.currentItem) ?: return
-		binding.buttonRules.isEnabled = state.availableRuleOptions.isNotEmpty()
-		binding.buttonRefreshOrganizer.isEnabled = !state.isOrganizerRefreshing
-		binding.buttonRefreshOrganizer.alpha = if (state.isOrganizerRefreshing) 0.5f else 1f
+		binding.buttonRules.isEnabled = true
 		val selectedFilters = state.selectedRuleOptions
 		binding.textRulesSummary.text = buildRulesSummary(tab, selectedFilters)
 		binding.textRulesSummary.isVisible = tab.rulesError != null || tab.rules != null || selectedFilters.isNotEmpty()
@@ -233,7 +218,7 @@ class FavouritesContainerFragment :
 		selectedFilters: Set<ListFilterOption>,
 	): CharSequence {
 		if (tab.rulesError != null) return getString(R.string.favourite_organizer_invalid_rules)
-		val persistentSummary = tab.rules?.let(::buildSmartFolderRulesSummary)
+		val persistentSummary = tab.rules?.formatSummary(requireContext())
 		val transientSummary =
 			when {
 				selectedFilters.isEmpty() -> null
@@ -245,76 +230,16 @@ class FavouritesContainerFragment :
 		}
 	}
 
-	private fun buildSmartFolderRulesSummary(rules: SmartFolderRules): String =
-		buildList {
-			if (rules.sources.isNotEmpty()) {
-				add(resources.getQuantityString(R.plurals.smart_folder_source_count, rules.sources.size, rules.sources.size))
-			}
-			if (rules.categoryIds.isNotEmpty()) {
-				add(
-					resources.getQuantityString(
-						R.plurals.smart_folder_category_count,
-						rules.categoryIds.size,
-						rules.categoryIds.size,
-					),
-				)
-			}
-			if (rules.tagIds.isNotEmpty()) {
-				add(resources.getQuantityString(R.plurals.smart_folder_tag_count, rules.tagIds.size, rules.tagIds.size))
-			}
-			when (rules.content) {
-				SmartFolderContent.ANY -> Unit
-				SmartFolderContent.SFW -> add(getString(R.string.smart_folder_sfw))
-				SmartFolderContent.NSFW -> add(getString(R.string.smart_folder_nsfw))
-			}
-			when (rules.device) {
-				SmartFolderDevice.ANY -> Unit
-				SmartFolderDevice.ON_DEVICE -> add(getString(R.string.smart_folder_on_device))
-				SmartFolderDevice.NOT_ON_DEVICE -> add(getString(R.string.smart_folder_not_on_device))
-			}
-		}.joinToString(" · ")
-
-	private fun showRuleSelector() {
-		val page = findCurrentPage() ?: return
-		val state = page.uiState.value
-		val options = state.availableRuleOptions
-		if (options.isEmpty()) return
-		val selected = state.selectedRuleOptions.toMutableSet()
-		val titles = options.map(::getFilterTitle).toTypedArray()
-		val checked = BooleanArray(options.size) { index -> options[index] in selected }
-		MaterialAlertDialogBuilder(requireContext())
-			.setTitle(R.string.favourite_organizer_rules_title)
-			.setMultiChoiceItems(titles, checked) { dialog, which, isChecked ->
-				val option = options[which]
-				if (isChecked) {
-					selected += option
-					val conflict = option.conflictingContentFilter()
-					if (conflict != null && selected.remove(conflict)) {
-						val conflictIndex = options.indexOf(conflict)
-						if (conflictIndex >= 0) {
-							(dialog as AlertDialog).listView.setItemChecked(conflictIndex, false)
-						}
-					}
-				} else {
-					selected -= option
-				}
-			}.setNeutralButton(R.string.reset_filter) { _, _ -> page.clearRuleOptions() }
-			.setNegativeButton(android.R.string.cancel, null)
-			.setPositiveButton(R.string.apply) { _, _ ->
-				page.clearRuleOptions()
-				options.filter(selected::contains).forEach { option -> page.setRuleOption(option, true) }
-			}.show()
-	}
-
 	private fun getFilterTitle(option: ListFilterOption): String =
-		option.titleText?.toString()
-			?: getString(option.titleResId.also { require(it != 0) { "Filter option has no display title" } })
+		when (option) {
+			is ListFilterOption.Source -> {
+				option.mangaSource.getTitle(requireContext())
+			}
 
-	private fun ListFilterOption.conflictingContentFilter(): ListFilterOption? =
-		when (this) {
-			ListFilterOption.SFW -> ListFilterOption.Macro.NSFW
-			ListFilterOption.Macro.NSFW -> ListFilterOption.SFW
-			else -> null
+			else -> {
+				option.titleText?.toString()
+					?: getString(option.titleResId.also { require(it != 0) { "Filter option has no display title" } })
+			}
 		}
 
 	private fun showRefreshResult(result: FavouriteOrganizerRefreshResult) {
@@ -346,4 +271,44 @@ class FavouritesContainerFragment :
 	}
 
 	private fun findCurrentPage(): FavouritesPage? = findCurrentFragment() as? FavouritesPage
+
+	override fun showFavouritesOptions() {
+		if (childFragmentManager.findFragmentByTag(LIST_CONFIG_TAG) != null) return
+		ListConfigBottomSheet()
+			.withArgs(1) {
+				putParcelable(
+					AppRouter.KEY_LIST_SECTION,
+					ListConfigSection.Favorites(categoryId ?: FavouritesListFragment.NO_ID),
+				)
+			}.show(childFragmentManager, LIST_CONFIG_TAG)
+	}
+
+	override fun currentFavouritesOptions(): FavouritesPageUiState? = findCurrentPage()?.uiState?.value
+
+	override fun currentFavouritesSortOrder(): ListSortOrder? = findCurrentPage()?.sortOrder?.value
+
+	override fun applyFavouritesFilters(options: Set<ListFilterOption>) {
+		val page = findCurrentPage() ?: return
+		val available =
+			page.uiState.value.availableRuleOptions
+				.toSet()
+		page.clearRuleOptions()
+		options.filter(available::contains).forEach { option -> page.setRuleOption(option, true) }
+	}
+
+	override fun setFavouritesSortOrder(sortOrder: ListSortOrder) {
+		findCurrentPage()?.setSortOrder(sortOrder)
+	}
+
+	override fun refreshFavouritesOrganizer() {
+		findCurrentPage()?.refreshOrganizer()
+	}
+
+	override fun openSmartFolders() {
+		router.openSmartFolders()
+	}
+
+	private companion object {
+		const val LIST_CONFIG_TAG = "favourites_list_config"
+	}
 }

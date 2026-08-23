@@ -32,102 +32,219 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			android:padding="16dp">
+			android:paddingTop="12dp"
+			android:paddingBottom="24dp">
 
-			<com.google.android.material.textfield.TextInputLayout
+			<com.google.android.material.card.MaterialCardView
+				style="?materialCardViewFilledStyle"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="16dp"
+				app:cardBackgroundColor="?colorSurfaceContainer"
+				app:cardCornerRadius="24dp">
 
 				<com.google.android.material.textfield.TextInputEditText
 					android:id="@+id/edit_name"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
+					android:layout_height="72dp"
+					android:background="@null"
 					android:hint="@string/name"
 					android:inputType="textCapSentences"
-					android:maxLength="120" />
+					android:maxLength="120"
+					android:paddingHorizontal="22dp"
+					android:singleLine="true"
+					android:textAppearance="?textAppearanceTitleMedium" />
 
-			</com.google.android.material.textfield.TextInputLayout>
+			</com.google.android.material.card.MaterialCardView>
 
-			<Button
-				android:id="@+id/button_sources"
-				style="?attr/materialButtonOutlinedStyle"
+			<com.google.android.material.card.MaterialCardView
+				style="?materialCardViewFilledStyle"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginTop="16dp"
-				android:text="@string/smart_folder_sources" />
+				android:layout_marginHorizontal="16dp"
+				android:layout_marginTop="20dp"
+				app:cardBackgroundColor="?colorSurfaceContainer"
+				app:cardCornerRadius="24dp">
 
-			<Button
-				android:id="@+id/button_categories"
-				style="?attr/materialButtonOutlinedStyle"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:text="@string/smart_folder_categories" />
-
-			<Button
-				android:id="@+id/button_tags"
-				style="?attr/materialButtonOutlinedStyle"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="8dp"
-				android:text="@string/smart_folder_tags" />
-
-			<com.google.android.material.textfield.TextInputLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="16dp"
-				app:endIconMode="dropdown_menu">
-
-				<AutoCompleteTextView
-					android:id="@+id/edit_content"
-					style="?editTextStyle"
+				<LinearLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:hint="@string/smart_folder_content"
-					android:inputType="none" />
+					android:orientation="vertical"
+					android:paddingHorizontal="18dp"
+					android:paddingTop="18dp"
+					android:paddingBottom="8dp">
 
-			</com.google.android.material.textfield.TextInputLayout>
+					<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginHorizontal="8dp"
+						android:text="@string/favourite_organizer_rules"
+						android:textAppearance="?textAppearanceTitleMedium" />
 
-			<com.google.android.material.textfield.TextInputLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="16dp"
-				app:endIconMode="dropdown_menu">
+					<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginHorizontal="8dp"
+						android:layout_marginTop="4dp"
+						android:layout_marginBottom="8dp"
+						android:text="@string/smart_folder_rules_match_all"
+						android:textAppearance="?attr/textAppearanceBodySmall"
+						android:textColor="?android:attr/textColorSecondary" />
 
-				<AutoCompleteTextView
-					android:id="@+id/edit_device"
-					style="?editTextStyle"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:hint="@string/smart_folder_device"
-					android:inputType="none" />
+					<org.draken.usagi.core.ui.widgets.TwoLinesItemView
+						android:id="@+id/row_sources"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:button="@drawable/ic_arrow_forward"
+						android:drawablePadding="12dp"
+						android:minHeight="68dp"
+						android:paddingHorizontal="18dp"
+						app:backgroundFillColor="@android:color/transparent"
+						app:icon="@drawable/ic_manga_source"
+						app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.None"
+						app:title="@string/smart_folder_sources"
+						tools:subtitle="@string/any" />
 
-			</com.google.android.material.textfield.TextInputLayout>
+					<View
+						android:layout_width="match_parent"
+						android:layout_height="1dp"
+						android:layout_marginStart="56dp"
+						android:layout_marginEnd="8dp"
+						android:background="?colorSurfaceDim" />
 
-			<com.google.android.material.textfield.TextInputLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="16dp"
-				app:endIconMode="dropdown_menu">
+					<org.draken.usagi.core.ui.widgets.TwoLinesItemView
+						android:id="@+id/row_categories"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:button="@drawable/ic_arrow_forward"
+						android:drawablePadding="12dp"
+						android:minHeight="68dp"
+						android:paddingHorizontal="18dp"
+						app:backgroundFillColor="@android:color/transparent"
+						app:icon="@drawable/ic_folder_file"
+						app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.None"
+						app:title="@string/categories"
+						tools:subtitle="@string/any" />
 
-				<AutoCompleteTextView
-					android:id="@+id/edit_sort"
-					style="?editTextStyle"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:hint="@string/sort_order"
-					android:inputType="none" />
+					<View
+						android:layout_width="match_parent"
+						android:layout_height="1dp"
+						android:layout_marginStart="56dp"
+						android:layout_marginEnd="8dp"
+						android:background="?colorSurfaceDim" />
 
-			</com.google.android.material.textfield.TextInputLayout>
+					<org.draken.usagi.core.ui.widgets.TwoLinesItemView
+						android:id="@+id/row_tags"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:button="@drawable/ic_arrow_forward"
+						android:drawablePadding="12dp"
+						android:minHeight="68dp"
+						android:paddingHorizontal="18dp"
+						app:backgroundFillColor="@android:color/transparent"
+						app:icon="@drawable/ic_tag"
+						app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.None"
+						app:title="@string/genres"
+						tools:subtitle="@string/any" />
+
+					<View
+						android:layout_width="match_parent"
+						android:layout_height="1dp"
+						android:layout_marginStart="56dp"
+						android:layout_marginEnd="8dp"
+						android:background="?colorSurfaceDim" />
+
+					<org.draken.usagi.core.ui.widgets.TwoLinesItemView
+						android:id="@+id/row_content"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:button="@drawable/ic_arrow_forward"
+						android:drawablePadding="12dp"
+						android:minHeight="68dp"
+						android:paddingHorizontal="18dp"
+						app:backgroundFillColor="@android:color/transparent"
+						app:icon="@drawable/ic_eye"
+						app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.None"
+						app:title="@string/smart_folder_content"
+						tools:subtitle="@string/any" />
+
+					<View
+						android:layout_width="match_parent"
+						android:layout_height="1dp"
+						android:layout_marginStart="56dp"
+						android:layout_marginEnd="8dp"
+						android:background="?colorSurfaceDim" />
+
+					<org.draken.usagi.core.ui.widgets.TwoLinesItemView
+						android:id="@+id/row_device"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:button="@drawable/ic_arrow_forward"
+						android:drawablePadding="12dp"
+						android:minHeight="68dp"
+						android:paddingHorizontal="18dp"
+						app:backgroundFillColor="@android:color/transparent"
+						app:icon="@drawable/ic_storage"
+						app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.None"
+						app:title="@string/smart_folder_device"
+						tools:subtitle="@string/any" />
+
+				</LinearLayout>
+
+			</com.google.android.material.card.MaterialCardView>
 
 			<TextView
 				android:id="@+id/text_view_error"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginTop="16dp"
+				android:layout_marginHorizontal="16dp"
+				android:layout_marginTop="8dp"
+				android:text="@string/smart_folder_invalid_rules"
 				android:textColor="?colorError"
-				android:visibility="gone"
 				tools:visibility="visible" />
+
+			<com.google.android.material.card.MaterialCardView
+				style="?materialCardViewFilledStyle"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginHorizontal="16dp"
+				android:layout_marginTop="20dp"
+				app:cardBackgroundColor="?colorSurfaceContainer"
+				app:cardCornerRadius="24dp">
+
+				<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="vertical"
+					android:paddingHorizontal="18dp"
+					android:paddingTop="18dp"
+					android:paddingBottom="8dp">
+
+					<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginHorizontal="8dp"
+						android:layout_marginBottom="6dp"
+						android:text="@string/smart_folder_display"
+						android:textAppearance="?textAppearanceTitleMedium" />
+
+					<org.draken.usagi.core.ui.widgets.TwoLinesItemView
+						android:id="@+id/row_sort"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:button="@drawable/ic_arrow_forward"
+						android:drawablePadding="12dp"
+						android:minHeight="68dp"
+						android:paddingHorizontal="18dp"
+						app:backgroundFillColor="@android:color/transparent"
+						app:icon="@drawable/ic_sort_desc"
+						app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.None"
+						app:title="@string/sort_order"
+						tools:subtitle="@string/sort_date_added" />
+
+				</LinearLayout>
+
+			</com.google.android.material.card.MaterialCardView>
 
 		</LinearLayout>
 

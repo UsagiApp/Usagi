@@ -60,6 +60,15 @@ class TwoLinesItemView
 			}
 
 		init {
+			val initialPaddingLeft = paddingLeft
+			val initialPaddingTop = paddingTop
+			val initialPaddingRight = paddingRight
+			val initialPaddingBottom = paddingBottom
+			val hasInitialPadding =
+				initialPaddingLeft != 0 ||
+					initialPaddingTop != 0 ||
+					initialPaddingRight != 0 ||
+					initialPaddingBottom != 0
 			var textColors: ColorStateList? = null
 			context.withStyledAttributes(
 				set = attrs,
@@ -76,6 +85,9 @@ class TwoLinesItemView
 						shape,
 						ShapeDrawable(RoundRectShape(roundCorners, null, null)),
 					)
+				if (hasInitialPadding) {
+					setPadding(initialPaddingLeft, initialPaddingTop, initialPaddingRight, initialPaddingBottom)
+				}
 				val drawablePadding = getDimensionPixelOffset(R.styleable.TwoLinesItemView_android_drawablePadding, 0)
 				binding.layoutText.updateLayoutParams<MarginLayoutParams> { marginStart = drawablePadding }
 				setIconResource(getResourceId(R.styleable.TwoLinesItemView_icon, 0))

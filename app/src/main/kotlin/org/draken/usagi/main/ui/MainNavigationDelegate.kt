@@ -283,9 +283,7 @@ class MainNavigationDelegate(
 			}
 
 			is FavouritesContainerFragment -> {
-				fragment.categoryId?.let {
-					fragment.router.showListConfigSheet(ListConfigSection.Favorites(it))
-				}
+				fragment.showFavouritesOptions()
 			}
 
 			is RecyclerViewOwner -> {

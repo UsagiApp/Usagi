@@ -7,6 +7,7 @@ import org.draken.usagi.favourites.data.FavouriteStageCounts
 import org.draken.usagi.favourites.domain.FavouriteOrganizerRefreshResult
 import org.draken.usagi.favourites.domain.FavouriteStage
 import org.draken.usagi.list.domain.ListFilterOption
+import org.draken.usagi.list.domain.ListSortOrder
 
 data class FavouritesPageUiState(
 	val selectedStage: FavouriteStage,
@@ -19,6 +20,7 @@ data class FavouritesPageUiState(
 interface FavouritesPage {
 	val uiState: StateFlow<FavouritesPageUiState>
 	val organizerRefreshResults: Flow<Event<FavouriteOrganizerRefreshResult>?>
+	val sortOrder: StateFlow<ListSortOrder?>
 
 	fun setStage(stage: FavouriteStage)
 
@@ -28,6 +30,8 @@ interface FavouritesPage {
 	)
 
 	fun clearRuleOptions()
+
+	fun setSortOrder(sortOrder: ListSortOrder)
 
 	fun refreshOrganizer()
 }

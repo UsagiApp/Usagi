@@ -21,10 +21,10 @@ class SmartFolderRulesCodecTest {
 	}
 
 	@Test
-	fun `rules require at least one effective condition`() {
+	fun `empty rules represent an unrestricted smart folder`() {
 		val result = SmartFolderRulesCodec.decode(SmartFolderRulesCodec.encode(SmartFolderRules()))
 
-		assertEquals(SmartFolderRulesResult.Error(SmartFolderRulesError.NO_CONDITIONS), result)
+		assertEquals(SmartFolderRulesResult.Success(SmartFolderRules()), result)
 	}
 
 	@Test

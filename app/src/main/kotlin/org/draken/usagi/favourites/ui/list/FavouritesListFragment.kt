@@ -43,6 +43,8 @@ class FavouritesListFragment :
 		get() = viewModel.pageUiState
 	override val organizerRefreshResults
 		get() = viewModel.onOrganizerRefreshed
+	override val sortOrder
+		get() = viewModel.sortOrder
 
 	override fun setStage(stage: FavouriteStage) = viewModel.setStage(stage)
 
@@ -52,6 +54,8 @@ class FavouritesListFragment :
 	) = viewModel.setFilterOption(option, isApplied)
 
 	override fun clearRuleOptions() = viewModel.clearFilter()
+
+	override fun setSortOrder(sortOrder: ListSortOrder) = viewModel.setSortOrder(sortOrder)
 
 	override fun refreshOrganizer() = viewModel.refreshOrganizer()
 

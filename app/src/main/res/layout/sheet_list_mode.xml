@@ -28,10 +28,132 @@
 			android:orientation="vertical"
 			android:paddingBottom="@dimen/margin_normal">
 
+			<LinearLayout
+				android:id="@+id/favourites_options"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical"
+				android:visibility="gone"
+				tools:visibility="visible">
+
+				<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/margin_normal"
+					android:text="@string/favourite_organizer_rules_title"
+					android:textAppearance="?textAppearanceTitleMedium" />
+
+				<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/margin_normal"
+					android:layout_marginTop="4dp"
+					android:text="@string/favourite_filters_scope_summary"
+					android:textAppearance="?textAppearanceBodySmall"
+					android:textColor="?android:attr/textColorSecondary" />
+
+				<com.google.android.material.card.MaterialCardView
+					style="?materialCardViewFilledStyle"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/margin_normal"
+					android:layout_marginTop="@dimen/margin_small"
+					app:cardBackgroundColor="?colorSurfaceContainer"
+					app:cardCornerRadius="24dp">
+
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:orientation="vertical"
+						android:paddingHorizontal="18dp"
+						android:paddingVertical="6dp">
+
+						<LinearLayout
+							android:id="@+id/favourites_simple_filters"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:orientation="vertical" />
+
+						<org.draken.usagi.core.ui.widgets.TwoLinesItemView
+							android:id="@+id/button_favourite_sources"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:button="@drawable/ic_arrow_forward"
+							android:drawablePadding="16dp"
+							android:minHeight="64dp"
+							android:paddingHorizontal="6dp"
+							android:visibility="gone"
+							app:backgroundFillColor="@android:color/transparent"
+							app:icon="@drawable/ic_manga_source"
+							app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.None"
+							app:title="@string/smart_folder_sources"
+							tools:subtitle="@string/any"
+							tools:visibility="visible" />
+
+						<org.draken.usagi.core.ui.widgets.TwoLinesItemView
+							android:id="@+id/button_favourite_tags"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:button="@drawable/ic_arrow_forward"
+							android:drawablePadding="16dp"
+							android:minHeight="64dp"
+							android:paddingHorizontal="6dp"
+							android:visibility="gone"
+							app:backgroundFillColor="@android:color/transparent"
+							app:icon="@drawable/ic_tag"
+							app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.None"
+							app:title="@string/genres"
+							tools:subtitle="@string/any"
+							tools:visibility="visible" />
+
+					</LinearLayout>
+
+				</com.google.android.material.card.MaterialCardView>
+
+				<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/margin_normal"
+					android:layout_marginTop="24dp"
+					android:text="@string/smart_folders"
+					android:textAppearance="?textAppearanceTitleMedium" />
+
+				<org.draken.usagi.core.ui.widgets.TwoLinesItemView
+					android:id="@+id/button_refresh_favourites"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/margin_normal"
+					android:layout_marginTop="@dimen/margin_small"
+					android:drawablePadding="16dp"
+					android:minHeight="72dp"
+					android:paddingHorizontal="30dp"
+					app:backgroundFillColor="?colorPrimaryContainer"
+					app:icon="@drawable/ic_sync"
+					app:title="@string/favourite_organizer_refresh"
+					app:subtitle="@string/favourite_organizer_refresh_summary" />
+
+				<org.draken.usagi.core.ui.widgets.TwoLinesItemView
+					android:id="@+id/button_manage_smart_folders"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/margin_normal"
+					android:layout_marginTop="4dp"
+					android:button="@drawable/ic_arrow_forward"
+					android:drawablePadding="16dp"
+					android:minHeight="72dp"
+					android:paddingHorizontal="30dp"
+					app:backgroundFillColor="?colorSurfaceContainer"
+					app:icon="@drawable/ic_folder_file"
+					app:title="@string/smart_folders"
+					app:subtitle="@string/manage" />
+
+			</LinearLayout>
+
 			<TextView
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginHorizontal="@dimen/margin_normal"
+				android:layout_marginTop="@dimen/margin_normal"
 				android:text="@string/list_mode"
 				android:textAppearance="?textAppearanceTitleSmall" />
 

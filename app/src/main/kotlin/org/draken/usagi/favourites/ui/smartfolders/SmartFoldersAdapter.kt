@@ -9,8 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import org.draken.usagi.R
 import org.draken.usagi.databinding.ItemSmartFolderBinding
 import org.draken.usagi.favourites.domain.SmartFolder
-import org.draken.usagi.favourites.domain.SmartFolderContent
-import org.draken.usagi.favourites.domain.SmartFolderDevice
 import org.draken.usagi.favourites.domain.SmartFolderRulesResult
 import java.util.Collections
 
@@ -91,32 +89,8 @@ class SmartFoldersAdapter(
 
 		private fun SmartFolder.summary(): String =
 			when (val result = rules) {
-				is SmartFolderRulesResult.Error -> {
-					binding.root.context.getString(R.string.smart_folder_invalid_rules_short)
-				}
-
-				is SmartFolderRulesResult.Success -> {
-					val groups =
-						buildList {
-							if (result.rules.sources.isNotEmpty()) {
-								add(binding.root.resources.getQuantityString(R.plurals.smart_folder_source_count, result.rules.sources.size, result.rules.sources.size))
-							}
-							if (result.rules.categoryIds.isNotEmpty()) {
-								add(binding.root.resources.getQuantityString(R.plurals.smart_folder_category_count, result.rules.categoryIds.size, result.rules.categoryIds.size))
-							}
-							when (result.rules.content) {
-								SmartFolderContent.ANY -> Unit
-								SmartFolderContent.SFW -> add(binding.root.context.getString(R.string.smart_folder_sfw))
-								SmartFolderContent.NSFW -> add(binding.root.context.getString(R.string.smart_folder_nsfw))
-							}
-							when (result.rules.device) {
-								SmartFolderDevice.ANY -> Unit
-								SmartFolderDevice.ON_DEVICE -> add(binding.root.context.getString(R.string.smart_folder_on_device))
-								SmartFolderDevice.NOT_ON_DEVICE -> add(binding.root.context.getString(R.string.smart_folder_not_on_device))
-							}
-						}
-					groups.joinToString(separator = " · ")
-				}
+				is SmartFolderRulesResult.Error -> binding.root.context.getString(R.string.smart_folder_invalid_rules_short)
+				is SmartFolderRulesResult.Success -> result.rules.formatSummary(binding.root.context)
 			}
 	}
 

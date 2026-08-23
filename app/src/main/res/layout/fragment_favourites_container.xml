@@ -8,12 +8,10 @@
 	android:orientation="vertical">
 
 	<LinearLayout
-		android:id="@+id/folder_navigation"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center_vertical"
-		android:orientation="horizontal"
-		android:paddingEnd="@dimen/list_spacing_normal">
+		android:orientation="horizontal">
 
 		<com.google.android.material.tabs.TabLayout
 			android:id="@+id/tabs"
@@ -25,10 +23,11 @@
 			app:tabMode="scrollable" />
 
 		<com.google.android.material.button.MaterialButton
-			android:id="@+id/button_add_scope"
+			android:id="@+id/button_add_folder"
 			style="?attr/materialIconButtonStyle"
 			android:layout_width="48dp"
 			android:layout_height="48dp"
+			android:layout_marginEnd="4dp"
 			android:contentDescription="@string/create_smart_folder"
 			app:icon="@drawable/ic_add" />
 
@@ -71,14 +70,6 @@
 			android:layout_marginStart="4dp"
 			android:contentDescription="@string/favourite_organizer_rules"
 			app:icon="@drawable/ic_filter_menu" />
-
-		<com.google.android.material.button.MaterialButton
-			android:id="@+id/button_refresh_organizer"
-			style="?attr/materialIconButtonStyle"
-			android:layout_width="48dp"
-			android:layout_height="48dp"
-			android:contentDescription="@string/favourite_organizer_refresh"
-			app:icon="@drawable/ic_sync" />
 
 	</LinearLayout>
 
