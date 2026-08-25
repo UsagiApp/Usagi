@@ -937,4 +937,6 @@
     <string name="floating_navigation_bar">Thanh điều hướng nổi</string>
     <string name="floating_navigation_bar_summary">Hiển thị thanh điều hướng của màn hình chính ở dạng thanh nổi (như là Google Photos)</string>
     <string name="no_filters_available">Nguồn này không có bộ lọc nào ツ</string>
+    <string name="fix_excluded_sources">Loại bỏ nguồn cho tính năng thay thế tự động</string>
+    <string name="fix_excluded_sources_summary">Chỉ định các nguồn mà bạn không muốn dùng đến khi sử dụng tính năng thay thế truyện tự động</string>
 </resources>
