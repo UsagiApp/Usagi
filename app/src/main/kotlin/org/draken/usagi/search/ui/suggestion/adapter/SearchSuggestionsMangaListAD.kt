@@ -1,5 +1,6 @@
 package org.draken.usagi.search.ui.suggestion.adapter
 
+import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -11,9 +12,9 @@ import org.draken.usagi.core.ui.list.decor.SpacingItemDecoration
 import org.draken.usagi.core.util.RecyclerViewScrollCallback
 import org.draken.usagi.core.util.ext.setTooltipCompat
 import org.draken.usagi.databinding.ItemSearchSuggestionMangaGridBinding
+import org.draken.usagi.list.ui.model.MangaGridModel
 import org.draken.usagi.search.ui.suggestion.SearchSuggestionListener
 import org.draken.usagi.search.ui.suggestion.model.SearchSuggestionItem
-import tsuki.model.Manga
 
 fun searchSuggestionMangaListAD(listener: SearchSuggestionListener) =
 	adapterDelegate<SearchSuggestionItem.MangaList, SearchSuggestionItem>(R.layout.item_search_suggestion_manga_list) {
@@ -38,28 +39,36 @@ fun searchSuggestionMangaListAD(listener: SearchSuggestionListener) =
 	}
 
 private fun searchSuggestionMangaGridAD(listener: SearchSuggestionListener) =
-	adapterDelegateViewBinding<Manga, Manga, ItemSearchSuggestionMangaGridBinding>(
+	adapterDelegateViewBinding<MangaGridModel, MangaGridModel, ItemSearchSuggestionMangaGridBinding>(
 		{ layoutInflater, parent -> ItemSearchSuggestionMangaGridBinding.inflate(layoutInflater, parent, false) },
 	) {
 		itemView.setOnClickListener {
-			listener.onMangaClick(item)
+			listener.onMangaClick(item.manga)
 		}
 
 		bind {
 			itemView.setTooltipCompat(item.title)
 			binding.imageViewCover.setImageAsync(item.coverUrl, item.source)
 			binding.textViewTitle.text = item.title
+			with(binding.icons) {
+				clearIcons()
+				if (item.isSaved) addIcon(R.drawable.ic_storage)
+				if (item.isFavorite) addIcon(R.drawable.ic_heart_outline)
+				isVisible = iconsCount > 0
+			}
+			binding.badge.number = item.counter
+			binding.badge.isVisible = item.counter > 0
 		}
 	}
 
-private class SuggestionMangaDiffCallback : DiffUtil.ItemCallback<Manga>() {
+private class SuggestionMangaDiffCallback : DiffUtil.ItemCallback<MangaGridModel>() {
 	override fun areItemsTheSame(
-		oldItem: Manga,
-		newItem: Manga,
+		oldItem: MangaGridModel,
+		newItem: MangaGridModel,
 	): Boolean = oldItem.id == newItem.id
 
 	override fun areContentsTheSame(
-		oldItem: Manga,
-		newItem: Manga,
+		oldItem: MangaGridModel,
+		newItem: MangaGridModel,
 	): Boolean = oldItem.title == newItem.title && oldItem.coverUrl == newItem.coverUrl
 }

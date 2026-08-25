@@ -5,12 +5,12 @@ import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.list.ui.ListModelDiffCallback
 import org.draken.usagi.list.ui.model.ListModel
-import tsuki.model.Manga
+import org.draken.usagi.list.ui.model.MangaGridModel
 import tsuki.model.MangaSource
 
 sealed interface SearchSuggestionItem : ListModel {
 	data class MangaList(
-		val items: List<Manga>,
+		val items: List<MangaGridModel>,
 	) : SearchSuggestionItem {
 		override fun areItemsTheSame(other: ListModel): Boolean = other is MangaList
 	}
