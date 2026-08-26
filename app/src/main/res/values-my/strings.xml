@@ -12,7 +12,7 @@
     <string name="list_mode">စာရင်းမုဒ်</string>
     <string name="settings">စက်တင်များ</string>
     <string name="remote_sources">မန်ဂါရင်းမြစ်များ</string>
-    <string name="loading_">စောင့်ဆိုင်းပါ…</string>
+    <string name="loading_">စတင်နေသည်…</string>
     <string name="computing_">တွက်ချက်နေသည်…</string>
     <string name="chapter_d_of_d">%2$d ရဲ့ အခန်း %1$d</string>
     <string name="close">ပိတ်မည်</string>
