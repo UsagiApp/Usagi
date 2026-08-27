@@ -47,7 +47,7 @@
     <string name="no_description">គ្មានការពន្យល់</string>
     <string name="clear_pages_cache">សំអាត់ទិន្នន័យទំព័រផ្ទុកបណ្តោះអាសន្ន</string>
     <string name="text_file_sizes">B|kB|MB|GB|TB</string>
-    <string name="text_file_not_supported">សូមជ្រើសរើសឯកសារ ZIP ឬ CBZ</string>
+    <string name="text_file_not_supported">សូមជ្រើសរើសឯកសារ ZIP, PDF ឬ CBZ។</string>
     <string name="remove_category">ដកចេញ</string>
     <string name="done">រួចរាល់</string>
     <string name="update">ធ្វើបច្ចុប្បន្នភាព</string>
