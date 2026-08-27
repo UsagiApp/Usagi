@@ -1,7 +1,7 @@
 name: Refactor code (for PRs, if needed)
 
 on:
-    pull_request_target:
+    pull_request:
         paths:
             - 'app/src/main/kotlin/**'
 
