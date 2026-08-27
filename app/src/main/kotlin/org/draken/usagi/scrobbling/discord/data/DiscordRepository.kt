@@ -45,26 +45,21 @@ class DiscordRepository
 					.Builder()
 					.setType(MultipartBody.FORM)
 					.addFormDataPart("reqtype", "fileupload")
-					.addFormDataPart("time", "24h")
 					.addFormDataPart(
 						"fileToUpload",
-						"${file.name}.png",
+						file.name,
 						file.asRequestBody("image/*".toMediaTypeOrNull()),
 					).build()
 			val request =
 				Request
 					.Builder()
-					.url("https://litterbox.catbox.moe/resources/internals/api.php")
+					.url("https://catbox.moe/user/api.php")
 					.post(requestBody)
 					.build()
 			var response: okhttp3.Response? = null
 			return try {
 				response = httpClient.newCall(request).await()
-				if (response.isSuccessful) {
-					response.parseRaw().trim()
-				} else {
-					null
-				}
+				if (response.isSuccessful) response.parseRaw().trim() else null
 			} catch (_: Exception) {
 				null
 			} finally {
