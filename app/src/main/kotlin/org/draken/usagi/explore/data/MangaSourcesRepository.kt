@@ -19,14 +19,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
+import org.draken.tsukimix.core.parser.external.ExtRuntime
 import org.draken.tsukimix.core.util.canonicalLanguageCode
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.LocalizedAppContext
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.db.dao.MangaSourcesDao
 import org.draken.usagi.core.db.entity.MangaSourceEntity
-import org.draken.usagi.core.model.DirectTachiyomiPluginMetadata
 import org.draken.usagi.core.model.MangaSourceInfo
 import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.model.PluginMangaSource
@@ -50,6 +49,7 @@ import tsuki.util.mapToSet
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.draken.usagi.core.model.DirectExternalPluginMetadata as Metadata
 import org.draken.usagi.core.model.MangaSource as createMangaSource
 
 @Singleton
@@ -59,7 +59,7 @@ class MangaSourcesRepository
 		@LocalizedAppContext private val context: Context,
 		private val db: MangaDatabase,
 		private val settings: AppSettings,
-		private val tachiyomiRuntime: dagger.Lazy<TachiyomiRuntime>? = null,
+		private val extRuntime: dagger.Lazy<ExtRuntime>? = null,
 	) {
 		private var assimilatedVersion = -1
 		private val dao: MangaSourcesDao
@@ -67,7 +67,7 @@ class MangaSourcesRepository
 
 		init {
 			processLifecycleScope.launch(Dispatchers.IO) {
-				runCatching { tachiyomiRuntime?.get()?.ensureReady() }
+				runCatching { extRuntime?.get()?.ensureReady() }
 				assimilateNewSources()
 				merge(MangaSourceRegistry.updates, observeExternalSources()).collect {
 					assimilateNewSources()
@@ -171,8 +171,8 @@ class MangaSourcesRepository
 					if (ps != null) {
 						ps.jarName == plugin
 					} else {
-						val ext = it.unwrap() as? org.draken.tsukimix.core.parser.tachiyomi.model.Manga
-						ext?.pkgName == plugin || DirectTachiyomiPluginMetadata.get(ext?.pkgName.orEmpty()) == plugin
+						val ext = it.unwrap() as? org.draken.tsukimix.core.parser.external.model.Manga
+						ext?.pkgName == plugin || Metadata.get(ext?.pkgName.orEmpty()) == plugin
 					}
 				}
 			}
@@ -416,7 +416,7 @@ class MangaSourcesRepository
 						) {
 							launch(Dispatchers.Default) {
 								try {
-									tachiyomiRuntime?.get()?.ensureReady(forceRefresh = true)
+									extRuntime?.get()?.ensureReady(forceRefresh = true)
 								} catch (_: Throwable) {
 								}
 							}

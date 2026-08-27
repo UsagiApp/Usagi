@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.HttpUrl
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
+import org.draken.tsukimix.core.parser.external.ExtRuntime
 import org.draken.usagi.R
 import org.draken.usagi.core.model.MangaSource
 import org.draken.usagi.core.model.MangaSourceRegistry
@@ -17,7 +17,6 @@ import org.draken.usagi.core.network.cookies.MutableCookieJar
 import org.draken.usagi.core.parser.CachingMangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
 import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.util.ReversibleAction
@@ -27,7 +26,7 @@ import org.draken.usagi.explore.data.MangaSourcesRepository
 import tsuki.MangaParserAuthProvider
 import tsuki.exception.AuthRequiredException
 import javax.inject.Inject
-import org.draken.tsukimix.core.parser.tachiyomi.model.Manga as ExternalSource
+import org.draken.tsukimix.core.parser.external.model.Manga as ExternalSource
 
 @HiltViewModel
 class SourceSettingsViewModel
@@ -37,7 +36,7 @@ class SourceSettingsViewModel
 		mangaRepositoryFactory: MangaRepository.Factory,
 		private val cookieJar: MutableCookieJar,
 		private val mangaSourcesRepository: MangaSourcesRepository,
-		private val tachiyomiRuntime: TachiyomiRuntime,
+		private val extRuntime: ExtRuntime,
 	) : BaseViewModel(),
 		SharedPreferences.OnSharedPreferenceChangeListener {
 		val source = MangaSource(savedStateHandle.get<String>(AppRouter.KEY_SOURCE)).resolve()
@@ -58,7 +57,7 @@ class SourceSettingsViewModel
 					loadUsername(repository.getAuthProvider())
 				}
 
-				is ExternalMangaRepository -> {
+				is org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository -> {
 					browserUrl.value = repository.getBrowserUrl()
 					repository.getSettingsPreferences().registerOnSharedPreferenceChangeListener(this)
 				}
@@ -71,7 +70,7 @@ class SourceSettingsViewModel
 					repository.getConfig().unsubscribe(this)
 				}
 
-				is ExternalMangaRepository -> {
+				is org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository -> {
 					repository.getSettingsPreferences().unregisterOnSharedPreferenceChangeListener(this)
 				}
 			}
@@ -92,7 +91,7 @@ class SourceSettingsViewModel
 					browserUrl.value = "https://${repository.domain}"
 				}
 			}
-			if (repository is ExternalMangaRepository && key == SourceSettings.KEY_DOMAIN) {
+			if (repository is org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository && key == SourceSettings.KEY_DOMAIN) {
 				repository.refreshDomainOverride()
 				browserUrl.value = repository.getBrowserUrl()
 			}
@@ -122,13 +121,13 @@ class SourceSettingsViewModel
 		fun setEnabled(value: Boolean) {
 			launchJob(Dispatchers.Default) {
 				mangaSourcesRepository.setSourcesEnabled(setOf(source), value)
-				tachiyomiRuntime.ensureReady(forceRefresh = true)
+				extRuntime.ensureReady(forceRefresh = true)
 			}
 		}
 
 		fun publish() {
 			val e = MangaSourceRegistry.sources.filterNot { it is ExternalSource }
-			MangaSourceRegistry.publish(e + tachiyomiRuntime.getActiveSources())
+			MangaSourceRegistry.publish(e + extRuntime.getActiveSources())
 		}
 
 		private fun loadUsername(authProvider: MangaParserAuthProvider?) {

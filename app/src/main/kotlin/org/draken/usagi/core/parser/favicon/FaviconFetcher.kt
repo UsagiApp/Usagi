@@ -24,7 +24,7 @@ import kotlinx.coroutines.runInterruptible
 import okio.FileSystem
 import okio.IOException
 import okio.Path.Companion.toOkioPath
-import org.draken.tsukimix.core.parser.tachiyomi.ExtensionSourceSettings
+import org.draken.tsukimix.core.parser.external.ExtensionSourceSettings
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.CloudFlareProtectedException
 import org.draken.usagi.core.model.MangaSource
@@ -43,8 +43,7 @@ import tsuki.util.runCatchingCancellable
 import java.io.File
 import javax.inject.Inject
 import coil3.Uri as CoilUri
-import org.draken.tsukimix.core.parser.tachiyomi.model.Manga as TachiyomiMangaSource
-import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as ExternalRepository
+import org.draken.tsukimix.core.parser.external.model.Manga as ExtensionMangaSource
 
 class FaviconFetcher(
 	private val uri: Uri,
@@ -59,7 +58,7 @@ class FaviconFetcher(
 		return when (val repo = mangaRepositoryFactory.create(mangaSource)) {
 			is MangaParserRepository -> fetchParserFavicon(repo)
 			is ExternalMangaRepository -> fetchPluginIcon(repo)
-			is ExternalRepository -> fetchTachiyomiIcon(repo.source)
+			is org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository -> fetchExternalIcon(repo.source)
 			is EmptyMangaRepository -> throwNSEE(null)
 			is LocalMangaRepository -> imageLoader.fetch(R.drawable.ic_storage, options)
 			else -> throw IllegalArgumentException("Unsupported repo ${repo.javaClass.simpleName}")
@@ -113,7 +112,7 @@ class FaviconFetcher(
 		return fetchPackageIcon(source.packageName, source.authority)
 	}
 
-	private suspend fun fetchTachiyomiIcon(source: TachiyomiMangaSource): FetchResult {
+	private suspend fun fetchExternalIcon(source: ExtensionMangaSource): FetchResult {
 		val configuredUrl =
 			runCatchingCancellable {
 				ExtensionSourceSettings.browserUrl(options.context, source)
@@ -131,7 +130,7 @@ class FaviconFetcher(
 
 	private suspend fun fetchDomainFavicon(
 		configuredUrl: String,
-		source: TachiyomiMangaSource,
+		source: ExtensionMangaSource,
 	): FetchResult {
 		val sizePx =
 			maxOf(

@@ -92,7 +92,6 @@ class SourcesListProducer
 							isAvailable = !isNsfwDisabled || !it.isNsfw(),
 							isPinned = it.name in pinned,
 							isDisableAvailable = isDisableAvailable,
-							uninstallPackageName = null,
 						)
 					}.ifEmpty {
 						listOf(SourceConfigItem.EmptySearchResult)
@@ -116,7 +115,6 @@ class SourcesListProducer
 						isAvailable = false,
 						isPinned = it.name in pinned,
 						isDisableAvailable = isDisableAvailable,
-						uninstallPackageName = null,
 					)
 				}
 			}

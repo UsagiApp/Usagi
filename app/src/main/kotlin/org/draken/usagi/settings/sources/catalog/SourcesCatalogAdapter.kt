@@ -12,21 +12,21 @@ import org.draken.usagi.list.ui.model.ListModel
 
 class SourcesCatalogAdapter(
 	nativeListener: OnListItemClickListener<SourceCatalogItem.Source>,
-	onTachiyomiClick: (SourceCatalogItem.Tachiyomi, View) -> Unit,
-	onTachiyomiInstall: (SourceCatalogItem.Tachiyomi, View) -> Unit,
-	onTachiyomiUninstall: (SourceCatalogItem.Tachiyomi, View) -> Unit,
-	onTachiyomiSideload: (SourceCatalogItem.Tachiyomi, View) -> Unit,
+	onExtensionClick: (SourceCatalogItem.Extension, View) -> Unit,
+	onExtensionInstall: (SourceCatalogItem.Extension, View) -> Unit,
+	onExtensionUninstall: (SourceCatalogItem.Extension, View) -> Unit,
+	onExtensionSideload: (SourceCatalogItem.Extension, View) -> Unit,
 ) : BaseListAdapter<ListModel>(),
 	FastScroller.SectionIndexer {
 	init {
 		addDelegate(ListItemType.CHAPTER_LIST, sourceCatalogItemSourceAD(nativeListener))
 		addDelegate(
 			ListItemType.INFO,
-			sourceCatalogItemTachiyomiAD(
-				onTachiyomiClick,
-				onTachiyomiInstall,
-				onTachiyomiUninstall,
-				onTachiyomiSideload,
+			sourceCatalogItemExtensionAD(
+				onExtensionClick,
+				onExtensionInstall,
+				onExtensionUninstall,
+				onExtensionSideload,
 			),
 		)
 		addDelegate(ListItemType.HINT_EMPTY, sourceCatalogItemHintAD())
@@ -39,7 +39,7 @@ class SourcesCatalogAdapter(
 	): CharSequence? =
 		when (val item = items.getOrNull(position)) {
 			is SourceCatalogItem.Source -> item.source.getTitle(context).take(1)
-			is SourceCatalogItem.Tachiyomi -> item.displayName.take(1)
+			is SourceCatalogItem.Extension -> item.displayName.take(1)
 			else -> null
 		}
 }

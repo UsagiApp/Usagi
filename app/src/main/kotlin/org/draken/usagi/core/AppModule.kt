@@ -30,10 +30,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import okhttp3.OkHttpClient
-import org.draken.tsukimix.core.parser.tachiyomi.ExtensionProvider
-import org.draken.tsukimix.core.parser.tachiyomi.NativeExtManager
-import org.draken.tsukimix.core.parser.tachiyomi.RuntimeInitializer
-import org.draken.tsukimix.core.parser.tachiyomi.model.Manga
+import org.draken.tsukimix.core.parser.external.ExtRuntime
+import org.draken.tsukimix.core.parser.external.ExtensionProvider
+import org.draken.tsukimix.core.parser.external.NativeExtManager
+import org.draken.tsukimix.core.parser.external.RuntimeInitializer
+import org.draken.tsukimix.core.parser.external.model.Manga
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.backups.domain.BackupObserver
 import org.draken.usagi.core.db.MangaDatabase
@@ -42,7 +43,6 @@ import org.draken.usagi.core.image.AvifImageDecoder
 import org.draken.usagi.core.image.CbzFetcher
 import org.draken.usagi.core.image.ExternalSourceFetcher
 import org.draken.usagi.core.image.MangaSourceHeaderInterceptor
-import org.draken.usagi.core.model.DirectTachiyomiPluginMetadata
 import org.draken.usagi.core.model.MangaSourceRegistry
 import org.draken.usagi.core.network.BaseHttpClient
 import org.draken.usagi.core.network.MangaHttpClient
@@ -76,10 +76,10 @@ import tsuki.MangaLoaderContext
 import tsuki.network.UserAgents
 import javax.inject.Provider
 import javax.inject.Singleton
-import org.draken.tsukimix.core.parser.tachiyomi.ExtensionBridge as Bridge
-import org.draken.tsukimix.core.parser.tachiyomi.ExtensionLoader as Loader
-import org.draken.tsukimix.core.parser.tachiyomi.ExtensionManager as Manager
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime as Runtime
+import org.draken.tsukimix.core.parser.external.ExtensionBridge as Bridge
+import org.draken.tsukimix.core.parser.external.ExtensionLoader as Loader
+import org.draken.tsukimix.core.parser.external.ExtensionManager as Manager
+import org.draken.usagi.core.model.DirectExternalPluginMetadata as Metadata
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -291,14 +291,14 @@ interface AppModule {
 
 		@Provides
 		@Singleton
-		fun provideTachiyomiRuntime(
+		fun provideExtRuntime(
 			installedManager: Manager,
 			directManager: NativeExtManager,
 			catalogProvider: ExtensionProvider,
 			database: MangaDatabase,
 			settings: AppSettings,
-		): Runtime =
-			Runtime(
+		): ExtRuntime =
+			ExtRuntime(
 				installedManager = installedManager,
 				directManager = directManager,
 				disabledSourceProvider =
@@ -317,16 +317,16 @@ interface AppModule {
 					},
 				sourcesPublisher =
 					{ sources ->
-						DirectTachiyomiPluginMetadata.update(directManager.installed.value) { catalogProvider.repositoryName(it) }
-						val nonTachiyomi = MangaSourceRegistry.sources.filterNot { it is Manga }
-						MangaSourceRegistry.publish(nonTachiyomi + sources)
+						Metadata.update(directManager.installed.value) { catalogProvider.repositoryName(it) }
+						val non = MangaSourceRegistry.sources.filterNot { it is Manga }
+						MangaSourceRegistry.publish(non + sources)
 					},
 			)
 
 		@Provides
 		@Singleton
-		fun providePluginRuntimeInitializer(
-			tachiyomiRuntime: Provider<Runtime>,
-		): RuntimeInitializer = RuntimeInitializer { tachiyomiRuntime.get() }
+		fun provideExtRuntimeInitializer(
+			extRuntime: Provider<ExtRuntime>,
+		): RuntimeInitializer = RuntimeInitializer { extRuntime.get() }
 	}
 }

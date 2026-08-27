@@ -11,7 +11,7 @@ import org.draken.usagi.core.parser.external.ExternalMangaSource
 import org.draken.usagi.core.parser.favicon.faviconUri
 import tsuki.model.MangaSource
 import tsuki.model.MangaTag
-import org.draken.tsukimix.core.parser.tachiyomi.model.Manga as ExternalSource
+import org.draken.tsukimix.core.parser.external.model.Manga as ExternalSource
 
 sealed interface ListFilterOption {
 	@get:StringRes

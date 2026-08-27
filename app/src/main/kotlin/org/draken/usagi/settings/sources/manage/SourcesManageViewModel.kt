@@ -4,7 +4,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
+import org.draken.tsukimix.core.parser.external.ExtRuntime
 import org.draken.usagi.R
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.db.removeObserverAsync
@@ -28,7 +28,7 @@ class SourcesManageViewModel
 		private val settings: AppSettings,
 		private val repository: MangaSourcesRepository,
 		private val listProducer: SourcesListProducer,
-		private val tachiyomiRuntime: TachiyomiRuntime,
+		private val extRuntime: ExtRuntime,
 	) : BaseViewModel() {
 		val content = listProducer.list
 		val onActionDone = MutableEventFlow<ReversibleAction>()
@@ -78,12 +78,12 @@ class SourcesManageViewModel
 		) {
 			launchJob(Dispatchers.Default) {
 				val rollback = repository.setSourcesEnabled(setOf(source), isEnabled)
-				tachiyomiRuntime.ensureReady(forceRefresh = true)
+				extRuntime.ensureReady(forceRefresh = true)
 				if (!isEnabled) {
 					val synchronizedRollback =
 						ReversibleHandle {
 							rollback.reverse()
-							tachiyomiRuntime.ensureReady(forceRefresh = true)
+							extRuntime.ensureReady(forceRefresh = true)
 						}
 					onActionDone.call(ReversibleAction(R.string.source_disabled, synchronizedRollback))
 				}
@@ -134,7 +134,7 @@ class SourcesManageViewModel
 		fun disableAll() {
 			launchJob(Dispatchers.Default) {
 				repository.disableAllSources()
-				tachiyomiRuntime.ensureReady(forceRefresh = true)
+				extRuntime.ensureReady(forceRefresh = true)
 			}
 		}
 

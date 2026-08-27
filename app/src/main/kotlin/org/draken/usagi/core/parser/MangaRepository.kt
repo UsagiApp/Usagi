@@ -7,7 +7,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
+import org.draken.tsukimix.core.parser.external.ExtRuntime
 import org.draken.usagi.core.cache.MemoryContentCache
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.MangaSourceInfo
@@ -33,9 +33,9 @@ import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
-import org.draken.tsukimix.core.parser.tachiyomi.model.Manga as ExternalSource
+import org.draken.tsukimix.core.parser.external.model.Manga as ExternalSource
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
-import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as ExternalRepository
+import org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository as ExternalRepository
 
 interface MangaRepository {
 	val source: MangaSource
@@ -87,7 +87,7 @@ interface MangaRepository {
 			private val contentCache: MemoryContentCache,
 			private val mirrorSwitcher: Provider<MirrorSwitcher>,
 			private val mangaRepository: MangaDynamicRepository,
-			private val tachiyomiRuntime: Provider<TachiyomiRuntime>,
+			private val extRuntime: Provider<ExtRuntime>,
 		) {
 			private val cache = ArrayMap<MangaSource, WeakReference<MangaRepository>>()
 			private var cacheVersion = -1
@@ -155,7 +155,7 @@ interface MangaRepository {
 								context = context,
 								source = source,
 								cache = contentCache,
-								runtime = tachiyomiRuntime.get(),
+								runtime = extRuntime.get(),
 							)
 						} catch (_: Throwable) {
 							EmptyMangaRepository(source)

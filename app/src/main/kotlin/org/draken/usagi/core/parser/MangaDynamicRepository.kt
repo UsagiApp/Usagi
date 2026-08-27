@@ -17,7 +17,7 @@ import java.lang.reflect.Proxy
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
-import org.draken.tsukimix.core.parser.tachiyomi.model.Manga as External
+import org.draken.tsukimix.core.parser.external.model.Manga as External
 
 @Singleton
 class MangaDynamicRepository
@@ -110,7 +110,11 @@ class MangaDynamicRepository
 			}
 		}
 
-		fun get(): List<String> = PluginFileLoader.pluginsDir(context).listFiles { it.extension == "jar" }?.map { it.name } ?: emptyList()
+		fun get(): List<String> =
+			PluginFileLoader
+				.pluginsDir(context)
+				.listFiles { it.extension == "jar" }
+				?.map { it.name } ?: emptyList()
 
 		fun getDir() = PluginFileLoader.pluginsDir(context)
 

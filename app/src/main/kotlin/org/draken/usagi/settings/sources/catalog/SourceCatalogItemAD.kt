@@ -22,17 +22,26 @@ import androidx.appcompat.R as appcompatR
 
 fun sourceCatalogItemSourceAD(listener: OnListItemClickListener<SourceCatalogItem.Source>) =
 	adapterDelegateViewBinding<SourceCatalogItem.Source, ListModel, ItemSourceCatalogBinding>(
-		{ layoutInflater, parent -> ItemSourceCatalogBinding.inflate(layoutInflater, parent, false) },
+		{ inf, p -> ItemSourceCatalogBinding.inflate(inf, p, false) },
 	) {
 		binding.imageViewAdd.setOnClickListener { v -> listener.onItemLongClick(item, v) }
 		binding.root.setOnClickListener { v -> listener.onItemClick(item, v) }
-		val basePadding = context.getThemeDimensionPixelOffset(appcompatR.attr.listPreferredItemPaddingEnd, binding.root.paddingStart)
-		binding.root.updatePaddingRelative(end = (basePadding - context.resources.getDimensionPixelOffset(R.dimen.margin_small)).coerceAtLeast(0))
+		val pad =
+			context.getThemeDimensionPixelOffset(
+				appcompatR.attr.listPreferredItemPaddingEnd,
+				binding.root.paddingStart,
+			)
+		val margin = context.resources.getDimensionPixelOffset(R.dimen.margin_small)
+		binding.root.updatePaddingRelative(end = (pad - margin).coerceAtLeast(0))
 		bind {
 			binding.textViewTitle.text = item.source.getTitle(context)
 			binding.textViewDescription.text = item.description(context)
-			binding.textViewDescription.drawableStart = if (item.source.isBroken) ContextCompat.getDrawable(context, R.drawable.ic_off_small) else null
-			FaviconDrawable(context, R.style.FaviconDrawable_Small, item.source.name)
+			binding.textViewDescription.drawableStart =
+				if (item.source.isBroken) {
+					ContextCompat.getDrawable(context, R.drawable.ic_off_small)
+				} else {
+					null
+				}
 			binding.imageViewIcon.setImageAsync(item.source)
 			binding.imageViewAdd.isVisible = true
 			binding.imageViewAdd.setImageResource(R.drawable.ic_add)
@@ -40,13 +49,13 @@ fun sourceCatalogItemSourceAD(listener: OnListItemClickListener<SourceCatalogIte
 		}
 	}
 
-fun sourceCatalogItemTachiyomiAD(
-	onClick: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
-	onInstall: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
-	onUninstall: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
-	onSideload: (SourceCatalogItem.Tachiyomi, android.view.View) -> Unit,
-) = adapterDelegateViewBinding<SourceCatalogItem.Tachiyomi, ListModel, ItemSourceCatalogBinding>(
-	{ layoutInflater, parent -> ItemSourceCatalogBinding.inflate(layoutInflater, parent, false) },
+fun sourceCatalogItemExtensionAD(
+	onClick: (SourceCatalogItem.Extension, android.view.View) -> Unit,
+	onInstall: (SourceCatalogItem.Extension, android.view.View) -> Unit,
+	onUninstall: (SourceCatalogItem.Extension, android.view.View) -> Unit,
+	onSideload: (SourceCatalogItem.Extension, android.view.View) -> Unit,
+) = adapterDelegateViewBinding<SourceCatalogItem.Extension, ListModel, ItemSourceCatalogBinding>(
+	{ inf, p -> ItemSourceCatalogBinding.inflate(inf, p, false) },
 ) {
 	binding.root.setOnClickListener { v -> onClick(item, v) }
 	binding.imageViewAdd.setOnClickListener { v ->
@@ -57,29 +66,32 @@ fun sourceCatalogItemTachiyomiAD(
 		}
 	}
 	binding.imageViewAdd.setOnLongClickListener { v ->
-		if (item.isPreInstalledApk) {
-			true
-		} else {
-			onSideload(item, v)
-			true
-		}
+		if (!item.isPreInstalledApk) onSideload(item, v)
+		true
 	}
-	val basePadding = context.getThemeDimensionPixelOffset(appcompatR.attr.listPreferredItemPaddingEnd, binding.root.paddingStart)
-	binding.root.updatePaddingRelative(end = (basePadding - context.resources.getDimensionPixelOffset(R.dimen.margin_small)).coerceAtLeast(0))
+	val pad =
+		context.getThemeDimensionPixelOffset(
+			appcompatR.attr.listPreferredItemPaddingEnd,
+			binding.root.paddingStart,
+		)
+	val margin = context.resources.getDimensionPixelOffset(R.dimen.margin_small)
+	binding.root.updatePaddingRelative(end = (pad - margin).coerceAtLeast(0))
+	onViewRecycled {
+		(binding.imageViewAdd.drawable as? Animatable)?.stop()
+	}
 	bind {
-		val iconSize = context.resources.getDimensionPixelSize(R.dimen.card_indicator_size)
+		val size = context.resources.getDimensionPixelSize(R.dimen.card_indicator_size)
 		binding.imageViewIcon.layoutParams =
 			binding.imageViewIcon.layoutParams.apply {
-				width = iconSize
-				height = iconSize
+				width = size
+				height = size
 			}
 		binding.imageViewIcon.scaleType = ImageView.ScaleType.CENTER_CROP
-		val fallback = FaviconDrawable(context, R.style.FaviconDrawable, item.artifact.packageName)
-
-		binding.imageViewIcon.errorDrawable = fallback
-		binding.imageViewIcon.fallbackDrawable = fallback
+		val fb = FaviconDrawable(context, R.style.FaviconDrawable, item.artifact.packageName)
+		binding.imageViewIcon.errorDrawable = fb
+		binding.imageViewIcon.fallbackDrawable = fb
 		if (item.artifact.iconUrl.isNullOrBlank()) {
-			binding.imageViewIcon.setImageDrawable(fallback)
+			binding.imageViewIcon.setImageDrawable(fb)
 		} else {
 			binding.imageViewIcon.setImageAsync(item.artifact.iconUrl)
 		}
@@ -88,15 +100,15 @@ fun sourceCatalogItemTachiyomiAD(
 		binding.textViewDescription.text = item.description(context)
 		binding.textViewDescription.drawableStart = null
 
-		val isInstalled = item.isInstalled || item.isLoaded || item.isPreInstalledApk
+		val isInst = item.isInstalled || item.isLoaded || item.isPreInstalledApk
 		(binding.imageViewAdd.drawable as? Animatable)?.stop()
 		if (item.isInstalling) {
 			binding.imageViewAdd.isEnabled = false
 			binding.imageViewAdd.setImageDrawable(
-				CircularProgressDrawable(context).also {
-					it.setStyle(CircularProgressDrawable.DEFAULT)
-					it.setColorSchemeColors(context.getThemeColor(appcompatR.attr.colorControlNormal))
-					it.start()
+				CircularProgressDrawable(context).apply {
+					setStyle(CircularProgressDrawable.DEFAULT)
+					setColorSchemeColors(context.getThemeColor(appcompatR.attr.colorControlNormal))
+					start()
 				},
 			)
 			binding.imageViewAdd.contentDescription = context.getString(R.string.loading_)
@@ -104,16 +116,16 @@ fun sourceCatalogItemTachiyomiAD(
 			binding.imageViewAdd.isEnabled = true
 			binding.imageViewAdd.setImageResource(
 				when {
-					item.hasUpdate -> R.drawable.ic_updated
-					isInstalled -> R.drawable.ic_delete
+					isInst && item.hasUpdate -> R.drawable.ic_updated
+					isInst -> R.drawable.ic_delete
 					else -> R.drawable.ic_download
 				},
 			)
 			binding.imageViewAdd.contentDescription =
 				context.getString(
 					when {
-						item.hasUpdate -> R.string.download
-						isInstalled -> R.string.delete
+						isInst && item.hasUpdate -> R.string.update
+						isInst -> R.string.delete
 						else -> R.string.add
 					},
 				)
@@ -123,7 +135,7 @@ fun sourceCatalogItemTachiyomiAD(
 
 fun sourceCatalogItemHintAD() =
 	adapterDelegateViewBinding<SourceCatalogItem.Hint, ListModel, ItemEmptyHintBinding>(
-		{ inflater, parent -> ItemEmptyHintBinding.inflate(inflater, parent, false) },
+		{ inf, p -> ItemEmptyHintBinding.inflate(inf, p, false) },
 	) {
 		binding.buttonRetry.isVisible = false
 		bind {

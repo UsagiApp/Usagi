@@ -32,126 +32,102 @@ import com.google.android.material.R as materialR
 class PluginManageAdapter(
 	onRenameClick: (PluginManageItem.Plugin) -> Unit,
 	onUpdateClick: (PluginManageItem.Plugin) -> Unit,
-	onTachiyomiRenameClick: (PluginManageItem.Tachiyomi) -> Unit,
-	onTachiyomiLongClick: (PluginManageItem.Tachiyomi) -> Unit,
-	onTachiyomiClick: (PluginManageItem.Tachiyomi) -> Unit,
+	onExtRenameClick: (PluginManageItem.Extension) -> Unit,
+	onExtLongClick: (PluginManageItem.Extension) -> Unit,
+	onExtClick: (PluginManageItem.Extension) -> Unit,
 	onLongClick: (PluginManageItem.Plugin) -> Unit,
 	onClick: (PluginManageItem.Plugin) -> Unit,
 	isSelected: (PluginManageItem.Plugin) -> Boolean,
-	isTachiyomiSelected: (PluginManageItem.Tachiyomi) -> Boolean,
+	isExtSelected: (PluginManageItem.Extension) -> Boolean,
 ) : BaseListAdapter<ListModel>() {
 	init {
-		addDelegate(ListItemType.STATE_LOADING, loadingItemDelegate())
-		addDelegate(ListItemType.CHAPTER_LIST, pluginItemDelegate(onRenameClick, onUpdateClick, onLongClick, onClick, isSelected))
-		addDelegate(ListItemType.INFO, tachiyomiItemDelegate(onTachiyomiRenameClick, onTachiyomiLongClick, onTachiyomiClick, isTachiyomiSelected))
-		addDelegate(ListItemType.HINT_EMPTY, pluginPlaceholderDelegate())
+		addDelegate(ListItemType.STATE_LOADING, loadingAD())
+		addDelegate(ListItemType.CHAPTER_LIST, pluginAD(onRenameClick, onUpdateClick, onLongClick, onClick, isSelected))
+		addDelegate(ListItemType.INFO, extAD(onExtRenameClick, onExtLongClick, onExtClick, isExtSelected))
+		addDelegate(ListItemType.HINT_EMPTY, placeholderAD())
 	}
 
 	@SuppressLint("ClickableViewAccessibility")
-	private fun pluginItemDelegate(
-		onRenameClick: (PluginManageItem.Plugin) -> Unit,
-		onUpdateClick: (PluginManageItem.Plugin) -> Unit,
-		onLongClick: (PluginManageItem.Plugin) -> Unit,
+	private fun pluginAD(
+		onRename: (PluginManageItem.Plugin) -> Unit,
+		onUpdate: (PluginManageItem.Plugin) -> Unit,
+		onLong: (PluginManageItem.Plugin) -> Unit,
 		onClick: (PluginManageItem.Plugin) -> Unit,
-		isSelected: (PluginManageItem.Plugin) -> Boolean,
+		selected: (PluginManageItem.Plugin) -> Boolean,
 	) = adapterDelegateViewBinding<PluginManageItem.Plugin, ListModel, ItemSourceConfigBinding>(
-		{ layoutInflater, parent -> ItemSourceConfigBinding.inflate(layoutInflater, parent, false) },
+		{ inf, p -> ItemSourceConfigBinding.inflate(inf, p, false) },
 	) {
 		binding.imageViewIcon.background = null
-
 		binding.imageViewMenu.isVisible = true
 		binding.imageViewMenu.setImageResource(R.drawable.ic_edit)
-		binding.imageViewMenu.contentDescription = context.getString(R.string.rename)
-		binding.imageViewMenu.setOnClickListener { onRenameClick(item) }
+		binding.imageViewMenu.setOnClickListener { onRename(item) }
 		binding.imageViewRemove.isVisible = false
 		binding.imageViewAdd.setImageResource(R.drawable.ic_download)
-		binding.imageViewAdd.contentDescription = context.getString(R.string.update)
-
 		itemView.setOnLongClickListener {
-			onLongClick(item)
+			onLong(item)
 			true
 		}
 		itemView.setOnClickListener { onClick(item) }
 
 		bind {
-			itemView.isSelected = isSelected(item)
-			binding.textViewTitle.background = null
-			binding.textViewTitle.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-			binding.textViewDescription.background = null
-			binding.textViewDescription.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-
-			val avatarUrl = item.repository?.takeIf { it.isNotBlank() }?.let(::githubAvatarUrl)
-			val fallback = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.displayName)
-			binding.imageViewIcon.errorDrawable = fallback
-			binding.imageViewIcon.fallbackDrawable = fallback
-			if (avatarUrl.isNullOrBlank()) {
+			itemView.isSelected = selected(item)
+			resetViews(binding)
+			val avatar = item.repository?.takeIf { it.isNotBlank() }?.let(::githubAvatarUrl)
+			val fb = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.displayName)
+			binding.imageViewIcon.errorDrawable = fb
+			binding.imageViewIcon.fallbackDrawable = fb
+			if (avatar.isNullOrBlank()) {
 				binding.imageViewIcon.setImageResource(R.drawable.ic_services)
 			} else {
-				applyRemoteIconShape(binding.imageViewIcon, context)
-				binding.imageViewIcon.setImageAsync(avatarUrl)
+				applyIconShape(binding.imageViewIcon, context)
+				binding.imageViewIcon.setImageAsync(avatar)
 			}
 			binding.textViewTitle.text = item.displayName
-
 			binding.textViewDescription.text =
-				buildList {
-					item.repository?.takeIf { it.isNotBlank() }?.let { add(repositoryLabel(it)) } ?: add(item.name)
-					item.installedTag?.takeIf { it.isNotBlank() }?.let(::add)
-				}.joinToString(" • ")
+				listOfNotNull(
+					item.repository?.takeIf { it.isNotBlank() }?.let(::repoLabel) ?: item.name,
+					item.installedTag?.takeIf { it.isNotBlank() },
+				).joinToString(" • ")
 			binding.imageViewAdd.isVisible = item.hasUpdate
-			binding.imageViewAdd.setOnClickListener(if (item.hasUpdate) View.OnClickListener { onUpdateClick(item) } else null)
+			binding.imageViewAdd.setOnClickListener(if (item.hasUpdate) View.OnClickListener { onUpdate(item) } else null)
 		}
 	}
 
-	private fun tachiyomiItemDelegate(
-		onRenameClick: (PluginManageItem.Tachiyomi) -> Unit,
-		onLongClick: (PluginManageItem.Tachiyomi) -> Unit,
-		onClick: (PluginManageItem.Tachiyomi) -> Unit,
-		isSelected: (PluginManageItem.Tachiyomi) -> Boolean,
-	) = adapterDelegateViewBinding<PluginManageItem.Tachiyomi, ListModel, ItemSourceConfigBinding>(
-		{ layoutInflater, parent -> ItemSourceConfigBinding.inflate(layoutInflater, parent, false) },
+	private fun extAD(
+		onRename: (PluginManageItem.Extension) -> Unit,
+		onLong: (PluginManageItem.Extension) -> Unit,
+		onClick: (PluginManageItem.Extension) -> Unit,
+		selected: (PluginManageItem.Extension) -> Boolean,
+	) = adapterDelegateViewBinding<PluginManageItem.Extension, ListModel, ItemSourceConfigBinding>(
+		{ inf, p -> ItemSourceConfigBinding.inflate(inf, p, false) },
 	) {
 		binding.imageViewIcon.background = null
+		binding.imageViewMenu.isVisible = true
 		binding.imageViewMenu.setImageResource(R.drawable.ic_edit)
-		binding.imageViewMenu.contentDescription = context.getString(R.string.rename)
-
 		binding.imageViewRemove.isVisible = false
 		binding.imageViewAdd.isVisible = false
 		itemView.setOnLongClickListener {
-			onLongClick(item)
+			onLong(item)
 			true
 		}
 		itemView.setOnClickListener { onClick(item) }
 
 		bind {
-			itemView.isSelected = isSelected(item)
-			binding.textViewTitle.background = null
-			binding.textViewTitle.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-			binding.textViewDescription.background = null
-			binding.textViewDescription.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-
-			applyRemoteIconShape(binding.imageViewIcon, context)
-
-			if (item.isLocal) {
-				val fallback = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.displayName)
-				binding.imageViewIcon.errorDrawable = fallback
-				binding.imageViewIcon.fallbackDrawable = fallback
-				val iconUrl = item.installed.firstOrNull()?.iconUrl
-				if (!iconUrl.isNullOrBlank()) {
-					binding.imageViewIcon.setImageAsync(iconUrl)
-				} else {
-					binding.imageViewIcon.setImageDrawable(fallback)
-				}
+			itemView.isSelected = selected(item)
+			resetViews(binding)
+			applyIconShape(binding.imageViewIcon, context)
+			val iconLabel = if (item.isLocal) item.displayName else item.repositoryLabel
+			val fb = FaviconDrawable(context, R.style.FaviconDrawable_Small, iconLabel)
+			binding.imageViewIcon.errorDrawable = fb
+			binding.imageViewIcon.fallbackDrawable = fb
+			val icon = if (item.isLocal) item.installed.firstOrNull()?.iconUrl else githubAvatarUrl(item.repositoryLabel)
+			if (icon.isNullOrBlank()) {
+				binding.imageViewIcon.setImageDrawable(fb)
 			} else {
-				val fallback = FaviconDrawable(context, R.style.FaviconDrawable_Small, item.repositoryLabel)
-				binding.imageViewIcon.errorDrawable = fallback
-				binding.imageViewIcon.fallbackDrawable = fallback
-				val avatarUrl = githubAvatarUrl(item.repositoryLabel)
-				binding.imageViewIcon.setImageAsync(avatarUrl)
+				binding.imageViewIcon.setImageAsync(icon)
 			}
 
-			binding.imageViewMenu.isVisible = true
-			binding.imageViewMenu.setOnClickListener { onRenameClick(item) }
-
+			binding.imageViewMenu.setOnClickListener { onRename(item) }
 			binding.textViewTitle.text = item.displayName
 			binding.textViewDescription.text =
 				buildList {
@@ -162,35 +138,36 @@ class PluginManageAdapter(
 		}
 	}
 
-	private fun loadingItemDelegate() =
+	private fun loadingAD() =
 		adapterDelegateViewBinding<PluginManageItem.Loading, ListModel, ItemSourceConfigBinding>(
-			{ layoutInflater, parent -> ItemSourceConfigBinding.inflate(layoutInflater, parent, false) },
+			{ inf, p -> ItemSourceConfigBinding.inflate(inf, p, false) },
 		) {
 			binding.imageViewMenu.isVisible = false
 			binding.imageViewRemove.isVisible = false
 			binding.imageViewAdd.isVisible = false
 			itemView.isClickable = false
-			itemView.isFocusable = false
-
+			onViewRecycled {
+				(binding.imageViewIcon.background as? Animatable)?.stop()
+				(binding.textViewTitle.background as? Animatable)?.stop()
+				(binding.textViewDescription.background as? Animatable)?.stop()
+			}
 			bind {
 				itemView.isSelected = false
-				val density = context.resources.displayMetrics.density
+				val d = context.resources.displayMetrics.density
 				binding.imageViewIcon.setImageDrawable(null)
-				binding.imageViewIcon.background = ShimmerPlaceholderDrawable(context, 8f * density)
-
+				binding.imageViewIcon.background = ShimmerDrawable(context, 8f * d)
 				binding.textViewTitle.text = " "
-				binding.textViewTitle.layoutParams.width = (180 * density).toInt()
-				binding.textViewTitle.background = ShimmerPlaceholderDrawable(context, 4f * density)
-
+				binding.textViewTitle.layoutParams.width = (180 * d).toInt()
+				binding.textViewTitle.background = ShimmerDrawable(context, 4f * d)
 				binding.textViewDescription.text = " "
-				binding.textViewDescription.layoutParams.width = (120 * density).toInt()
-				binding.textViewDescription.background = ShimmerPlaceholderDrawable(context, 4f * density)
+				binding.textViewDescription.layoutParams.width = (120 * d).toInt()
+				binding.textViewDescription.background = ShimmerDrawable(context, 4f * d)
 			}
 		}
 
-	private fun pluginPlaceholderDelegate() =
+	private fun placeholderAD() =
 		adapterDelegateViewBinding<PluginManageItem.Placeholder, ListModel, ItemEmptyHintBinding>(
-			{ layoutInflater, parent -> ItemEmptyHintBinding.inflate(layoutInflater, parent, false) },
+			{ inf, p -> ItemEmptyHintBinding.inflate(inf, p, false) },
 		) {
 			binding.icon.setImageResource(R.drawable.ic_empty_feed)
 			bind {
@@ -199,93 +176,110 @@ class PluginManageAdapter(
 			}
 		}
 
-	private class ShimmerPlaceholderDrawable(
+	private class ShimmerDrawable(
 		context: Context,
-		private val cornerRadius: Float = 8f,
+		private val radius: Float = 8f,
 	) : Drawable(),
 		Animatable,
 		TimeAnimator.TimeListener {
-		private val colorLow = context.getThemeColor(materialR.attr.colorSurfaceContainerLowest, Color.DKGRAY)
-		private val colorHigh = context.getThemeColor(materialR.attr.colorSurfaceContainerHighest, Color.LTGRAY)
+		private val c1 = context.getThemeColor(materialR.attr.colorSurfaceContainerLowest, Color.DKGRAY)
+		private val c2 = context.getThemeColor(materialR.attr.colorSurfaceContainerHighest, Color.LTGRAY)
 		private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-		private val timeAnimator = TimeAnimator().apply { setTimeListener(this@ShimmerPlaceholderDrawable) }
+		private val anim = TimeAnimator().apply { setTimeListener(this@ShimmerDrawable) }
 		private var phase = 0f
 
 		override fun draw(canvas: Canvas) {
 			if (!isRunning) start()
-			val bounds = bounds
-			if (bounds.width() <= 0 || bounds.height() <= 0) return
-
-			val w = bounds.width().toFloat()
-			val h = bounds.height().toFloat()
-			val bandWidth = w * 0.7f
-			val x = (w + bandWidth * 2) * phase - bandWidth
-
+			val b = bounds
+			if (b.width() <= 0 || b.height() <= 0) return
+			val w = b.width().toFloat()
+			val bw = w * 0.7f
+			val x = (w + bw * 2) * phase - bw
 			paint.shader =
 				LinearGradient(
 					x,
 					0f,
-					x + bandWidth,
+					x + bw,
 					0f,
-					intArrayOf(colorLow, colorHigh, colorLow),
+					intArrayOf(c1, c2, c1),
 					floatArrayOf(0f, 0.5f, 1f),
 					Shader.TileMode.CLAMP,
 				)
-			canvas.drawRoundRect(0f, 0f, w, h, cornerRadius, cornerRadius, paint)
+			canvas.drawRoundRect(0f, 0f, w, b.height().toFloat(), radius, radius, paint)
 		}
 
 		override fun onTimeUpdate(
-			animation: TimeAnimator?,
-			totalTime: Long,
-			deltaTime: Long,
+			a: TimeAnimator?,
+			total: Long,
+			dt: Long,
 		) {
-			phase = (totalTime % 1200L) / 1200f
+			phase = (total % 1200L) / 1200f
 			invalidateSelf()
 		}
 
 		override fun start() {
-			if (!timeAnimator.isRunning) timeAnimator.start()
+			if (!anim.isRunning) anim.start()
 		}
 
 		override fun stop() {
-			timeAnimator.cancel()
+			anim.cancel()
 		}
 
-		override fun isRunning(): Boolean = timeAnimator.isRunning
+		override fun isRunning() = anim.isRunning
+
+		override fun setVisible(
+			v: Boolean,
+			r: Boolean,
+		): Boolean {
+			val changed = super.setVisible(v, r)
+			if (v) start() else stop()
+			return changed
+		}
 
 		override fun setAlpha(alpha: Int) {
 			paint.alpha = alpha
 		}
 
-		override fun setColorFilter(colorFilter: ColorFilter?) {
-			paint.colorFilter = colorFilter
+		override fun setColorFilter(cf: ColorFilter?) {
+			paint.colorFilter = cf
 		}
 
 		@Deprecated("Deprecated in Java")
-		override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
+		override fun getOpacity() = PixelFormat.TRANSLUCENT
 	}
 
-	private fun githubAvatarUrl(repository: String): String? {
-		val owner = repositoryLabel(repository).substringBefore('/').trim()
-		return owner.takeIf { it.isNotBlank() }?.let { "https://github.com/$it.png" }
-	}
+	companion object {
+		private fun resetViews(b: ItemSourceConfigBinding) {
+			b.textViewTitle.background = null
+			b.textViewTitle.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+			b.textViewDescription.background = null
+			b.textViewDescription.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+		}
 
-	private fun applyRemoteIconShape(
-		imageView: org.draken.usagi.core.ui.image.FaviconView,
-		context: Context,
-	) {
-		imageView.shapeAppearanceModel =
-			imageView.shapeAppearanceModel
-				.toBuilder()
-				.setAllCorners(CornerFamily.ROUNDED, context.resources.getDimension(R.dimen.margin_small))
-				.build()
-	}
+		fun githubAvatarUrl(repo: String): String? =
+			repoLabel(repo)
+				.substringBefore('/')
+				.trim()
+				.takeIf { it.isNotBlank() }
+				?.let { "https://github.com/$it.png" }
 
-	private fun repositoryLabel(repository: String): String =
-		repository
-			.trim()
-			.removeSuffix("/")
-			.removePrefix("https://github.com/")
-			.removePrefix("http://github.com/")
-			.removePrefix("github.com/")
+		fun applyIconShape(
+			iv: org.draken.usagi.core.ui.image.FaviconView,
+			ctx: Context,
+		) {
+			iv.shapeAppearanceModel =
+				iv.shapeAppearanceModel
+					.toBuilder()
+					.setAllCorners(CornerFamily.ROUNDED, ctx.resources.getDimension(R.dimen.margin_small))
+					.build()
+		}
+
+		fun repoLabel(repo: String): String =
+			repo
+				.trim()
+				.removeSuffix("/")
+				.removePrefix("https://github.com/")
+				.removePrefix("http://github.com/")
+				.removePrefix("github.com/")
+	}
 }

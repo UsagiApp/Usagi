@@ -15,7 +15,7 @@ import okhttp3.Request
 import org.draken.usagi.core.model.unwrap
 import org.draken.usagi.core.util.ext.mangaSourceKey
 import coil3.Uri as CoilUri
-import org.draken.tsukimix.core.parser.tachiyomi.model.Manga as External
+import org.draken.tsukimix.core.parser.external.model.Manga as External
 
 class ExternalSourceFetcher(
 	private val httpSource: HttpSource,

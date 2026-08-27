@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.draken.usagi.R
+import org.draken.usagi.core.model.externalPackageName
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.os.AppShortcutManager
@@ -144,7 +145,7 @@ class SourcesManageFragment :
 		item: SourceConfigItem.SourceItem,
 		isEnabled: Boolean,
 	) {
-		val packageName = item.uninstallPackageName
+		val packageName = item.source.externalPackageName()
 		if (!isEnabled && packageName != null) {
 			uninstallExternalPackage(packageName)
 		} else {

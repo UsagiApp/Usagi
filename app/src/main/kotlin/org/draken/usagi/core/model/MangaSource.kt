@@ -9,8 +9,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.text.inSpans
-import org.draken.tsukimix.core.parser.tachiyomi.NativeExtManager
-import org.draken.tsukimix.core.parser.tachiyomi.model.DirectTachiyomiInstalled
+import org.draken.tsukimix.core.parser.external.NativeExtManager
+import org.draken.tsukimix.core.parser.external.model.ExtInstalled
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.external.ExternalMangaSource
 import org.draken.usagi.core.util.ext.getDisplayName
@@ -21,84 +21,62 @@ import tsuki.model.MangaSource
 import tsuki.util.splitTwoParts
 import java.net.URI
 import java.util.Locale
-import org.draken.tsukimix.core.parser.tachiyomi.model.Manga as ExternalSource
+import org.draken.tsukimix.core.parser.external.model.Manga as ExternalSource
 
 data class PluginMangaSource(
 	val delegate: MangaSource,
 	val jarName: String,
 ) : MangaSource {
-	override val name: String
-		get() = "$jarName:${delegate.name}"
-
-	val sourceName: String
-		get() = delegate.name
-
-	override val locale: String
-		get() = delegate.locale
-
-	override val contentType: ContentType
-		get() = delegate.contentType
-
-	override val title: String
-		get() = delegate.title
-
-	override val isBroken: Boolean
-		get() = delegate.isBroken
+	override val name: String get() = "$jarName:${delegate.name}"
+	val sourceName: String get() = delegate.name
+	override val locale: String get() = delegate.locale
+	override val contentType: ContentType get() = delegate.contentType
+	override val title: String get() = delegate.title
+	override val isBroken: Boolean get() = delegate.isBroken
 }
 
-/**
- * Keeps the repository label for sources loaded from direct Tachiyomi DEX artifacts.
- *
- * Direct artifacts preserve their repository URL in installation metadata, whereas the source
- * model itself only exposes the individual extension label. The map lets shared source UI show
- * the repository identity consistently without changing source IDs or parser behavior.
- */
-object DirectTachiyomiPluginMetadata {
+object DirectExternalPluginMetadata {
 	@Volatile
-	private var namesByPackage: Map<String, String> = emptyMap()
+	private var names: Map<String, String> = emptyMap()
 
 	fun update(
-		installed: Collection<DirectTachiyomiInstalled>,
-		customNameResolver: ((String) -> String?)? = null,
+		installed: Collection<ExtInstalled>,
+		resolver: ((String) -> String?)? = null,
 	) {
-		namesByPackage =
-			buildMap {
-				installed.forEach { record ->
-					val custom = customNameResolver?.invoke(record.repositoryUrl)
+		names =
+			installed
+				.mapNotNull { r ->
 					val name =
-						custom ?: if (record.repositoryUrl.startsWith("local:") || record.repositoryUrl.startsWith("installed:")) {
-							record.name
-								.removePrefix("Tachiyomi: ")
-								.removePrefix("Tachiyomi - ")
-								.trim()
-								.ifBlank { "Local" }
-						} else {
-							deriveName(record.repositoryUrl)
-						}
-					if (name != null) put(record.packageName, name)
-				}
-			}
+						resolver?.invoke(r.repositoryUrl)
+							?: if (r.repositoryUrl.startsWith("local:") ||
+								r.repositoryUrl.startsWith("installed:")
+							) {
+								r.name
+									.removePrefix("Extension: ")
+									.removePrefix("Extension - ")
+									.trim()
+									.ifBlank { "Local" }
+							} else {
+								deriveName(r.repositoryUrl)
+							}
+					name?.let { r.packageName to it }
+				}.toMap()
 	}
 
-	fun get(packageName: String): String? = namesByPackage[packageName]
+	fun get(packageName: String): String? = names[packageName]
 
-	fun deriveName(repositoryUrl: String): String? =
+	fun deriveName(url: String): String? =
 		runCatching {
-			val uri = URI(repositoryUrl)
+			val uri = URI(url)
 			val host = uri.host?.lowercase(Locale.ROOT).orEmpty()
-			when {
-				host.endsWith(".github.io") -> {
-					host.removeSuffix(".github.io")
-				}
-
-				else -> {
-					uri.path
-						.trim('/')
-						.split('/')
-						.firstOrNull { it.isNotBlank() }
-						?.replaceFirstChar { it.titlecase(Locale.ROOT) }
-						?: host.takeIf { it.isNotBlank() }
-				}
+			if (host.endsWith(".github.io")) {
+				host.removeSuffix(".github.io")
+			} else {
+				uri.path
+					.trim('/')
+					.split('/')
+					.firstOrNull { it.isNotBlank() }
+					?.replaceFirstChar { it.titlecase(Locale.ROOT) } ?: host.takeIf { it.isNotBlank() }
 			}
 		}.getOrNull()
 }
@@ -135,15 +113,13 @@ fun MangaSource(name: String?): MangaSource {
 		return ExternalMangaSource(packageName = parts.first, authority = parts.second)
 	} else if (name.startsWith("EXTERNAL_")) {
 		NativeExtManager.getByName(name)?.let { return it }
-		org.draken.tsukimix.core.parser.tachiyomi.ExtensionManager
+		org.draken.tsukimix.core.parser.external.ExtensionManager
 			.getByName(name)
-			?.let { return it } // tachi
+			?.let { return it }
 	}
 	MangaSourceRegistry.resolveByName(name)?.let { return it }
-	// Backward compatibility for loaded database items saved as '1.jar:MANGADEX'
 	if (name.contains(':')) {
-		val raw = name.substringAfter(":")
-		MangaSourceRegistry.resolveByName(raw)?.let { return it }
+		MangaSourceRegistry.resolveByName(name.substringAfter(":"))?.let { return it }
 	}
 	return UnresolvedMangaSource(name)
 }
@@ -220,57 +196,43 @@ fun MangaSource.getSummary(context: Context): String? {
 			is ExternalSource -> {
 				val type = context.getString(source.contentType.titleResId)
 				val language =
-					if (source.locale.equals("all", ignoreCase = true)) {
+					if (source.locale.equals("all", true) || source.hasLanguageSuffix) {
 						context.getString(R.string.various_languages)
 					} else {
 						source.locale.toLocaleOrNull().getDisplayName(context)
 					}
-				val sourceLabel =
+				val label =
 					if (source.isPreInstalled) {
 						context.getString(R.string.external_source)
 					} else {
-						DirectTachiyomiPluginMetadata.get(source.pkgName)
+						DirectExternalPluginMetadata.get(source.pkgName)
 							?: context.getString(R.string.external_source)
 					}
-
-				"$type, $language • $sourceLabel"
+				"$type, $language • $label"
 			}
 
 			is ExternalMangaSource -> {
 				context.getString(R.string.external_source)
 			}
 
-			else -> {
-				when {
-					this === LocalMangaSource || this === TestMangaSource || this === UnknownMangaSource -> {
-						null
-					}
+			LocalMangaSource, TestMangaSource, UnknownMangaSource -> {
+				null
+			}
 
-					else -> {
-						val type = context.getString(contentType.titleResId)
-						val loc =
-							if (locale.equals("all", ignoreCase = true) || locale.isBlank()) {
-								context.getString(R.string.various_languages)
-							} else {
-								locale.toLocale().getDisplayName(context)
-							}
-						context.getString(R.string.source_summary_pattern, type, loc)
+			else -> {
+				val type = context.getString(contentType.titleResId)
+				val loc =
+					if (locale.equals("all", true) || locale.isBlank()) {
+						context.getString(R.string.various_languages)
+					} else {
+						locale.toLocale().getDisplayName(context)
 					}
-				}
+				context.getString(R.string.source_summary_pattern, type, loc)
 			}
 		}
-	val pluginSource =
-		when (this) {
-			is PluginMangaSource -> this
-			is MangaSourceInfo -> mangaSource as? PluginMangaSource
-			else -> null
-		}
-	return if (pluginSource != null && baseSummary != null) {
-		val pluginLabel = pluginSource.jarName.removeSuffix(".jar").removeSuffix(".apk")
-		"$baseSummary • $pluginLabel"
-	} else {
-		pluginSource?.jarName?.removeSuffix(".jar")?.removeSuffix(".apk") ?: baseSummary
-	}
+	val pluginSource = (this as? PluginMangaSource) ?: (this as? MangaSourceInfo)?.mangaSource as? PluginMangaSource
+	val pLabel = pluginSource?.jarName?.removeSuffix(".jar")?.removeSuffix(".apk")
+	return if (pLabel != null && baseSummary != null) "$baseSummary • $pLabel" else pLabel ?: baseSummary
 }
 
 fun MangaSource.getTitle(context: Context): String =
@@ -292,11 +254,6 @@ fun SpannableStringBuilder.appendIcon(
 	icon.setTintList(textView.textColors)
 	val size = textView.lineHeight
 	icon.setBounds(0, 0, size, size)
-	val alignment =
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			ImageSpan.ALIGN_CENTER
-		} else {
-			ImageSpan.ALIGN_BOTTOM
-		}
+	val alignment = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ImageSpan.ALIGN_CENTER else ImageSpan.ALIGN_BOTTOM
 	return inSpans(ImageSpan(icon, alignment)) { append(' ') }
 }

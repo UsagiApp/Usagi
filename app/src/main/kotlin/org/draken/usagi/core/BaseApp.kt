@@ -33,6 +33,7 @@ import org.draken.usagi.settings.work.WorkScheduleManager
 import java.security.Security
 import javax.inject.Inject
 import javax.inject.Provider
+import org.draken.tsukimix.core.parser.external.RuntimeInitializer as RuntimeInit
 
 open class BaseApp :
 	Application(),
@@ -71,6 +72,9 @@ open class BaseApp :
 	lateinit var pluginKeyResolver: PluginKeyResolver
 
 	@Inject
+	lateinit var runtimeInit: dagger.Lazy<RuntimeInit>
+
+	@Inject
 	@LocalStorageChanges
 	lateinit var localStorageChanges: MutableSharedFlow<LocalManga?>
 
@@ -97,6 +101,9 @@ open class BaseApp :
 			setupDatabaseObservers()
 			launch {
 				localStorageChanges.collect(localMangaIndexProvider.get())
+			}
+			launch {
+				runCatching { runtimeInit.get().initialize() }
 			}
 			runCatching {
 				mangaDynamicRepository.load(mangaDynamicRepository.getDir())

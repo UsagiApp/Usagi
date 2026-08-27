@@ -10,7 +10,7 @@ import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.filterNotNull
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
+import org.draken.tsukimix.core.parser.external.ExtRuntime
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.SnackbarErrorObserver
 import org.draken.usagi.core.model.getTitle
@@ -19,7 +19,6 @@ import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
-import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.core.ui.BasePreferenceFragment
@@ -37,7 +36,7 @@ class SourceSettingsFragment :
 	private val viewModel: SourceSettingsViewModel by viewModels()
 
 	@Inject
-	lateinit var tachiyomiRuntime: TachiyomiRuntime
+	lateinit var extRuntime: ExtRuntime
 
 	override fun onResume() {
 		super.onResume()
@@ -54,13 +53,13 @@ class SourceSettingsFragment :
 		preferenceManager.sharedPreferencesName = SourceSettings.prefsName(viewModel.source)
 		addPreferencesFromResource(R.xml.pref_source)
 		addPreferencesFromRepository(viewModel.repository)
-		(viewModel.repository as? ExternalMangaRepository)?.source?.let {
-			tachiyomiRuntime.addLangToPref(preferenceScreen, it, getString(R.string.language), viewModel::publish)
+		(viewModel.repository as? org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository)?.source?.let {
+			extRuntime.addLangToPref(preferenceScreen, it, getString(R.string.language), viewModel::publish)
 		}
 		val isValidSource = viewModel.repository !is EmptyMangaRepository
 
 		findPreference<SwitchPreferenceCompat>(KEY_ENABLE)?.run {
-			isVisible = isValidSource && !settings.isAllSourcesEnabled && viewModel.repository !is ExternalMangaRepository
+			isVisible = isValidSource && !settings.isAllSourcesEnabled
 			onPreferenceChangeListener = this@SourceSettingsFragment
 		}
 		findPreference<Preference>(KEY_AUTH)?.run {

@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiRuntime
+import org.draken.tsukimix.core.parser.external.ExtRuntime
 import org.draken.usagi.R
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.MangaSource
@@ -58,7 +58,7 @@ import tsuki.model.SortOrder
 import javax.inject.Inject
 import kotlin.math.absoluteValue
 import com.google.android.material.R as materialR
-import org.draken.tsukimix.core.parser.tachiyomi.model.Manga as ExternalSource
+import org.draken.tsukimix.core.parser.external.model.Manga as ExternalSource
 import org.draken.usagi.filter.ui.external.sheet.FilterSheetFragment as ExternalSheetFragment
 
 @AndroidEntryPoint
@@ -80,7 +80,9 @@ class MangaListActivity :
 	private lateinit var source: MangaSource
 
 	@Inject
-	lateinit var tachiyomiRuntime: TachiyomiRuntime
+	lateinit var extRuntime: ExtRuntime
+
+	private var filterBadge: ViewBadge? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -106,6 +108,15 @@ class MangaListActivity :
 			title = source.getTitle(this)
 			reload(source)
 		}
+	}
+
+	override fun onDestroy() {
+		if (viewBinding.containerFilterHeader != null) {
+			viewBinding.appbar.removeOnOffsetChangedListener(this)
+		}
+		viewBinding.buttonOrder?.setOnClickListener(null)
+		filterBadge = null
+		super.onDestroy()
 	}
 
 	override fun isNsfwContent(): Flow<Boolean> = flowOf(source.isNsfw())
@@ -213,7 +224,7 @@ class MangaListActivity :
 		}
 	}
 
-	private fun resolve(source: MangaSource): MangaSource = (source as? ExternalSource)?.let(tachiyomiRuntime::resolve) ?: source
+	private fun resolve(source: MangaSource): MangaSource = (source as? ExternalSource)?.let(extRuntime::resolve) ?: source
 
 	private fun initFilter(filterOwner: FilterCoordinator.Owner) {
 		if (viewBinding.containerSide != null) {
@@ -229,8 +240,11 @@ class MangaListActivity :
 		val filter = filterOwner.filterCoordinator
 		val chipSort = viewBinding.buttonOrder
 		if (chipSort != null) {
-			val filterBadge = ViewBadge(chipSort, this)
-			filterBadge.setMaxCharacterCount(0)
+			val badge =
+				filterBadge ?: ViewBadge(chipSort, this).also {
+					it.setMaxCharacterCount(0)
+					filterBadge = it
+				}
 			val isDynamic = filter.isDynamicFilter
 			filter.observe().observe(this) { snapshot ->
 				if (isDynamic) {
@@ -239,11 +253,11 @@ class MangaListActivity :
 						?: snapshot.sortLabel
 						?: getString(snapshot.sortOrder.titleRes)
 					chipSort.isVisible = true
-					filterBadge.counter =
+					badge.counter =
 						if (snapshot.listFilter.tags.any { !it.key.startsWith(FilterMapper.SORT_KEY_PREFIX) }) 1 else 0
 				} else {
 					chipSort.setTextAndVisible(snapshot.sortOrder.titleRes)
-					filterBadge.counter = if (snapshot.listFilter.hasNonSearchOptions()) 1 else 0
+					badge.counter = if (snapshot.listFilter.hasNonSearchOptions()) 1 else 0
 				}
 			}
 		} else {

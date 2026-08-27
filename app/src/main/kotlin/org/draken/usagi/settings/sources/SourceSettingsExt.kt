@@ -9,12 +9,12 @@ import androidx.preference.SwitchPreferenceCompat
 import eu.kanade.tachiyomi.source.ConfigurableSource
 import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.source.preferenceKey
-import org.draken.tsukimix.core.parser.tachiyomi.ExtensionSourceSettings
+import org.draken.tsukimix.core.parser.external.ExtensionSourceSettings
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.EmptyMangaRepository
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
+import org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository
 import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.settings.utils.AutoCompleteTextViewPreference
 import org.draken.usagi.settings.utils.EditTextBindListener

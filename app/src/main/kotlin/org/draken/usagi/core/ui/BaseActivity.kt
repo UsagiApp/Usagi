@@ -182,4 +182,29 @@ abstract class BaseActivity<B : ViewBinding> :
 		}
 
 	protected fun hasViewBinding() = ::viewBinding.isInitialized
+
+	@CallSuper
+	override fun onDestroy() {
+		window?.peekDecorView()?.let { decor ->
+			decor.handler?.removeCallbacksAndMessages(null)
+			cleanViewTree(decor)
+		}
+		if (hasViewBinding()) {
+			viewBinding.root.handler?.removeCallbacksAndMessages(null)
+			cleanViewTree(viewBinding.root)
+		}
+		super.onDestroy()
+	}
+
+	private fun cleanViewTree(view: View) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			view.tooltipText = null
+		}
+		view.clearAnimation()
+		if (view is android.view.ViewGroup) {
+			for (i in 0 until view.childCount) {
+				cleanViewTree(view.getChildAt(i))
+			}
+		}
+	}
 }

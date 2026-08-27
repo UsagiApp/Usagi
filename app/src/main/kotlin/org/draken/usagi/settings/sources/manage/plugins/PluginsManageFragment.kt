@@ -31,6 +31,7 @@ import org.draken.usagi.core.ui.util.RecyclerViewOwner
 import org.draken.usagi.core.util.ext.addMenuProvider
 import org.draken.usagi.core.util.ext.container
 import org.draken.usagi.core.util.ext.end
+import org.draken.usagi.core.util.ext.observeEvent
 import org.draken.usagi.core.util.ext.start
 import org.draken.usagi.databinding.DialogImportBinding
 import org.draken.usagi.databinding.FragmentSettingsSourcesBinding
@@ -47,19 +48,14 @@ class PluginsManageFragment :
 	private var pluginsAdapter: PluginManageAdapter? = null
 
 	private val launcher =
-		registerForActivityResult(
-			ActivityResultContracts.OpenDocument(),
-		) { uri ->
+		registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
 			if (uri != null && isAdded) {
-				viewLifecycleOwnerLiveData.value?.lifecycleScope?.launch {
-					viewModel
-						.importPlugin(
-							uri = uri,
-							getOriginalName = { DocumentFile.fromSingleUri(requireContext().applicationContext, it)?.name },
-							askName = { askText(R.string.set_plugin_name, it, R.string.plugin_name) },
-							askOverwrite = ::askOverwrite,
-						)?.let(::showImportResult)
-				}
+				viewModel.importPlugin(
+					uri = uri,
+					getOriginalName = { DocumentFile.fromSingleUri(requireContext().applicationContext, it)?.name },
+					askName = { askText(R.string.set_plugin_name, it, R.string.plugin_name) },
+					askOverwrite = ::askOverwrite,
+				)
 			}
 		}
 
@@ -69,7 +65,7 @@ class PluginsManageFragment :
 	override fun onCreateViewBinding(
 		inflater: LayoutInflater,
 		container: ViewGroup?,
-	): FragmentSettingsSourcesBinding = FragmentSettingsSourcesBinding.inflate(inflater, container, false)
+	) = FragmentSettingsSourcesBinding.inflate(inflater, container, false)
 
 	@SuppressLint("NotifyDataSetChanged")
 	override fun onViewBindingCreated(
@@ -80,14 +76,14 @@ class PluginsManageFragment :
 		pluginsAdapter =
 			PluginManageAdapter(
 				onRenameClick = ::onRenameClick,
-				onUpdateClick = ::onUpdateClick,
-				onTachiyomiRenameClick = ::onTachiyomiRenameClick,
-				onTachiyomiLongClick = ::onTachiyomiLongClick,
-				onTachiyomiClick = ::onTachiyomiClick,
-				onLongClick = ::onLongClick,
-				onClick = ::onClick,
-				isSelected = { item -> viewModel.isSelected(item.name) },
-				isTachiyomiSelected = viewModel::isTachiyomiSelected,
+				onUpdateClick = viewModel::updatePlugin,
+				onExtRenameClick = ::onExtRenameClick,
+				onExtLongClick = viewModel::toggleExtensionSelection,
+				onExtClick = ::onExtClick,
+				onLongClick = { viewModel.toggleSelection(it.name) },
+				onClick = { if (viewModel.selectedPlugins.value.isNotEmpty()) viewModel.toggleSelection(it.name) },
+				isSelected = { viewModel.isSelected(it.name) },
+				isExtSelected = viewModel::isExtensionSelected,
 			)
 		with(binding.recyclerView) {
 			setHasFixedSize(true)
@@ -95,36 +91,29 @@ class PluginsManageFragment :
 			adapter = pluginsAdapter
 		}
 
-		val onBackPressedCallback =
+		val onBack =
 			object : OnBackPressedCallback(false) {
-				override fun handleOnBackPressed() {
-					viewModel.clearSelection()
-				}
+				override fun handleOnBackPressed() = viewModel.clearSelection()
 			}
-		requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBackPressedCallback)
+		requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, onBack)
+		binding.fabImport.setOnClickListener { showImportDialog() }
 
-		binding.fabImport.setOnClickListener {
-			showImportDialog()
+		viewLifecycleOwner.lifecycleScope.launch { viewModel.content.collect { pluginsAdapter?.emit(it) } }
+		viewModel.operationResult.observeEvent(viewLifecycleOwner) { result ->
+			viewBinding?.root?.let { Snackbar.make(it, result.messageResId, Snackbar.LENGTH_SHORT).show() }
 		}
-
-		viewLifecycleOwner.lifecycleScope.launch {
-			viewModel.content.collect { pluginsAdapter?.emit(it) }
-		}
-
 		viewLifecycleOwner.lifecycleScope.launch {
 			viewModel.selectedPlugins.collect { selected ->
-				val isSelectionMode = selected.isNotEmpty()
-				onBackPressedCallback.isEnabled = isSelectionMode
-
-				val actionBar = (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar
-				if (isSelectionMode) {
+				val isSelection = selected.isNotEmpty()
+				onBack.isEnabled = isSelection
+				val bar = (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar
+				if (isSelection) {
 					(activity as? SettingsActivity)?.setSectionTitle(selected.size.toString())
-					actionBar?.setHomeAsUpIndicator(androidx.appcompat.R.drawable.abc_ic_clear_material)
+					bar?.setHomeAsUpIndicator(androidx.appcompat.R.drawable.abc_ic_clear_material)
 				} else {
 					(activity as? SettingsActivity)?.setSectionTitle(getString(R.string.manage_plugins))
-					actionBar?.setHomeAsUpIndicator(null)
+					bar?.setHomeAsUpIndicator(null)
 				}
-
 				activity?.invalidateOptionsMenu()
 				pluginsAdapter?.notifyDataSetChanged()
 			}
@@ -134,8 +123,8 @@ class PluginsManageFragment :
 			PluginsMenuProvider(
 				appBarOwner = activity as? AppBarOwner,
 				isSelectionMode = { viewModel.selectedPlugins.value.isNotEmpty() },
-				onClearSelection = { viewModel.clearSelection() },
-				onDeleteClick = ::showDeleteSelectedConfirm,
+				onClearSelection = viewModel::clearSelection,
+				onDeleteClick = ::showDeleteConfirm,
 				onSearchQueryChanged = viewModel::setQuery,
 			),
 		)
@@ -145,15 +134,12 @@ class PluginsManageFragment :
 		v: View,
 		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
-		val barsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+		val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 		val isTablet = !resources.getBoolean(R.bool.is_tablet)
 		val isMaster = container?.id == R.id.container_master
-		v.setPaddingRelative(
-			if (isTablet && !isMaster) 0 else barsInsets.start(v),
-			0,
-			if (isTablet && isMaster) 0 else barsInsets.end(v),
-			barsInsets.bottom,
-		)
+		val startPad = if (isTablet && !isMaster) 0 else bars.start(v)
+		val endPad = if (isTablet && isMaster) 0 else bars.end(v)
+		v.setPaddingRelative(startPad, 0, endPad, bars.bottom)
 		return WindowInsetsCompat
 			.Builder(insets)
 			.setInsets(WindowInsetsCompat.Type.systemBars(), Insets.NONE)
@@ -168,156 +154,88 @@ class PluginsManageFragment :
 	}
 
 	override fun onDestroyView() {
-		val actionBar = (activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar
-		actionBar?.setHomeAsUpIndicator(null)
+		(activity as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar?.setHomeAsUpIndicator(null)
+		viewBinding?.recyclerView?.adapter = null
 		pluginsAdapter = null
 		super.onDestroyView()
 	}
 
 	private fun showImportDialog() {
-		val binding = DialogImportBinding.inflate(layoutInflater)
-		binding.buttonFile.title = getString(R.string.load_from_storage)
-		binding.buttonFile.subtitle = getString(R.string.load_storage_summary)
-		binding.buttonFile.setIconResource(R.drawable.ic_storage)
-		binding.buttonDir.title = getString(R.string.import_from_github)
-		binding.buttonDir.subtitle = getString(R.string.import_github_summary)
+		val b = DialogImportBinding.inflate(layoutInflater)
+		b.buttonFile.title = getString(R.string.load_from_storage)
+		b.buttonFile.subtitle = getString(R.string.load_storage_summary)
+		b.buttonFile.setIconResource(R.drawable.ic_storage)
+		b.buttonDir.title = getString(R.string.import_from_github)
+		b.buttonDir.subtitle = getString(R.string.import_github_summary)
+		b.buttonDir.setIconResource(R.drawable.ic_open_external)
 
-		binding.buttonDir.setIconResource(R.drawable.ic_open_external)
 		val dialog =
 			buildAlertDialog(requireContext()) {
 				setTitle(R.string._import)
-				setView(binding.root)
+				setView(b.root)
 				setNegativeButton(android.R.string.cancel, null)
 			}
-		binding.buttonFile.setOnClickListener {
+		b.buttonFile.setOnClickListener {
 			dialog.dismiss()
-			launcher.launch(SUPPORTED_MIME_TYPES)
+			launcher.launch(PluginFileLoader.SUPPORTED_MIME_TYPES)
 		}
-		binding.buttonDir.setOnClickListener {
+		b.buttonDir.setOnClickListener {
 			dialog.dismiss()
-			viewLifecycleOwner.lifecycleScope.launch {
-				viewModel
-					.importUrl(
-						askInput = { askText(R.string.import_from_github, "", R.string.import_github_summary) },
-						askOverwrite = ::askOverwrite,
-					)?.let(::showImportResult)
-			}
+			viewModel.importUrl(
+				askInput = { askText(R.string.import_from_github, "", R.string.import_github_summary) },
+				askOverwrite = ::askOverwrite,
+			)
 		}
-
 		dialog.show()
 	}
 
 	private fun onRenameClick(item: PluginManageItem.Plugin) {
 		viewLifecycleOwner.lifecycleScope.launch {
-			val newName = askText(R.string.rename, item.displayName, R.string.plugin_name)
-			if (!newName.isNullOrBlank()) {
-				val success = viewModel.rename(item, newName)
-				val binding = viewBinding ?: return@launch
-				Snackbar
-					.make(
-						binding.recyclerView,
-						if (success) R.string.load_success else R.string.load_failed,
-						Snackbar.LENGTH_SHORT,
-					).show()
-			}
+			val name = askText(R.string.rename, item.displayName, R.string.plugin_name)
+			if (!name.isNullOrBlank()) viewModel.rename(item, name)
 		}
 	}
 
-	private fun onClick(item: PluginManageItem.Plugin) {
+	private fun onExtClick(item: PluginManageItem.Extension) {
 		if (viewModel.selectedPlugins.value.isNotEmpty()) {
-			viewModel.toggleSelection(item.name)
-		}
-	}
-
-	private fun onLongClick(item: PluginManageItem.Plugin) {
-		viewModel.toggleSelection(item.name)
-	}
-
-	private fun onTachiyomiClick(item: PluginManageItem.Tachiyomi) {
-		if (viewModel.selectedPlugins.value.isNotEmpty()) {
-			viewModel.toggleTachiyomiSelection(item)
+			viewModel.toggleExtensionSelection(item)
 		} else {
 			router.openPluginCatalog(item.repositoryUrl, item.displayName)
 		}
 	}
 
-	private fun onTachiyomiLongClick(item: PluginManageItem.Tachiyomi) {
-		viewModel.toggleTachiyomiSelection(item)
-	}
-
-	private fun showDeleteSelectedConfirm() {
+	private fun showDeleteConfirm() {
 		val count = viewModel.selectedPlugins.value.size
-		val itemsText = resources.getQuantityString(R.plurals.items, count, count)
+		val items = resources.getQuantityString(R.plurals.items, count, count)
 		buildAlertDialog(requireContext()) {
 			setTitle(R.string.delete_plugin)
-			setMessage(getString(R.string.confirm_delete_plugin, itemsText))
+			setMessage(getString(R.string.confirm_delete_plugin, items))
 			setNegativeButton(android.R.string.cancel, null)
-			setPositiveButton(R.string.delete) { _, _ ->
-				viewLifecycleOwner.lifecycleScope.launch {
-					val success = viewModel.delete()
-					val binding = viewBinding ?: return@launch
-					Snackbar
-						.make(
-							binding.root,
-							if (success) R.string.removal_completed else R.string.load_failed,
-							Snackbar.LENGTH_SHORT,
-						).show()
-				}
-			}
+			setPositiveButton(R.string.delete) { _, _ -> viewModel.delete() }
 		}.show()
 	}
 
-	private fun onTachiyomiRenameClick(item: PluginManageItem.Tachiyomi) {
+	private fun onExtRenameClick(item: PluginManageItem.Extension) {
 		viewLifecycleOwner.lifecycleScope.launch {
-			val newName = askText(R.string.rename, item.displayName, R.string.plugin_name)
-			if (!newName.isNullOrBlank()) {
-				val success = viewModel.renameTachiyomi(item, newName)
-				val binding = viewBinding ?: return@launch
-				Snackbar
-					.make(
-						binding.root,
-						if (success) R.string.load_success else R.string.load_failed,
-						Snackbar.LENGTH_SHORT,
-					).show()
-			}
-		}
-	}
-
-	private fun onUpdateClick(item: PluginManageItem.Plugin) {
-		viewLifecycleOwner.lifecycleScope.launch {
-			val success = viewModel.updatePlugin(item)
-			val binding = viewBinding ?: return@launch
-			Snackbar
-				.make(
-					binding.root,
-					if (success) R.string.load_success else R.string.load_failed,
-					Snackbar.LENGTH_SHORT,
-				).show()
+			val name = askText(R.string.rename, item.displayName, R.string.plugin_name)
+			if (!name.isNullOrBlank()) viewModel.renameExtension(item, name)
 		}
 	}
 
 	private suspend fun askOverwrite(fileName: String): Boolean =
 		withContext(Dispatchers.Main) {
 			suspendCancellableCoroutine { cont ->
-				val dialog =
+				val d =
 					buildAlertDialog(requireContext(), true) {
 						setIcon(R.drawable.ic_replace)
 						setTitle(R.string.overwrite_plugin)
 						setMessage(getString(R.string.overwrite_plugin_summary, fileName))
-						setNegativeButton(android.R.string.cancel) { _, _ ->
-							if (cont.isActive) cont.resume(false)
-						}
-						setPositiveButton(R.string.overwrite) { _, _ ->
-							if (cont.isActive) cont.resume(true)
-						}
+						setNegativeButton(android.R.string.cancel) { _, _ -> if (cont.isActive) cont.resume(false) }
+						setPositiveButton(R.string.overwrite) { _, _ -> if (cont.isActive) cont.resume(true) }
 					}
-				dialog.setOnCancelListener {
-					if (cont.isActive) cont.resume(false)
-				}
-				cont.invokeOnCancellation {
-					dialog.dismiss()
-				}
-				dialog.show()
+				d.setOnCancelListener { if (cont.isActive) cont.resume(false) }
+				cont.invokeOnCancellation { d.dismiss() }
+				d.show()
 			}
 		}
 
@@ -329,48 +247,24 @@ class PluginsManageFragment :
 		withContext(Dispatchers.Main) {
 			suspendCancellableCoroutine { cont ->
 				lateinit var input: android.widget.EditText
-				val dialog =
+				val d =
 					buildAlertDialog(requireContext()) {
 						input = setEditText(InputType.TYPE_CLASS_TEXT, singleLine = true)
 						input.setText(defaultValue)
-						if (hintRes != null) {
-							input.hint = getString(hintRes)
-						}
+						if (hintRes != null) input.hint = getString(hintRes)
 						setTitle(titleRes)
-						setNegativeButton(android.R.string.cancel) { _, _ ->
-							if (cont.isActive) cont.resume(null)
-						}
-						setPositiveButton(android.R.string.ok) { _, _ ->
-							if (cont.isActive) cont.resume(input.text?.toString())
-						}
+						setNegativeButton(android.R.string.cancel) { _, _ -> if (cont.isActive) cont.resume(null) }
+						setPositiveButton(android.R.string.ok) { _, _ -> if (cont.isActive) cont.resume(input.text?.toString()) }
 					}
-				dialog.setOnCancelListener {
-					if (cont.isActive) cont.resume(null)
-				}
-				dialog.setOnDismissListener {
-					input.setCursorVisible(false)
-				}
+				d.setOnCancelListener { if (cont.isActive) cont.resume(null) }
+				d.setOnDismissListener { input.setCursorVisible(false) }
 				cont.invokeOnCancellation {
 					input.post {
 						input.setCursorVisible(false)
-						if (dialog.isShowing) dialog.dismiss()
+						if (d.isShowing) d.dismiss()
 					}
 				}
-				dialog.show()
+				d.show()
 			}
 		}
-
-	private fun showImportResult(isSuccess: Boolean) {
-		val binding = viewBinding ?: return
-		Snackbar
-			.make(
-				binding.root,
-				if (isSuccess) R.string.load_success else R.string.load_failed,
-				Snackbar.LENGTH_LONG,
-			).show()
-	}
-
-	private companion object {
-		val SUPPORTED_MIME_TYPES = PluginFileLoader.SUPPORTED_MIME_TYPES
-	}
 }
