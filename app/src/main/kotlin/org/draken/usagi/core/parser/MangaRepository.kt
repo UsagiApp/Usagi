@@ -96,7 +96,7 @@ interface MangaRepository {
 			fun create(source: MangaSource): MangaRepository {
 				var target = source.resolve()
 				if (target is UnresolvedMangaSource || MangaSourceRegistry.sources.isEmpty()) {
-					resolve()
+					resolve(target)
 					target = source.resolve()
 				}
 
@@ -176,15 +176,15 @@ interface MangaRepository {
 					}
 				}
 
-			private fun resolve() {
+			private fun resolve(target: MangaSource? = null) =
 				synchronized(this) {
 					if (MangaSourceRegistry.sources.isEmpty()) {
-						runCatching {
-							mangaRepository.load(mangaRepository.getDir())
-						}
+						runCatching { mangaRepository.load(mangaRepository.getDir()) }
+					}
+					if (target is UnresolvedMangaSource && target.name.startsWith("EXTERNAL")) {
+						runCatching { kotlinx.coroutines.runBlocking { extRuntime.get().ensureReady() } }
 					}
 				}
-			}
 		}
 
 	companion object {
