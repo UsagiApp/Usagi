@@ -14,7 +14,5 @@ interface FavouritesOptionsHost {
 
 	fun setFavouritesSortOrder(sortOrder: ListSortOrder)
 
-	fun refreshFavouritesOrganizer()
-
 	fun openSmartFolders()
 }

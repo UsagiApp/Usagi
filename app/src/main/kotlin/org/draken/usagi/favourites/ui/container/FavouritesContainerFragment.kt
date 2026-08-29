@@ -42,6 +42,7 @@ import org.draken.usagi.favourites.ui.list.FavouritesListFragment
 import org.draken.usagi.favourites.ui.smartfolders.formatSummary
 import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.domain.ListSortOrder
+import org.draken.usagi.list.ui.config.FavoritesOptionsMode
 import org.draken.usagi.list.ui.config.ListConfigBottomSheet
 import org.draken.usagi.list.ui.config.ListConfigSection
 import java.util.EnumMap
@@ -202,25 +203,22 @@ class FavouritesContainerFragment :
 		val binding = viewBinding ?: return
 		val tab = pagerAdapter?.getItemOrNull(binding.pager.currentItem) ?: return
 		val selectedFilters = state.selectedRuleOptions
-		binding.textRulesSummary.text = buildRulesSummary(tab, selectedFilters)
-		binding.textRulesSummary.isVisible = tab.rulesError != null || tab.rules != null || selectedFilters.isNotEmpty()
+		val summary = buildRulesSummary(tab, selectedFilters)
+		binding.textRulesSummary.text = summary
+		binding.textRulesSummary.isVisible = summary != null
 	}
 
 	private fun buildRulesSummary(
 		tab: FavouriteTabModel,
 		selectedFilters: Set<ListFilterOption>,
-	): CharSequence {
-		if (tab.rulesError != null) return getString(R.string.favourite_organizer_invalid_rules)
+	): CharSequence? {
 		val persistentSummary = tab.rules?.formatSummary(requireContext())
-		val transientSummary =
-			when {
-				selectedFilters.isEmpty() -> null
-				selectedFilters.size <= 3 -> selectedFilters.joinToString(" · ", transform = ::getFilterTitle)
-				else -> getString(R.string.favourite_organizer_filter_count, selectedFilters.size)
-			}
-		return listOfNotNull(persistentSummary, transientSummary).joinToString(" · ").ifEmpty {
-			getString(R.string.favourite_organizer_any_rules)
-		}
+		return buildFavouriteRulesSummary(
+			invalidRulesLabel = tab.rulesError?.let { getString(R.string.favourite_organizer_invalid_rules) },
+			persistentSummary = persistentSummary,
+			selectedFilterTitles = selectedFilters.map(::getFilterTitle),
+			overflowFilterSummary = getString(R.string.favourite_organizer_filter_count, selectedFilters.size),
+		)
 	}
 
 	private fun getFilterTitle(option: ListFilterOption): String =
@@ -236,13 +234,9 @@ class FavouritesContainerFragment :
 		}
 
 	private fun showRefreshResult(result: FavouriteOrganizerRefreshResult) {
+		if (result.failed == 0) return
 		val binding = viewBinding ?: return
-		val message =
-			if (result.requested == 0) {
-				getString(R.string.favourite_organizer_refresh_empty)
-			} else {
-				getString(R.string.favourite_organizer_refresh_result, result.updated, result.requested, result.failed)
-			}
+		val message = getString(R.string.favourite_organizer_refresh_result, result.updated, result.requested, result.failed)
 		Snackbar.make(binding.pager, message, Snackbar.LENGTH_LONG).show()
 	}
 
@@ -271,7 +265,10 @@ class FavouritesContainerFragment :
 			.withArgs(1) {
 				putParcelable(
 					AppRouter.KEY_LIST_SECTION,
-					ListConfigSection.Favorites(categoryId ?: FavouritesListFragment.NO_ID),
+					ListConfigSection.Favorites(
+						categoryId = categoryId ?: FavouritesListFragment.NO_ID,
+						mode = FavoritesOptionsMode.ORGANIZER,
+					),
 				)
 			}.show(childFragmentManager, LIST_CONFIG_TAG)
 	}
@@ -291,10 +288,6 @@ class FavouritesContainerFragment :
 
 	override fun setFavouritesSortOrder(sortOrder: ListSortOrder) {
 		findCurrentPage()?.setSortOrder(sortOrder)
-	}
-
-	override fun refreshFavouritesOrganizer() {
-		findCurrentPage()?.refreshOrganizer()
 	}
 
 	override fun openSmartFolders() {

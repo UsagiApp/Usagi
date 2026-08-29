@@ -120,8 +120,6 @@ class FavouritesPageBindingTest {
 		override fun setSortOrder(sortOrder: ListSortOrder) {
 			mutableSortOrder.value = sortOrder
 		}
-
-		override fun refreshOrganizer() = Unit
 	}
 
 	companion object {
@@ -131,7 +129,6 @@ class FavouritesPageBindingTest {
 				stageCounts = null,
 				availableRuleOptions = emptyList(),
 				selectedRuleOptions = emptySet(),
-				isOrganizerRefreshing = false,
 			)
 	}
 }

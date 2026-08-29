@@ -84,6 +84,7 @@ class FavouritesListViewModel
 		private val quickFilter = quickFilterFactory.create(categoryId)
 		private val refreshTrigger = MutableStateFlow(Any())
 		private val mutableOrganizerRefreshing = MutableStateFlow(false)
+		private val organizerAutoRefreshGate = FavouriteOrganizerAutoRefreshGate()
 		private val limit = MutableStateFlow(PAGE_SIZE)
 		private val mutableSelectedStage =
 			MutableStateFlow(
@@ -92,7 +93,6 @@ class FavouritesListViewModel
 		private val isPaginationReady = AtomicBoolean(false)
 		val selectedStage = mutableSelectedStage.asStateFlow()
 		val selectedRuleOptions = quickFilter.appliedOptions
-		val isOrganizerRefreshing = mutableOrganizerRefreshing.asStateFlow()
 		val onOrganizerRefreshed = MutableEventFlow<FavouriteOrganizerRefreshResult>()
 		private val persistentRules =
 			when (val currentScope = scope) {
@@ -126,14 +126,12 @@ class FavouritesListViewModel
 				stageCounts,
 				availableRuleOptions,
 				selectedRuleOptions,
-				isOrganizerRefreshing,
-			) { selectedStage, stageCounts, availableRuleOptions, selectedRuleOptions, isRefreshing ->
+			) { selectedStage, stageCounts, availableRuleOptions, selectedRuleOptions ->
 				FavouritesPageUiState(
 					selectedStage = selectedStage,
 					stageCounts = stageCounts,
 					availableRuleOptions = availableRuleOptions,
 					selectedRuleOptions = selectedRuleOptions,
-					isOrganizerRefreshing = isRefreshing,
 				)
 			}.stateIn(
 				viewModelScope + Dispatchers.Default,
@@ -143,7 +141,6 @@ class FavouritesListViewModel
 					stageCounts = stageCounts.value,
 					availableRuleOptions = availableRuleOptions.value,
 					selectedRuleOptions = selectedRuleOptions.value,
-					isOrganizerRefreshing = isOrganizerRefreshing.value,
 				),
 			)
 
@@ -190,6 +187,10 @@ class FavouritesListViewModel
 					emit(listOf(it.toErrorState(canRetry = false)))
 				}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, listOf(LoadingState))
 
+		init {
+			maybeAutoRefreshOrganizer(mutableSelectedStage.value)
+		}
+
 		override fun onRefresh() {
 			refreshTrigger.value = Any()
 		}
@@ -205,7 +206,7 @@ class FavouritesListViewModel
 
 		override fun clearFilter() = quickFilter.clearFilter()
 
-		fun refreshOrganizer() {
+		private fun refreshOrganizer() {
 			if (mutableOrganizerRefreshing.value) return
 			launchJob(Dispatchers.Default) {
 				mutableOrganizerRefreshing.value = true
@@ -256,6 +257,13 @@ class FavouritesListViewModel
 		fun setStage(stage: FavouriteStage) {
 			mutableSelectedStage.value = stage
 			savedStateHandle[KEY_STAGE] = stage.name
+			maybeAutoRefreshOrganizer(stage)
+		}
+
+		private fun maybeAutoRefreshOrganizer(stage: FavouriteStage) {
+			if (organizerAutoRefreshGate.shouldRefresh(stage)) {
+				refreshOrganizer()
+			}
 		}
 
 		fun saveMangaOrder(items: List<ListModel>) {

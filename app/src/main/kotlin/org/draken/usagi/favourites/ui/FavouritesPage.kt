@@ -14,7 +14,6 @@ data class FavouritesPageUiState(
 	val stageCounts: FavouriteStageCounts?,
 	val availableRuleOptions: List<ListFilterOption>,
 	val selectedRuleOptions: Set<ListFilterOption>,
-	val isOrganizerRefreshing: Boolean,
 )
 
 interface FavouritesPage {
@@ -32,6 +31,4 @@ interface FavouritesPage {
 	fun clearRuleOptions()
 
 	fun setSortOrder(sortOrder: ListSortOrder)
-
-	fun refreshOrganizer()
 }

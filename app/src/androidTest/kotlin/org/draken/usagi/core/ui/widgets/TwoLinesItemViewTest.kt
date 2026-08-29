@@ -17,11 +17,10 @@ class TwoLinesItemViewTest {
 	fun explicitHorizontalPaddingSurvivesCustomBackgroundInitialization() {
 		val applicationContext = ApplicationProvider.getApplicationContext<Context>()
 		val context = ContextThemeWrapper(applicationContext, R.style.Theme_Usagi)
-		val sheet = LayoutInflater.from(context).inflate(R.layout.sheet_list_mode, null)
-		val refresh = sheet.findViewById<TwoLinesItemView>(R.id.button_refresh_favourites)
+		val item = LayoutInflater.from(context).inflate(R.layout.item_favourite_smart_folder_management, null) as TwoLinesItemView
 		val expectedPadding = (30 * context.resources.displayMetrics.density).roundToInt()
 
-		assertEquals(expectedPadding, refresh.paddingLeft)
-		assertEquals(expectedPadding, refresh.paddingRight)
+		assertEquals(expectedPadding, item.paddingLeft)
+		assertEquals(expectedPadding, item.paddingRight)
 	}
 }

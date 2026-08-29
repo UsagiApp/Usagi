@@ -290,11 +290,7 @@
 	<string name="favourite_stage_with_count">%1$s %2$d</string>
 	<string name="favourite_organizer_rules">Rules and filters</string>
 	<string name="favourite_organizer_rules_title">Filter this view</string>
-	<string name="favourite_organizer_any_rules">All sources · Any content · Any device</string>
 	<string name="favourite_organizer_invalid_rules">Invalid rules · Edit this smart folder</string>
-	<string name="favourite_organizer_refresh">Refresh organizer stages</string>
-	<string name="favourite_organizer_refresh_summary">Recheck source status and lifecycle stages for this folder</string>
-	<string name="favourite_organizer_refresh_empty">Organizer stages are already up to date</string>
 	<string name="favourite_organizer_refresh_result">Updated %1$d of %2$d titles; %3$d failed</string>
 	<string name="favourite_organizer_filter_count">%1$d active filters</string>
 	<string name="favourite_filters_scope_summary">Filters apply only to the current folder</string>

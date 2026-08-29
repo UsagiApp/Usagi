@@ -57,8 +57,6 @@ class FavouritesListFragment :
 
 	override fun setSortOrder(sortOrder: ListSortOrder) = viewModel.setSortOrder(sortOrder)
 
-	override fun refreshOrganizer() = viewModel.refreshOrganizer()
-
 	private val favouritesAdapter: MangaListAdapter?
 		get() = recyclerView?.adapter as? MangaListAdapter
 

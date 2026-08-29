@@ -68,11 +68,15 @@
 						android:paddingHorizontal="18dp"
 						android:paddingVertical="6dp">
 
-						<LinearLayout
+						<org.draken.usagi.core.ui.widgets.ChipsView
 							android:id="@+id/favourites_simple_filters"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							android:orientation="vertical" />
+							app:chipSpacingHorizontal="8dp"
+							app:chipSpacingVertical="8dp"
+							app:chipStyle="@style/Widget.Usagi.Chip.Filter"
+							app:selectionRequired="false"
+							app:singleSelection="false" />
 
 						<org.draken.usagi.core.ui.widgets.TwoLinesItemView
 							android:id="@+id/button_favourite_sources"
@@ -118,34 +122,13 @@
 					android:text="@string/smart_folders"
 					android:textAppearance="?textAppearanceTitleMedium" />
 
-				<org.draken.usagi.core.ui.widgets.TwoLinesItemView
-					android:id="@+id/button_refresh_favourites"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginHorizontal="@dimen/margin_normal"
-					android:layout_marginTop="@dimen/margin_small"
-					android:drawablePadding="16dp"
-					android:minHeight="72dp"
-					android:paddingHorizontal="30dp"
-					app:backgroundFillColor="?colorPrimaryContainer"
-					app:icon="@drawable/ic_sync"
-					app:title="@string/favourite_organizer_refresh"
-					app:subtitle="@string/favourite_organizer_refresh_summary" />
-
-				<org.draken.usagi.core.ui.widgets.TwoLinesItemView
+				<include
 					android:id="@+id/button_manage_smart_folders"
+					layout="@layout/item_favourite_smart_folder_management"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginHorizontal="@dimen/margin_normal"
-					android:layout_marginTop="4dp"
-					android:button="@drawable/ic_arrow_forward"
-					android:drawablePadding="16dp"
-					android:minHeight="72dp"
-					android:paddingHorizontal="30dp"
-					app:backgroundFillColor="?colorSurfaceContainer"
-					app:icon="@drawable/ic_folder_file"
-					app:title="@string/smart_folders"
-					app:subtitle="@string/manage" />
+					android:layout_marginTop="@dimen/margin_small" />
 
 			</LinearLayout>
 

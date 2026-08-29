@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical"
@@ -22,12 +23,13 @@
 
 	</com.google.android.material.textfield.TextInputLayout>
 
-	<ListView
+	<org.draken.usagi.core.ui.widgets.BoundedListView
 		android:id="@+id/list_view"
 		android:layout_width="match_parent"
-		android:layout_height="320dp"
+		android:layout_height="wrap_content"
 		android:choiceMode="multipleChoice"
 		android:divider="@null"
-		android:scrollbars="vertical" />
+		android:scrollbars="vertical"
+		app:maxHeight="320dp" />
 
 </LinearLayout>

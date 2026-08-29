@@ -14,7 +14,6 @@ import org.draken.usagi.core.db.entity.toEntity
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.ui.BaseActivity
-import org.draken.usagi.core.ui.dialog.SearchableSelectionDialog
 import org.draken.usagi.core.ui.dialog.SearchableSelectionItem
 import org.draken.usagi.core.ui.util.DefaultTextWatcher
 import org.draken.usagi.core.util.ext.consumeAllSystemBarsInsets
@@ -29,6 +28,7 @@ import org.draken.usagi.favourites.domain.SmartFolderContent
 import org.draken.usagi.favourites.domain.SmartFolderDevice
 import org.draken.usagi.favourites.domain.SmartFolderRules
 import org.draken.usagi.favourites.domain.SmartFolderRulesResult
+import org.draken.usagi.favourites.ui.selection.FavouriteSearchableSelectionDialog
 import org.draken.usagi.list.domain.ListSortOrder
 
 @AndroidEntryPoint
@@ -167,7 +167,7 @@ class SmartFolderEditActivity :
 					SearchableSelectionItem(name, name)
 				}
 			}
-		SearchableSelectionDialog.show(this, R.string.smart_folder_sources, items, selectedSources) { selected ->
+		FavouriteSearchableSelectionDialog.show(this, R.string.smart_folder_sources, items, selectedSources) { selected ->
 			selectedSources.clear()
 			selectedSources += selected
 			onRulesEdited()
@@ -184,7 +184,7 @@ class SmartFolderEditActivity :
 					SearchableSelectionItem(id, getString(R.string.smart_folder_missing_category, id))
 				}
 			}
-		SearchableSelectionDialog.show(this, R.string.categories, items, selectedCategoryIds) { selected ->
+		FavouriteSearchableSelectionDialog.show(this, R.string.categories, items, selectedCategoryIds) { selected ->
 			selectedCategoryIds.clear()
 			selectedCategoryIds += selected
 			onRulesEdited()
@@ -201,7 +201,7 @@ class SmartFolderEditActivity :
 					SearchableSelectionItem(id, id.toString())
 				}
 			}
-		SearchableSelectionDialog.show(this, R.string.genres, items, selectedTagIds) { selected ->
+		FavouriteSearchableSelectionDialog.show(this, R.string.genres, items, selectedTagIds) { selected ->
 			selectedTagIds.clear()
 			selectedTagIds += selected
 			onRulesEdited()

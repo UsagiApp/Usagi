@@ -12,21 +12,21 @@ import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButtonToggleGroup
-import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.slider.Slider
 import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.prefs.ListMode
-import org.draken.usagi.core.ui.dialog.SearchableSelectionDialog
 import org.draken.usagi.core.ui.dialog.SearchableSelectionItem
 import org.draken.usagi.core.ui.sheet.BaseAdaptiveSheet
+import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.core.util.ext.consume
 import org.draken.usagi.core.util.ext.setValueRounded
 import org.draken.usagi.core.util.progress.IntPercentLabelFormatter
 import org.draken.usagi.databinding.SheetListModeBinding
 import org.draken.usagi.favourites.ui.FavouritesOptionsHost
 import org.draken.usagi.favourites.ui.container.FavouriteFilterSelectionState
+import org.draken.usagi.favourites.ui.selection.FavouriteSearchableSelectionDialog
 import org.draken.usagi.list.domain.ListFilterOption
 
 @AndroidEntryPoint
@@ -51,7 +51,8 @@ class ListConfigBottomSheet :
 		savedInstanceState: Bundle?,
 	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
-		if (viewModel.section is ListConfigSection.Favorites) {
+		val favouritesSection = viewModel.section as? ListConfigSection.Favorites
+		if (favouritesSection?.requiresOrganizerHost == true) {
 			val host =
 				requireNotNull(parentFragment as? FavouritesOptionsHost) {
 					"Favorites list options must be shown by FavouritesOptionsHost"
@@ -188,20 +189,9 @@ class ListConfigBottomSheet :
 		availableFilters = state.availableRuleOptions
 		filterSelection = FavouriteFilterSelectionState(state.selectedRuleOptions).also { it.retainAvailable(availableFilters) }
 		binding.favouritesOptions.isVisible = true
-		binding.buttonManageSmartFolders.setOnClickListener {
+		binding.buttonManageSmartFolders.root.setOnClickListener {
 			dismiss()
 			host.openSmartFolders()
-		}
-		binding.buttonRefreshFavourites.isEnabled = !state.isOrganizerRefreshing
-		binding.buttonRefreshFavourites.subtitle =
-			if (state.isOrganizerRefreshing) {
-				getString(R.string.loading_)
-			} else {
-				getString(R.string.favourite_organizer_refresh_summary)
-			}
-		binding.buttonRefreshFavourites.setOnClickListener {
-			dismiss()
-			host.refreshFavouritesOrganizer()
 		}
 		renderFavouritesFilters(binding)
 	}
@@ -209,26 +199,22 @@ class ListConfigBottomSheet :
 	private fun renderFavouritesFilters(binding: SheetListModeBinding) {
 		val state = filterSelection ?: return
 		val simpleOptions = availableFilters.filterNot { it is ListFilterOption.Source || it is ListFilterOption.Tag }
-		binding.favouritesSimpleFilters.removeAllViews()
-		simpleOptions.forEach { option ->
-			binding.favouritesSimpleFilters.addView(
-				(
-					LayoutInflater.from(requireContext()).inflate(
-						R.layout.item_favourite_quick_filter,
-						binding.favouritesSimpleFilters,
-						false,
-					) as MaterialCheckBox
-				).apply {
-					text = filterTitle(option)
-					isChecked = option in state.selection()
-					setOnCheckedChangeListener { _, checked ->
-						state.setSelected(option, checked)
-						applyFavouritesFilters()
-						renderFavouritesFilters(binding)
-					}
-				},
-			)
-		}
+		binding.favouritesSimpleFilters.setChips(
+			simpleOptions.map { option ->
+				ChipsView.ChipModel(
+					title = filterTitle(option),
+					isChecked = option in state.selection(),
+					data = option,
+				)
+			},
+		)
+		binding.favouritesSimpleFilters.onChipClickListener =
+			ChipsView.OnChipClickListener { chip, data ->
+				val option = data as? ListFilterOption ?: return@OnChipClickListener
+				state.setSelected(option, !chip.isChecked)
+				applyFavouritesFilters()
+				renderFavouritesFilters(binding)
+			}
 
 		val sources = availableFilters.filterIsInstance<ListFilterOption.Source>()
 		binding.buttonFavouriteSources.isVisible = sources.isNotEmpty()
@@ -259,7 +245,7 @@ class ListConfigBottomSheet :
 		options: List<T>,
 	) {
 		val selection = filterSelection ?: return
-		SearchableSelectionDialog.show(
+		FavouriteSearchableSelectionDialog.show(
 			context = requireContext(),
 			titleResId = titleResId,
 			items =

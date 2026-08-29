@@ -10,6 +10,7 @@ import org.draken.usagi.core.nav.router
 import org.draken.usagi.favourites.ui.FavouritesOptionsHost
 import org.draken.usagi.favourites.ui.list.FavouritesListFragment
 import org.draken.usagi.history.ui.HistoryListFragment
+import org.draken.usagi.list.ui.config.FavoritesOptionsMode
 import org.draken.usagi.list.ui.config.ListConfigSection
 import org.draken.usagi.suggestions.ui.SuggestionsFragment
 import org.draken.usagi.tracker.ui.updates.UpdatesFragment
@@ -28,9 +29,24 @@ class MangaListMenuProvider(
 		when (menuItem.itemId) {
 			R.id.action_list_mode -> {
 				if (fragment is FavouritesListFragment) {
-					requireNotNull(fragment.parentFragment as? FavouritesOptionsHost) {
-						"Favorites list must be hosted by FavouritesOptionsHost"
-					}.showFavouritesOptions()
+					when (val parent = fragment.parentFragment) {
+						is FavouritesOptionsHost -> {
+							parent.showFavouritesOptions()
+						}
+
+						null -> {
+							fragment.router.showListConfigSheet(
+								ListConfigSection.Favorites(
+									categoryId = fragment.categoryId,
+									mode = FavoritesOptionsMode.LIST_ONLY,
+								),
+							)
+						}
+
+						else -> {
+							error("Unsupported Favorites list host: ${parent::class.java.name}")
+						}
+					}
 				} else {
 					val section: ListConfigSection =
 						when (fragment) {
