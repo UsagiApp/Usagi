@@ -49,9 +49,8 @@ class ViewBadge(
 	}
 
 	override fun onDestroy(owner: LifecycleOwner) {
-		owner.lifecycle.removeObserver(this)
-		clearBadge()
 		super.onDestroy(owner)
+		clearBadge()
 	}
 
 	fun setMaxCharacterCount(value: Int) {

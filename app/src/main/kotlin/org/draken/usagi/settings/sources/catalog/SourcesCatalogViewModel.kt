@@ -71,6 +71,8 @@ class SourcesCatalogViewModel
 		val scopedRepositoryUrl: String? = savedStateHandle.get<String>(EXTRA_REPOSITORY_URL)?.takeIf { it.isNotBlank() }
 		val isScopedMode get() = scopedRepositoryUrl != null
 		val onActionDone = MutableEventFlow<ReversibleAction>()
+		val onActionError = MutableEventFlow<Int>()
+		val onOpenSource = MutableEventFlow<MangaSource>()
 
 		private val extCatalog = MutableStateFlow<List<ExtArtifact>>(emptyList())
 		private val isInitialLoading = MutableStateFlow(true)
@@ -200,10 +202,21 @@ class SourcesCatalogViewModel
 		suspend fun openExtensionSource(item: SourceCatalogItem.Extension): MangaSource? {
 			var source = runCatching { getImportedExtensionSource(item) }.getOrNull()
 			if (source == null && !item.isInstalled && !item.isLoaded && !item.isPreInstalledApk) {
-				if (installExtension(item)) source = runCatching { getImportedExtensionSource(item) }.getOrNull()
+				if (performInstall(item)) source = runCatching { getImportedExtensionSource(item) }.getOrNull()
 			}
 			if (source != null) enableExtensionSource(source)
 			return source
+		}
+
+		fun openSource(item: SourceCatalogItem.Extension) {
+			launchJob {
+				val source = openExtensionSource(item)
+				if (source != null) {
+					onOpenSource.call(source)
+				} else {
+					onActionError.call(R.string.unsupported_source)
+				}
+			}
 		}
 
 		fun localeDisplayName(value: String?): String {
@@ -237,7 +250,15 @@ class SourcesCatalogViewModel
 			return installed.map { it.toArtifact() }
 		}
 
-		suspend fun installExtension(item: SourceCatalogItem.Extension): Boolean =
+		fun install(item: SourceCatalogItem.Extension) {
+			launchJob {
+				if (!performInstall(item)) {
+					onActionError.call(R.string.load_failed)
+				}
+			}
+		}
+
+		private suspend fun performInstall(item: SourceCatalogItem.Extension): Boolean =
 			try {
 				installingPackages.update { it + item.artifact.packageName }
 				if (item.isInstalled && !item.hasUpdate && !item.isLoaded) {
@@ -259,12 +280,16 @@ class SourcesCatalogViewModel
 				installingPackages.update { it - item.artifact.packageName }
 			}
 
-		suspend fun uninstallExtension(item: SourceCatalogItem.Extension): Boolean =
-			runCatching {
-				val ok = directManager.remove(item.artifact.packageName)
-				if (ok) runtime.ensureReady(forceRefresh = true)
-				ok
-			}.getOrDefault(false)
+		fun uninstall(item: SourceCatalogItem.Extension) {
+			launchJob {
+				val ok = runCatching {
+					val removed = directManager.remove(item.artifact.packageName)
+					if (removed) runtime.ensureReady(forceRefresh = true)
+					removed
+				}.getOrDefault(false)
+				if (!ok) onActionError.call(R.string.load_failed)
+			}
+		}
 
 		suspend fun getImportedExtensionSource(item: SourceCatalogItem.Extension): MangaSource? {
 			runtime.ensureReady()

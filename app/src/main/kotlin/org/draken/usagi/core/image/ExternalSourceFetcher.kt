@@ -24,7 +24,7 @@ class ExternalSourceFetcher(
 ) : Fetcher {
 	override suspend fun fetch(): FetchResult {
 		val response =
-			withContext(Dispatchers.IO) {
+			withContext(Dispatchers.Default) {
 				httpSource.client
 					.newCall(
 						Request

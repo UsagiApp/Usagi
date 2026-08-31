@@ -20,13 +20,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.launch
 import org.draken.usagi.R
 import org.draken.usagi.core.model.titleResId
 import org.draken.usagi.core.nav.router
@@ -92,6 +90,12 @@ class SourcesCatalogActivity :
 		fadingAppbarMediator = FadingAppbarMediator(viewBinding.appbar, viewBinding.toolbar).also { it.bind() }
 		viewModel.content.observe(this, adapter)
 		viewModel.onActionDone.observeEvent(this, ReversibleActionObserver(viewBinding.recyclerView))
+		viewModel.onActionError.observeEvent(this) { resId ->
+			showSnackbar(getString(resId), Snackbar.LENGTH_LONG)
+		}
+		viewModel.onOpenSource.observeEvent(this) { source ->
+			router.openList(source, null, null)
+		}
 		combine(viewModel.appliedFilter, viewModel.hasNewSources, viewModel.contentTypes, ::Triple).observe(this) {
 			updateFilters(it.first, it.second, it.third)
 		}
@@ -177,11 +181,7 @@ class SourcesCatalogActivity :
 
 	private fun installExtension(item: SourceCatalogItem.Extension) {
 		if (item.isLoaded && !item.hasUpdate) return
-		lifecycleScope.launch {
-			if (!viewModel.installExtension(item)) {
-				showSnackbar(getString(R.string.load_failed), Snackbar.LENGTH_LONG)
-			}
-		}
+		viewModel.install(item)
 	}
 
 	private fun uninstallExtension(item: SourceCatalogItem.Extension) {
@@ -195,23 +195,13 @@ class SourcesCatalogActivity :
 				}
 			startActivity(Intent(action, Uri.fromParts("package", item.artifact.packageName, null)))
 		} else {
-			lifecycleScope.launch {
-				if (!viewModel.uninstallExtension(item)) {
-					showSnackbar(getString(R.string.load_failed), Snackbar.LENGTH_SHORT)
-				}
-			}
+			viewModel.uninstall(item)
 		}
 	}
 
 	private fun openSource(item: SourceCatalogItem.Extension) {
-		lifecycleScope.launch {
-			val source = viewModel.openExtensionSource(item)
-			if (source != null) {
-				router.openList(source, null, null)
-			} else {
-				showSnackbar(getString(R.string.unsupported_source), Snackbar.LENGTH_SHORT)
-			}
-		}
+		if (!item.isLoaded && item.isPreInstalledApk) return
+		viewModel.openSource(item)
 	}
 
 	private fun showSideloadMenu(

@@ -110,15 +110,6 @@ class MangaListActivity :
 		}
 	}
 
-	override fun onDestroy() {
-		if (viewBinding.containerFilterHeader != null) {
-			viewBinding.appbar.removeOnOffsetChangedListener(this)
-		}
-		viewBinding.buttonOrder?.setOnClickListener(null)
-		filterBadge = null
-		super.onDestroy()
-	}
-
 	override fun isNsfwContent(): Flow<Boolean> = flowOf(source.isNsfw())
 
 	override fun onOffsetChanged(

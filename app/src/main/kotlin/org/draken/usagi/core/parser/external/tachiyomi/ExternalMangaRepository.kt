@@ -5,6 +5,7 @@ import androidx.collection.LruCache
 import eu.kanade.tachiyomi.source.model.FilterList
 import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.online.HttpSource
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -95,7 +96,7 @@ class ExternalMangaRepository(
 		order: SortOrder?,
 		filter: MangaListFilter?,
 	): List<Manga> =
-		withContext(Dispatchers.IO) {
+		withContext(Dispatchers.Default) {
 			val page =
 				synchronized(paginationLock) {
 					if (offset == 0) {
@@ -127,6 +128,8 @@ class ExternalMangaRepository(
 							external.getPopularManga(page)
 						}
 					}
+				} catch (e: CancellationException) {
+					throw e
 				} catch (e: Throwable) {
 					throw mapException(e)
 				}
@@ -136,11 +139,13 @@ class ExternalMangaRepository(
 		}
 
 	override suspend fun getDetailsImpl(manga: Manga): Manga =
-		withContext(Dispatchers.IO) {
+		withContext(Dispatchers.Default) {
 			val original = manga.toSManga()
 			val update =
 				try {
 					external.getMangaUpdate(original, emptyList(), fetchDetails = true, fetchChapters = true)
+				} catch (e: CancellationException) {
+					throw e
 				} catch (e: Throwable) {
 					throw mapException(e)
 				}
@@ -170,12 +175,14 @@ class ExternalMangaRepository(
 		}
 
 	override suspend fun getPagesImpl(chapter: MangaChapter): List<MangaPage> =
-		withContext(Dispatchers.IO) {
+		withContext(Dispatchers.Default) {
 			val src = (chapter.source as? ExtensionMangaSource)?.catalogueSource ?: external
 			val target = chapter.source as? ExtensionMangaSource ?: source
 			val list =
 				try {
 					src.getPageList(chapter.toSChapter())
+				} catch (e: CancellationException) {
+					throw e
 				} catch (e: Throwable) {
 					throw mapException(e)
 				}
@@ -194,13 +201,15 @@ class ExternalMangaRepository(
 		val target = page.source as? ExtensionMangaSource ?: source
 		val http = src as? HttpSource ?: return super.getPageRequest(page)
 		val cp = pageCache[pageCacheKey(target, page.url)] ?: Page(0, page.url, page.url)
-		return withContext(Dispatchers.IO) {
+		return withContext(Dispatchers.Default) {
 			try {
 				http
 					.getImageRequest(cp)
 					.newBuilder()
 					.tag(tsuki.model.MangaSource::class.java, target)
 					.build()
+			} catch (e: CancellationException) {
+				throw e
 			} catch (e: Throwable) {
 				throw mapException(e)
 			}
@@ -216,9 +225,11 @@ class ExternalMangaRepository(
 		val http = src as? HttpSource ?: return super.getPageResponse(page, okHttp, interceptor)
 		val target = page.source as? ExtensionMangaSource ?: source
 		val cp = pageCache[pageCacheKey(target, page.url)] ?: Page(0, page.url, page.url)
-		return withContext(Dispatchers.IO) {
+		return withContext(Dispatchers.Default) {
 			try {
 				http.getImage(cp)
+			} catch (e: CancellationException) {
+				throw e
 			} catch (e: Throwable) {
 				throw mapException(e)
 			}

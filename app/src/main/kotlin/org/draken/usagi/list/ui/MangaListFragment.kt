@@ -151,12 +151,6 @@ abstract class MangaListFragment :
 	}
 
 	override fun onDestroyView() {
-		viewBinding?.recyclerView?.let { rv ->
-			paginationListener?.let { rv.removeOnScrollListener(it) }
-			rv.adapter = null
-			rv.fastScroller.setFastScrollListener(null)
-		}
-		viewBinding?.swipeRefreshLayout?.setOnRefreshListener(null)
 		listAdapter = null
 		paginationListener = null
 		selectionController = null
