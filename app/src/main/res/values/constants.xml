@@ -43,7 +43,7 @@
 		<item>1</item>
 	</string-array>
 	<string-array name="sync_url_list" translatable="false">
-		<item>http://n1.weissx.net:20685/</item>
+		<item>http://n1.weissx.net:20685</item>
 	</string-array>
 	<string-array name="values_proxy_types" translatable="false">
 		<item>DIRECT</item>
