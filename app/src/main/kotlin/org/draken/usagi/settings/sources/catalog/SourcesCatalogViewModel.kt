@@ -282,11 +282,12 @@ class SourcesCatalogViewModel
 
 		fun uninstall(item: SourceCatalogItem.Extension) {
 			launchJob {
-				val ok = runCatching {
-					val removed = directManager.remove(item.artifact.packageName)
-					if (removed) runtime.ensureReady(forceRefresh = true)
-					removed
-				}.getOrDefault(false)
+				val ok =
+					runCatching {
+						val removed = directManager.remove(item.artifact.packageName)
+						if (removed) runtime.ensureReady(forceRefresh = true)
+						removed
+					}.getOrDefault(false)
 				if (!ok) onActionError.call(R.string.load_failed)
 			}
 		}
