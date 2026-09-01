@@ -76,9 +76,9 @@ class SourcesCatalogActivity :
 		val adapter =
 			SourcesCatalogAdapter(
 				nativeListener = this,
-				onExtensionClick = { item, _ -> openSource(item) },
-				onExtensionInstall = { item, _ -> installExtension(item) },
-				onExtensionUninstall = { item, _ -> uninstallExtension(item) },
+				onExtensionClick = { item, _ -> viewModel.openSource(item) },
+				onExtensionInstall = { item, _ -> install(item) },
+				onExtensionUninstall = { item, _ -> uninstall(item) },
 				onExtensionSideload = ::showSideloadMenu,
 			)
 		with(viewBinding.recyclerView) {
@@ -179,12 +179,12 @@ class SourcesCatalogActivity :
 		return false
 	}
 
-	private fun installExtension(item: SourceCatalogItem.Extension) {
+	private fun install(item: SourceCatalogItem.Extension) {
 		if (item.isLoaded && !item.hasUpdate) return
 		viewModel.install(item)
 	}
 
-	private fun uninstallExtension(item: SourceCatalogItem.Extension) {
+	private fun uninstall(item: SourceCatalogItem.Extension) {
 		if (item.isPreInstalledApk) {
 			val action =
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -197,11 +197,6 @@ class SourcesCatalogActivity :
 		} else {
 			viewModel.uninstall(item)
 		}
-	}
-
-	private fun openSource(item: SourceCatalogItem.Extension) {
-		if (!item.isLoaded && item.isPreInstalledApk) return
-		viewModel.openSource(item)
 	}
 
 	private fun showSideloadMenu(
