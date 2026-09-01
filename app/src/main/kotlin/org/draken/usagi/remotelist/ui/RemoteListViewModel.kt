@@ -47,6 +47,7 @@ import org.draken.usagi.local.domain.model.LocalManga
 import tsuki.model.Manga
 import tsuki.util.sizeOrZero
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val FILTER_MIN_INTERVAL = 250L
 
@@ -119,7 +120,7 @@ open class RemoteListViewModel
 		init {
 			filterCoordinator
 				.observe()
-				.debounce(FILTER_MIN_INTERVAL)
+				.debounce(FILTER_MIN_INTERVAL.milliseconds)
 				.onEach { filterState ->
 					loadingJob?.cancelAndJoin()
 					mangaList.value = null
@@ -139,6 +140,8 @@ open class RemoteListViewModel
 		}
 
 		override fun onRefresh() {
+			(repository as? org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository)?.invalidateSource()
+				?: (repository as? org.draken.usagi.core.parser.CachingMangaRepository)?.invalidateCache()
 			loadList(filterCoordinator.snapshot(), append = false)
 		}
 

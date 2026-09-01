@@ -48,7 +48,7 @@ class ExternalMangaRepository(
 ) : CachingMangaRepository(cache),
 	FilterHost {
 	private val appContext = context.applicationContext
-	val external = source.catalogueSource
+	var external = source.catalogueSource
 	private val filterList =
 		suspendLazy(Dispatchers.Default) {
 			withContext(Dispatchers.IO) {
@@ -247,6 +247,11 @@ class ExternalMangaRepository(
 	fun refreshDomainOverride() = externalSettings.refreshDomainOverride(appContext, source)
 
 	fun isSlowdownEnabled() = externalSettings.isSlowdownEnabled(appContext, source)
+
+	fun invalidateSource() {
+		invalidateCache()
+		runtime?.refresh(source)?.let { external = it.catalogueSource }
+	}
 
 	override suspend fun getRelatedMangaImpl(seed: Manga): List<Manga> {
 		val http = external as? HttpSource ?: return emptyList()
