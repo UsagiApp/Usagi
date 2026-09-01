@@ -11,6 +11,8 @@ import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.draken.tsukimix.core.parser.external.ExtensionProvider
+import org.draken.tsukimix.core.parser.external.NativeExtManager
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.model.PluginKeyResolver
 import org.draken.usagi.core.network.BaseHttpClient
@@ -37,6 +39,8 @@ class UpdatePluginsProvider
 		private val savedFiltersRepository: SavedFiltersRepository,
 		private val mangaDynamicRepository: MangaDynamicRepository,
 		private val pluginKeyResolver: PluginKeyResolver,
+		private val manager: NativeExtManager,
+		private val provider: ExtensionProvider,
 	) {
 		private val mutex = Mutex()
 		private val prefs by lazy { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
@@ -49,31 +53,40 @@ class UpdatePluginsProvider
 					if (now - settings.lastAutoPlugins < COOLDOWN) return@withContext
 					settings.lastAutoPlugins = now
 					val installed = mangaDynamicRepository.get().toSet()
-					if (installed.isEmpty()) return@withContext
-					val meta = readAndCleanDto(installed)
-					if (meta.isEmpty()) return@withContext
-					val pluginsDir = mangaDynamicRepository.getDir()
-					val results =
-						installed
-							.map { name ->
-								async {
-									val info = meta[name] ?: return@async null
-									val release = requestRelease(info.repository, name) ?: return@async null
-									if (release.tag == info.tag) return@async null
-									if (replacePlugin(release.downloadUrl, File(pluginsDir, name))) {
-										name to RemoteReleaseDto(info.repository, release.tag)
-									} else {
-										null
-									}
-								}
-							}.awaitAll()
-							.filterNotNull()
-
-					if (results.isNotEmpty()) {
-						results.forEach { (name, dto) -> meta[name] = dto }
-						writeDto(meta)
-						reloadPlugins(pluginsDir)
+					if (installed.isNotEmpty()) {
+						val meta = readAndCleanDto(installed)
+						if (meta.isNotEmpty()) {
+							val pluginsDir = mangaDynamicRepository.getDir()
+							val results =
+								installed
+									.map { name ->
+										async {
+											val info = meta[name] ?: return@async null
+											val rel = requestRelease(info.repository, name) ?: return@async null
+											if (rel.tag == info.tag) return@async null
+											if (replacePlugin(rel.downloadUrl, File(pluginsDir, name))) {
+												name to RemoteReleaseDto(info.repository, rel.tag)
+											} else {
+												null
+											}
+										}
+									}.awaitAll()
+									.filterNotNull()
+							if (results.isNotEmpty()) {
+								results.forEach { (name, dto) -> meta[name] = dto }
+								writeDto(meta)
+								reloadPlugins(pluginsDir)
+							}
+						}
 					}
+					val inst = manager.installed.value.associateBy { it.packageName }
+					provider
+						.loadSaved()
+						.filter { art ->
+							val cur = inst[art.packageName]
+							cur != null && (art.versionCode ?: 0) > cur.versionCode
+						}.map { art -> async { runCatching { manager.install(art) } } }
+						.awaitAll()
 				}
 			} finally {
 				mutex.unlock()
