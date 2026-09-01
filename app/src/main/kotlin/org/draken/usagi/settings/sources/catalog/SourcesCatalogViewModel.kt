@@ -47,6 +47,7 @@ import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingState
 import tsuki.model.ContentType
 import tsuki.model.MangaSource
+import tsuki.util.toTitleCase
 import java.io.File
 import java.util.EnumSet
 import java.util.Locale
@@ -224,11 +225,11 @@ class SourcesCatalogViewModel
 			if (code.isEmpty()) return context.getString(R.string.all_languages)
 			if (code.equals("all", true)) return context.getString(R.string.various_languages)
 			val loc = code.replace('_', '-').toLocale()
-			val disp = ConfigurationCompat.getLocales(context.resources.configuration)[0] ?: Locale.getDefault()
-			val name = loc.getDisplayLanguage(disp).trim()
-			if (!name.isLocaleCode(loc)) return name
-			val en = loc.getDisplayLanguage(Locale.ENGLISH).trim()
-			return en.takeUnless { it.isLocaleCode(loc) } ?: code.ifEmpty { context.getString(R.string.unknown) }
+			val name = loc.getDisplayName(loc).trim()
+			if (!name.isLocaleCode(loc)) return name.toTitleCase(loc)
+			val en = loc.getDisplayName(Locale.ENGLISH).trim()
+			return en.takeUnless { it.isLocaleCode(loc) }?.toTitleCase(Locale.ENGLISH)
+				?: code.ifEmpty { context.getString(R.string.unknown) }
 		}
 
 		private fun String.isLocaleCode(loc: Locale): Boolean {
@@ -400,10 +401,10 @@ class SourcesCatalogViewModel
 					buildSet {
 						add(null)
 						grouped.values.forEach { v ->
-							if (v.size > 1 || v.any { it.locale.equals("all", true) }) {
+							if (v.size > 1 || v.any { it.locale.isBlank() || it.locale.equals("all", true) }) {
 								add("all")
 							} else {
-								v.forEach { add(canonicalLanguageCode(it.locale)) }
+								v.forEach { add(it.locale.ifBlank { "all" }) }
 							}
 						}
 					}
@@ -416,7 +417,7 @@ class SourcesCatalogViewModel
 						} else {
 							val hasLocale =
 								variants.any {
-									canonicalLanguageCode(it.locale) == canonicalLanguageCode(filter.locale)
+									it.locale.ifBlank { "all" }.equals(filter.locale, true)
 								}
 							if (multi || !hasLocale) continue
 						}
@@ -458,11 +459,11 @@ class SourcesCatalogViewModel
 					scoped.forEach { a ->
 						val isMulti =
 							a.sources.size > 1 ||
-								a.sources.any { it.language.equals("all", true) }
+								a.sources.any { it.language.isBlank() || it.language.equals("all", true) }
 						if (isMulti) {
 							add("all")
 						} else {
-							a.sources.forEach { add(canonicalLanguageCode(it.language)) }
+							a.sources.forEach { add(it.language.ifBlank { "all" }) }
 						}
 					}
 				}
@@ -478,7 +479,7 @@ class SourcesCatalogViewModel
 					} else {
 						val hasLang =
 							art.sources.any {
-								canonicalLanguageCode(it.language) == canonicalLanguageCode(filter.locale)
+								it.language.ifBlank { "all" }.equals(filter.locale, true)
 							}
 						if (multi || !hasLang) continue
 					}
