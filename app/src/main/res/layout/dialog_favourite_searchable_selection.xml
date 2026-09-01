@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:paddingHorizontal="20dp">
+
+	<com.google.android.material.card.MaterialCardView
+		android:id="@+id/search_container"
+		style="?materialCardViewFilledStyle"
+		android:layout_width="match_parent"
+		android:layout_height="64dp"
+		android:layout_marginBottom="10dp"
+		app:cardBackgroundColor="?colorSurfaceContainerHigh"
+		app:cardCornerRadius="24dp"
+		app:strokeColor="?colorOutlineVariant"
+		app:strokeWidth="1dp">
+
+		<com.google.android.material.textfield.TextInputEditText
+			android:id="@+id/edit_search"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="@null"
+			android:hint="@string/search"
+			android:imeOptions="actionDone"
+			android:inputType="text"
+			android:maxLines="1"
+			android:paddingHorizontal="22dp"
+			android:textAppearance="?textAppearanceBodyLarge" />
+
+	</com.google.android.material.card.MaterialCardView>
+
+	<org.draken.usagi.core.ui.widgets.BoundedListView
+		android:id="@+id/list_view"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:clipToPadding="false"
+		android:divider="@null"
+		android:listSelector="@android:color/transparent"
+		android:paddingVertical="4dp"
+		android:scrollbars="vertical"
+		app:maxHeight="320dp" />
+
+</LinearLayout>

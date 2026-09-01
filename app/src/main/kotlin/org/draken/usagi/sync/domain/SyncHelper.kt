@@ -228,13 +228,13 @@ class SyncHelper
 			}
 
 		private fun getFavourites(): List<FavouriteSyncDto> =
-			provider.query(authorityFavourites, TABLE_FAVOURITES).map { cursor ->
+			provider.query(authorityFavourites, TABLE_FAVOURITES, "category_id != 0").map { cursor ->
 				val manga = getManga(authorityFavourites, cursor.getLong(cursor.getColumnIndexOrThrow("manga_id")))
 				FavouriteSyncDto(cursor, manga)
 			}
 
 		private fun getFavouriteCategories(): List<FavouriteCategorySyncDto> =
-			provider.query(authorityFavourites, TABLE_FAVOURITE_CATEGORIES).map { cursor ->
+			provider.query(authorityFavourites, TABLE_FAVOURITE_CATEGORIES, "category_id != 0").map { cursor ->
 				FavouriteCategorySyncDto(cursor)
 			}
 
@@ -310,9 +310,10 @@ class SyncHelper
 		private fun ContentProviderClient.query(
 			authority: String,
 			table: String,
+			selection: String? = null,
 		): Cursor {
 			val uri = uri(authority, table)
-			return query(uri, null, null, null, null)
+			return query(uri, null, selection, null, null)
 				?: throw OperationApplicationException("Query failed: $uri")
 		}
 

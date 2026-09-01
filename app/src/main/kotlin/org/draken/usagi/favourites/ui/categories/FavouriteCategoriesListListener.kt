@@ -12,6 +12,4 @@ interface FavouriteCategoriesListListener : OnListItemClickListener<FavouriteCat
 		item: FavouriteCategory,
 		view: View,
 	)
-
-	fun onShowAllClick(isChecked: Boolean)
 }

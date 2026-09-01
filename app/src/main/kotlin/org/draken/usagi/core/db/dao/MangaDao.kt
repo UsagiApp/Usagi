@@ -28,6 +28,12 @@ abstract class MangaDao {
 		newKey: String,
 	)
 
+	@Query("UPDATE manga SET state = :state WHERE manga_id = :mangaId")
+	abstract suspend fun updateState(
+		mangaId: Long,
+		state: String?,
+	)
+
 	@Transaction
 	@Query("SELECT * FROM manga WHERE public_url = :publicUrl")
 	abstract suspend fun findByPublicUrl(publicUrl: String): MangaWithTags?

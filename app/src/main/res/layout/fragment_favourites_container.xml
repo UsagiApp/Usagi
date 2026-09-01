@@ -7,25 +7,72 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical">
 
-	<com.google.android.material.tabs.TabLayout
-		android:id="@+id/tabs"
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="@null"
-		app:tabGravity="start"
-		app:tabMode="scrollable" />
+		android:gravity="center_vertical"
+		android:orientation="horizontal">
+
+		<com.google.android.material.tabs.TabLayout
+			android:id="@+id/tabs"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:background="@null"
+			app:tabGravity="start"
+			app:tabMode="scrollable" />
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:id="@+id/organizer_controls"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center_vertical"
+		android:orientation="horizontal"
+		android:paddingHorizontal="@dimen/list_spacing_normal"
+		android:paddingVertical="4dp">
+
+		<HorizontalScrollView
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:clipToPadding="false"
+			android:fillViewport="false"
+			android:overScrollMode="never"
+			android:scrollbars="none">
+
+			<com.google.android.material.chip.ChipGroup
+				android:id="@+id/stage_chips"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:chipSpacingHorizontal="8dp"
+				app:selectionRequired="true"
+				app:singleLine="true"
+				app:singleSelection="true" />
+
+		</HorizontalScrollView>
+
+	</LinearLayout>
+
+	<TextView
+		android:id="@+id/text_rules_summary"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:maxLines="3"
+		android:paddingHorizontal="@dimen/list_spacing_normal"
+		android:paddingBottom="4dp"
+		android:textAppearance="?attr/textAppearanceBodySmall"
+		android:textColor="?android:attr/textColorSecondary"
+		android:visibility="gone"
+		tools:text="2 sources · SFW · On device"
+		tools:visibility="visible" />
 
 	<androidx.viewpager2.widget.ViewPager2
 		android:id="@+id/pager"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		tools:visibility="gone" />
-
-	<ViewStub
-		android:id="@+id/stub_empty"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:layout="@layout/item_empty_state"
+		android:layout_height="0dp"
+		android:layout_weight="1"
 		tools:visibility="visible" />
 
 </LinearLayout>

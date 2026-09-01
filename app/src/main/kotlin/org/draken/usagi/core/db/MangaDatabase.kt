@@ -44,7 +44,11 @@ import org.draken.usagi.core.db.migrations.Migration24To25
 import org.draken.usagi.core.db.migrations.Migration25To26
 import org.draken.usagi.core.db.migrations.Migration26To27
 import org.draken.usagi.core.db.migrations.Migration27To28
+import org.draken.usagi.core.db.migrations.Migration28To29
+import org.draken.usagi.core.db.migrations.Migration29To30
 import org.draken.usagi.core.db.migrations.Migration2To3
+import org.draken.usagi.core.db.migrations.Migration30To31
+import org.draken.usagi.core.db.migrations.Migration31To32
 import org.draken.usagi.core.db.migrations.Migration3To4
 import org.draken.usagi.core.db.migrations.Migration4To5
 import org.draken.usagi.core.db.migrations.Migration5To6
@@ -57,6 +61,8 @@ import org.draken.usagi.favourites.data.FavouriteCategoriesDao
 import org.draken.usagi.favourites.data.FavouriteCategoryEntity
 import org.draken.usagi.favourites.data.FavouriteEntity
 import org.draken.usagi.favourites.data.FavouritesDao
+import org.draken.usagi.favourites.data.SmartFolderEntity
+import org.draken.usagi.favourites.data.SmartFoldersDao
 import org.draken.usagi.history.data.HistoryDao
 import org.draken.usagi.history.data.HistoryEntity
 import org.draken.usagi.local.data.index.LocalMangaIndexDao
@@ -71,7 +77,7 @@ import org.draken.usagi.tracker.data.TrackEntity
 import org.draken.usagi.tracker.data.TrackLogEntity
 import org.draken.usagi.tracker.data.TracksDao
 
-const val DATABASE_VERSION = 28
+const val DATABASE_VERSION = 32
 
 @Database(
 	entities = [
@@ -79,6 +85,7 @@ const val DATABASE_VERSION = 28
 		FavouriteCategoryEntity::class, FavouriteEntity::class, MangaPrefsEntity::class, TrackEntity::class,
 		TrackLogEntity::class, SuggestionEntity::class, BookmarkEntity::class, ScrobblingEntity::class,
 		MangaSourceEntity::class, StatsEntity::class, LocalMangaIndexEntity::class,
+		SmartFolderEntity::class,
 	],
 	version = DATABASE_VERSION,
 )
@@ -112,6 +119,8 @@ abstract class MangaDatabase : RoomDatabase() {
 	abstract fun getLocalMangaIndexDao(): LocalMangaIndexDao
 
 	abstract fun getChaptersDao(): ChaptersDao
+
+	abstract fun getSmartFoldersDao(): SmartFoldersDao
 }
 
 fun getDatabaseMigrations(context: Context): Array<Migration> =
@@ -144,6 +153,10 @@ fun getDatabaseMigrations(context: Context): Array<Migration> =
 		Migration25To26(),
 		Migration26To27(),
 		Migration27To28(),
+		Migration28To29(),
+		Migration29To30(),
+		Migration30To31(),
+		Migration31To32(),
 	)
 
 fun MangaDatabase(context: Context): MangaDatabase =

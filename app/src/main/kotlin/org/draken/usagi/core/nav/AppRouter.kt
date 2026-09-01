@@ -68,6 +68,9 @@ import org.draken.usagi.favourites.ui.FavouritesActivity
 import org.draken.usagi.favourites.ui.categories.FavouriteCategoriesActivity
 import org.draken.usagi.favourites.ui.categories.edit.FavouritesCategoryEditActivity
 import org.draken.usagi.favourites.ui.categories.select.FavoriteDialog
+import org.draken.usagi.favourites.ui.smartfolders.SmartFoldersActivity
+import org.draken.usagi.favourites.ui.smartfolders.edit.SmartFolderEditActivity
+import org.draken.usagi.favourites.ui.smartfolders.edit.SmartFolderEditViewModel
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.filter.ui.external.sheet.SortSheet
 import org.draken.usagi.filter.ui.sheet.FilterSheetFragment
@@ -285,6 +288,17 @@ class AppRouter private constructor(
 	}
 
 	fun openFavoriteCategoryCreate() = openFavoriteCategoryEdit(FavouritesCategoryEditActivity.NO_ID)
+
+	fun openSmartFolders() = startActivity(SmartFoldersActivity::class.java)
+
+	fun openSmartFolderEdit(folderId: Long) {
+		startActivity(
+			Intent(contextOrNull() ?: return, SmartFolderEditActivity::class.java)
+				.putExtra(KEY_ID, folderId),
+		)
+	}
+
+	fun openSmartFolderCreate() = openSmartFolderEdit(SmartFolderEditViewModel.NO_ID)
 
 	fun openMangaUpdates() {
 		startActivity(mangaUpdatesIntent(contextOrNull() ?: return))

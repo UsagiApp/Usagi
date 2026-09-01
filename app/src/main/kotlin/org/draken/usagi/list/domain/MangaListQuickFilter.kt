@@ -21,6 +21,13 @@ abstract class MangaListQuickFilter(
 	val appliedOptions
 		get() = appliedFilter.asStateFlow()
 
+	suspend fun availableOptions(): List<ListFilterOption> = availableFilterOptions.getOrNull().orEmpty()
+
+	fun retainOptions(options: Collection<ListFilterOption>) {
+		val available = options.toHashSet()
+		appliedFilter.value = appliedFilter.value.filterTo(ArraySet()) { option -> option in available }
+	}
+
 	override fun setFilterOption(
 		option: ListFilterOption,
 		isApplied: Boolean,
@@ -55,11 +62,10 @@ abstract class MangaListQuickFilter(
 			return null
 		}
 		val availableOptions =
-			availableFilterOptions
-				.getOrNull()
-				?.map { option ->
+			availableOptions()
+				.map { option ->
 					option.toChipModel(isChecked = option in selectedOptions)
-				}.orEmpty()
+				}
 		return if (availableOptions.isNotEmpty()) {
 			QuickFilter(availableOptions)
 		} else {

@@ -5,7 +5,9 @@ import dagger.Reusable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import org.draken.usagi.core.db.MangaDatabase
@@ -14,12 +16,15 @@ import org.draken.usagi.core.db.TABLE_FAVOURITE_CATEGORIES
 import org.draken.usagi.core.db.entity.toEntities
 import org.draken.usagi.core.db.entity.toEntity
 import org.draken.usagi.core.db.entity.toMangaList
+import org.draken.usagi.core.db.entity.toMangaTagsList
 import org.draken.usagi.core.model.FavouriteCategory
 import org.draken.usagi.core.model.toMangaSources
 import org.draken.usagi.core.ui.util.ReversibleHandle
 import org.draken.usagi.core.util.ext.mapItems
+import org.draken.usagi.favourites.data.ALL_FAVORITES_CATEGORY_ID
 import org.draken.usagi.favourites.data.FavouriteCategoryEntity
 import org.draken.usagi.favourites.data.FavouriteEntity
+import org.draken.usagi.favourites.data.FavouriteStageCounts
 import org.draken.usagi.favourites.data.toFavouriteCategory
 import org.draken.usagi.favourites.data.toMangaList
 import org.draken.usagi.favourites.domain.model.Cover
@@ -28,6 +33,7 @@ import org.draken.usagi.list.domain.ListSortOrder
 import org.draken.usagi.search.domain.SearchKind
 import tsuki.model.Manga
 import tsuki.model.MangaSource
+import tsuki.model.MangaTag
 import tsuki.util.levenshteinDistance
 import javax.inject.Inject
 
@@ -37,6 +43,7 @@ class FavouritesRepository
 	constructor(
 		private val db: MangaDatabase,
 		private val localObserver: LocalFavoritesObserver,
+		private val smartFoldersRepository: SmartFoldersRepository,
 	) {
 		suspend fun getAllManga(): List<Manga> {
 			val entities = db.getFavouritesDao().findAll()
@@ -101,6 +108,55 @@ class FavouritesRepository
 				.observeAll(categoryId, order, filterOptions, limit)
 				.map { it.toMangaList() }
 		}
+
+		fun observeAll(
+			scope: FavouriteScope,
+			stage: FavouriteStage,
+			order: ListSortOrder,
+			filterOptions: Set<ListFilterOption>,
+			limit: Int,
+		): Flow<List<Manga>> =
+			observeRules(scope).flatMapLatest { rules ->
+				if (ListFilterOption.Downloaded in filterOptions || rules?.device == SmartFolderDevice.ON_DEVICE) {
+					localObserver.observeAll(scope, stage, rules, order, filterOptions, limit)
+				} else {
+					db
+						.getFavouritesDao()
+						.observeAll(scope, stage, rules, order, filterOptions, limit)
+						.map { it.toMangaList() }
+				}
+			}
+
+		fun observeStageCounts(scope: FavouriteScope): Flow<FavouriteStageCounts> =
+			observeRules(scope).flatMapLatest { rules ->
+				db.getFavouritesDao().observeStageCounts(scope, rules)
+			}
+
+		suspend fun getOrganizerRefreshCandidates(
+			scope: FavouriteScope,
+			limit: Int,
+		): List<Manga> {
+			val result = LinkedHashMap<Long, Manga>(limit)
+			for (stage in FavouriteStage.entries.filter(FavouriteStage::requiresSourceRefresh)) {
+				val remaining = limit - result.size
+				if (remaining <= 0) break
+				observeAll(
+					scope = scope,
+					stage = stage,
+					order = ListSortOrder.NEWEST,
+					filterOptions = emptySet(),
+					limit = remaining,
+				).first().forEach { manga -> result.putIfAbsent(manga.id, manga) }
+			}
+			return result.values.toList()
+		}
+
+		fun observeSmartFolder(id: Long): Flow<SmartFolder?> = smartFoldersRepository.observe(id)
+
+		suspend fun setSmartFolderOrder(
+			id: Long,
+			order: ListSortOrder,
+		) = smartFoldersRepository.setListOrder(id, order)
 
 		fun observeAll(
 			categoryId: Long,
@@ -170,6 +226,8 @@ class FavouritesRepository
 				it.mapTo(LinkedHashSet(it.size)) { x -> x.toFavouriteCategory() }
 			}
 
+		fun observeIsFavorite(mangaId: Long): Flow<Boolean> = db.getFavouritesDao().observeIsFavorite(mangaId)
+
 		suspend fun getCategory(id: Long): FavouriteCategory = db.getFavouriteCategoriesDao().find(id.toInt()).toFavouriteCategory()
 
 		suspend fun isFavorite(mangaId: Long): Boolean = db.getFavouritesDao().findCategoriesCount(mangaId) != 0
@@ -189,6 +247,8 @@ class FavouritesRepository
 						findPopularSources(categoryId, limit)
 					}
 				}.toMangaSources()
+
+		suspend fun findPopularTags(limit: Int): List<MangaTag> = db.getTagsDao().findPopularTags(limit).toMangaTagsList()
 
 		suspend fun createCategory(
 			title: String,
@@ -239,7 +299,10 @@ class FavouritesRepository
 		suspend fun removeCategories(ids: Collection<Long>) {
 			db.withTransaction {
 				for (id in ids) {
-					db.getFavouritesDao().deleteAll(id)
+					val dao = db.getFavouritesDao()
+					val mangaIds = dao.findAllIds(id).toList()
+					dao.deleteAll(id)
+					dao.recoverAllFavorites(mangaIds)
 					db.getFavouriteCategoriesDao().delete(id)
 				}
 				db.getChaptersDao().gc()
@@ -296,6 +359,10 @@ class FavouritesRepository
 			}
 		}
 
+		suspend fun addToFavourites(mangas: Collection<Manga>) {
+			addToCategory(ALL_FAVORITES_CATEGORY_ID, mangas)
+		}
+
 		suspend fun removeFromFavourites(ids: Collection<Long>): ReversibleHandle {
 			db.withTransaction {
 				for (id in ids) {
@@ -326,6 +393,24 @@ class FavouritesRepository
 				.filterNotNull()
 				.map { x -> ListSortOrder(x.order, ListSortOrder.NEWEST) }
 				.distinctUntilChanged()
+
+		private fun observeRules(scope: FavouriteScope): Flow<SmartFolderRules?> =
+			when (scope) {
+				FavouriteScope.All,
+				is FavouriteScope.Category,
+				-> {
+					flowOf(null)
+				}
+
+				is FavouriteScope.SmartFolder -> {
+					smartFoldersRepository.observe(scope.id).map { folder ->
+						when (val result = requireNotNull(folder) { "Smart folder ${scope.id} does not exist" }.rules) {
+							is SmartFolderRulesResult.Success -> result.rules
+							is SmartFolderRulesResult.Error -> throw SmartFolderRulesException(result.reason)
+						}
+					}
+				}
+			}
 
 		suspend fun getMostUpdatedCategories(limit: Int): List<FavouriteCategory> =
 			db.getFavouriteCategoriesDao().getMostUpdatedCategories(limit).map {

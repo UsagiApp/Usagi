@@ -52,7 +52,6 @@
 		android:backupAgent="org.draken.usagi.backups.domain.AppBackupAgent"
 		android:dataExtractionRules="@xml/backup_rules"
 		android:enableOnBackInvokedCallback="@bool/is_predictive_back_enabled"
-		android:extractNativeLibs="true"
 		android:fullBackupContent="@xml/backup_content"
 		android:fullBackupOnly="true"
 		android:hasFragileUserData="true"
@@ -237,6 +236,12 @@
 		<activity
 			android:name="org.draken.usagi.favourites.ui.categories.FavouriteCategoriesActivity"
 			android:label="@string/manage_categories" />
+		<activity
+			android:name="org.draken.usagi.favourites.ui.smartfolders.SmartFoldersActivity"
+			android:label="@string/smart_folders" />
+		<activity
+			android:name="org.draken.usagi.favourites.ui.smartfolders.edit.SmartFolderEditActivity"
+			android:label="@string/smart_folder" />
 		<activity
 			android:name="org.draken.usagi.widget.shelf.ShelfWidgetConfigActivity"
 			android:exported="true"

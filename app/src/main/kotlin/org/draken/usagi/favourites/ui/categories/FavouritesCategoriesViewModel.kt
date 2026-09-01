@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
-import org.draken.usagi.R
 import org.draken.usagi.core.model.FavouriteCategory
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsFlow
@@ -23,7 +22,6 @@ import org.draken.usagi.favourites.domain.FavouritesRepository
 import org.draken.usagi.favourites.domain.model.Cover
 import org.draken.usagi.favourites.ui.categories.adapter.AllCategoriesListModel
 import org.draken.usagi.favourites.ui.categories.adapter.CategoryListModel
-import org.draken.usagi.list.ui.model.EmptyState
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingState
 import javax.inject.Inject
@@ -42,10 +40,9 @@ class FavouritesCategoriesViewModel
 			combine(
 				repository.observeCategoriesWithCovers(),
 				observeAllCategories(),
-				settings.observeAsFlow(AppSettings.KEY_ALL_FAVOURITES_VISIBLE) { isAllFavouritesVisible },
 				isActionsEnabled,
-			) { cats, all, showAll, hasActions ->
-				cats.toUiList(all, showAll, hasActions)
+			) { cats, all, hasActions ->
+				cats.toUiList(all, hasActions)
 			}.withErrorHandling()
 				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, listOf(LoadingState))
 
@@ -53,10 +50,6 @@ class FavouritesCategoriesViewModel
 			launchJob(Dispatchers.Default) {
 				repository.removeCategories(ids)
 			}
-		}
-
-		fun setAllCategoriesVisible(isVisible: Boolean) {
-			settings.isAllFavouritesVisible = isVisible
 		}
 
 		fun isEmpty(): Boolean = content.value.none { it is CategoryListModel }
@@ -100,26 +93,13 @@ class FavouritesCategoriesViewModel
 
 		private fun Map<FavouriteCategory, List<Cover>>.toUiList(
 			allFavorites: Pair<Int, List<Cover>>,
-			showAll: Boolean,
 			hasActions: Boolean,
 		): List<ListModel> {
-			if (isEmpty()) {
-				return listOf(
-					EmptyState(
-						icon = R.drawable.ic_empty_favourites,
-						textPrimary = R.string.text_empty_holder_primary,
-						textSecondary = R.string.empty_favourite_categories,
-						actionStringRes = 0,
-					),
-				)
-			}
 			val result = ArrayList<ListModel>(size + 1)
 			result.add(
 				AllCategoriesListModel(
 					mangaCount = allFavorites.first,
 					covers = allFavorites.second,
-					isVisible = showAll,
-					isActionsEnabled = hasActions,
 				),
 			)
 			mapTo(result) { (category, covers) ->

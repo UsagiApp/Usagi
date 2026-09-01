@@ -15,12 +15,19 @@ import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.slider.Slider
 import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
+import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.prefs.ListMode
+import org.draken.usagi.core.ui.dialog.SearchableSelectionItem
 import org.draken.usagi.core.ui.sheet.BaseAdaptiveSheet
+import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.core.util.ext.consume
 import org.draken.usagi.core.util.ext.setValueRounded
 import org.draken.usagi.core.util.progress.IntPercentLabelFormatter
 import org.draken.usagi.databinding.SheetListModeBinding
+import org.draken.usagi.favourites.ui.FavouritesOptionsHost
+import org.draken.usagi.favourites.ui.container.FavouriteFilterSelectionState
+import org.draken.usagi.favourites.ui.selection.FavouriteSearchableSelectionDialog
+import org.draken.usagi.list.domain.ListFilterOption
 
 @AndroidEntryPoint
 class ListConfigBottomSheet :
@@ -30,6 +37,9 @@ class ListConfigBottomSheet :
 	CompoundButton.OnCheckedChangeListener,
 	AdapterView.OnItemSelectedListener {
 	private val viewModel by viewModels<ListConfigViewModel>()
+	private var favouritesHost: FavouritesOptionsHost? = null
+	private var filterSelection: FavouriteFilterSelectionState? = null
+	private var availableFilters = emptyList<ListFilterOption>()
 
 	override fun onCreateViewBinding(
 		inflater: LayoutInflater,
@@ -41,6 +51,15 @@ class ListConfigBottomSheet :
 		savedInstanceState: Bundle?,
 	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
+		val favouritesSection = viewModel.section as? ListConfigSection.Favorites
+		if (favouritesSection?.requiresOrganizerHost == true) {
+			val host =
+				requireNotNull(parentFragment as? FavouritesOptionsHost) {
+					"Favorites list options must be shown by FavouritesOptionsHost"
+				}
+			favouritesHost = host
+			setupFavouritesOptions(binding, host)
+		}
 		val mode = viewModel.listMode
 		binding.buttonList.isChecked = mode == ListMode.LIST
 		binding.buttonListDetailed.isChecked = mode == ListMode.DETAILED_LIST
@@ -73,13 +92,20 @@ class ListConfigBottomSheet :
 					android.R.id.text1,
 					sortOrders.map { binding.spinnerOrder.context.getString(it.titleResId) },
 				)
-			val selected = sortOrders.indexOf(viewModel.getSelectedSortOrder())
+			val selected = sortOrders.indexOf(favouritesHost?.currentFavouritesSortOrder() ?: viewModel.getSelectedSortOrder())
 			if (selected >= 0) {
 				binding.spinnerOrder.setSelection(selected, false)
 			}
 			binding.spinnerOrder.onItemSelectedListener = this
 			binding.cardOrder.isVisible = true
 		}
+	}
+
+	override fun onDestroyView() {
+		favouritesHost = null
+		filterSelection = null
+		availableFilters = emptyList()
+		super.onDestroyView()
 	}
 
 	override fun onApplyWindowInsets(
@@ -142,11 +168,108 @@ class ListConfigBottomSheet :
 	) {
 		when (parent.id) {
 			R.id.spinner_order -> {
-				viewModel.setSortOrder(position)
+				val order = viewModel.getSortOrders()?.getOrNull(position)
+				if (order != null && favouritesHost != null) {
+					favouritesHost?.setFavouritesSortOrder(order)
+				} else {
+					viewModel.setSortOrder(position)
+				}
 				viewBinding?.switchGrouping?.isEnabled = viewModel.isGroupingAvailable
 			}
 		}
 	}
 
 	override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+
+	private fun setupFavouritesOptions(
+		binding: SheetListModeBinding,
+		host: FavouritesOptionsHost,
+	) {
+		val state = requireNotNull(host.currentFavouritesOptions()) { "Active Favorites page is not ready" }
+		availableFilters = state.availableRuleOptions
+		filterSelection = FavouriteFilterSelectionState(state.selectedRuleOptions).also { it.retainAvailable(availableFilters) }
+		binding.favouritesOptions.isVisible = true
+		binding.buttonManageSmartFolders.root.setOnClickListener {
+			dismiss()
+			host.openSmartFolders()
+		}
+		renderFavouritesFilters(binding)
+	}
+
+	private fun renderFavouritesFilters(binding: SheetListModeBinding) {
+		val state = filterSelection ?: return
+		val simpleOptions = availableFilters.filterNot { it is ListFilterOption.Source || it is ListFilterOption.Tag }
+		binding.favouritesSimpleFilters.setChips(
+			simpleOptions.map { option ->
+				ChipsView.ChipModel(
+					title = filterTitle(option),
+					isChecked = option in state.selection(),
+					data = option,
+				)
+			},
+		)
+		binding.favouritesSimpleFilters.onChipClickListener =
+			ChipsView.OnChipClickListener { chip, data ->
+				val option = data as? ListFilterOption ?: return@OnChipClickListener
+				state.setSelected(option, !chip.isChecked)
+				applyFavouritesFilters()
+				renderFavouritesFilters(binding)
+			}
+
+		val sources = availableFilters.filterIsInstance<ListFilterOption.Source>()
+		binding.buttonFavouriteSources.isVisible = sources.isNotEmpty()
+		binding.buttonFavouriteSources.subtitle = selectionSubtitle(sources)
+		binding.buttonFavouriteSources.setOnClickListener {
+			showSearchableOptions(R.string.smart_folder_sources, sources)
+		}
+
+		val tags = availableFilters.filterIsInstance<ListFilterOption.Tag>()
+		binding.buttonFavouriteTags.isVisible = tags.isNotEmpty()
+		binding.buttonFavouriteTags.subtitle = selectionSubtitle(tags)
+		binding.buttonFavouriteTags.setOnClickListener {
+			showSearchableOptions(R.string.genres, tags)
+		}
+	}
+
+	private fun <T : ListFilterOption> selectionSubtitle(options: List<T>): String {
+		val selectedCount = options.count { it in filterSelection?.selection().orEmpty() }
+		return if (selectedCount == 0) {
+			getString(R.string.any)
+		} else {
+			resources.getQuantityString(R.plurals.items, selectedCount, selectedCount)
+		}
+	}
+
+	private fun <T : ListFilterOption> showSearchableOptions(
+		@androidx.annotation.StringRes titleResId: Int,
+		options: List<T>,
+	) {
+		val selection = filterSelection ?: return
+		FavouriteSearchableSelectionDialog.show(
+			context = requireContext(),
+			titleResId = titleResId,
+			items =
+				options.map { option ->
+					SearchableSelectionItem(
+						id = option,
+						title = filterTitle(option),
+					)
+				},
+			selected = options.filterTo(linkedSetOf()) { it in selection.selection() },
+		) { selected ->
+			options.forEach { option -> selection.setSelected(option, option in selected) }
+			applyFavouritesFilters()
+			viewBinding?.let(::renderFavouritesFilters)
+		}
+	}
+
+	private fun applyFavouritesFilters() {
+		favouritesHost?.applyFavouritesFilters(filterSelection?.selection().orEmpty())
+	}
+
+	private fun filterTitle(option: ListFilterOption): String =
+		when (option) {
+			is ListFilterOption.Source -> option.mangaSource.getTitle(requireContext())
+			else -> option.titleText?.toString() ?: getString(option.titleResId)
+		}
 }

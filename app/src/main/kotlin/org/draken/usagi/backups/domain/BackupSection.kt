@@ -10,6 +10,7 @@ enum class BackupSection(
 	HISTORY("history"),
 	CATEGORIES("categories"),
 	FAVOURITES("favourites"),
+	SMART_FOLDERS("smart_folders"),
 	SETTINGS("settings"),
 	SETTINGS_READER_GRID("reader_grid"),
 	BOOKMARKS("bookmarks"),

@@ -148,10 +148,6 @@ class FavouriteCategoriesActivity :
 		viewModel.setActionsEnabled(true)
 	}
 
-	override fun onShowAllClick(isChecked: Boolean) {
-		viewModel.setAllCategoriesVisible(isChecked)
-	}
-
 	override fun onDragHandleTouch(holder: RecyclerView.ViewHolder): Boolean {
 		reorderHelper.startDrag(holder)
 		return true
