@@ -382,16 +382,17 @@ class SourcesCatalogViewModel
 		): List<SourceCatalogItem> {
 			if (!isScopedMode) {
 				val sources =
-					repository.queryParserSources(
-						isDisabledOnly = true,
-						isNewOnly = filter.isNewOnly,
-						excludeBroken = false,
-						types = filter.types,
-						query = null,
-						locale = null,
-						plugin = filter.plugin,
-						sortOrder = SourcesSortOrder.ALPHABETIC,
-					)
+					repository
+						.queryParserSources(
+							isDisabledOnly = true,
+							isNewOnly = filter.isNewOnly,
+							excludeBroken = false,
+							types = filter.types,
+							query = null,
+							locale = null,
+							plugin = filter.plugin,
+							sortOrder = SourcesSortOrder.ALPHABETIC,
+						).filter { source -> repository.getDisabledSources().any { it.name == source.name } }
 				val grouped =
 					sources.groupBy { s: MangaSource ->
 						val ps = (s as? PluginMangaSource) ?: (s as? MangaSourceInfo)?.mangaSource as? PluginMangaSource
