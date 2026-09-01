@@ -272,7 +272,7 @@ class SourcesCatalogActivity :
 				icon = R.drawable.ic_language,
 				isDropdown = true,
 			)
-		if (hasNewSources && !viewModel.isScopedMode) {
+		if (hasNewSources || viewModel.isScopedMode) {
 			chips +=
 				ChipModel(
 					title = getString(R.string._new),

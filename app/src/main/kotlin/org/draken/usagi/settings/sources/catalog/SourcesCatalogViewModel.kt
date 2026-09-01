@@ -503,7 +503,7 @@ class SourcesCatalogViewModel
 				val custom =
 					catalogProvider.repositoryName(art.repositoryUrl)
 						?: DirectExternalPluginMetadata.get(art.packageName)
-				extSources.add(
+				val ext =
 					SourceCatalogItem.Extension(
 						c,
 						art,
@@ -513,8 +513,9 @@ class SourcesCatalogViewModel
 						multi,
 						art.packageName in installing,
 						custom,
-					),
-				)
+					)
+				if (filter.isNewOnly && !ext.isInstalled && !ext.isPreInstalledApk) continue
+				extSources.add(ext)
 			}
 			return extSources.ifEmpty {
 				val title =
