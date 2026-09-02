@@ -25,6 +25,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
 import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.commit
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.transition.TransitionManager
 import coil3.ImageLoader
@@ -87,6 +88,7 @@ import org.draken.usagi.details.data.MangaDetails
 import org.draken.usagi.details.service.MangaPrefetchService
 import org.draken.usagi.details.ui.model.ChapterListItem
 import org.draken.usagi.details.ui.model.HistoryInfo
+import org.draken.usagi.details.ui.pager.chapters.ChaptersFragment
 import org.draken.usagi.details.ui.scrobbling.ScrobblingItemDecoration
 import org.draken.usagi.details.ui.scrobbling.ScrollingInfoAdapter
 import org.draken.usagi.download.ui.worker.DownloadStartedObserver
@@ -130,7 +132,7 @@ class DetailsClassicActivity :
 	private var statusBarInset: Int = 0
 	private var faviconDisposable: Disposable? = null
 
-	override val bottomSheet: View
+	override val bottomSheet: View?
 		get() = viewBinding.containerBottomSheet
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -189,6 +191,24 @@ class DetailsClassicActivity :
 					supportActionBar?.setDisplayShowTitleEnabled(titleBottom < appBarBottom)
 				},
 			)
+			if (settings.isChaptersInlineEnabled) {
+				buttonRead.isGone = true
+				groupChaptersInline?.isVisible = true
+				buttonChaptersOrder?.apply {
+					isVisible = true
+					setOnClickListener {
+						viewModel.setChaptersReversed(viewModel.isChaptersReversed.value != true)
+					}
+					viewModel.isChaptersReversed.observe(this@DetailsClassicActivity) { reversed ->
+						setText(if (reversed) R.string.newest else R.string.order_oldest)
+					}
+				}
+				containerChaptersInline?.let { container ->
+					if (supportFragmentManager.findFragmentById(container.id) == null) {
+						supportFragmentManager.commit { add(container.id, ChaptersFragment()) }
+					}
+				}
+			}
 			containerBottomSheet.let { sheet ->
 				val behavior = (sheet.layoutParams as? CoordinatorLayout.LayoutParams)?.behavior as? BottomSheetBehavior<*>
 				if (behavior != null) {
@@ -495,6 +515,7 @@ class DetailsClassicActivity :
 				top = actionBarSize + barsInsets.top,
 				bottom = barsInsets.bottom + resources.getDimensionPixelOffset(R.dimen.details_bs_peek_height),
 			)
+
 			if (!settings.isBackdropEnabled) {
 				viewBinding.contentContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> {
 					topMargin = resources.getDimensionPixelOffset(R.dimen.margin_normal)

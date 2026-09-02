@@ -935,6 +935,8 @@
 	<string name="details_backdrop_blur">Backdrop blur intensity</string>
 	<string name="details_appearance">Details screen appearance</string>
 	<string name="details_appearance_summary">Screen style, backdrop image and blur effect</string>
+	<string name="details_chapters_inline">Chapters in details screen</string>
+	<string name="details_chapters_inline_summary">Show the chapter list in the manga details screen instead of the bottom sheet</string>
 	<string name="preview">Preview</string>
 	<string name="reader_appearance">Reader interface</string>
 	<string name="reader_appearance_summary">Customize layout, gestures and opacity in reader interface</string>
