@@ -17,12 +17,14 @@ import coil3.request.Options
 import coil3.size.pxOrElse
 import coil3.toAndroidUri
 import coil3.toBitmap
+import eu.kanade.tachiyomi.source.online.HttpSource
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.runInterruptible
 import okio.FileSystem
 import okio.IOException
 import okio.Path.Companion.toOkioPath
+import org.draken.tsukimix.core.parser.external.ExtensionSourceSettings
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.CloudFlareProtectedException
 import org.draken.usagi.core.model.MangaSource
@@ -41,7 +43,7 @@ import tsuki.util.runCatchingCancellable
 import java.io.File
 import javax.inject.Inject
 import coil3.Uri as CoilUri
-import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as ExternalRepository
+import org.draken.tsukimix.core.parser.external.model.Manga as ExtensionMangaSource
 
 class FaviconFetcher(
 	private val uri: Uri,
@@ -56,7 +58,7 @@ class FaviconFetcher(
 		return when (val repo = mangaRepositoryFactory.create(mangaSource)) {
 			is MangaParserRepository -> fetchParserFavicon(repo)
 			is ExternalMangaRepository -> fetchPluginIcon(repo)
-			is ExternalRepository -> fetchPackageIcon(repo.source.pkgName)
+			is org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository -> fetchExternalIcon(repo.source)
 			is EmptyMangaRepository -> throwNSEE(null)
 			is LocalMangaRepository -> imageLoader.fetch(R.drawable.ic_storage, options)
 			else -> throw IllegalArgumentException("Unsupported repo ${repo.javaClass.simpleName}")
@@ -108,6 +110,42 @@ class FaviconFetcher(
 	private suspend fun fetchPluginIcon(repository: ExternalMangaRepository): FetchResult {
 		val source = repository.source
 		return fetchPackageIcon(source.packageName, source.authority)
+	}
+
+	private suspend fun fetchExternalIcon(source: ExtensionMangaSource): FetchResult {
+		val configuredUrl =
+			runCatchingCancellable {
+				ExtensionSourceSettings.browserUrl(options.context, source)
+			}.getOrNull()
+				?: (source.catalogueSource as? HttpSource)?.baseUrl
+		return runCatchingCancellable {
+			configuredUrl
+				?.takeIf { it.isNotBlank() }
+				?.let { fetchDomainFavicon(it, source) }
+				?: fetchPackageIcon(source.pkgName)
+		}.getOrElse {
+			fetchPackageIcon(source.pkgName)
+		}
+	}
+
+	private suspend fun fetchDomainFavicon(
+		configuredUrl: String,
+		source: ExtensionMangaSource,
+	): FetchResult {
+		val sizePx =
+			maxOf(
+				options.size.width.pxOrElse { FALLBACK_SIZE },
+				options.size.height.pxOrElse { FALLBACK_SIZE },
+			)
+		val cacheKey = options.diskCacheKey ?: "${source.name}_${configuredUrl}_$sizePx"
+		if (options.diskCachePolicy.readEnabled) {
+			localStorageCache[cacheKey]?.let { file ->
+				return file.asFetchResult()
+			}
+		}
+		val faviconUrl = configuredUrl.trimEnd('/') + "/favicon.ico"
+		val result = imageLoader.fetch(faviconUrl, options) ?: throwNSEE(null)
+		return if (options.diskCachePolicy.writeEnabled) writeToCache(cacheKey, result) else result
 	}
 
 	private suspend fun fetchPackageIcon(

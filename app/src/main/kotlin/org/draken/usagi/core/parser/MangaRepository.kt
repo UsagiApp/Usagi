@@ -7,6 +7,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import org.draken.tsukimix.core.parser.external.ExtRuntime
 import org.draken.usagi.core.cache.MemoryContentCache
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.MangaSourceInfo
@@ -30,11 +31,11 @@ import tsuki.model.MangaSource
 import tsuki.model.SortOrder
 import java.lang.ref.WeakReference
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
-import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
+import org.draken.tsukimix.core.parser.external.model.Manga as ExternalSource
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor as Interceptor
-import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository as ExternalRepository
+import org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository as ExternalRepository
 
 interface MangaRepository {
 	val source: MangaSource
@@ -82,11 +83,11 @@ interface MangaRepository {
 		constructor(
 			@ApplicationContext private val context: Context,
 			private val localMangaRepository: LocalMangaRepository,
-			private val loaderContext: MangaLoaderContext,
+			private val loaderContext: Provider<MangaLoaderContext>,
 			private val contentCache: MemoryContentCache,
-			private val mirrorSwitcher: MirrorSwitcher,
+			private val mirrorSwitcher: Provider<MirrorSwitcher>,
 			private val mangaRepository: MangaDynamicRepository,
-			private val externalManager: ExternalManager,
+			private val extRuntime: Provider<ExtRuntime>,
 		) {
 			private val cache = ArrayMap<MangaSource, WeakReference<MangaRepository>>()
 			private var cacheVersion = -1
@@ -95,7 +96,7 @@ interface MangaRepository {
 			fun create(source: MangaSource): MangaRepository {
 				var target = source.resolve()
 				if (target is UnresolvedMangaSource || MangaSourceRegistry.sources.isEmpty()) {
-					resolve()
+					resolve(target)
 					target = source.resolve()
 				}
 
@@ -131,7 +132,7 @@ interface MangaRepository {
 				when (source) {
 					TestMangaSource -> {
 						TestMangaRepository(
-							loaderContext = loaderContext,
+							loaderContext = loaderContext.get(),
 							cache = contentCache,
 						)
 					}
@@ -154,6 +155,7 @@ interface MangaRepository {
 								context = context,
 								source = source,
 								cache = contentCache,
+								runtime = extRuntime.get(),
 							)
 						} catch (_: Throwable) {
 							EmptyMangaRepository(source)
@@ -164,9 +166,9 @@ interface MangaRepository {
 						try {
 							MangaParserRepository(
 								compoundSource = source,
-								parser = loaderContext.newParserInstance(source),
+								parser = loaderContext.get().newParserInstance(source),
 								cache = contentCache,
-								mirrorSwitcher = mirrorSwitcher,
+								mirrorSwitcher = mirrorSwitcher.get(),
 							)
 						} catch (_: Throwable) {
 							EmptyMangaRepository(source)
@@ -174,18 +176,15 @@ interface MangaRepository {
 					}
 				}
 
-			private fun resolve() {
+			private fun resolve(target: MangaSource? = null) =
 				synchronized(this) {
 					if (MangaSourceRegistry.sources.isEmpty()) {
-						runCatching {
-							mangaRepository.load(mangaRepository.getDir())
-							kotlinx.coroutines.runBlocking {
-								externalManager.ensureReady()
-							}
-						}
+						runCatching { mangaRepository.load(mangaRepository.getDir()) }
+					}
+					if (target is UnresolvedMangaSource && target.name.startsWith("EXTERNAL")) {
+						runCatching { kotlinx.coroutines.runBlocking { extRuntime.get().ensureReady() } }
 					}
 				}
-			}
 		}
 
 	companion object {

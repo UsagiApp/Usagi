@@ -1,17 +1,28 @@
 package org.draken.usagi.settings.sources.catalog
 
+import android.annotation.SuppressLint
+import android.app.DownloadManager
+import android.content.ActivityNotFoundException
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.appcompat.widget.PopupMenu
-import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.chip.Chip
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.combine
 import org.draken.usagi.R
@@ -23,11 +34,8 @@ import org.draken.usagi.core.ui.util.FadingAppbarMediator
 import org.draken.usagi.core.ui.util.ReversibleActionObserver
 import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.core.ui.widgets.ChipsView.ChipModel
-import org.draken.usagi.core.util.LocaleComparator
-import org.draken.usagi.core.util.ext.getDisplayName
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.observeEvent
-import org.draken.usagi.core.util.ext.toLocale
 import org.draken.usagi.databinding.ActivitySourcesCatalogBinding
 import org.draken.usagi.list.ui.adapter.TypedListSpacingDecoration
 import org.draken.usagi.main.ui.owners.AppBarOwner
@@ -38,37 +46,88 @@ class SourcesCatalogActivity :
 	BaseActivity<ActivitySourcesCatalogBinding>(),
 	OnListItemClickListener<SourceCatalogItem.Source>,
 	AppBarOwner,
-	MenuItem.OnActionExpandListener,
 	ChipsView.OnChipClickListener {
-	override val appBar: AppBarLayout
-		get() = viewBinding.appbar
+	override val appBar: AppBarLayout get() = viewBinding.appbar
 
 	private val viewModel by viewModels<SourcesCatalogViewModel>()
+	private val downloadManager by lazy { getSystemService(DOWNLOAD_SERVICE) as DownloadManager }
+	private val sideloadDownloadIds = mutableSetOf<Long>()
+	private var fadingAppbarMediator: FadingAppbarMediator? = null
+	private var navBarBottomInset = 0
+	private val downloadReceiver =
+		object : BroadcastReceiver() {
+			override fun onReceive(
+				context: Context,
+				intent: Intent,
+			) {
+				if (intent.action != DownloadManager.ACTION_DOWNLOAD_COMPLETE) return
+				val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L)
+				if (id != 0L && sideloadDownloadIds.remove(id)) openDownloadedApk(id)
+			}
+		}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(ActivitySourcesCatalogBinding.inflate(layoutInflater))
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
-		val sourcesAdapter = SourcesCatalogAdapter(this)
+		if (viewModel.isScopedMode) {
+			title = intent.getStringExtra(EXTRA_REPOSITORY_NAME) ?: viewModel.scopedRepositoryUrl
+		}
+		val adapter =
+			SourcesCatalogAdapter(
+				nativeListener = this,
+				onExtensionClick = { item, _ -> viewModel.openSource(item) },
+				onExtensionInstall = { item, _ -> install(item) },
+				onExtensionUninstall = { item, _ -> uninstall(item) },
+				onExtensionSideload = ::showSideloadMenu,
+			)
 		with(viewBinding.recyclerView) {
 			setHasFixedSize(true)
 			addItemDecoration(TypedListSpacingDecoration(context, false))
-			adapter = sourcesAdapter
+			this.adapter = adapter
 		}
 		viewBinding.chipsFilter.onChipClickListener = this
-		FadingAppbarMediator(viewBinding.appbar, viewBinding.toolbar).bind()
-		viewModel.content.observe(this, sourcesAdapter)
-		viewModel.onActionDone.observeEvent(
-			this,
-			ReversibleActionObserver(viewBinding.recyclerView),
-		)
-		combine(viewModel.appliedFilter, viewModel.hasNewSources, viewModel.contentTypes, ::Triple).observe(this) {
-			updateFilers(it.first, it.second, it.third)
+		fadingAppbarMediator = FadingAppbarMediator(viewBinding.appbar, viewBinding.toolbar).also { it.bind() }
+		viewModel.content.observe(this, adapter)
+		viewModel.onActionDone.observeEvent(this, ReversibleActionObserver(viewBinding.recyclerView))
+		viewModel.onActionError.observeEvent(this) { resId ->
+			showSnackbar(getString(resId), Snackbar.LENGTH_LONG)
 		}
-		addMenuProvider(SourcesCatalogMenuProvider(this, viewModel, this))
+		viewModel.onOpenSource.observeEvent(this) { source ->
+			router.openList(source, null, null)
+		}
+		combine(viewModel.appliedFilter, viewModel.hasNewSources, viewModel.contentTypes, ::Triple).observe(this) {
+			updateFilters(it.first, it.second, it.third)
+		}
+		addMenuProvider(SourcesCatalogMenuProvider(this, viewModel), this, androidx.lifecycle.Lifecycle.State.RESUMED)
+	}
+
+	override fun onStart() {
+		super.onStart()
+		ContextCompat.registerReceiver(
+			this,
+			downloadReceiver,
+			IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+			ContextCompat.RECEIVER_EXPORTED,
+		)
+	}
+
+	override fun onResume() {
+		super.onResume()
+		viewModel.refreshExtensionRuntime()
+	}
+
+	override fun onStop() {
+		runCatching { unregisterReceiver(downloadReceiver) }
+		super.onStop()
 	}
 
 	override fun onDestroy() {
+		currentSnackbar?.dismiss()
+		currentSnackbar = null
+		fadingAppbarMediator?.unbind()
+		fadingAppbarMediator = null
+		viewBinding.chipsFilter.onChipClickListener = null
 		viewBinding.recyclerView.adapter = null
 		super.onDestroy()
 	}
@@ -78,6 +137,7 @@ class SourcesCatalogActivity :
 		insets: WindowInsetsCompat,
 	): WindowInsetsCompat {
 		val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+		navBarBottomInset = bars.bottom
 		viewBinding.recyclerView.updatePadding(
 			left = bars.left,
 			right = bars.right,
@@ -109,9 +169,7 @@ class SourcesCatalogActivity :
 	override fun onItemClick(
 		item: SourceCatalogItem.Source,
 		view: View,
-	) {
-		router.openList(item.source, null, null)
-	}
+	) = router.openList(item.source, null, null)
 
 	override fun onItemLongClick(
 		item: SourceCatalogItem.Source,
@@ -121,42 +179,100 @@ class SourcesCatalogActivity :
 		return false
 	}
 
-	override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-		val sq =
-			(item.actionView as? SearchView)
-				?.query
-				?.trim()
-				?.toString()
-				.orEmpty()
-		viewModel.performSearch(sq)
-		return true
+	private fun install(item: SourceCatalogItem.Extension) {
+		if (item.isLoaded && !item.hasUpdate) return
+		viewModel.install(item)
 	}
 
-	override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-		viewModel.performSearch(null)
-		return true
+	private fun uninstall(item: SourceCatalogItem.Extension) {
+		if (item.isPreInstalledApk) {
+			val action =
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+					Intent.ACTION_DELETE
+				} else {
+					@Suppress("DEPRECATION")
+					Intent.ACTION_UNINSTALL_PACKAGE
+				}
+			startActivity(Intent(action, Uri.fromParts("package", item.artifact.packageName, null)))
+		} else {
+			viewModel.uninstall(item)
+		}
 	}
 
-	private fun updateFilers(
+	private fun showSideloadMenu(
+		item: SourceCatalogItem.Extension,
+		anchor: View,
+	) {
+		PopupMenu(this, anchor)
+			.apply {
+				menu.add(Menu.NONE, Menu.NONE, 0, R.string.download)
+				setOnMenuItemClickListener {
+					downloadApk(item)
+					true
+				}
+			}.show()
+	}
+
+	private fun downloadApk(item: SourceCatalogItem.Extension) {
+		val req =
+			viewModel.createDownloadRequest(item, getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)) ?: run {
+				showSnackbar(getString(R.string.operation_not_supported), Snackbar.LENGTH_LONG)
+				return
+			}
+		val id =
+			runCatching { downloadManager.enqueue(req) }.getOrElse {
+				showSnackbar(getString(R.string.error), Snackbar.LENGTH_LONG)
+				return
+			}
+		sideloadDownloadIds += id
+		showSnackbar(getString(R.string.download), Snackbar.LENGTH_SHORT)
+	}
+
+	@SuppressLint("RequestInstallPackagesPolicy")
+	@Suppress("DEPRECATION")
+	private fun openDownloadedApk(downloadId: Long) {
+		val apkUri =
+			downloadManager.getUriForDownloadedFile(downloadId) ?: run {
+				showSnackbar(getString(R.string.error), Snackbar.LENGTH_LONG)
+				return
+			}
+		val intent =
+			Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
+				flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+				setDataAndType(apkUri, APK_MIME_TYPE)
+				putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+			}
+		runCatching { startActivity(intent) }.onFailure {
+			if (it is ActivityNotFoundException) showSnackbar(getString(R.string.error), Snackbar.LENGTH_LONG)
+		}
+	}
+
+	private fun updateFilters(
 		appliedFilter: SourcesCatalogFilter,
 		hasNewSources: Boolean,
 		contentTypes: List<ContentType>,
 	) {
 		val chips = ArrayList<ChipModel>(contentTypes.size + 3)
+		if (!viewModel.isScopedMode) {
+			chips +=
+				ChipModel(
+					title =
+						appliedFilter.plugin?.let { key ->
+							viewModel.plugins.firstOrNull { it.first == key }?.second
+								?: key.removeSuffix(".jar")
+						} ?: getString(R.string.any),
+					icon = R.drawable.ic_services,
+					isDropdown = true,
+					data = "plugins",
+				)
+		}
 		chips +=
 			ChipModel(
-				title = appliedFilter.plugin?.removeSuffix(".jar") ?: getString(R.string.any),
-				icon = R.drawable.ic_services,
-				isDropdown = true,
-				data = "plugins",
-			)
-		chips +=
-			ChipModel(
-				title = appliedFilter.locale?.toLocale().getDisplayName(this),
+				title = viewModel.localeDisplayName(appliedFilter.locale),
 				icon = R.drawable.ic_language,
 				isDropdown = true,
 			)
-		if (hasNewSources) {
+		if (hasNewSources || viewModel.isScopedMode) {
 			chips +=
 				ChipModel(
 					title = getString(R.string._new),
@@ -166,43 +282,54 @@ class SourcesCatalogActivity :
 				)
 		}
 		contentTypes.mapTo(chips) { type ->
-			ChipModel(
-				title = getString(type.titleResId),
-				isChecked = type in appliedFilter.types,
-				data = type,
-			)
+			ChipModel(title = getString(type.titleResId), isChecked = type in appliedFilter.types, data = type)
 		}
 		viewBinding.chipsFilter.setChips(chips)
 	}
 
+	private var currentSnackbar: Snackbar? = null
+
+	private fun showSnackbar(
+		message: CharSequence,
+		duration: Int,
+	) {
+		currentSnackbar?.dismiss()
+		val sb = Snackbar.make(viewBinding.recyclerView, message, duration)
+		(sb.view.layoutParams as? ViewGroup.MarginLayoutParams)?.let {
+			it.bottomMargin += navBarBottomInset
+			sb.view.layoutParams = it
+		}
+		currentSnackbar = sb
+		sb.show()
+	}
+
 	private fun showLocalesMenu(anchor: View) {
-		val locales =
-			viewModel.locales.mapTo(ArrayList(viewModel.locales.size)) {
-				it to it?.toLocale()
-			}
-		locales.sortWith(compareBy(nullsFirst(LocaleComparator())) { it.second })
-		val menu = PopupMenu(this, anchor)
-		for ((i, lc) in locales.withIndex()) {
-			menu.menu.add(Menu.NONE, Menu.NONE, i, lc.second.getDisplayName(this))
-		}
-		menu.setOnMenuItemClickListener {
-			viewModel.setLocale(locales.getOrNull(it.order)?.first)
-			true
-		}
-		menu.show()
+		val locales = viewModel.locales.value.sortedWith(compareBy { viewModel.localeDisplayName(it) })
+		PopupMenu(this, anchor)
+			.apply {
+				locales.forEachIndexed { i, loc -> menu.add(Menu.NONE, Menu.NONE, i, viewModel.localeDisplayName(loc)) }
+				setOnMenuItemClickListener {
+					viewModel.setLocale(locales.getOrNull(it.order))
+					true
+				}
+			}.show()
 	}
 
 	private fun showPluginsMenu(anchor: View) {
-		val menu = PopupMenu(this, anchor)
-		menu.menu.add(Menu.NONE, Menu.NONE, 0, getString(R.string.any))
-		for ((i, plugin) in viewModel.plugins.withIndex()) {
-			menu.menu.add(Menu.NONE, Menu.NONE, i + 1, plugin.removeSuffix(".jar"))
-		}
-		menu.setOnMenuItemClickListener {
-			val p = if (it.order == 0) null else viewModel.plugins[it.order - 1]
-			viewModel.setPlugin(p)
-			true
-		}
-		menu.show()
+		PopupMenu(this, anchor)
+			.apply {
+				menu.add(Menu.NONE, Menu.NONE, 0, getString(R.string.any))
+				viewModel.plugins.forEachIndexed { i, (_, label) -> menu.add(Menu.NONE, Menu.NONE, i + 1, label) }
+				setOnMenuItemClickListener {
+					viewModel.setPlugin(if (it.order == 0) null else viewModel.plugins[it.order - 1].first)
+					true
+				}
+			}.show()
+	}
+
+	companion object {
+		const val APK_MIME_TYPE = SourcesCatalogViewModel.APK_MIME_TYPE
+		const val EXTRA_REPOSITORY_URL = SourcesCatalogViewModel.EXTRA_REPOSITORY_URL
+		const val EXTRA_REPOSITORY_NAME = SourcesCatalogViewModel.EXTRA_REPOSITORY_NAME
 	}
 }

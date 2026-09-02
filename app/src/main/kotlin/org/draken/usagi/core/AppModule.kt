@@ -30,6 +30,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import okhttp3.OkHttpClient
+import org.draken.tsukimix.core.parser.external.ExtRuntime
+import org.draken.tsukimix.core.parser.external.ExtensionProvider
+import org.draken.tsukimix.core.parser.external.NativeExtManager
+import org.draken.tsukimix.core.parser.external.RuntimeInitializer
+import org.draken.tsukimix.core.parser.external.model.Manga
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.backups.domain.BackupObserver
 import org.draken.usagi.core.db.MangaDatabase
@@ -38,6 +43,8 @@ import org.draken.usagi.core.image.AvifImageDecoder
 import org.draken.usagi.core.image.CbzFetcher
 import org.draken.usagi.core.image.ExternalSourceFetcher
 import org.draken.usagi.core.image.MangaSourceHeaderInterceptor
+import org.draken.usagi.core.model.MangaSourceRegistry
+import org.draken.usagi.core.network.BaseHttpClient
 import org.draken.usagi.core.network.MangaHttpClient
 import org.draken.usagi.core.network.imageproxy.ImageProxyInterceptor
 import org.draken.usagi.core.network.webview.WebViewExecutor
@@ -69,9 +76,10 @@ import tsuki.MangaLoaderContext
 import tsuki.network.UserAgents
 import javax.inject.Provider
 import javax.inject.Singleton
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionLoader as Loader
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as Manager
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiInjektBridge as Bridge
+import org.draken.tsukimix.core.parser.external.ExtensionBridge as Bridge
+import org.draken.tsukimix.core.parser.external.ExtensionLoader as Loader
+import org.draken.tsukimix.core.parser.external.ExtensionManager as Manager
+import org.draken.usagi.core.model.DirectExternalPluginMetadata as Metadata
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -265,5 +273,60 @@ interface AppModule {
 			@ApplicationContext context: Context,
 			loader: Loader,
 		): Manager = Manager(context, loader)
+
+		@Provides
+		@Singleton
+		fun provideNativeExtManager(
+			@ApplicationContext context: Context,
+			@BaseHttpClient httpClient: OkHttpClient,
+			injektBridge: Bridge,
+		): NativeExtManager = NativeExtManager(context, httpClient, injektBridge)
+
+		@Provides
+		@Singleton
+		fun provideExtensionProvider(
+			@ApplicationContext context: Context,
+			@BaseHttpClient httpClient: OkHttpClient,
+		): ExtensionProvider = ExtensionProvider(context, httpClient)
+
+		@Provides
+		@Singleton
+		fun provideExtRuntime(
+			installedManager: Manager,
+			directManager: NativeExtManager,
+			catalogProvider: ExtensionProvider,
+			database: MangaDatabase,
+			settings: AppSettings,
+		): ExtRuntime =
+			ExtRuntime(
+				installedManager = installedManager,
+				directManager = directManager,
+				disabledSourceProvider =
+					{
+						if (settings.isAllSourcesEnabled) {
+							emptySet()
+						} else {
+							database
+								.getSourcesDao()
+								.findAll()
+								.asSequence()
+								.filterNot { it.isEnabled }
+								.map { it.source }
+								.toSet()
+						}
+					},
+				sourcesPublisher =
+					{ sources ->
+						Metadata.update(directManager.installed.value) { catalogProvider.repositoryName(it) }
+						val non = MangaSourceRegistry.sources.filterNot { it is Manga }
+						MangaSourceRegistry.publish(non + sources)
+					},
+			)
+
+		@Provides
+		@Singleton
+		fun provideExtRuntimeInitializer(
+			extRuntime: Provider<ExtRuntime>,
+		): RuntimeInitializer = RuntimeInitializer { extRuntime.get() }
 	}
 }

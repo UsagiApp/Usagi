@@ -233,6 +233,19 @@ class AppRouter private constructor(
 
 	fun openSourcesCatalog() = startActivity(SourcesCatalogActivity::class.java)
 
+	fun openPluginCatalog(
+		repositoryUrl: String,
+		repositoryName: String?,
+	) {
+		val context = contextOrNull() ?: return
+		startActivity(
+			Intent(context, SourcesCatalogActivity::class.java).apply {
+				putExtra(SourcesCatalogActivity.EXTRA_REPOSITORY_URL, repositoryUrl)
+				putExtra(SourcesCatalogActivity.EXTRA_REPOSITORY_NAME, repositoryName)
+			},
+		)
+	}
+
 	fun openDownloads() = startActivity(DownloadsActivity::class.java)
 
 	fun openDirectoriesSettings() = startActivity(MangaDirectoriesActivity::class.java)
