@@ -927,4 +927,11 @@
     <string name="reader_bottom_bar_opacity">Opacidad de la barra de acción</string>
     <string name="is_float_bar">Barra de acción flotante</string>
     <string name="is_float_bar_summary">Exhiba la barra de acción del lector (en el inferior) como una barra flotante en vez de una barra de muelle</string>
+    <string name="downscale_image">Reducir la escala de imágen</string>
+    <string name="downscale_off">Desactivando</string>
+    <string name="crash_oops">¡Ups!</string>
+    <string name="restart_app">Restablecer la aplicación</string>
+    <string name="transfer_cookies_on_redirect">Transferir automáticamente las cookies al nuevo dominio (beta)</string>
+    <string name="proxy_webview_unavailable">El proxy para WebView no es compatible</string>
+    <string name="floating_navigation_bar">Barra de navegación flotante</string>
 </resources>
