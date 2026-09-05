@@ -70,6 +70,8 @@
 -keep class androidx.preference.TwoStatePreference { public protected *; }
 -keep class eu.kanade.tachiyomi.** { public protected *; }
 -keep class keiyoushi.** { public protected *; }
+-keep class app.cash.quickjs.** { *; }
+-keepclassmembers class app.cash.quickjs.** { *; }
 -keep class rx.Observable { public protected *; }
 -keep class rx.Single { public protected *; }
 -keep class rx.Completable { public protected *; }
