@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceGroup
 import androidx.preference.PreferenceScreen
 import androidx.preference.get
 import androidx.recyclerview.widget.RecyclerView
@@ -107,24 +108,17 @@ abstract class BasePreferenceFragment(
 			return
 		}
 		scrollToPreference(pref)
-		val prefIndex = preferenceScreen.indexOf(key)
-		val view =
-			if (prefIndex >= 0) {
-				listView.findViewHolderForAdapterPosition(prefIndex)?.itemView ?: return
-			} else {
-				return
+		listView.post {
+			val i = preferenceScreen.indexOf(key)
+			val view = if (i >= 0) listView.findViewHolderForAdapterPosition(i)?.itemView else null
+			view?.context?.getThemeDrawable(materialR.attr.colorTertiaryContainer)?.let {
+				view.background = it
 			}
-		view.context.getThemeDrawable(materialR.attr.colorTertiaryContainer)?.let {
-			view.background = it
 		}
 	}
 
-	private fun PreferenceScreen.indexOf(key: String): Int {
-		for (i in 0 until preferenceCount) {
-			if (get(i).key == key) {
-				return i
-			}
-		}
-		return -1
-	}
+	private fun PreferenceScreen.indexOf(key: String): Int =
+		(listView.adapter as? PreferenceGroup.PreferencePositionCallback)
+			?.getPreferenceAdapterPosition(key)
+			?.takeIf { it >= 0 } ?: (0 until preferenceCount).firstOrNull { get(it).key == key } ?: -1
 }
