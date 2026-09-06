@@ -44,9 +44,11 @@ fun sourceConfigItemDelegate2(listener: SourceConfigListener) =
 			binding.textViewTitle.text = item.source.getTitle(context)
 			binding.imageViewAdd.isGone = item.isEnabled || !item.isAvailable
 			binding.imageViewRemove.isVisible = item.isEnabled && item.isDisableAvailable
+			binding.imageViewRemove.setImageResource(R.drawable.ic_disable)
+			binding.imageViewRemove.contentDescription = context.getString(R.string.disable)
 			binding.imageViewMenu.isVisible = item.isEnabled
 			binding.textViewTitle.drawableStart = if (item.isPinned) iconPinned else null
-		
+
 			val summary = item.source.getSummary(context)
 			val pluginSource = item.source as? org.draken.usagi.core.model.PluginMangaSource
 			if (pluginSource != null) {
@@ -55,7 +57,7 @@ fun sourceConfigItemDelegate2(listener: SourceConfigListener) =
 			} else {
 				binding.textViewDescription.text = summary
 			}
-		
+
 			binding.imageViewIcon.setImageAsync(item.source)
 		}
 	}

@@ -931,4 +931,11 @@
     <string name="auto_update_plugins_summary">Atualizar automaticamente todos os plugins instalados na inicialização</string>
     <string name="downscale_image">Reduzir a imagem</string>
     <string name="downscale_off">Desligado</string>
+    <string name="transfer_cookies_on_redirect">Transferir cookies automaticamente para o novo domínio (beta)</string>
+    <string name="transfer_cookies_on_redirect_summary">Copiar e transferir automaticamente os cookies do domínio antigo para o novo, caso seja detectado um redirecionamento do domínio da história em quadrinhos original para um domínio diferente</string>
+    <string name="floating_navigation_bar">Barra de navegação flutuante</string>
+    <string name="floating_navigation_bar_summary">Exibir a navegação da tela principal como uma barra flutuante (como no Google Fotos)</string>
+    <string name="fix_excluded_sources">Correção automática de fontes excluídas</string>
+    <string name="fix_excluded_sources_summary">Especifique as fontes que você não deseja usar no recurso de correção automática de mangás</string>
+    <string name="no_filters_available">Essa fonte não possui filtros</string>
 </resources>

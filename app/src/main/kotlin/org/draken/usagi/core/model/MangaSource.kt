@@ -9,6 +9,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.text.inSpans
+import org.draken.tsukimix.core.parser.external.NativeExtManager
+import org.draken.tsukimix.core.parser.external.model.ExtInstalled
 import org.draken.usagi.R
 import org.draken.usagi.core.parser.external.ExternalMangaSource
 import org.draken.usagi.core.util.ext.getDisplayName
@@ -17,31 +19,66 @@ import org.draken.usagi.core.util.ext.toLocaleOrNull
 import tsuki.model.ContentType
 import tsuki.model.MangaSource
 import tsuki.util.splitTwoParts
+import java.net.URI
 import java.util.Locale
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
-import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
+import org.draken.tsukimix.core.parser.external.model.Manga as ExternalSource
 
 data class PluginMangaSource(
 	val delegate: MangaSource,
 	val jarName: String,
 ) : MangaSource {
-	override val name: String
-		get() = "$jarName:${delegate.name}"
+	override val name: String get() = "$jarName:${delegate.name}"
+	val sourceName: String get() = delegate.name
+	override val locale: String get() = delegate.locale
+	override val contentType: ContentType get() = delegate.contentType
+	override val title: String get() = delegate.title
+	override val isBroken: Boolean get() = delegate.isBroken
+}
 
-	val sourceName: String
-		get() = delegate.name
+object DirectExternalPluginMetadata {
+	@Volatile
+	private var names: Map<String, String> = emptyMap()
 
-	override val locale: String
-		get() = delegate.locale
+	fun update(
+		installed: Collection<ExtInstalled>,
+		resolver: ((String) -> String?)? = null,
+	) {
+		names =
+			installed
+				.mapNotNull { r ->
+					val name =
+						resolver?.invoke(r.repositoryUrl)
+							?: if (r.repositoryUrl.startsWith("local:") ||
+								r.repositoryUrl.startsWith("installed:")
+							) {
+								r.name
+									.removePrefix("Extension: ")
+									.removePrefix("Extension - ")
+									.trim()
+									.ifBlank { "Local" }
+							} else {
+								deriveName(r.repositoryUrl)
+							}
+					name?.let { r.packageName to it }
+				}.toMap()
+	}
 
-	override val contentType: ContentType
-		get() = delegate.contentType
+	fun get(packageName: String): String? = names[packageName]
 
-	override val title: String
-		get() = delegate.title
-
-	override val isBroken: Boolean
-		get() = delegate.isBroken
+	fun deriveName(url: String): String? =
+		runCatching {
+			val uri = URI(url)
+			val host = uri.host?.lowercase(Locale.ROOT).orEmpty()
+			if (host.endsWith(".github.io")) {
+				host.removeSuffix(".github.io")
+			} else {
+				uri.path
+					.trim('/')
+					.split('/')
+					.firstOrNull { it.isNotBlank() }
+					?.replaceFirstChar { it.titlecase(Locale.ROOT) } ?: host.takeIf { it.isNotBlank() }
+			}
+		}.getOrNull()
 }
 
 data object LocalMangaSource : MangaSource {
@@ -75,13 +112,14 @@ fun MangaSource(name: String?): MangaSource {
 		val parts = name.substringAfter(':').splitTwoParts('/') ?: return UnknownMangaSource
 		return ExternalMangaSource(packageName = parts.first, authority = parts.second)
 	} else if (name.startsWith("EXTERNAL_")) {
-		ExternalManager.getByName(name)?.let { return it } // tachi
+		NativeExtManager.getByName(name)?.let { return it }
+		org.draken.tsukimix.core.parser.external.ExtensionManager
+			.getByName(name)
+			?.let { return it }
 	}
 	MangaSourceRegistry.resolveByName(name)?.let { return it }
-	// Backward compatibility for loaded database items saved as '1.jar:MANGADEX'
 	if (name.contains(':')) {
-		val raw = name.substringAfter(":")
-		MangaSourceRegistry.resolveByName(raw)?.let { return it }
+		MangaSourceRegistry.resolveByName(name.substringAfter(":"))?.let { return it }
 	}
 	return UnresolvedMangaSource(name)
 }
@@ -139,41 +177,62 @@ fun MangaSource.isExternalSource(): Boolean =
 		else -> false
 	}
 
+fun MangaSource.isManageableSource(): Boolean =
+	when (unwrap()) {
+		is LocalMangaSource, is TestMangaSource, is UnknownMangaSource -> false
+		else -> true
+	}
+
 fun MangaSource.externalPackageName(): String? =
 	when (val source = unwrap()) {
 		is ExternalMangaSource -> source.packageName
-		is ExternalSource -> source.pkgName
+		is ExternalSource -> source.pkgName.takeIf { source.isPreInstalled }
 		else -> null
 	}
 
 fun MangaSource.getSummary(context: Context): String? {
 	val baseSummary =
-		when {
-			isExternalSource() -> {
+		when (val source = unwrap()) {
+			is ExternalSource -> {
+				val type = context.getString(source.contentType.titleResId)
+				val language =
+					if (source.locale.equals("all", true) || source.hasLanguageSuffix) {
+						context.getString(R.string.various_languages)
+					} else {
+						source.locale.toLocaleOrNull().getDisplayName(context)
+					}
+				val label =
+					if (source.isPreInstalled) {
+						context.getString(R.string.external_source)
+					} else {
+						DirectExternalPluginMetadata.get(source.pkgName)
+							?: context.getString(R.string.external_source)
+					}
+				"$type, $language • $label"
+			}
+
+			is ExternalMangaSource -> {
 				context.getString(R.string.external_source)
 			}
 
-			this === LocalMangaSource || this === TestMangaSource || this === UnknownMangaSource -> {
+			LocalMangaSource, TestMangaSource, UnknownMangaSource -> {
 				null
 			}
 
 			else -> {
 				val type = context.getString(contentType.titleResId)
-				val loc = locale.toLocale().getDisplayName(context)
+				val loc =
+					if (locale.equals("all", true) || locale.isBlank()) {
+						context.getString(R.string.various_languages)
+					} else {
+						locale.toLocale().getDisplayName(context)
+					}
 				context.getString(R.string.source_summary_pattern, type, loc)
 			}
 		}
-	val pluginSource =
-		when (this) {
-			is PluginMangaSource -> this
-			is MangaSourceInfo -> mangaSource as? PluginMangaSource
-			else -> null
-		}
-	return if (pluginSource != null && baseSummary != null) {
-		"$baseSummary • ${pluginSource.jarName}"
-	} else {
-		pluginSource?.jarName ?: baseSummary
-	}
+	val pluginSource = (this as? PluginMangaSource) ?: (this as? MangaSourceInfo)?.mangaSource as? PluginMangaSource
+	val pLabel = pluginSource?.jarName?.removeSuffix(".jar")?.removeSuffix(".apk")
+	return if (pLabel != null && baseSummary != null) "$baseSummary • $pLabel" else pLabel ?: baseSummary
 }
 
 fun MangaSource.getTitle(context: Context): String =
@@ -195,11 +254,6 @@ fun SpannableStringBuilder.appendIcon(
 	icon.setTintList(textView.textColors)
 	val size = textView.lineHeight
 	icon.setBounds(0, 0, size, size)
-	val alignment =
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			ImageSpan.ALIGN_CENTER
-		} else {
-			ImageSpan.ALIGN_BOTTOM
-		}
+	val alignment = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) ImageSpan.ALIGN_CENTER else ImageSpan.ALIGN_BOTTOM
 	return inSpans(ImageSpan(icon, alignment)) { append(' ') }
 }

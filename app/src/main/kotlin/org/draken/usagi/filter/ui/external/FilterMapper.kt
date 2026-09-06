@@ -72,7 +72,7 @@ object FilterMapper {
 				}
 
 				is Filter.CheckBox -> {
-					val def = (default as? Filter.CheckBox)?.state ?: false
+					val def = (default.takeIf { it !== filter } as? Filter.CheckBox)?.state ?: false
 					if (filter.state != def) {
 						out +=
 							tag(
@@ -84,7 +84,7 @@ object FilterMapper {
 				}
 
 				is Filter.TriState -> {
-					val def = (default as? Filter.TriState)?.state ?: Filter.TriState.STATE_IGNORE
+					val def = (default.takeIf { it !== filter } as? Filter.TriState)?.state ?: Filter.TriState.STATE_IGNORE
 					if (filter.state != def) {
 						out +=
 							tag(
@@ -101,7 +101,7 @@ object FilterMapper {
 				}
 
 				is Filter.Select<*> -> {
-					val def = (default as? Filter.Select<*>)?.state ?: 0
+					val def = (default.takeIf { it !== filter } as? Filter.Select<*>)?.state ?: 0
 					if (filter.state != def) {
 						// The sort Select is tagged with the sort prefix so the toolbar can find it.
 						val type = if (path == sortPath) TYPE_SORT else TYPE_SELECT
@@ -116,7 +116,7 @@ object FilterMapper {
 
 				is Filter.Sort -> {
 					val selection = filter.state
-					val def = (default as? Filter.Sort)?.state
+					val def = (default.takeIf { it !== filter } as? Filter.Sort)?.state
 					if (selection != def) {
 						val encodedSelection =
 							selection?.let {
@@ -137,7 +137,7 @@ object FilterMapper {
 				}
 
 				is Filter.Text -> {
-					val def = (default as? Filter.Text)?.state.orEmpty()
+					val def = (default.takeIf { it !== filter } as? Filter.Text)?.state.orEmpty()
 					if (filter.state != def) {
 						out +=
 							tag(

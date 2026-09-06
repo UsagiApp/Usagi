@@ -1,10 +1,13 @@
 package org.draken.usagi.scrobbling.discord.ui
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.SystemClock
 import android.util.ArrayMap
 import androidx.annotation.AnyThread
+import androidx.core.graphics.drawable.toBitmap
 import coil3.ImageLoader
+import coil3.asDrawable
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import com.discord.oauth2rpc.API
@@ -48,6 +51,7 @@ private const val STATUS_ONLINE = "online"
 private const val STATUS_IDLE = "idle"
 private const val BUTTON_TEXT_LIMIT = 32
 private const val DEBOUNCE_TIMEOUT = 3_000L // 3 sec
+private val CHAPTER_REGEX = Regex("""^\D*\d+(\.\d+)?$""")
 
 @ViewModelScoped
 class DiscordRpc
@@ -107,13 +111,13 @@ class DiscordRpc
 			}
 
 			val title = state.getChapterTitle(context.resources)
-			val noTitle = state.chapter.title.isNullOrBlank() || title == context.getString(R.string.chapter_number, state.chapterNumber.toString())
+			val isGeneric = state.chapter.title.isNullOrBlank() || title.matches(CHAPTER_REGEX)
+			val p = context.getString(R.string.chapter_d_of_d, state.chapterNumber, state.chaptersTotal)
 			val (presenceState, largeText) =
-				if (noTitle && state.chapter.volume == 0) {
-					context.getString(R.string.chapter_d_of_d, state.chapterNumber, state.chaptersTotal) to
-						context.getString(R.string.reading_s, manga.title)
-				} else {
-					title to "Season ${state.chapter.volume}, Episode ${state.chapterNumber}"
+				when {
+					state.chapter.volume >= 1 -> title to "Season ${state.chapter.volume}, Episode ${state.chapterNumber}"
+					isGeneric -> p to context.getString(R.string.reading_s, manga.title)
+					else -> title to p
 				}
 
 			val presence =
@@ -183,9 +187,8 @@ class DiscordRpc
 					getRegistrar()?.resolve(this, contentRating)
 				}
 			}.onSuccess { url -> if (url != null && repository.isMediaProxyUrl(url)) mpCache[this] = url }
-				.onFailure {
-					it.printStackTraceDebug()
-				}.getOrNull()
+				.onFailure { it.printStackTraceDebug() }
+				.getOrNull()
 		}
 
 		private suspend fun getCacheFile(url: String): File? {
@@ -195,14 +198,24 @@ class DiscordRpc
 				?.toFileOrNull()
 				?.takeIf { it.exists() }
 				?.let { return it }
-			var snapshot = imageLoader.diskCache?.openSnapshot(url)
-			if (snapshot == null) {
-				val request = ImageRequest.Builder(context).data(url).build()
-				if (imageLoader.execute(request) is SuccessResult) {
-					snapshot = imageLoader.diskCache?.openSnapshot(url)
+			return (
+				imageLoader.diskCache?.openSnapshot(url) ?: run {
+					val r =
+						imageLoader.execute(ImageRequest.Builder(context).data(url).build())
+							as? SuccessResult ?: return null
+					imageLoader.diskCache?.openSnapshot(url)
+						?: return withContext(Dispatchers.IO) {
+							File(context.cacheDir, "rpc_tmp.png").apply {
+								outputStream().use {
+									r.image
+										.asDrawable(context.resources)
+										.toBitmap()
+										.compress(Bitmap.CompressFormat.PNG, 75, it)
+								}
+							}
+						}
 				}
-			}
-			return snapshot?.use { File(it.data.toString()) }
+			).use { File(it.data.toString()) }
 		}
 
 		private fun getRpc(): GatewayClient? =

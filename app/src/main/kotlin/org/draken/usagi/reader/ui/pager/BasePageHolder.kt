@@ -108,7 +108,6 @@ abstract class BasePageHolder<B : ViewBinding>(
 
 	fun bind(data: ReaderPage) {
 		boundData = data
-		ssiv.recycle()
 		viewModel.onBind(data.toMangaPage())
 		onBind(data)
 	}

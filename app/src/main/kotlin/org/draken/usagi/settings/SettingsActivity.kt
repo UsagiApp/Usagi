@@ -53,6 +53,10 @@ class SettingsActivity :
 		get() = viewBinding.containerMaster != null
 
 	private val viewModel: SettingsSearchViewModel by viewModels()
+	private val backStackListener =
+		androidx.fragment.app.FragmentManager.OnBackStackChangedListener {
+			invalidateOptionsMenu()
+		}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -71,9 +75,12 @@ class SettingsActivity :
 		}
 		viewModel.isSearchActive.observe(this, ::toggleSearchMode)
 		viewModel.onNavigateToPreference.observeEvent(this, ::navigateToPreference)
-		supportFragmentManager.addOnBackStackChangedListener {
-			invalidateOptionsMenu()
-		}
+		supportFragmentManager.addOnBackStackChangedListener(backStackListener)
+	}
+
+	override fun onDestroy() {
+		supportFragmentManager.removeOnBackStackChangedListener(backStackListener)
+		super.onDestroy()
 	}
 
 	override fun onApplyWindowInsets(

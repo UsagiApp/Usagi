@@ -5,7 +5,6 @@ import androidx.collection.MutableObjectLongMap
 import kotlinx.coroutines.delay
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
 import tsuki.model.MangaSource
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,7 +34,7 @@ class DownloadSlowdownDispatcher
 		private fun isSlowdownEnabled(source: MangaSource): Boolean =
 			when (val repo = mangaRepositoryFactory.create(source)) {
 				is MangaParserRepository -> repo.isSlowdownEnabled()
-				is ExternalMangaRepository -> repo.isSlowdownEnabled()
+				is org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository -> repo.isSlowdownEnabled()
 				else -> false
 			}
 	}

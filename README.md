@@ -32,6 +32,22 @@
         </a>
       </td>
     </tr>
+    <tr>
+      <th align="center">Obtainium</th>
+      <th align="center">OpenAPK</th>
+    </tr>
+    <tr>
+      <td align="center">
+        <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/UsagiApp/Usagi">
+          <img src="./.github/assets/badge_obtainium.png" height="70" alt="Usagi on Obtainium">
+        </a>
+      </td>
+      <td align="center">
+        <a href="https://www.openapk.net/usagi/org.draken.usagi/">
+          <img src="./.github/assets/badge_openapk.png" height="70" alt="Usagi on OpenAPK">
+        </a>
+      </td>
+    </tr>
   </tbody>
 </table>
 

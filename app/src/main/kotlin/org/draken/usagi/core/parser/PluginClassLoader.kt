@@ -12,8 +12,7 @@ class PluginClassLoader(
 		name: String,
 		resolve: Boolean,
 	): Class<*> {
-		// New tsuki.* classes — delegate to app's classloader (Tsuki AAR)
-		if (name.startsWith("tsuki.")) {
+		if (name.startsWith("tsuki.") || name.contains("quickjs")) {
 			return super.loadClass(name, resolve)
 		}
 

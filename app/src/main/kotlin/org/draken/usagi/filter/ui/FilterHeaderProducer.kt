@@ -3,6 +3,7 @@ package org.draken.usagi.filter.ui
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import org.draken.usagi.R
+import org.draken.usagi.core.model.isExternalSource
 import org.draken.usagi.core.model.titleResId
 import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.filter.data.PersistableFilter
@@ -171,7 +172,7 @@ class FilterHeaderProducer
 				)
 			}
 			val hasTags = result.any { it.data is MangaTag }
-			if (hasTags) {
+			if (hasTags && !source.isExternalSource()) {
 				result.addFirst(moreTagsChip())
 			}
 			return result

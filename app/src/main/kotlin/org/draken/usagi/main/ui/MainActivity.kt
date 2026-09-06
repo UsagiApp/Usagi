@@ -57,7 +57,6 @@ import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.os.VoiceInputContract
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.NavItem
-import org.draken.usagi.core.ui.AppCrashActivity
 import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.ui.dialog.BigButtonsAlertDialog
 import org.draken.usagi.core.ui.util.FadingAppbarMediator

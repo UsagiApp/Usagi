@@ -1,6 +1,5 @@
 package org.draken.usagi.settings.sources.catalog
 
-import android.app.Activity
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -10,9 +9,8 @@ import org.draken.usagi.R
 import org.draken.usagi.main.ui.owners.AppBarOwner
 
 class SourcesCatalogMenuProvider(
-	private val activity: Activity,
+	private val appBarOwner: AppBarOwner?,
 	private val viewModel: SourcesCatalogViewModel,
-	private val expandListener: MenuItem.OnActionExpandListener,
 ) : MenuProvider,
 	MenuItem.OnActionExpandListener,
 	SearchView.OnQueryTextListener {
@@ -32,13 +30,21 @@ class SourcesCatalogMenuProvider(
 	override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
 
 	override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-		(activity as? AppBarOwner)?.appBar?.setExpanded(true, true)
-		return expandListener.onMenuItemActionExpand(item)
+		appBarOwner?.appBar?.setExpanded(true, true)
+		val query =
+			(item.actionView as? SearchView)
+				?.query
+				?.trim()
+				?.toString()
+				.orEmpty()
+		viewModel.performSearch(query)
+		return true
 	}
 
 	override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-		(item.actionView as SearchView).setQuery("", false)
-		return expandListener.onMenuItemActionCollapse(item)
+		(item.actionView as? SearchView)?.setQuery("", false)
+		viewModel.performSearch(null)
+		return true
 	}
 
 	override fun onQueryTextSubmit(query: String?): Boolean = false
