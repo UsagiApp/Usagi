@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style name="Widget.Usagi.Chip.FavouriteFilter" parent="Widget.Usagi.Chip.Filter">
+		<item name="chipStrokeWidth">0dp</item>
+		<item name="chipBackgroundColor">@color/favourite_filter_background</item>
+	</style>
+</resources>

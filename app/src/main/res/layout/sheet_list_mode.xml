@@ -40,8 +40,9 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginHorizontal="@dimen/margin_normal"
+					android:layout_marginTop="@dimen/margin_normal"
 					android:text="@string/favourite_organizer_rules_title"
-					android:textAppearance="?textAppearanceTitleMedium" />
+					android:textAppearance="?textAppearanceTitleSmall" />
 
 				<TextView
 					android:layout_width="match_parent"
@@ -52,75 +53,24 @@
 					android:textAppearance="?textAppearanceBodySmall"
 					android:textColor="?android:attr/textColorSecondary" />
 
-				<com.google.android.material.card.MaterialCardView
-					style="?materialCardViewFilledStyle"
+				<org.draken.usagi.core.ui.widgets.ChipsView
+					android:id="@+id/favourites_filters"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginHorizontal="@dimen/margin_normal"
 					android:layout_marginTop="@dimen/margin_small"
-					app:cardBackgroundColor="?colorSurfaceContainer"
-					app:cardCornerRadius="24dp">
-
-					<LinearLayout
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:orientation="vertical"
-						android:paddingHorizontal="18dp"
-						android:paddingVertical="6dp">
-
-						<org.draken.usagi.core.ui.widgets.ChipsView
-							android:id="@+id/favourites_simple_filters"
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							app:chipSpacingHorizontal="8dp"
-							app:chipSpacingVertical="8dp"
-							app:chipStyle="@style/Widget.Usagi.Chip.Filter"
-							app:selectionRequired="false"
-							app:singleSelection="false" />
-
-						<org.draken.usagi.core.ui.widgets.TwoLinesItemView
-							android:id="@+id/button_favourite_sources"
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:button="@drawable/ic_arrow_forward"
-							android:drawablePadding="16dp"
-							android:minHeight="64dp"
-							android:paddingHorizontal="6dp"
-							android:visibility="gone"
-							app:backgroundFillColor="@android:color/transparent"
-							app:icon="@drawable/ic_manga_source"
-							app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.None"
-							app:title="@string/smart_folder_sources"
-							tools:subtitle="@string/any"
-							tools:visibility="visible" />
-
-						<org.draken.usagi.core.ui.widgets.TwoLinesItemView
-							android:id="@+id/button_favourite_tags"
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:button="@drawable/ic_arrow_forward"
-							android:drawablePadding="16dp"
-							android:minHeight="64dp"
-							android:paddingHorizontal="6dp"
-							android:visibility="gone"
-							app:backgroundFillColor="@android:color/transparent"
-							app:icon="@drawable/ic_tag"
-							app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.Corner.None"
-							app:title="@string/genres"
-							tools:subtitle="@string/any"
-							tools:visibility="visible" />
-
-					</LinearLayout>
-
-				</com.google.android.material.card.MaterialCardView>
+					app:chipStyle="@style/Widget.Usagi.Chip.FavouriteFilter"
+					app:chipSpacingHorizontal="8dp"
+					app:chipSpacingVertical="4dp"
+					app:singleSelection="false" />
 
 				<TextView
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_marginHorizontal="@dimen/margin_normal"
-					android:layout_marginTop="24dp"
+					android:layout_marginTop="@dimen/margin_normal"
 					android:text="@string/smart_folders"
-					android:textAppearance="?textAppearanceTitleMedium" />
+					android:textAppearance="?textAppearanceTitleSmall" />
 
 				<include
 					android:id="@+id/button_manage_smart_folders"

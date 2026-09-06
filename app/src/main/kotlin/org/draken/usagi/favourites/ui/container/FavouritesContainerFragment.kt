@@ -188,12 +188,6 @@ class FavouritesContainerFragment :
 
 	private fun renderStages(state: FavouritesPageUiState) {
 		val binding = viewBinding ?: return
-		val counts = state.stageCounts
-		FavouriteStage.entries.forEach { stage ->
-			val chip = binding.stageChips.findViewById<Chip>(stageChipIds.getValue(stage))
-			val title = getString(stage.titleResId)
-			chip.text = counts?.let { getString(R.string.favourite_stage_with_count, title, it[stage]) } ?: title
-		}
 		isBindingStage = true
 		binding.stageChips.check(stageChipIds.getValue(state.selectedStage))
 		isBindingStage = false
