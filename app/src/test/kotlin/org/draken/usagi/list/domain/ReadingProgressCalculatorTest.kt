@@ -6,39 +6,23 @@ import org.junit.Test
 class ReadingProgressCalculatorTest {
 	@Test
 	fun `calculate includes completed chapters and current page`() {
-		val result =
-			ReadingProgressCalculator.calculate(
-				chapterIndex = 1,
-				chaptersCount = 4,
-				pageIndex = 4,
-				pagesCount = 10,
-			)
-
-		assertEquals(0.375f, result)
+		assertProgress(0.375f, ReadingPosition(chapterIndex = 1, pageIndex = 4))
 	}
 
 	@Test
 	fun `calculate returns no progress for unusable positions`() {
 		val invalidInputs =
 			listOf(
-				ReadingPosition(chapterIndex = -1, chaptersCount = 4, pageIndex = 0, pagesCount = 10),
-				ReadingPosition(chapterIndex = 4, chaptersCount = 4, pageIndex = 0, pagesCount = 10),
-				ReadingPosition(chapterIndex = 0, chaptersCount = 0, pageIndex = 0, pagesCount = 10),
-				ReadingPosition(chapterIndex = 0, chaptersCount = 4, pageIndex = -1, pagesCount = 10),
-				ReadingPosition(chapterIndex = 0, chaptersCount = 4, pageIndex = 10, pagesCount = 10),
-				ReadingPosition(chapterIndex = 0, chaptersCount = 4, pageIndex = 0, pagesCount = 0),
+				ReadingPosition(chapterIndex = -1),
+				ReadingPosition(chapterIndex = 4),
+				ReadingPosition(chaptersCount = 0),
+				ReadingPosition(pageIndex = -1),
+				ReadingPosition(pageIndex = 10),
+				ReadingPosition(pagesCount = 0),
 			)
 
 		invalidInputs.forEach { input ->
-			assertEquals(
-				ReadingProgress.PROGRESS_NONE,
-				ReadingProgressCalculator.calculate(
-					chapterIndex = input.chapterIndex,
-					chaptersCount = input.chaptersCount,
-					pageIndex = input.pageIndex,
-					pagesCount = input.pagesCount,
-				),
-			)
+			assertProgress(ReadingProgress.PROGRESS_NONE, input)
 		}
 	}
 
@@ -50,29 +34,24 @@ class ReadingProgressCalculatorTest {
 
 	@Test
 	fun `calculate updates progress when chapter count grows`() {
-		val previous =
-			ReadingProgressCalculator.calculate(
-				chapterIndex = 1,
-				chaptersCount = 2,
-				pageIndex = 9,
-				pagesCount = 10,
-			)
-		val recalculated =
-			ReadingProgressCalculator.calculate(
-				chapterIndex = 1,
-				chaptersCount = 4,
-				pageIndex = 9,
-				pagesCount = 10,
-			)
-
-		assertEquals(1f, previous)
-		assertEquals(0.5f, recalculated)
+		val position = ReadingPosition(chapterIndex = 1, chaptersCount = 2, pageIndex = 9)
+		assertProgress(1f, position)
+		assertProgress(0.5f, position.copy(chaptersCount = 4))
 	}
 
+	private fun assertProgress(
+		expected: Float,
+		input: ReadingPosition,
+	) = assertEquals(
+		input.toString(),
+		expected,
+		ReadingProgressCalculator.calculate(input.chapterIndex, input.chaptersCount, input.pageIndex, input.pagesCount),
+	)
+
 	private data class ReadingPosition(
-		val chapterIndex: Int,
-		val chaptersCount: Int,
-		val pageIndex: Int,
-		val pagesCount: Int,
+		val chapterIndex: Int = 0,
+		val chaptersCount: Int = 4,
+		val pageIndex: Int = 0,
+		val pagesCount: Int = 10,
 	)
 }

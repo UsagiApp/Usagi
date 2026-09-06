@@ -7,59 +7,24 @@ import tsuki.model.MangaState
 class FavouriteStageClassifierTest {
 	@Test
 	fun `favorite without active history is not started`() {
-		val stage =
-			FavouriteStageClassifier.classify(
-				historyPercent = null,
-				newChapters = 0,
-				sourceStates = emptySet(),
-			)
-
-		assertEquals(FavouriteStage.NOT_STARTED, stage)
+		assertStage(FavouriteStage.NOT_STARTED, historyPercent = null, states = emptySet())
 	}
 
 	@Test
 	fun `incomplete progress or new chapters is reading`() {
-		assertEquals(
-			FavouriteStage.READING,
-			FavouriteStageClassifier.classify(
-				historyPercent = 0.5f,
-				newChapters = 0,
-				sourceStates = setOf(MangaState.FINISHED),
-			),
-		)
-		assertEquals(
-			FavouriteStage.READING,
-			FavouriteStageClassifier.classify(
-				historyPercent = 1f,
-				newChapters = 1,
-				sourceStates = setOf(MangaState.FINISHED),
-			),
-		)
+		assertStage(FavouriteStage.READING, historyPercent = 0.5f)
+		assertStage(FavouriteStage.READING, newChapters = 1)
 	}
 
 	@Test
 	fun `caught up finished favorite is completed`() {
-		val stage =
-			FavouriteStageClassifier.classify(
-				historyPercent = 1f,
-				newChapters = 0,
-				sourceStates = setOf(MangaState.FINISHED),
-			)
-
-		assertEquals(FavouriteStage.COMPLETED, stage)
+		assertStage(FavouriteStage.COMPLETED)
 	}
 
 	@Test
 	fun `caught up continuing favorite is waiting`() {
 		setOf(MangaState.ONGOING, MangaState.PAUSED, MangaState.UPCOMING).forEach { state ->
-			assertEquals(
-				FavouriteStage.WAITING,
-				FavouriteStageClassifier.classify(
-					historyPercent = 1f,
-					newChapters = 0,
-					sourceStates = setOf(state),
-				),
-			)
+			assertStage(FavouriteStage.WAITING, states = setOf(state))
 		}
 	}
 
@@ -74,14 +39,7 @@ class FavouriteStageClassifierTest {
 			)
 
 		unusableStates.forEach { states ->
-			assertEquals(
-				FavouriteStage.NEEDS_REVIEW,
-				FavouriteStageClassifier.classify(
-					historyPercent = 1f,
-					newChapters = 0,
-					sourceStates = states,
-				),
-			)
+			assertStage(FavouriteStage.NEEDS_REVIEW, states = states)
 		}
 	}
 
@@ -92,4 +50,15 @@ class FavouriteStageClassifierTest {
 			FavouriteStage.entries.filterTo(linkedSetOf()) { stage -> stage.requiresSourceRefresh },
 		)
 	}
+
+	private fun assertStage(
+		expected: FavouriteStage,
+		historyPercent: Float? = 1f,
+		newChapters: Int = 0,
+		states: Set<MangaState> = setOf(MangaState.FINISHED),
+	) = assertEquals(
+		"progress=$historyPercent, newChapters=$newChapters, states=$states",
+		expected,
+		FavouriteStageClassifier.classify(historyPercent, newChapters, states),
+	)
 }

@@ -1,6 +1,7 @@
 package org.draken.usagi.core.db
 
 import androidx.room.testing.MigrationTestHelper
+import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.draken.usagi.core.db.migrations.Migration28To29
@@ -9,6 +10,7 @@ import org.draken.usagi.core.db.migrations.Migration30To31
 import org.draken.usagi.core.db.migrations.Migration31To32
 import org.draken.usagi.favourites.data.createAllFavoritesInfrastructure
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,31 +53,12 @@ class MangaDatabaseTest {
 	@Test
 	fun migrate29To30CreatesGlobalMembershipFromActiveFavorites() {
 		helper.createDatabase(TEST_DB_29_30, 29).use { database ->
-			database.execSQL(
-				"INSERT INTO favourite_categories " +
-					"(category_id, created_at, sort_key, title, `order`, track, show_in_lib, deleted_at) " +
-					"VALUES (1, 10, 0, 'Read later', 'NEWEST', 1, 1, 0)",
-			)
-			database.execSQL(
-				"INSERT INTO manga " +
-					"(manga_id, title, alt_title, url, public_url, rating, nsfw, content_rating, cover_url, large_cover_url, state, author, source) " +
-					"VALUES (1, 'Manga', NULL, 'url', 'public', 0.5, 0, NULL, '', NULL, 'ONGOING', NULL, 'source-a')",
-			)
-			database.execSQL(
-				"INSERT INTO favourites (manga_id, category_id, sort_key, pinned, created_at, deleted_at) " +
-					"VALUES (1, 1, 0, 0, 10, 0)",
-			)
+			database.insertManualFavorite()
 		}
 
 		helper.runMigrationsAndValidate(TEST_DB_29_30, 30, true, Migration29To30()).use { database ->
-			database.query("SELECT COUNT(*) FROM favourite_categories WHERE category_id = 0").use { cursor ->
-				cursor.moveToFirst()
-				assertEquals(1, cursor.getInt(0))
-			}
-			database.query("SELECT COUNT(*) FROM favourites WHERE manga_id = 1 AND category_id = 0 AND deleted_at = 0").use { cursor ->
-				cursor.moveToFirst()
-				assertEquals(1, cursor.getInt(0))
-			}
+			database.assertCount(1, "SELECT COUNT(*) FROM favourite_categories WHERE category_id = 0")
+			database.assertCount(1, "SELECT COUNT(*) FROM favourites WHERE manga_id = 1 AND category_id = 0 AND deleted_at = 0")
 		}
 	}
 
@@ -106,14 +89,7 @@ class MangaDatabaseTest {
 		}
 
 		helper.runMigrationsAndValidate(TEST_DB_30_31, 31, true, Migration30To31()).use { database ->
-			database
-				.query(
-					"SELECT COUNT(*) FROM favourites " +
-						"WHERE category_id = 0 AND deleted_at = 0 AND manga_id IN (1, 2, 3)",
-				).use { cursor ->
-					cursor.moveToFirst()
-					assertEquals(3, cursor.getInt(0))
-				}
+			database.assertCount(3, "SELECT COUNT(*) FROM favourites WHERE category_id = 0 AND deleted_at = 0 AND manga_id IN (1, 2, 3)")
 		}
 	}
 
@@ -121,30 +97,12 @@ class MangaDatabaseTest {
 	fun migrate31To32KeepsGlobalMembershipWhenLastManualMembershipIsRemoved() {
 		helper.createDatabase(TEST_DB_31_32, 31).use { database ->
 			database.createAllFavoritesInfrastructure()
-			database.execSQL(
-				"INSERT INTO favourite_categories " +
-					"(category_id, created_at, sort_key, title, `order`, track, show_in_lib, deleted_at) " +
-					"VALUES (1, 10, 0, 'Read later', 'NEWEST', 1, 1, 0)",
-			)
-			database.execSQL(
-				"INSERT INTO manga " +
-					"(manga_id, title, alt_title, url, public_url, rating, nsfw, content_rating, cover_url, large_cover_url, state, author, source) " +
-					"VALUES (1, 'Manga', NULL, 'url', 'public', 0.5, 0, NULL, '', NULL, 'ONGOING', NULL, 'source-a')",
-			)
-			database.execSQL(
-				"INSERT INTO favourites (manga_id, category_id, sort_key, pinned, created_at, deleted_at) " +
-					"VALUES (1, 1, 0, 0, 10, 0)",
-			)
+			database.insertManualFavorite()
 		}
 
 		helper.runMigrationsAndValidate(TEST_DB_31_32, 32, true, Migration31To32()).use { database ->
 			database.execSQL("UPDATE favourites SET deleted_at = 20 WHERE manga_id = 1 AND category_id = 1")
-			database
-				.query("SELECT COUNT(*) FROM favourites WHERE manga_id = 1 AND category_id = 0 AND deleted_at = 0")
-				.use { cursor ->
-					cursor.moveToFirst()
-					assertEquals(1, cursor.getInt(0))
-				}
+			database.assertCount(1, "SELECT COUNT(*) FROM favourites WHERE manga_id = 1 AND category_id = 0 AND deleted_at = 0")
 		}
 	}
 
@@ -159,22 +117,43 @@ class MangaDatabaseTest {
 	@Test
 	fun migrate28To29CreatesSmartFoldersWithoutChangingExistingData() {
 		helper.createDatabase(TEST_DB_28_29, 28).use { database ->
-			database.execSQL(
-				"INSERT INTO favourite_categories " +
-					"(category_id, created_at, sort_key, title, `order`, track, show_in_lib, deleted_at) " +
-					"VALUES (1, 10, 0, 'Read later', 'NEWEST', 1, 1, 0)",
-			)
+			database.insertCategory()
 		}
 
 		helper.runMigrationsAndValidate(TEST_DB_28_29, 29, true, Migration28To29()).use { database ->
-			database.query("SELECT COUNT(*) FROM favourite_categories WHERE category_id = 1").use { cursor ->
-				cursor.moveToFirst()
-				assertEquals(1, cursor.getInt(0))
-			}
-			database.query("SELECT COUNT(*) FROM smart_folders").use { cursor ->
-				cursor.moveToFirst()
-				assertEquals(0, cursor.getInt(0))
-			}
+			database.assertCount(1, "SELECT COUNT(*) FROM favourite_categories WHERE category_id = 1")
+			database.assertCount(0, "SELECT COUNT(*) FROM smart_folders")
+		}
+	}
+
+	private fun SupportSQLiteDatabase.insertManualFavorite() {
+		insertCategory()
+		execSQL(
+			"INSERT INTO manga " +
+				"(manga_id, title, alt_title, url, public_url, rating, nsfw, content_rating, cover_url, large_cover_url, state, author, source) " +
+				"VALUES (1, 'Manga', NULL, 'url', 'public', 0.5, 0, NULL, '', NULL, 'ONGOING', NULL, 'source-a')",
+		)
+		execSQL(
+			"INSERT INTO favourites (manga_id, category_id, sort_key, pinned, created_at, deleted_at) " +
+				"VALUES (1, 1, 0, 0, 10, 0)",
+		)
+	}
+
+	private fun SupportSQLiteDatabase.insertCategory() {
+		execSQL(
+			"INSERT INTO favourite_categories " +
+				"(category_id, created_at, sort_key, title, `order`, track, show_in_lib, deleted_at) " +
+				"VALUES (1, 10, 0, 'Read later', 'NEWEST', 1, 1, 0)",
+		)
+	}
+
+	private fun SupportSQLiteDatabase.assertCount(
+		expected: Int,
+		query: String,
+	) {
+		query(query).use { cursor ->
+			assertTrue(query, cursor.moveToFirst())
+			assertEquals(query, expected, cursor.getInt(0))
 		}
 	}
 

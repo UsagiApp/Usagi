@@ -7,26 +7,14 @@ import org.junit.Test
 class FavouriteRulesSummaryTest {
 	@Test
 	fun `unrestricted smart folder without transient filters has no summary`() {
-		assertNull(
-			buildFavouriteRulesSummary(
-				invalidRulesLabel = null,
-				persistentSummary = null,
-				selectedFilterTitles = emptyList(),
-				overflowFilterSummary = "4 active filters",
-			),
-		)
+		assertNull(summary())
 	}
 
 	@Test
 	fun `validation error replaces rule and filter summaries`() {
 		assertEquals(
 			"Invalid rules",
-			buildFavouriteRulesSummary(
-				invalidRulesLabel = "Invalid rules",
-				persistentSummary = "SFW",
-				selectedFilterTitles = listOf("On device"),
-				overflowFilterSummary = "4 active filters",
-			),
+			summary(error = "Invalid rules", persistent = "SFW", filters = listOf("On device")),
 		)
 	}
 
@@ -34,12 +22,7 @@ class FavouriteRulesSummaryTest {
 	fun `persistent and transient conditions are combined`() {
 		assertEquals(
 			"SFW · On device · New chapters",
-			buildFavouriteRulesSummary(
-				invalidRulesLabel = null,
-				persistentSummary = "SFW",
-				selectedFilterTitles = listOf("On device", "New chapters"),
-				overflowFilterSummary = "4 active filters",
-			),
+			summary(persistent = "SFW", filters = listOf("On device", "New chapters")),
 		)
 	}
 
@@ -47,12 +30,13 @@ class FavouriteRulesSummaryTest {
 	fun `more than three transient filters use the compact count`() {
 		assertEquals(
 			"4 active filters",
-			buildFavouriteRulesSummary(
-				invalidRulesLabel = null,
-				persistentSummary = null,
-				selectedFilterTitles = listOf("One", "Two", "Three", "Four"),
-				overflowFilterSummary = "4 active filters",
-			),
+			summary(filters = listOf("One", "Two", "Three", "Four")),
 		)
 	}
+
+	private fun summary(
+		error: String? = null,
+		persistent: String? = null,
+		filters: List<String> = emptyList(),
+	) = buildFavouriteRulesSummary(error, persistent, filters, "4 active filters")
 }
