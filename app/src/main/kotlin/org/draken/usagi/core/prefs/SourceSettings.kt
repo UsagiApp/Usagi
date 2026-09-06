@@ -24,6 +24,8 @@ class SourceSettings(
 			Context.MODE_PRIVATE,
 		)
 
+	private val userInputs = HashMap<String, String>()
+
 	var defaultSortOrder: SortOrder?
 		get() = prefs.getEnumValue(KEY_SORT_ORDER, SortOrder::class.java)
 		set(value) = prefs.edit(true) { putEnumValue(KEY_SORT_ORDER, value) }

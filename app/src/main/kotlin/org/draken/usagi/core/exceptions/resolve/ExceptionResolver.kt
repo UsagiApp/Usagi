@@ -1,9 +1,13 @@
 package org.draken.usagi.core.exceptions.resolve
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCaller
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.collection.MutableScatterMap
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -24,7 +28,9 @@ import org.draken.usagi.core.exceptions.UnsupportedSourceException
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.prefs.AppSettings
+import org.draken.usagi.core.prefs.SourceSettings
 import org.draken.usagi.core.ui.dialog.buildAlertDialog
+import org.draken.usagi.core.ui.dialog.setEditText
 import org.draken.usagi.core.util.ext.isHttpUrl
 import org.draken.usagi.core.util.ext.restartApplication
 import org.draken.usagi.details.ui.pager.EmptyMangaReason
