@@ -20,15 +20,21 @@ class FavoritesListQuickFilter
 			setFilterOption(ListFilterOption.Downloaded, !networkState.value)
 		}
 
+		suspend fun availableOptions(rules: SmartFolderRules?): List<ListFilterOption> = availableOptions().filterNot { option -> rules != null && option.isCoveredBy(rules) }
+
 		override suspend fun getAvailableFilterOptions(): List<ListFilterOption> =
 			buildList {
 				add(ListFilterOption.Downloaded)
+				add(ListFilterOption.SFW)
+				add(ListFilterOption.Macro.NSFW)
 				if (settings.isTrackerEnabled) {
 					add(ListFilterOption.Macro.NEW_CHAPTERS)
 				}
-				add(ListFilterOption.Macro.COMPLETED)
 				repository.findPopularSources(categoryId, 10).mapTo(this) {
 					ListFilterOption.Source(it)
+				}
+				repository.findPopularTags(20).mapTo(this) {
+					ListFilterOption.Tag(it)
 				}
 			}
 
@@ -36,4 +42,19 @@ class FavoritesListQuickFilter
 		interface Factory {
 			fun create(categoryId: Long): FavoritesListQuickFilter
 		}
+
+		private fun ListFilterOption.isCoveredBy(rules: SmartFolderRules): Boolean =
+			when (this) {
+				ListFilterOption.Downloaded -> rules.device != SmartFolderDevice.ANY
+
+				ListFilterOption.SFW,
+				ListFilterOption.Macro.NSFW,
+				-> rules.content != SmartFolderContent.ANY
+
+				is ListFilterOption.Source -> rules.sources.isNotEmpty()
+
+				is ListFilterOption.Tag -> rules.tagIds.isNotEmpty()
+
+				else -> false
+			}
 	}

@@ -33,6 +33,19 @@ class LocalFavoritesObserver
 			limit: Int,
 		): Flow<List<Manga>> = db.getFavouritesDao().observeAll(categoryId, order, filterOptions, limit).mapToLocal()
 
+		fun observeAll(
+			scope: FavouriteScope,
+			stage: FavouriteStage,
+			rules: SmartFolderRules?,
+			order: ListSortOrder,
+			filterOptions: Set<ListFilterOption>,
+			limit: Int,
+		): Flow<List<Manga>> =
+			db
+				.getFavouritesDao()
+				.observeAll(scope, stage, rules, order, filterOptions, limit)
+				.mapToLocal()
+
 		override fun toManga(e: FavouriteManga) = e.manga.toManga(e.tags.toMangaTags(), null)
 
 		override fun toResult(

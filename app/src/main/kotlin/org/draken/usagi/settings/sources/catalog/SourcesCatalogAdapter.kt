@@ -2,6 +2,9 @@ package org.draken.usagi.settings.sources.catalog
 
 import android.content.Context
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
+import org.draken.usagi.R
+import org.draken.usagi.core.image.CoilImageView
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.ui.BaseListAdapter
 import org.draken.usagi.core.ui.list.OnListItemClickListener
@@ -42,4 +45,9 @@ class SourcesCatalogAdapter(
 			is SourceCatalogItem.Extension -> item.displayName.take(1)
 			else -> null
 		}
+
+	override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+		holder.itemView.findViewById<CoilImageView>(R.id.imageView_icon)?.disposeImage()
+		super.onViewRecycled(holder)
+	}
 }

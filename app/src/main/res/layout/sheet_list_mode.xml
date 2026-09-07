@@ -28,10 +28,37 @@
 			android:orientation="vertical"
 			android:paddingBottom="@dimen/margin_normal">
 
+			<LinearLayout
+				android:id="@+id/favourites_options"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical"
+				android:visibility="gone"
+				tools:visibility="visible">
+
+				<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/margin_normal"
+					android:layout_marginTop="@dimen/margin_normal"
+					android:text="@string/smart_folders"
+					android:textAppearance="?textAppearanceTitleSmall" />
+
+				<include
+					android:id="@+id/button_manage_smart_folders"
+					layout="@layout/item_favourite_smart_folder_management"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginHorizontal="@dimen/margin_normal"
+					android:layout_marginTop="@dimen/margin_small" />
+
+			</LinearLayout>
+
 			<TextView
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginHorizontal="@dimen/margin_normal"
+				android:layout_marginTop="@dimen/margin_normal"
 				android:text="@string/list_mode"
 				android:textAppearance="?textAppearanceTitleSmall" />
 

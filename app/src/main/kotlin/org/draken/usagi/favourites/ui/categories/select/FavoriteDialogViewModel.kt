@@ -1,10 +1,7 @@
 package org.draken.usagi.favourites.ui.categories.select
 
-import androidx.collection.MutableLongObjectMap
-import androidx.collection.MutableLongSet
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.google.android.material.checkbox.MaterialCheckBox
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +9,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
-import org.draken.usagi.R
 import org.draken.usagi.core.model.FavouriteCategory
 import org.draken.usagi.core.model.ids
 import org.draken.usagi.core.model.parcelable.ParcelableManga
@@ -22,8 +18,9 @@ import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.util.ext.require
 import org.draken.usagi.favourites.domain.FavouritesRepository
+import org.draken.usagi.favourites.ui.categories.select.model.FavoriteSelectionAction
 import org.draken.usagi.favourites.ui.categories.select.model.MangaCategoryItem
-import org.draken.usagi.list.ui.model.EmptyState
+import org.draken.usagi.favourites.ui.categories.select.model.buildFavoriteSelectionItems
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingState
 import javax.inject.Inject
@@ -53,14 +50,15 @@ class FavoriteDialogViewModel
 				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, listOf(LoadingState))
 
 		fun setChecked(
-			categoryId: Long,
+			item: MangaCategoryItem,
 			isChecked: Boolean,
 		) {
 			launchJob(Dispatchers.Default) {
-				if (isChecked) {
-					favouritesRepository.addToCategory(categoryId, manga)
-				} else {
-					favouritesRepository.removeFromCategory(categoryId, manga.ids())
+				when (val action = item.actionFor(isChecked)) {
+					FavoriteSelectionAction.AddToFavorites -> favouritesRepository.addToFavourites(manga)
+					FavoriteSelectionAction.RemoveFromFavorites -> favouritesRepository.removeFromFavourites(manga.ids())
+					is FavoriteSelectionAction.AddToCategory -> favouritesRepository.addToCategory(action.categoryId, manga)
+					is FavoriteSelectionAction.RemoveFromCategory -> favouritesRepository.removeFromCategory(action.categoryId, manga.ids())
 				}
 				refreshTrigger.value = Any()
 			}
@@ -70,33 +68,22 @@ class FavoriteDialogViewModel
 			categories: List<FavouriteCategory>,
 			tracker: Boolean,
 		): List<ListModel> {
-			if (categories.isEmpty()) {
-				return listOf(
-					EmptyState(
-						icon = 0,
-						textPrimary = R.string.empty_favourite_categories,
-						textSecondary = 0,
-						actionStringRes = 0,
-					),
-				)
-			}
-			val cats = MutableLongObjectMap<MutableLongSet>(categories.size)
-			categories.forEach { cats[it.id] = MutableLongSet(manga.size) }
+			var globalMembershipCount = 0
+			val categoryMembershipCounts = categories.associate { it.id to 0 }.toMutableMap()
 			for (m in manga) {
-				val ids = favouritesRepository.getCategoriesIds(m.id)
-				ids.forEach { id -> cats[id]?.add(m.id) }
+				if (favouritesRepository.isFavorite(m.id)) {
+					globalMembershipCount++
+				}
+				favouritesRepository.getCategoriesIds(m.id).forEach { id ->
+					categoryMembershipCounts.computeIfPresent(id) { _, count -> count + 1 }
+				}
 			}
-			return categories.map { cat ->
-				MangaCategoryItem(
-					category = cat,
-					checkedState =
-						when (cats[cat.id]?.size ?: 0) {
-							0 -> MaterialCheckBox.STATE_UNCHECKED
-							manga.size -> MaterialCheckBox.STATE_CHECKED
-							else -> MaterialCheckBox.STATE_INDETERMINATE
-						},
-					isTrackerEnabled = tracker,
-				)
-			}
+			return buildFavoriteSelectionItems(
+				categories = categories,
+				globalMembershipCount = globalMembershipCount,
+				categoryMembershipCounts = categoryMembershipCounts,
+				mangaCount = manga.size,
+				isTrackerEnabled = tracker,
+			)
 		}
 	}

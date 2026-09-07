@@ -11,7 +11,6 @@ import androidx.core.view.isVisible
 import com.hannesdorfmann.adapterdelegates4.dsl.adapterDelegateViewBinding
 import org.draken.usagi.R
 import org.draken.usagi.core.util.ext.getQuantityStringSafe
-import org.draken.usagi.core.util.ext.setTooltipCompat
 import org.draken.usagi.databinding.ItemCategoriesAllBinding
 import org.draken.usagi.databinding.ItemCategoryBinding
 import org.draken.usagi.favourites.ui.categories.FavouriteCategoriesListListener
@@ -71,15 +70,10 @@ fun allCategoriesAD(clickListener: FavouriteCategoriesListListener) =
 	) {
 		val eventListener =
 			OnClickListener { v ->
-				if (v.id == R.id.imageView_visible) {
-					clickListener.onShowAllClick(!item.isVisible)
-				} else {
-					clickListener.onItemClick(null, v)
-				}
+				clickListener.onItemClick(null, v)
 			}
 
 		itemView.setOnClickListener(eventListener)
-		binding.imageViewVisible.setOnClickListener(eventListener)
 
 		bind {
 			binding.textViewSubtitle.text =
@@ -92,21 +86,6 @@ fun allCategoriesAD(clickListener: FavouriteCategoriesListListener) =
 						item.mangaCount,
 					)
 				}
-			binding.imageViewVisible.isVisible = item.isActionsEnabled
-			binding.imageViewVisible.setImageResource(
-				if (item.isVisible) {
-					R.drawable.ic_eye
-				} else {
-					R.drawable.ic_eye_off
-				},
-			)
-			binding.imageViewVisible.setTooltipCompat(
-				if (item.isVisible) {
-					R.string.hide
-				} else {
-					R.string.show
-				},
-			)
 			binding.coversView.setCoversAsync(item.covers)
 		}
 	}

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.AppCompatCheckedTextView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/favourite_selection_row_background"
+	android:drawableStart="@drawable/favourite_selection_check"
+	android:drawablePadding="16dp"
+	android:gravity="center_vertical|start"
+	android:minHeight="58dp"
+	android:paddingStart="20dp"
+	android:paddingEnd="20dp"
+	android:textColor="@color/list_item_text_color"
+	android:textAppearance="?textAppearanceBodyLarge"
+	tools:checked="true"
+	tools:text="MANGA Plus" />

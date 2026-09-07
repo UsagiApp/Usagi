@@ -21,6 +21,7 @@ import org.draken.usagi.core.util.ext.consume
 import org.draken.usagi.core.util.ext.setValueRounded
 import org.draken.usagi.core.util.progress.IntPercentLabelFormatter
 import org.draken.usagi.databinding.SheetListModeBinding
+import org.draken.usagi.favourites.ui.FavouritesOptionsHost
 
 @AndroidEntryPoint
 class ListConfigBottomSheet :
@@ -30,6 +31,7 @@ class ListConfigBottomSheet :
 	CompoundButton.OnCheckedChangeListener,
 	AdapterView.OnItemSelectedListener {
 	private val viewModel by viewModels<ListConfigViewModel>()
+	private var favouritesHost: FavouritesOptionsHost? = null
 
 	override fun onCreateViewBinding(
 		inflater: LayoutInflater,
@@ -41,6 +43,15 @@ class ListConfigBottomSheet :
 		savedInstanceState: Bundle?,
 	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
+		val favouritesSection = viewModel.section as? ListConfigSection.Favorites
+		if (favouritesSection?.requiresOrganizerHost == true) {
+			val host =
+				requireNotNull(parentFragment as? FavouritesOptionsHost) {
+					"Favorites list options must be shown by FavouritesOptionsHost"
+				}
+			favouritesHost = host
+			setupFavouritesOptions(binding, host)
+		}
 		val mode = viewModel.listMode
 		binding.buttonList.isChecked = mode == ListMode.LIST
 		binding.buttonListDetailed.isChecked = mode == ListMode.DETAILED_LIST
@@ -73,13 +84,18 @@ class ListConfigBottomSheet :
 					android.R.id.text1,
 					sortOrders.map { binding.spinnerOrder.context.getString(it.titleResId) },
 				)
-			val selected = sortOrders.indexOf(viewModel.getSelectedSortOrder())
+			val selected = sortOrders.indexOf(favouritesHost?.currentFavouritesSortOrder() ?: viewModel.getSelectedSortOrder())
 			if (selected >= 0) {
 				binding.spinnerOrder.setSelection(selected, false)
 			}
 			binding.spinnerOrder.onItemSelectedListener = this
 			binding.cardOrder.isVisible = true
 		}
+	}
+
+	override fun onDestroyView() {
+		favouritesHost = null
+		super.onDestroyView()
 	}
 
 	override fun onApplyWindowInsets(
@@ -142,11 +158,27 @@ class ListConfigBottomSheet :
 	) {
 		when (parent.id) {
 			R.id.spinner_order -> {
-				viewModel.setSortOrder(position)
+				val order = viewModel.getSortOrders()?.getOrNull(position)
+				if (order != null && favouritesHost != null) {
+					favouritesHost?.setFavouritesSortOrder(order)
+				} else {
+					viewModel.setSortOrder(position)
+				}
 				viewBinding?.switchGrouping?.isEnabled = viewModel.isGroupingAvailable
 			}
 		}
 	}
 
 	override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+
+	private fun setupFavouritesOptions(
+		binding: SheetListModeBinding,
+		host: FavouritesOptionsHost,
+	) {
+		binding.favouritesOptions.isVisible = true
+		binding.buttonManageSmartFolders.root.setOnClickListener {
+			dismiss()
+			host.openSmartFolders()
+		}
+	}
 }

@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import org.draken.usagi.core.model.FavouriteCategory
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.TriStateOption
@@ -34,7 +33,13 @@ class DetailsInteractor
 		private val settings: AppSettings,
 		private val scrobblers: Set<@JvmSuppressWildcards Scrobbler>,
 	) {
-		fun observeFavourite(mangaId: Long): Flow<Set<FavouriteCategory>> = favouritesRepository.observeCategories(mangaId)
+		fun observeFavourite(mangaId: Long): Flow<FavouriteDetailsState> =
+			combine(
+				favouritesRepository.observeIsFavorite(mangaId),
+				favouritesRepository.observeCategories(mangaId),
+			) { isFavorite, categories ->
+				FavouriteDetailsState(isFavorite, categories)
+			}
 
 		fun observeNewChapters(mangaId: Long): Flow<Int> =
 			settings

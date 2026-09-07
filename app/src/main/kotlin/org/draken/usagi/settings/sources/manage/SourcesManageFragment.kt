@@ -114,6 +114,8 @@ class SourcesManageFragment :
 	}
 
 	override fun onDestroyView() {
+		reorderHelper?.attachToRecyclerView(null)
+		viewBinding?.recyclerView?.adapter = null
 		sourcesAdapter = null
 		reorderHelper = null
 		super.onDestroyView()

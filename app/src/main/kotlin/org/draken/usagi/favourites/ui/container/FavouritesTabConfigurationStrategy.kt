@@ -19,7 +19,7 @@ class FavouritesTabConfigurationStrategy(
 		tab.text = item.title ?: tab.view.context.getString(R.string.all_favourites)
 		tab.tag = item
 		PopupMenuMediator(
-			FavouriteTabPopupMenuProvider(tab.view.context, router, viewModel, item.id),
+			FavouriteTabPopupMenuProvider(tab.view.context, router, viewModel, item),
 		).attach(tab.view)
 	}
 }

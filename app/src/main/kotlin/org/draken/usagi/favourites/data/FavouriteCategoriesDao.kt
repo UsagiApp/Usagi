@@ -10,19 +10,19 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class FavouriteCategoriesDao {
-	@Query("SELECT * FROM favourite_categories WHERE category_id = :id AND deleted_at = 0")
+	@Query("SELECT * FROM favourite_categories WHERE category_id = :id AND category_id != 0 AND deleted_at = 0")
 	abstract suspend fun find(id: Int): FavouriteCategoryEntity
 
-	@Query("SELECT * FROM favourite_categories WHERE deleted_at = 0 ORDER BY sort_key")
+	@Query("SELECT * FROM favourite_categories WHERE category_id != 0 AND deleted_at = 0 ORDER BY sort_key")
 	abstract suspend fun findAll(): List<FavouriteCategoryEntity>
 
-	@Query("SELECT * FROM favourite_categories WHERE deleted_at = 0 ORDER BY sort_key")
+	@Query("SELECT * FROM favourite_categories WHERE category_id != 0 AND deleted_at = 0 ORDER BY sort_key")
 	abstract fun observeAll(): Flow<List<FavouriteCategoryEntity>>
 
-	@Query("SELECT * FROM favourite_categories WHERE deleted_at = 0 AND show_in_lib = 1 ORDER BY sort_key")
+	@Query("SELECT * FROM favourite_categories WHERE category_id != 0 AND deleted_at = 0 AND show_in_lib = 1 ORDER BY sort_key")
 	abstract fun observeAllVisible(): Flow<List<FavouriteCategoryEntity>>
 
-	@Query("SELECT * FROM favourite_categories WHERE category_id = :id AND deleted_at = 0")
+	@Query("SELECT * FROM favourite_categories WHERE category_id = :id AND category_id != 0 AND deleted_at = 0")
 	abstract fun observe(id: Long): Flow<FavouriteCategoryEntity?>
 
 	@Insert(onConflict = OnConflictStrategy.ABORT)
@@ -68,7 +68,7 @@ abstract class FavouriteCategoriesDao {
 	@Query("DELETE FROM favourite_categories WHERE deleted_at != 0 AND deleted_at < :maxDeletionTime")
 	abstract suspend fun gc(maxDeletionTime: Long)
 
-	@Query("SELECT MAX(sort_key) FROM favourite_categories WHERE deleted_at = 0")
+	@Query("SELECT MAX(sort_key) FROM favourite_categories WHERE category_id != 0 AND deleted_at = 0")
 	protected abstract suspend fun getMaxSortKey(): Int?
 
 	@SuppressWarnings(RoomWarnings.QUERY_MISMATCH) // for the new_chapters column

@@ -13,7 +13,11 @@ import org.draken.usagi.backups.domain.AppBackupAgent
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.db.entity.toMangaTags
 import org.draken.usagi.favourites.domain.FavouritesRepository
+import org.draken.usagi.favourites.domain.SmartFolderContent
+import org.draken.usagi.favourites.domain.SmartFolderRules
+import org.draken.usagi.favourites.domain.SmartFoldersRepository
 import org.draken.usagi.history.data.HistoryRepository
+import org.draken.usagi.list.domain.ListSortOrder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -35,6 +39,9 @@ class AppBackupAgentTest {
 
 	@Inject
 	lateinit var favouritesRepository: FavouritesRepository
+
+	@Inject
+	lateinit var smartFoldersRepository: SmartFoldersRepository
 
 	@Inject
 	lateinit var backupRepository: BackupRepository
@@ -68,7 +75,6 @@ class AppBackupAgentTest {
 				force = false,
 			)
 			val history = checkNotNull(historyRepository.getOne(SampleData.manga))
-
 			val agent = AppBackupAgent()
 			val backup =
 				agent.createBackupFile(
@@ -93,6 +99,36 @@ class AppBackupAgentTest {
 		}
 
 	@Test
+	fun smartFoldersBackupAndRestore() =
+		runTest {
+			val smartFolder =
+				smartFoldersRepository.create(
+					title = "SFW test source",
+					listOrder = ListSortOrder.ALPHABETIC,
+					rules =
+						SmartFolderRules(
+							sources = setOf("TEST_SOURCE"),
+							content = SmartFolderContent.SFW,
+						),
+				)
+			val agent = AppBackupAgent()
+			val backup =
+				agent.createBackupFile(
+					context = InstrumentationRegistry.getInstrumentation().targetContext,
+					repository = backupRepository,
+				)
+
+			database.clearAllTables()
+			assertTrue(smartFoldersRepository.observeAll().first().isEmpty())
+
+			backup.inputStream().use {
+				agent.restoreBackupFile(it.fd, backup.length(), backupRepository)
+			}
+
+			assertEquals(smartFolder, smartFoldersRepository.find(smartFolder.id))
+		}
+
+	@Test
 	fun restoreOldBackup() {
 		val agent = AppBackupAgent()
 		val backup = File.createTempFile("backup_", ".tmp")
@@ -112,6 +148,7 @@ class AppBackupAgentTest {
 			assertEquals(6, historyRepository.observeAll().first().size)
 			assertEquals(2, favouritesRepository.observeCategories().first().size)
 			assertEquals(15, favouritesRepository.getAllManga().size)
+			assertTrue(smartFoldersRepository.observeAll().first().isEmpty())
 		}
 	}
 }

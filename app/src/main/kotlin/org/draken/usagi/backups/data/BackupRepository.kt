@@ -28,6 +28,7 @@ import org.draken.usagi.backups.data.model.FavouriteBackup
 import org.draken.usagi.backups.data.model.HistoryBackup
 import org.draken.usagi.backups.data.model.MangaBackup
 import org.draken.usagi.backups.data.model.ScrobblingBackup
+import org.draken.usagi.backups.data.model.SmartFolderBackup
 import org.draken.usagi.backups.data.model.SourceBackup
 import org.draken.usagi.backups.data.model.StatisticBackup
 import org.draken.usagi.backups.domain.BackupSection
@@ -37,6 +38,7 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.CompositeResult
 import org.draken.usagi.core.util.progress.Progress
 import org.draken.usagi.explore.data.MangaSourcesRepository
+import org.draken.usagi.favourites.domain.SmartFoldersRepository
 import org.draken.usagi.filter.data.PersistableFilter
 import org.draken.usagi.filter.data.SavedFiltersRepository
 import org.draken.usagi.reader.data.TapGridSettings
@@ -111,6 +113,19 @@ class BackupRepository
 						output.writeJsonArray(
 							section = BackupSection.FAVOURITES,
 							data = database.getFavouritesDao().dump().map { FavouriteBackup(it) },
+							serializer = serializer(),
+						)
+					}
+
+					BackupSection.SMART_FOLDERS -> {
+						output.writeJsonArray(
+							section = BackupSection.SMART_FOLDERS,
+							data =
+								database
+									.getSmartFoldersDao()
+									.findAllForBackup()
+									.asFlow()
+									.map { entity -> SmartFolderBackup(entity) },
 							serializer = serializer(),
 						)
 					}
@@ -216,6 +231,12 @@ class BackupRepository
 								input.readJsonArray<FavouriteBackup>(serializer()).restoreToDb {
 									upsertManga(it.manga)
 									getFavouritesDao().upsert(it.toEntity())
+								}
+							}
+
+							BackupSection.SMART_FOLDERS -> {
+								input.readJsonArray<SmartFolderBackup>(serializer()).restoreWithoutTransaction { backup ->
+									SmartFoldersRepository(database).restore(listOf(backup.toEntity()))
 								}
 							}
 

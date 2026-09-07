@@ -24,6 +24,8 @@ data class BackupSectionModel(
 
 				BackupSection.FAVOURITES -> R.string.favourites
 
+				BackupSection.SMART_FOLDERS -> R.string.smart_folders
+
 				BackupSection.SETTINGS -> R.string.settings
 
 				BackupSection.SETTINGS_READER_GRID -> R.string.reader_actions

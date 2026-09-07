@@ -50,6 +50,14 @@ class CheckNewChaptersUseCase
 				invokeImpl(track)
 			}
 
+		suspend fun checkTrackedManga(manga: Manga): MangaUpdates =
+			mutex.withLock(manga.id) {
+				val tracking =
+					repository.getTrackOrNull(manga)
+						?: return@withLock MangaUpdates.Failure(manga = manga, error = null)
+				invokeImpl(tracking)
+			}
+
 		suspend operator fun invoke(
 			manga: Manga,
 			currentChapterId: Long,

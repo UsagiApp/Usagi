@@ -53,7 +53,7 @@ import org.draken.usagi.details.ui.pager.EmptyMangaReason
 import org.draken.usagi.download.ui.worker.DownloadWorker
 import org.draken.usagi.history.data.HistoryRepository
 import org.draken.usagi.history.domain.HistoryUpdateUseCase
-import org.draken.usagi.list.domain.ReadingProgress.Companion.PROGRESS_NONE
+import org.draken.usagi.list.domain.ReadingProgressCalculator
 import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.domain.DeleteLocalMangaUseCase
 import org.draken.usagi.local.domain.model.LocalManga
@@ -600,16 +600,17 @@ class ReaderViewModel
 			pageIndex: Int,
 		): Float {
 			val branch = chaptersLoader.peekChapter(chapterId)?.branch
-			val chapters = mangaDetails.value?.chapters?.get(branch) ?: return PROGRESS_NONE
-			val chaptersCount = chapters.size
-			val chapterIndex = chapters.indexOfFirst { x -> x.id == chapterId }
-			val pagesCount = chaptersLoader.getPagesCount(chapterId)
-			if (chaptersCount == 0 || pagesCount == 0) {
-				return PROGRESS_NONE
-			}
-			val pagePercent = (pageIndex + 1) / pagesCount.toFloat()
-			val ppc = 1f / chaptersCount
-			return ppc * chapterIndex + ppc * pagePercent
+			val chapters =
+				mangaDetails.value
+					?.chapters
+					?.get(branch)
+					.orEmpty()
+			return ReadingProgressCalculator.calculate(
+				chapterIndex = chapters.indexOfFirst { chapter -> chapter.id == chapterId },
+				chaptersCount = chapters.size,
+				pageIndex = pageIndex,
+				pagesCount = chaptersLoader.getPagesCount(chapterId),
+			)
 		}
 
 		private fun observeIsWebtoonZoomEnabled() =

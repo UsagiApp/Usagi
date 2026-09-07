@@ -47,7 +47,6 @@ import kotlinx.coroutines.flow.map
 import org.draken.usagi.R
 import org.draken.usagi.bookmarks.domain.Bookmark
 import org.draken.usagi.core.image.CoilMemoryCacheKey
-import org.draken.usagi.core.model.FavouriteCategory
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.UnknownMangaSource
 import org.draken.usagi.core.model.getSummary
@@ -84,6 +83,8 @@ import org.draken.usagi.core.util.ext.textAndVisible
 import org.draken.usagi.core.util.ext.toUriOrNull
 import org.draken.usagi.databinding.ActivityDetailsClassicBinding
 import org.draken.usagi.details.data.MangaDetails
+import org.draken.usagi.details.domain.FavouriteDetailsLabelMode
+import org.draken.usagi.details.domain.FavouriteDetailsState
 import org.draken.usagi.details.service.MangaPrefetchService
 import org.draken.usagi.details.ui.model.ChapterListItem
 import org.draken.usagi.details.ui.model.HistoryInfo
@@ -224,7 +225,7 @@ class DetailsClassicActivity :
 		viewModel.scrobblingInfo.observe(this, ::onScrobblingInfoChanged)
 		viewModel.localSize.observe(this, ::onLocalSizeChanged)
 		viewModel.relatedManga.observe(this, ::onRelatedMangaChanged)
-		viewModel.favouriteCategories.observe(this, ::onFavoritesChanged)
+		viewModel.favouriteState.observe(this, ::onFavoritesChanged)
 		val menuInvalidator = MenuInvalidator(this)
 		viewModel.isStatsAvailable.observe(this, menuInvalidator)
 		viewModel.remoteManga.observe(this, menuInvalidator)
@@ -537,14 +538,22 @@ class DetailsClassicActivity :
 		}
 	}
 
-	private fun onFavoritesChanged(categories: Set<FavouriteCategory>) {
+	private fun onFavoritesChanged(state: FavouriteDetailsState) {
 		val chip = viewBinding.infoLayout.chipFavorite
-		chip.setChipIconResource(if (categories.isEmpty()) R.drawable.ic_heart_outline else R.drawable.ic_heart)
+		chip.setChipIconResource(if (state.isFavorite) R.drawable.ic_heart else R.drawable.ic_heart_outline)
 		chip.text =
-			if (categories.isEmpty()) {
-				getString(R.string.add_to_favourites)
-			} else {
-				categories.joinToStringWithLimit(this, FAV_LABEL_LIMIT) { it.title }
+			when (state.labelMode) {
+				FavouriteDetailsLabelMode.ADD_TO_FAVORITES -> {
+					getString(R.string.add_to_favourites)
+				}
+
+				FavouriteDetailsLabelMode.ALL_FAVORITES -> {
+					getString(R.string.all_favourites)
+				}
+
+				FavouriteDetailsLabelMode.MANUAL_CATEGORIES -> {
+					state.categories.joinToStringWithLimit(this, FAV_LABEL_LIMIT) { it.title }
+				}
 			}
 	}
 
