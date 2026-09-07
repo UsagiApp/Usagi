@@ -346,12 +346,14 @@ class SourcesCatalogViewModel
 		fun addSource(source: MangaSource) {
 			launchJob(Dispatchers.Default) {
 				val plugin = (source as? PluginMangaSource) ?: (source as? MangaSourceInfo)?.mangaSource as? PluginMangaSource
-				val all = repository.allMangaSources.filter { s ->
-					val p = (s as? PluginMangaSource) ?: (s as? MangaSourceInfo)?.mangaSource as? PluginMangaSource
-					p?.jarName == plugin?.jarName &&
-						s.isExternalSource() == source.isExternalSource() &&
-						s.title.equals(source.title, true)
-				}.ifEmpty { listOf(source) }
+				val all =
+					repository.allMangaSources
+						.filter { s ->
+							val p = (s as? PluginMangaSource) ?: (s as? MangaSourceInfo)?.mangaSource as? PluginMangaSource
+							p?.jarName == plugin?.jarName &&
+								s.isExternalSource() == source.isExternalSource() &&
+								s.title.equals(source.title, true)
+						}.ifEmpty { listOf(source) }
 				val rollback = repository.setSourcesEnabled(all, true)
 				onActionDone.call(ReversibleAction(R.string.source_enabled, rollback))
 			}

@@ -50,6 +50,11 @@ class CheckNewChaptersUseCase
 				invokeImpl(track)
 			}
 
+		suspend operator fun invoke(mangaList: Collection<Manga>) =
+			mangaList.forEach { manga ->
+				runCatchingCancellable { invoke(repository.getTrack(manga)) }
+			}
+
 		suspend operator fun invoke(
 			manga: Manga,
 			currentChapterId: Long,

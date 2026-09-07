@@ -41,6 +41,7 @@ import org.draken.usagi.list.ui.model.MangaListModel
 import org.draken.usagi.list.ui.model.toErrorState
 import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.domain.model.LocalManga
+import org.draken.usagi.tracker.domain.CheckNewChaptersUseCase
 import tsuki.model.Manga
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -59,6 +60,7 @@ class FavouritesListViewModel
 		settings: AppSettings,
 		mangaDataRepository: MangaDataRepository,
 		@LocalStorageChanges localStorageChanges: SharedFlow<LocalManga?>,
+		private val checkNewChaptersUseCase: CheckNewChaptersUseCase,
 	) : MangaListViewModel(settings, mangaDataRepository, localStorageChanges),
 		QuickFilterListener {
 		val categoryId: Long = savedStateHandle[AppRouter.KEY_ID] ?: NO_ID
@@ -100,7 +102,11 @@ class FavouritesListViewModel
 				}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, listOf(LoadingState))
 
 		override fun onRefresh() {
-			refreshTrigger.value = Any()
+			launchLoadingJob(Dispatchers.Default) {
+				val list = repository.run { if (categoryId == NO_ID) getAllManga() else getManga(categoryId) }
+				checkNewChaptersUseCase(list)
+				refreshTrigger.value = Any()
+			}
 		}
 
 		override fun onRetry() = Unit
