@@ -11,6 +11,7 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
+import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.ui.AlertDialogFragment
 import org.draken.usagi.core.ui.list.OnListItemClickListener
@@ -49,6 +50,26 @@ class FavoriteDialog :
 		binding.recyclerViewCategories.adapter = adapter
 		viewModel.content.observe(viewLifecycleOwner, adapter)
 		viewModel.onError.observeEvent(viewLifecycleOwner, ::onError)
+		viewModel.onMigrated.observeEvent(viewLifecycleOwner) { dup ->
+			router.openDetails(dup)
+			dismiss()
+		}
+		viewModel.onDuplicateFound.observeEvent(viewLifecycleOwner) { (dup, categoryId) ->
+			MaterialAlertDialogBuilder(requireContext())
+				.setIcon(R.drawable.ic_manga_source)
+				.setTitle(R.string.duplicate_manga)
+				.setMessage(
+					getString(
+						R.string.duplicate_manga_summary,
+						dup.title,
+						dup.source.getTitle(requireContext()),
+					),
+				).setNegativeButton(android.R.string.cancel, null)
+				.setPositiveButton(android.R.string.ok) { _, _ ->
+					viewModel.setChecked(categoryId, isChecked = true, force = true)
+				}.setNeutralButton(R.string.migrate) { _, _ -> viewModel.migrate(dup) }
+				.show()
+		}
 		bindHeader()
 	}
 
