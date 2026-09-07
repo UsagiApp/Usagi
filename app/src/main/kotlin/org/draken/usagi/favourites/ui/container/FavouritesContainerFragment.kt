@@ -135,6 +135,7 @@ class FavouritesContainerFragment :
 			pager.isUserInputEnabled = false
 			tabs.setTabsEnabled(false)
 			stageChips.children.forEach { child -> child.isEnabled = false }
+			favouritesFilters.children.forEach { child -> child.isEnabled = false }
 			textRulesSummary.isEnabled = false
 		}
 	}
@@ -144,6 +145,7 @@ class FavouritesContainerFragment :
 			pager.isUserInputEnabled = true
 			tabs.setTabsEnabled(true)
 			stageChips.children.forEach { child -> child.isEnabled = true }
+			favouritesFilters.children.forEach { child -> child.isEnabled = true }
 			textRulesSummary.isEnabled = true
 		}
 	}
@@ -183,7 +185,19 @@ class FavouritesContainerFragment :
 
 	private fun renderCurrentPage(state: FavouritesPageUiState) {
 		renderStages(state)
+		renderQuickFilters(state)
 		renderOrganizerHeader(state)
+	}
+
+	private fun renderQuickFilters(state: FavouritesPageUiState) {
+		val binding = viewBinding ?: return
+		val page = findCurrentPage() ?: return
+		FavouriteQuickFilters(binding.favouritesFilters).render(state) { selected ->
+			if (viewBinding === binding && findCurrentPage() === page && binding.pager.isUserInputEnabled) {
+				applyFavouritesFilters(selected)
+			}
+		}
+		binding.favouritesFilters.children.forEach { it.isEnabled = binding.pager.isUserInputEnabled }
 	}
 
 	private fun renderStages(state: FavouritesPageUiState) {

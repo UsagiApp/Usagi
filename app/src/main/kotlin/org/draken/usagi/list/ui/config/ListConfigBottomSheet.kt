@@ -22,8 +22,6 @@ import org.draken.usagi.core.util.ext.setValueRounded
 import org.draken.usagi.core.util.progress.IntPercentLabelFormatter
 import org.draken.usagi.databinding.SheetListModeBinding
 import org.draken.usagi.favourites.ui.FavouritesOptionsHost
-import org.draken.usagi.favourites.ui.FavouritesPageUiState
-import org.draken.usagi.favourites.ui.container.FavouriteQuickFilters
 
 @AndroidEntryPoint
 class ListConfigBottomSheet :
@@ -178,23 +176,9 @@ class ListConfigBottomSheet :
 		host: FavouritesOptionsHost,
 	) {
 		binding.favouritesOptions.isVisible = true
-		renderFavouritesFilters(binding, host, requireNotNull(host.currentFavouritesOptions()))
 		binding.buttonManageSmartFolders.root.setOnClickListener {
 			dismiss()
 			host.openSmartFolders()
-		}
-	}
-
-	private fun renderFavouritesFilters(
-		binding: SheetListModeBinding,
-		host: FavouritesOptionsHost,
-		state: FavouritesPageUiState,
-	) {
-		FavouriteQuickFilters(binding.favouritesFilters).render(state) { selected ->
-			if (viewBinding === binding) {
-				host.applyFavouritesFilters(selected)
-				renderFavouritesFilters(binding, host, state.copy(selectedRuleOptions = selected))
-			}
 		}
 	}
 }

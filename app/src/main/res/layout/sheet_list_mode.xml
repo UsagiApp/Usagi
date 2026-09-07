@@ -41,34 +41,6 @@
 					android:layout_height="wrap_content"
 					android:layout_marginHorizontal="@dimen/margin_normal"
 					android:layout_marginTop="@dimen/margin_normal"
-					android:text="@string/favourite_organizer_rules_title"
-					android:textAppearance="?textAppearanceTitleSmall" />
-
-				<TextView
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginHorizontal="@dimen/margin_normal"
-					android:layout_marginTop="4dp"
-					android:text="@string/favourite_filters_scope_summary"
-					android:textAppearance="?textAppearanceBodySmall"
-					android:textColor="?android:attr/textColorSecondary" />
-
-				<org.draken.usagi.core.ui.widgets.ChipsView
-					android:id="@+id/favourites_filters"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginHorizontal="@dimen/margin_normal"
-					android:layout_marginTop="@dimen/margin_small"
-					app:chipStyle="@style/Widget.Usagi.Chip.FavouriteFilter"
-					app:chipSpacingHorizontal="8dp"
-					app:chipSpacingVertical="4dp"
-					app:singleSelection="false" />
-
-				<TextView
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginHorizontal="@dimen/margin_normal"
-					android:layout_marginTop="@dimen/margin_normal"
 					android:text="@string/smart_folders"
 					android:textAppearance="?textAppearanceTitleSmall" />
 

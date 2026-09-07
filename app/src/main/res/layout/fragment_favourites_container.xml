@@ -42,14 +42,33 @@
 			android:overScrollMode="never"
 			android:scrollbars="none">
 
-			<com.google.android.material.chip.ChipGroup
-				android:id="@+id/stage_chips"
+			<LinearLayout
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				app:chipSpacingHorizontal="8dp"
-				app:selectionRequired="true"
-				app:singleLine="true"
-				app:singleSelection="true" />
+				android:gravity="center_vertical"
+				android:orientation="horizontal">
+
+				<com.google.android.material.chip.ChipGroup
+					android:id="@+id/stage_chips"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					app:chipSpacingHorizontal="8dp"
+					app:selectionRequired="true"
+					app:singleLine="true"
+					app:singleSelection="true" />
+
+				<org.draken.usagi.core.ui.widgets.ChipsView
+					android:id="@+id/favourites_filters"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginStart="8dp"
+					android:visibility="gone"
+					app:chipStyle="@style/Widget.Usagi.Chip.FavouriteFilter"
+					app:chipSpacingHorizontal="8dp"
+					app:singleLine="true"
+					app:singleSelection="false" />
+
+			</LinearLayout>
 
 		</HorizontalScrollView>
 
