@@ -48,6 +48,17 @@ class BackupsSettingsFragment :
 			}
 		}
 
+	private val mihonImportCall =
+		registerForActivityResult(
+			ActivityResultContracts.OpenDocument(),
+		) { uri ->
+			if (uri != null) {
+				org.draken.usagi.backups.import.mihon.ui.MihonImportDialogFragment
+					.newInstance(uri)
+					.show(childFragmentManager, org.draken.usagi.backups.import.mihon.ui.MihonImportDialogFragment.TAG)
+			}
+		}
+
 	override fun onCreatePreferences(
 		savedInstanceState: Bundle?,
 		rootKey: String?,
@@ -80,6 +91,18 @@ class BackupsSettingsFragment :
 
 			AppSettings.KEY_RESTORE -> {
 				if (!backupSelectCall.tryLaunch(arrayOf("*/*"))) {
+					Snackbar
+						.make(
+							listView,
+							R.string.operation_not_supported,
+							Snackbar.LENGTH_SHORT,
+						).show()
+				}
+				true
+			}
+
+			AppSettings.KEY_RESTORE_MIHON -> {
+				if (!mihonImportCall.tryLaunch(arrayOf("application/octet-stream", "*/*"))) {
 					Snackbar
 						.make(
 							listView,

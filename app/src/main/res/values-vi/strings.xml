@@ -774,6 +774,9 @@
     <string name="enable_all_sources">Bật toàn bộ nguồn đọc có sẵn</string>
     <string name="reader_info_bar_transparent">Làm trong suốt thanh trạng thái ở giao diện đọc truyện</string>
     <string name="restoring_backup">Đang khôi phục sao lưu</string>
+    <string name="import_mihon_backup">Nhập từ Mihon</string>
+    <string name="import_mihon_backup_summary">Nhập truyện từ file sao lưu Mihon/Tachiyomi (.tachibk)</string>
+    <string name="importing_mihon_backup">Đang nhập từ Mihon</string>
     <string name="chapters_and_pages">Duyệt chương và trang đọc</string>
     <string name="pages_slider">Thanh trượt chuyển trang</string>
     <string name="screen_rotation_locked">Xoay màn hình đã được khóa lại</string>

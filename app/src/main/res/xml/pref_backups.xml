@@ -16,6 +16,12 @@
         android:summary="@string/restore_summary"
         android:title="@string/restore_backup" />
 
+    <Preference
+        android:key="restore_mihon"
+        android:persistent="false"
+        android:summary="@string/import_mihon_backup_summary"
+        android:title="@string/import_mihon_backup" />
+
     <PreferenceScreen
         android:fragment="org.draken.usagi.backups.ui.periodical.PeriodicalBackupSettingsFragment"
         android:key="backup_periodic"

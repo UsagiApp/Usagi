@@ -388,6 +388,10 @@
 			android:foregroundServiceType="dataSync"
 			android:label="@string/restoring_backup" />
 		<service
+			android:name="org.draken.usagi.backups.import.mihon.MihonImportService"
+			android:foregroundServiceType="dataSync"
+			android:label="Importing Mihon backup" />
+		<service
 			android:name="org.draken.usagi.local.ui.ImportService"
 			android:foregroundServiceType="dataSync"
 			android:label="@string/importing_manga" />
