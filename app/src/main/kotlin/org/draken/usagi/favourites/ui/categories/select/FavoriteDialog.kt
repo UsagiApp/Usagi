@@ -54,7 +54,7 @@ class FavoriteDialog :
 			router.openDetails(dup)
 			dismiss()
 		}
-		viewModel.onDuplicateFound.observeEvent(viewLifecycleOwner) { (dup, categoryId) ->
+		viewModel.onDuplicate.observeEvent(viewLifecycleOwner) { (dup, categoryId) ->
 			MaterialAlertDialogBuilder(requireContext())
 				.setIcon(R.drawable.ic_manga_source)
 				.setTitle(R.string.duplicate_manga)

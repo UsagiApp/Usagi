@@ -86,10 +86,11 @@ class FavoriteDialogViewModel
 			}
 		}
 
-		fun migrate(dup: Manga) = launchJob(Dispatchers.Default) {
-			manga.firstOrNull()?.let { runCatchingCancellable { migrator(it, dup) } }
-			onMigrated.call(dup)
-		}
+		fun migrate(dup: Manga) =
+			launchJob(Dispatchers.Default) {
+				manga.firstOrNull()?.let { runCatchingCancellable { migrator(it, dup) } }
+				onMigrated.call(dup)
+			}
 
 		private suspend fun mapList(
 			categories: List<FavouriteCategory>,
