@@ -907,6 +907,8 @@
     <string name="reading_s">Reading %s</string>
     <string name="read_on_s">Read on %s</string>
     <string name="rpc_skip_nsfw_summary">Do not use RPC for adult content</string>
+    <string name="manga_title_rpc">Show manga title in activity</string>
+    <string name="manga_title_rpc_summary">Show the manga title instead of the app name in Discord activity</string>
     <string name="invalid_token">Invalid token: %s</string>
     <string name="show_floating_control_button">Show floating control button</string>
     <string name="unavailable">Unavailable</string>

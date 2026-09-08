@@ -631,6 +631,9 @@ class AppSettings
 		val isDiscordRpcSkipNsfw: Boolean
 			get() = prefs.getBoolean(KEY_DISCORD_RPC_SKIP_NSFW, false)
 
+		val isDiscordRpcUseTitle: Boolean
+			get() = prefs.getBoolean(KEY_DISCORD_RPC_USE_TITLE, false)
+
 		var discordToken: String?
 			get() = prefs.getString(KEY_DISCORD_TOKEN, null)?.trim()?.nullIfEmpty()
 			set(value) = prefs.edit { putString(KEY_DISCORD_TOKEN, value?.nullIfEmpty()) }
@@ -947,6 +950,7 @@ class AppSettings
 			const val KEY_MANGA_LIST_BADGES = "manga_list_badges"
 			const val KEY_TAGS_WARNINGS = "tags_warnings"
 			const val KEY_DISCORD_RPC = "discord_rpc"
+			const val KEY_DISCORD_RPC_USE_TITLE = "discord_rpc_use_title"
 			const val KEY_DISCORD_RPC_SKIP_NSFW = "discord_rpc_skip_nsfw"
 			const val KEY_DISCORD_TOKEN = "discord_token"
 			const val KEY_DISCORD_REFRESH_TOKEN = "discord_refresh_token"
