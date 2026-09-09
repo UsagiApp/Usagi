@@ -38,6 +38,7 @@ import org.draken.usagi.databinding.SheetChaptersPagesBinding
 import org.draken.usagi.details.ui.DetailsViewModel
 import org.draken.usagi.details.ui.ReadButtonDelegate
 import org.draken.usagi.download.ui.worker.DownloadStartedObserver
+import org.draken.usagi.main.ui.owners.BottomSheetOwner
 import javax.inject.Inject
 import androidx.appcompat.R as appcompatR
 
@@ -66,11 +67,15 @@ class ChaptersPagesSheet :
 
 		val args = arguments ?: Bundle.EMPTY
 		val isClassicUi = settings.detailsUiMode == DetailsUiMode.CLASSIC
-		var defaultTab = args.getInt(AppRouter.KEY_TAB, settings.defaultDetailsTab)
-		val adapter = ChaptersPagesAdapter(this, settings.isPagesTabEnabled, isClassicUi)
-		if (!adapter.isPagesTabEnabled) {
-			defaultTab = (defaultTab - 1).coerceAtLeast(TAB_CHAPTERS)
-		}
+		val isInlineDetailsSheet = settings.isChaptersInlineEnabled && activity is BottomSheetOwner
+		val adapter =
+			ChaptersPagesAdapter(
+				this,
+				settings.isPagesTabEnabled,
+				isClassicUi,
+				isChaptersTabEnabled = !isInlineDetailsSheet,
+			)
+		val defaultTab = adapter.indexOfTab(args.getInt(AppRouter.KEY_TAB, settings.defaultDetailsTab))
 		(viewModel as? DetailsViewModel)?.let { dvm ->
 			if (isClassicUi) {
 				binding.splitButtonRead.isVisible = false
@@ -193,11 +198,14 @@ class ChaptersPagesSheet :
 
 	private fun onPageChanged(position: Int) {
 		viewBinding?.toolbar?.invalidateMenu()
-		settings.lastDetailsTab = position
+		val adapter = viewBinding?.pager?.adapter as? ChaptersPagesAdapter
+		settings.lastDetailsTab = adapter?.tabIdAt(position) ?: position
 	}
 
 	private fun onNewChaptersChanged(counter: Int) {
-		val tab = viewBinding?.tabs?.getTabAt(0) ?: return
+		val adapter = viewBinding?.pager?.adapter as? ChaptersPagesAdapter ?: return
+		if (!adapter.isChaptersTabEnabled) return
+		val tab = viewBinding?.tabs?.getTabAt(adapter.indexOfTab(TAB_CHAPTERS)) ?: return
 		if (counter == 0) {
 			tab.removeBadge()
 		} else {

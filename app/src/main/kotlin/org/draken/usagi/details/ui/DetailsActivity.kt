@@ -30,6 +30,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.core.view.updatePaddingRelative
 import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.commit
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.transition.TransitionManager
 import coil3.ImageLoader
@@ -102,6 +103,7 @@ import org.draken.usagi.details.data.ReadingTime
 import org.draken.usagi.details.service.MangaPrefetchService
 import org.draken.usagi.details.ui.model.ChapterListItem
 import org.draken.usagi.details.ui.model.HistoryInfo
+import org.draken.usagi.details.ui.pager.chapters.ChaptersFragment
 import org.draken.usagi.details.ui.scrobbling.ScrobblingItemDecoration
 import org.draken.usagi.details.ui.scrobbling.ScrollingInfoAdapter
 import org.draken.usagi.download.ui.worker.DownloadStartedObserver
@@ -202,6 +204,23 @@ class DetailsActivity :
 		if (settings.isDescriptionExpanded) {
 			viewBinding.textViewDescription.maxLines = Int.MAX_VALUE - 1
 		}
+		if (settings.isChaptersInlineEnabled) {
+			viewBinding.groupChaptersInline?.isVisible = true
+			viewBinding.buttonChaptersOrder?.apply {
+				isVisible = true
+				setOnClickListener {
+					viewModel.setChaptersReversed(viewModel.isChaptersReversed.value != true)
+				}
+				viewModel.isChaptersReversed.observe(this@DetailsActivity) { reversed ->
+					setText(if (reversed) R.string.newest else R.string.order_oldest)
+				}
+			}
+			viewBinding.containerChaptersInline?.let { container ->
+				if (supportFragmentManager.findFragmentById(container.id) == null) {
+					supportFragmentManager.commit { add(container.id, ChaptersFragment()) }
+				}
+			}
+		}
 		viewBinding.containerBottomSheet?.let { sheet ->
 			sheet.setOnClickListener(this)
 			sheet.addOnLayoutChangeListener(this)
@@ -210,6 +229,7 @@ class DetailsActivity :
 				DetailsBottomSheetCallback(viewBinding.swipeRefreshLayout, checkNotNull(viewBinding.navbarDim)),
 			)
 		}
+
 		val appRouter = router
 		viewModel.mangaDetails.filterNotNull().observe(this, ::onMangaUpdated)
 		viewModel.coverUrl.observe(this, ::loadCover)
@@ -436,6 +456,7 @@ class DetailsActivity :
 			return insets.consume(v, typeMask, bottom = true, end = true)
 		} else {
 			viewBinding.navbarDim?.updateLayoutParams { height = barsInsets.bottom }
+
 			viewBinding.appbar.updatePadding(top = barsInsets.top)
 			viewBinding.swipeRefreshLayout.setProgressViewOffset(false, barsInsets.top, barsInsets.top + 180)
 			if (!settings.isBackdropEnabled) {
