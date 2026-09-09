@@ -941,4 +941,6 @@
     <string name="no_filters_available">Nguồn này không có bộ lọc nào ツ</string>
     <string name="fix_excluded_sources">Loại bỏ nguồn cho tính năng thay thế tự động</string>
     <string name="fix_excluded_sources_summary">Chỉ định các nguồn mà bạn không muốn dùng đến khi sử dụng tính năng thay thế truyện tự động</string>
+    <string name="duplicate_manga">Đã có sẵn trong thư viện</string>
+    <string name="duplicate_manga_summary">Truyện \"%1$s\" từ nguồn \"%2$s\" đã có trong thư viện yêu thích của bạn. Bạn có muốn tiếp tục?</string>
 </resources>
