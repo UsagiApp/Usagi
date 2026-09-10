@@ -182,13 +182,17 @@ class DiscordRpc
 		suspend fun String.toMediaProxyUrl(isNsfw: Boolean): String? {
 			if (repository.isMediaProxyUrl(this)) return this
 			return mpCache[this] ?: runCatchingCancellable {
+				val registrar = getRegistrar() ?: return@runCatchingCancellable null
+				if (this == appIcon) {
+					return@runCatchingCancellable registrar.resolve(this, 0)
+				}
 				val file = getCacheFile(this)
 				val upload = file?.let { withContext(NonCancellable + Dispatchers.IO) { repository.getMediaProxyUrl(it) } }
 				val contentRating = if (isNsfw) 1 else 0
 				if (upload != null) {
-					withContext(NonCancellable + Dispatchers.IO) { getRegistrar()?.resolve(upload, contentRating) }
+					withContext(NonCancellable + Dispatchers.IO) { registrar.resolve(upload, contentRating) }
 				} else {
-					getRegistrar()?.resolve(this, contentRating)
+					withContext(NonCancellable + Dispatchers.IO) { registrar.resolve(this@toMediaProxyUrl, contentRating) }
 				}
 			}.onSuccess { url -> if (url != null && repository.isMediaProxyUrl(url)) mpCache[this] = url }
 				.onFailure { it.printStackTraceDebug() }

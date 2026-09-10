@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Base64
 import dagger.Reusable
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -29,6 +30,8 @@ import javax.inject.Inject
 
 private const val SCHEME_MP = "mp:"
 private const val REDIRECT_URI = "usagi://discord-auth"
+private const val CATBOX_URI = "https://catbox.moe/user/api.php"
+private const val UGUU_URI = "https://uguu.se/upload.php?output=text"
 
 @Reusable
 class DiscordRepository
@@ -41,26 +44,47 @@ class DiscordRepository
 		private val appId = context.getString(R.string.discord_app_id)
 
 		suspend fun getMediaProxyUrl(file: File): String? {
+			val fileBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+			val url =
+				runCatchingCancellable {
+					val req =
+						Request
+							.Builder()
+							.url(UGUU_URI)
+							.post(
+								MultipartBody
+									.Builder()
+									.setType(MultipartBody.FORM)
+									.addFormDataPart("files[]", "${file.name}.png", fileBody)
+									.build(),
+							).build()
+					httpClient.newCall(req).await().use { if (it.isSuccessful) it.parseRaw().trim() else null }
+				}.getOrNull()
+			if (!url.isNullOrBlank()) return url
 			val requestBody =
 				MultipartBody
 					.Builder()
 					.setType(MultipartBody.FORM)
-					.addFormDataPart(
-						"file",
-						file.name,
-						file.asRequestBody("image/*".toMediaTypeOrNull()),
-					).build()
+					.addFormDataPart("reqtype", "fileupload")
+					.addFormDataPart("fileToUpload", file.name, fileBody)
+					.build()
 			val request =
 				Request
 					.Builder()
-					.url("https://temp.sh/upload")
+					.url(CATBOX_URI)
 					.post(requestBody)
 					.build()
-			return runCatchingCancellable {
-				httpClient.newCall(request).await().use { response ->
-					if (response.isSuccessful) response.parseRaw().trim() else null
-				}
-			}.getOrNull()
+			var response: okhttp3.Response? = null
+			return try {
+				response = httpClient.newCall(request).await()
+				if (response.isSuccessful) response.parseRaw().trim() else null
+			} catch (e: CancellationException) {
+				throw e
+			} catch (_: Exception) {
+				null
+			} finally {
+				response?.closeQuietly()
+			}
 		}
 
 		fun isMediaProxyUrl(url: String) = url.startsWith(SCHEME_MP)
