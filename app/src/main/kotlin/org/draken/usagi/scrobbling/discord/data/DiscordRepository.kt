@@ -21,6 +21,7 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.ensureSuccess
 import tsuki.util.await
 import tsuki.util.parseRaw
+import tsuki.util.runCatchingCancellable
 import java.io.File
 import java.security.MessageDigest
 import java.util.UUID
@@ -44,27 +45,22 @@ class DiscordRepository
 				MultipartBody
 					.Builder()
 					.setType(MultipartBody.FORM)
-					.addFormDataPart("reqtype", "fileupload")
 					.addFormDataPart(
-						"fileToUpload",
+						"file",
 						file.name,
 						file.asRequestBody("image/*".toMediaTypeOrNull()),
 					).build()
 			val request =
 				Request
 					.Builder()
-					.url("https://catbox.moe/user/api.php")
+					.url("https://temp.sh/upload")
 					.post(requestBody)
 					.build()
-			var response: okhttp3.Response? = null
-			return try {
-				response = httpClient.newCall(request).await()
-				if (response.isSuccessful) response.parseRaw().trim() else null
-			} catch (_: Exception) {
-				null
-			} finally {
-				response?.closeQuietly()
-			}
+			return runCatchingCancellable {
+				httpClient.newCall(request).await().use { response ->
+					if (response.isSuccessful) response.parseRaw().trim() else null
+				}
+			}.getOrNull()
 		}
 
 		fun isMediaProxyUrl(url: String) = url.startsWith(SCHEME_MP)
