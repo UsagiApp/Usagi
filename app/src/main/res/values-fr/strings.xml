@@ -937,4 +937,10 @@
     <string name="duplicate_manga_summary">Le manga « %1$s » de « %2$s » figure déjà dans vos favoris. Voulez-vous continuer ?</string>
     <string name="details_appearance">Présentation de l\'écran de détails</string>
     <string name="details_ui">Style de l\'écran de détails</string>
+    <string name="frequency_every_6_hours">Toutes les 6 heures</string>
+    <string name="floating_navigation_bar">Barre de navigation flottante</string>
+    <string name="details_ui_modern">Moderne (Nouveau)</string>
+    <string name="rename">Renommer</string>
+    <string name="data_removal">Suppression des données</string>
+    <string name="plugin_name">Nom du plugin</string>
 </resources>
