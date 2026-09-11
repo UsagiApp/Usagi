@@ -938,4 +938,11 @@
     <string name="updates_remind">Обавестите ме о ажурирањима апликације</string>
     <string name="updates_remind_summary">Прикажите дијалог при покретању апликације када је ажурирање доступно</string>
     <string name="update_available_message">Нова верзија апликације Usagi је доступна. Да ли желите да је ажурирате сада?</string>
+    <string name="check_app_update">Аутоматски проверите да ли су доступна ажурирања</string>
+    <string name="check_app_update_summary">Проверите да ли су доступна ажурирања при покретању апликације</string>
+    <string name="auto_update_plugins">Аутоматски ажурирајте додатке</string>
+    <string name="auto_update_plugins_summary">Аутоматски освежите и ажурирајте све инсталиране додатке при покретању апликације</string>
+    <string name="no_filters_available">Овај извор нема филтере</string>
+    <string name="duplicate_manga">Већ у библиотеци</string>
+    <string name="duplicate_manga_summary">Манга \"%1$s\" од \"%2$s\" је већ означена као омиљена. Да ли желите да наставите?</string>
 </resources>
