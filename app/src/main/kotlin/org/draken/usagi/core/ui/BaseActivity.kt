@@ -3,6 +3,7 @@ package org.draken.usagi.core.ui
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
@@ -65,6 +66,10 @@ abstract class BaseActivity<B : ViewBinding> :
 		putDataToExtras(intent)
 		exceptionResolver = entryPoint.exceptionResolverFactory.create(this)
 		enableEdgeToEdge()
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+			@Suppress("DEPRECATION")
+			window.navigationBarColor = Color.TRANSPARENT
+		}
 		super.onCreate(savedInstanceState)
 	}
 
