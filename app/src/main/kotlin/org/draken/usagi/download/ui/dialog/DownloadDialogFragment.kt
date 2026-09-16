@@ -121,7 +121,9 @@ class DownloadDialogFragment :
 			}
 
 			R.id.button -> {
-				when (v.parentView?.id ?: return) {
+				val parentId = v.parentView?.id ?: return
+				setCheckedOption(parentId)
+				when (parentId) {
 					R.id.option_whole_branch -> showBranchSelection(v)
 					R.id.option_first_chapters -> showFirstChaptersCountSelection(v)
 					R.id.option_unread_chapters -> showUnreadChaptersCountSelection(v)
@@ -267,7 +269,7 @@ class DownloadDialogFragment :
 	private fun setCheckedOption(id: Int) {
 		for (optionView in optionViews ?: return) {
 			optionView.isChecked = id == optionView.id
-			optionView.isButtonEnabled = optionView.isChecked
+			optionView.isButtonEnabled = true
 		}
 	}
 

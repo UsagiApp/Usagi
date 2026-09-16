@@ -6,7 +6,8 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical"
-	android:paddingBottom="?dialogPreferredPadding">
+	android:paddingTop="@dimen/margin_normal"
+	android:paddingBottom="@dimen/margin_small">
 
 	<ScrollView
 		android:layout_width="match_parent"
@@ -25,7 +26,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="@dimen/margin_small"
-				android:paddingHorizontal="@dimen/margin_normal"
+				android:paddingHorizontal="?dialogPreferredPadding"
 				android:textAppearance="?textAppearanceBody2"
 				tools:text="@tools:sample/lorem[15]" />
 
@@ -96,7 +97,8 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:drawablePadding="@dimen/margin_small"
-				android:paddingHorizontal="@dimen/margin_normal"
+				android:gravity="center_vertical"
+				android:paddingHorizontal="?dialogPreferredPadding"
 				android:paddingVertical="@dimen/margin_small"
 				android:text="@string/chapter_selection_hint"
 				android:textAppearance="?attr/textAppearanceBodySmall"
@@ -141,7 +143,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="@dimen/margin_normal"
-				android:paddingHorizontal="@dimen/margin_normal"
+				android:paddingHorizontal="?dialogPreferredPadding"
 				android:text="@string/destination_directory"
 				android:textAppearance="?textAppearanceTitleSmall"
 				android:visibility="gone"
@@ -171,7 +173,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="@dimen/margin_normal"
-				android:paddingHorizontal="@dimen/margin_normal"
+				android:paddingHorizontal="?dialogPreferredPadding"
 				android:text="@string/preferred_download_format"
 				android:textAppearance="?textAppearanceTitleSmall"
 				android:visibility="gone"
