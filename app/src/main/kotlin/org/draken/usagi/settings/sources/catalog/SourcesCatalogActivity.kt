@@ -13,11 +13,9 @@ import android.os.Bundle
 import android.os.Environment
 import android.view.Menu
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.google.android.material.appbar.AppBarLayout
@@ -146,12 +144,8 @@ class SourcesCatalogActivity :
 		viewBinding.appbar.updatePadding(
 			left = bars.left,
 			right = bars.right,
-			top = bars.top,
 		)
-		return WindowInsetsCompat
-			.Builder(insets)
-			.setInsets(WindowInsetsCompat.Type.systemBars(), Insets.NONE)
-			.build()
+		return insets
 	}
 
 	override fun onChipClick(
@@ -295,10 +289,6 @@ class SourcesCatalogActivity :
 	) {
 		currentSnackbar?.dismiss()
 		val sb = Snackbar.make(viewBinding.recyclerView, message, duration)
-		(sb.view.layoutParams as? ViewGroup.MarginLayoutParams)?.let {
-			it.bottomMargin += navBarBottomInset
-			sb.view.layoutParams = it
-		}
 		currentSnackbar = sb
 		sb.show()
 	}
