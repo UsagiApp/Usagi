@@ -26,6 +26,7 @@ import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.SnackbarErrorObserver
 import org.draken.usagi.core.image.CoilMemoryCacheKey
 import org.draken.usagi.core.model.MangaSource
+import org.draken.usagi.core.model.parcelable.ParcelableManga
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.ui.util.PopupMenuMediator
@@ -64,11 +65,13 @@ class ImageActivity :
 		viewBinding.buttonBack.setOnClickListener(this)
 		viewBinding.buttonMenu.setOnClickListener(this)
 
+		val manga = intent.getParcelableExtraCompat<ParcelableManga>(AppRouter.KEY_MANGA)?.manga
 		val menuProvider =
 			ImageMenuProvider(
 				activity = this,
 				snackbarHost = viewBinding.root,
 				viewModel = viewModel,
+				manga = manga,
 			)
 		menuMediator = PopupMenuMediator(menuProvider)
 		viewModel.isLoading.observe(this, ::onLoadingStateChanged)
