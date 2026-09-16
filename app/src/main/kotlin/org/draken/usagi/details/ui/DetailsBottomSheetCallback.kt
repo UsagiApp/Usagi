@@ -19,6 +19,6 @@ class DetailsBottomSheetCallback(
 		bottomSheet: View,
 		slideOffset: Float,
 	) {
-		navbarDimView.alpha = 1f - slideOffset.coerceAtLeast(0f)
+		navbarDimView.alpha = 0.8f * (1f - slideOffset.coerceAtLeast(0f))
 	}
 }
