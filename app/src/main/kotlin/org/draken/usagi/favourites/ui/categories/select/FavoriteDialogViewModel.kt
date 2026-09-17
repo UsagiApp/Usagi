@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
 import org.draken.usagi.R
 import org.draken.usagi.alternatives.domain.MigrateUseCase
+import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.model.FavouriteCategory
 import org.draken.usagi.core.model.ids
 import org.draken.usagi.core.model.parcelable.ParcelableManga
@@ -41,6 +42,7 @@ class FavoriteDialogViewModel
 		private val favouritesRepository: FavouritesRepository,
 		settings: AppSettings,
 		private val migrator: MigrateUseCase,
+		private val db: MangaDatabase,
 	) : BaseViewModel() {
 		val manga =
 			savedStateHandle.require<List<ParcelableManga>>(AppRouter.KEY_MANGA_LIST).map {
@@ -68,13 +70,20 @@ class FavoriteDialogViewModel
 			launchJob(Dispatchers.Default) {
 				if (isChecked && !force) {
 					manga.firstOrNull()?.let { m ->
-						val t = m.altTitles + m.title
-						favouritesRepository
-							.getAllManga()
-							.firstOrNull { f ->
-								f.id != m.id &&
-									(f.altTitles + f.title).any { a -> t.any { b -> a.equals(b, true) } }
-							}?.let { dup -> return@launchJob onDuplicate.call(dup to categoryId) }
+						val trackerId =
+							db.getScrobblingDao().find(m.id).firstNotNullOfOrNull { tracker ->
+								db.getScrobblingDao().findMangaId(tracker.scrobbler, tracker.targetId, m.id)
+							}
+						val dup =
+							if (trackerId != null) {
+								favouritesRepository.getAllManga().firstOrNull { it.id == trackerId }
+							} else {
+								val t = m.title.lowercase()
+								favouritesRepository.getAllManga().firstOrNull { f ->
+									f.id != m.id && f.title.lowercase().contains(t)
+								}
+							}
+						dup?.let { return@launchJob onDuplicate.call(it to categoryId) }
 					}
 				}
 				if (isChecked) {

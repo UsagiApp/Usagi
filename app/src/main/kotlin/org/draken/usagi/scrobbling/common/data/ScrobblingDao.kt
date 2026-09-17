@@ -32,6 +32,16 @@ abstract class ScrobblingDao {
 		mangaId: Long,
 	)
 
+	@Query("SELECT * FROM scrobblings WHERE manga_id = :mangaId")
+	abstract suspend fun find(mangaId: Long): List<ScrobblingEntity>
+
+	@Query("SELECT manga_id FROM scrobblings WHERE scrobbler = :scrobbler AND target_id = :targetId AND manga_id != :mangaId LIMIT 1")
+	abstract suspend fun findMangaId(
+		scrobbler: Int,
+		targetId: Long,
+		mangaId: Long,
+	): Long?
+
 	@Query("SELECT * FROM scrobblings ORDER BY scrobbler LIMIT :limit OFFSET :offset")
 	protected abstract suspend fun findAll(
 		offset: Int,

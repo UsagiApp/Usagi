@@ -14,6 +14,7 @@ import org.draken.usagi.R
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.ui.AlertDialogFragment
+import org.draken.usagi.core.ui.dialog.buildAlertDialog
 import org.draken.usagi.core.ui.list.OnListItemClickListener
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.joinToStringWithLimit
@@ -55,20 +56,22 @@ class FavoriteDialog :
 			dismiss()
 		}
 		viewModel.onDuplicate.observeEvent(viewLifecycleOwner) { (dup, categoryId) ->
-			MaterialAlertDialogBuilder(requireContext())
-				.setIcon(R.drawable.ic_manga_source)
-				.setTitle(R.string.duplicate_manga)
-				.setMessage(
+			buildAlertDialog(requireContext(), isCentered = true) {
+				setIcon(R.drawable.ic_manga_source)
+				setTitle(R.string.duplicate_manga)
+				setMessage(
 					getString(
 						R.string.duplicate_manga_summary,
 						dup.title,
 						dup.source.getTitle(requireContext()),
 					),
-				).setNegativeButton(android.R.string.cancel, null)
-				.setPositiveButton(android.R.string.ok) { _, _ ->
+				)
+				setNegativeButton(android.R.string.cancel, null)
+				setPositiveButton(android.R.string.ok) { _, _ ->
 					viewModel.setChecked(categoryId, isChecked = true, force = true)
-				}.setNeutralButton(R.string.migrate) { _, _ -> viewModel.migrate(dup) }
-				.show()
+				}
+				setNeutralButton(R.string.migrate) { _, _ -> viewModel.migrate(dup) }
+			}.show()
 		}
 		bindHeader()
 	}
