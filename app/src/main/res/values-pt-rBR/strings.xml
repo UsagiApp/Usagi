@@ -938,4 +938,8 @@
     <string name="fix_excluded_sources">Correção automática de fontes excluídas</string>
     <string name="fix_excluded_sources_summary">Especifique as fontes que você não deseja usar no recurso de correção automática de mangás</string>
     <string name="no_filters_available">Essa fonte não possui filtros</string>
+    <string name="manga_title_rpc">Mostrar título do mangá na atividade</string>
+    <string name="manga_title_rpc_summary">Exibir o título do mangá em vez do nome do aplicativo na atividade do Discord</string>
+    <string name="duplicate_manga">Já está na biblioteca</string>
+    <string name="duplicate_manga_summary">O mangá \"%1$s\" de \"%2$s\" já está nos seus favoritos. Deseja continuar?</string>
 </resources>
