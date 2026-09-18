@@ -390,6 +390,7 @@ class SourcesCatalogViewModel
 			installing: Set<String>,
 		): List<SourceCatalogItem> {
 			if (!isScopedMode) {
+				val disabled = repository.getDisabledSources().map { it.name }.toSet()
 				val sources =
 					repository
 						.queryParserSources(
@@ -401,7 +402,7 @@ class SourcesCatalogViewModel
 							locale = null,
 							plugin = filter.plugin,
 							sortOrder = SourcesSortOrder.ALPHABETIC,
-						).filter { source -> repository.getDisabledSources().any { it.name == source.name } }
+						).filter { source -> disabled.contains(source.name) }
 				val grouped =
 					sources.groupBy { s: MangaSource ->
 						val ps = (s as? PluginMangaSource) ?: (s as? MangaSourceInfo)?.mangaSource as? PluginMangaSource

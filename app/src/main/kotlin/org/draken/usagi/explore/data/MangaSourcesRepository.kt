@@ -61,7 +61,10 @@ class MangaSourcesRepository
 		private val settings: AppSettings,
 		private val extRuntime: dagger.Lazy<ExtRuntime>? = null,
 	) {
-		private var assimilatedVersion = -1
+		@Volatile
+		private var external = 0
+		private var assimilated = -1
+
 		private val dao: MangaSourcesDao
 			get() = db.getSourcesDao()
 
@@ -325,11 +328,12 @@ class MangaSourcesRepository
 			if (allMangaSources.isEmpty()) {
 				return false
 			}
-			val currentVersion = MangaSourceRegistry.version
-			if (assimilatedVersion == currentVersion) {
+			val current = MangaSourceRegistry.version
+			val combined = current xor external
+			if (assimilated == combined) {
 				return false
 			}
-			assimilatedVersion = currentVersion
+			assimilated = combined
 			val new = getNewSources()
 			if (new.isEmpty()) {
 				return false
@@ -420,6 +424,7 @@ class MangaSourcesRepository
 								} catch (_: Throwable) {
 								}
 							}
+							external++
 							trySendBlocking(intent)
 						}
 					}
