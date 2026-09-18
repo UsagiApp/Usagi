@@ -970,4 +970,5 @@
 	<string name="no_filters_available">This source has no filters</string>
 	<string name="duplicate_manga">Already in library</string>
 	<string name="duplicate_manga_summary">Manga \"%1$s\" from \"%2$s\" is already in your favorites. Do you want to continue?</string>
+	<string name="hold_to_scroll">Hold to scroll</string>
 </resources>

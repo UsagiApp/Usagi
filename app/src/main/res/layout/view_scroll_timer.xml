@@ -102,4 +102,21 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/textView_description" />
 
+	<CheckedTextView
+		android:id="@+id/button_hold"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="@dimen/margin_small"
+		android:background="?selectableItemBackground"
+		android:drawableEnd="?android:listChoiceIndicatorMultiple"
+		android:gravity="center_vertical"
+		android:paddingHorizontal="@dimen/margin_normal"
+		android:paddingVertical="4dp"
+		android:singleLine="true"
+		android:text="@string/hold_to_scroll"
+		android:textAppearance="?attr/textAppearanceTitleSmall"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/button_fab" />
+
 </merge>

@@ -24,6 +24,7 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.util.ext.resolveDp
 import kotlin.math.roundToLong
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val MAX_DELAY = 32L
 private const val MAX_SWITCH_DELAY = 10_000L
@@ -45,6 +46,9 @@ class ScrollTimer
 			private set
 		private var resumeAt = 0L
 		private var isTouchDown = MutableStateFlow(false)
+		private var isHold = false
+		private var isScrolling = false
+		private var holdDir = 1
 		private val isRunning = MutableStateFlow(false)
 		private val scrollDelta = resources.resolveDp(1)
 
@@ -58,6 +62,15 @@ class ScrollTimer
 				}.flowOn(Dispatchers.Default)
 				.onEach {
 					onSpeedChanged(it)
+				}.launchIn(coroutineScope)
+
+			settings
+				.observeAsFlow(AppSettings.KEY_READER_AUTOSCROLL_HOLD) {
+					isReaderAutoscrollHoldMode
+				}.flowOn(Dispatchers.Default)
+				.onEach {
+					isHold = it
+					restartJob()
 				}.launchIn(coroutineScope)
 		}
 
@@ -82,8 +95,20 @@ class ScrollTimer
 				MotionEvent.ACTION_CANCEL,
 				-> {
 					isTouchDown.value = false
+					if (isScrolling) {
+						isScrolling = false
+						restartJob()
+					}
 				}
 			}
+		}
+
+		fun start(direction: Int): Boolean {
+			if (!isRunning.value || !isHold) return false
+			isScrolling = true
+			holdDir = direction
+			restartJob()
+			return true
 		}
 
 		private fun onSpeedChanged(speed: Float) {
@@ -113,39 +138,44 @@ class ScrollTimer
 					var speedFactor = 1f
 					while (isActive) {
 						if (isPaused()) {
-							speedFactor = (speedFactor - SPEED_FACTOR_DELTA).coerceAtLeast(0f)
+							speedFactor = if (isHold) 0f else (speedFactor - SPEED_FACTOR_DELTA).coerceAtLeast(0f)
 						} else if (speedFactor < 1f) {
-							speedFactor = (speedFactor + SPEED_FACTOR_DELTA).coerceAtMost(1f)
+							speedFactor = if (isHold) 1f else (speedFactor + SPEED_FACTOR_DELTA).coerceAtMost(1f)
 						}
 						if (speedFactor == 1f) {
-							delay(delayMs)
+							delay(delayMs.milliseconds)
 						} else if (speedFactor == 0f) {
 							delayUntilResumed()
 							continue
 						} else {
-							delay((delayMs * (1f + speedFactor * 2)).toLong())
+							delay((delayMs * (1f + speedFactor * 2)).toLong().milliseconds)
 						}
 						if (!listener.isReaderResumed()) {
 							continue
 						}
-						if (!listener.scrollBy(scrollDelta, false)) {
+						val direction = if (isScrolling) holdDir else 1
+						if (!listener.scrollBy(scrollDelta * direction, false)) {
 							accumulator += delayMs
 						}
 						if (accumulator >= pageSwitchDelay) {
-							listener.switchPageBy(1)
+							listener.switchPageBy(direction)
 							accumulator -= pageSwitchDelay
 						}
 					}
 				}
 		}
 
-		private fun isPaused(): Boolean = isTouchDown.value || resumeAt > SystemClock.elapsedRealtime()
+		private fun isPaused(): Boolean {
+			if (isScrolling) return false
+			if (isHold) return true
+			return isTouchDown.value || resumeAt > SystemClock.elapsedRealtime()
+		}
 
 		private suspend fun delayUntilResumed() {
 			while (isPaused()) {
 				val delayTime = resumeAt - SystemClock.elapsedRealtime()
 				if (delayTime > 0) {
-					delay(delayTime)
+					delay(delayTime.milliseconds)
 				} else {
 					yield()
 				}

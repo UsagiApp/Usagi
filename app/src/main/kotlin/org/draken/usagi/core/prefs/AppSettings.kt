@@ -609,6 +609,10 @@ class AppSettings
 			get() = prefs.getBoolean(KEY_READER_AUTOSCROLL_FAB, true)
 			set(value) = prefs.edit { putBoolean(KEY_READER_AUTOSCROLL_FAB, value) }
 
+		var isReaderAutoscrollHoldMode: Boolean
+			get() = prefs.getBoolean(KEY_READER_AUTOSCROLL_HOLD, false)
+			set(value) = prefs.edit { putBoolean(KEY_READER_AUTOSCROLL_HOLD, value) }
+
 		val isPagesPreloadEnabled: Boolean
 			get() {
 				if (isBackgroundNetworkRestricted()) {
@@ -900,6 +904,7 @@ class AppSettings
 			const val KEY_SSL_BYPASS = "ssl_bypass"
 			const val KEY_READER_AUTOSCROLL_SPEED = "as_speed"
 			const val KEY_READER_AUTOSCROLL_FAB = "as_fab"
+			const val KEY_READER_AUTOSCROLL_HOLD = "as_hold"
 			const val KEY_MIRROR_SWITCHING = "mirror_switching"
 			const val KEY_TRANSFER_COOKIES_ON_REDIRECT = "transfer_cookies_on_redirect"
 			const val KEY_PROXY = "proxy"
