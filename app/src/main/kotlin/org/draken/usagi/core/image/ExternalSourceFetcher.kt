@@ -15,7 +15,7 @@ import okhttp3.Request
 import org.draken.usagi.core.model.unwrap
 import org.draken.usagi.core.util.ext.mangaSourceKey
 import coil3.Uri as CoilUri
-import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as External
+import org.draken.tsukimix.core.parser.external.model.Manga as External
 
 class ExternalSourceFetcher(
 	private val httpSource: HttpSource,
@@ -24,7 +24,7 @@ class ExternalSourceFetcher(
 ) : Fetcher {
 	override suspend fun fetch(): FetchResult {
 		val response =
-			withContext(Dispatchers.IO) {
+			withContext(Dispatchers.Default) {
 				httpSource.client
 					.newCall(
 						Request

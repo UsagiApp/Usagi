@@ -763,7 +763,7 @@
     <string name="test_connection">Тестовое соединение</string>
     <string name="send_backups_telegram">Отправлять резервные копии в Telegram</string>
     <string name="telegram_chat_id_summary">Введите ID чата, куда следует отправлять резервные копии</string>
-    <string name="open_telegram_bot_summary">Нажмите, чтобы открыть чат с Kotatsu Backup Bot</string>
+    <string name="open_telegram_bot_summary">Нажмите, чтобы открыть чат с Usagi Backup Bot</string>
     <string name="handle_links">Обработка ссылок</string>
     <string name="enable_all_sources_summary">Все доступные источники манги будут включены навсегда</string>
     <string name="translation">Перевод</string>

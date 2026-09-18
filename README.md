@@ -6,7 +6,7 @@
 
 <br>
 
-**[Usagi](https://github.com/UsagiApp/Usagi) is a free and open-source manga reader for Android, inspired by [Kotatsu](https://github.com/UsagiApp/Usagi)**
+**[Usagi](https://github.com/UsagiApp/Usagi) is a free and open-source manga reader for Android™**
 
 ![Android 5.0](https://img.shields.io/badge/android-5.0+-brightgreen) ![Downloads count](https://img.shields.io/github/downloads/UsagiApp/Usagi/total?color=1976d2) [![weblate](https://hosted.weblate.org/widgets/usagi/-/strings/svg-badge.svg)](https://hosted.weblate.org/engage/usagi/) [![Discord](https://img.shields.io/discord/1484655684879519885?color=5865f2&label=discord)](https://discord.gg/4AHskjwtj4) [![Telegram](https://img.shields.io/badge/chat-telegram-60ACFF?)](https://t.me/usagiapp)
 
@@ -32,6 +32,22 @@
         </a>
       </td>
     </tr>
+    <tr>
+      <th align="center">Obtainium</th>
+      <th align="center">OpenAPK</th>
+    </tr>
+    <tr>
+      <td align="center">
+        <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/UsagiApp/Usagi">
+          <img src="./.github/assets/badge_obtainium.png" height="70" alt="Usagi on Obtainium">
+        </a>
+      </td>
+      <td align="center">
+        <a href="https://www.openapk.net/usagi/org.draken.usagi/">
+          <img src="./.github/assets/badge_openapk.png" height="70" alt="Usagi on OpenAPK">
+        </a>
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -50,18 +66,18 @@
 * The accompanying services are regularly updated (Sync server / client, bot, proxy, etc.)
 * Optimized for low-end devices / phones, continue to maintain / support for Android 5.0+
 * Providing access to content with external plugins / extensions.
-* Provides bug fixes for features that previously existed in Kotatsu.
+* Provides bug fixes for features that previously existed in original application.
 * Provides more options to customize the user interface (style, background, etc.).
 
 </div>
 </details>
 
 <details>
-  <summary>Main features from Kotatsu</summary>
+  <summary>Main features from original app</summary>
 
 <div align="left">
 
-#### All features from Kotatsu (original application), include:
+#### All features from original application, include:
 
 * Search manga by name, genres and more filters
 * Favorites organized by user-defined categories
@@ -96,49 +112,15 @@
     <img src="./fastlane/metadata/android/en-US/images/tenInchScreenshots/2.png" alt="Tablet view" width="400"/>
 </div>
 
-### Contributing
+### Localization
 
-<details>
-  <summary>Application / Library Development</summary>
+<a href="https://hosted.weblate.org/engage/usagi/">
+<img src="https://hosted.weblate.org/widget/usagi/horizontal-auto.png" alt="Translation status" />
+</a>
 
-  <br>
-  
-  **This project includes 2 main repositories. [This repository](#) contains the entire source code of the main application, [core-exts](https://github.com/UsagiApp/core-exts) is the repository containing all the classes compatible with external plugins / extensions for Usagi.**
-
-  <br>
-
-  <a href="https://github.com/UsagiApp/Usagi">
-    <picture>
-      <source srcset="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=Usagi&theme=github_dark" media="(prefers-color-scheme: dark)">
-      <img src="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=Usagi" alt="Usagi GitHub Repository">
-    </picture>
-  </a>
-  <a href="https://github.com/UsagiApp/core-exts">
-    <picture>
-      <source srcset="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=core-exts&theme=github_dark" media="(prefers-color-scheme: dark)">
-      <img src="https://github-readme-stats-fast.vercel.app/api/pin/?username=UsagiApp&repo=core-exts" alt="core-exts GitHub Repository">
-    </picture>
-  </a>
-  
-  <br></br>
-
-  **📌 Pull requests are welcome, if you want:
-  See [CONTRIBUTING.md](https://github.com/UsagiApp/Usagi/blob/devel/CONTRIBUTING.md) for the guidelines**
-
-</details>
-
-<details>
-  <summary>Translate this app</summary>
-
-  <br></br>
-  <a href="https://hosted.weblate.org/engage/usagi/">
-    <img src="https://hosted.weblate.org/widget/usagi/horizontal-auto.png" alt="Translation status" />
-  </a>
-  
-  **📌 If you would like to help improve these or add new languages,
+**[Usagi](https://github.com/UsagiApp/Usagi) is localized in a number of different languages.**<br>
+**📌 If you would like to help improve these or add new languages,
 please head over to the [Weblate project page](https://hosted.weblate.org/engage/usagi/)**
-
-</details>
 
 ### Certificate fingerprints
 

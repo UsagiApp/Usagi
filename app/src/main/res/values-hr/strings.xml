@@ -757,7 +757,7 @@
     <string name="test_connection">Provjeri vezu</string>
     <string name="send_backups_telegram">Pošalji sigurnosne kopije u Telegram</string>
     <string name="telegram_chat_id_summary">Upiši ID chata na koji treba slati sigurnosne kopije</string>
-    <string name="open_telegram_bot_summary">Pritisni za otvaranje chata s Kotatsu Backup Bot</string>
+    <string name="open_telegram_bot_summary">Pritisni za otvaranje chata s Usagi Backup Bot</string>
     <string name="translation">Prijevod</string>
     <string name="rating">Ocjena</string>
     <string name="source">Izvor</string>

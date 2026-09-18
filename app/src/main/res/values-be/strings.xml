@@ -774,7 +774,7 @@
     <string name="simple">Просты</string>
     <string name="send_backups_telegram">Адпраўляць рэзервовыя копіі ў Telegram</string>
     <string name="telegram_chat_id_summary">Увядзіце ID чата, куды трэба адпраўляць рэзервовыя копіі</string>
-    <string name="open_telegram_bot_summary">Націсніце, каб адкрыць чат з Kotatsu Backup Bot</string>
+    <string name="open_telegram_bot_summary">Націсніце, каб адкрыць чат з Usagi Backup Bot</string>
     <string name="test_connection">Тэставое злучэнне</string>
     <string name="delete_old_backups_summary">Аўтаматычна выдаляць старыя рэзервовыя копіі, каб вызваліць месца для дадзеных</string>
     <string name="delete_old_backups">Выдаліць старыя рэзервовыя копіі</string>

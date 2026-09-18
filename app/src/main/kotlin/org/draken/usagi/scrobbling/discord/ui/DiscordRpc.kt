@@ -1,10 +1,13 @@
 package org.draken.usagi.scrobbling.discord.ui
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.SystemClock
 import android.util.ArrayMap
 import androidx.annotation.AnyThread
+import androidx.core.graphics.drawable.toBitmap
 import coil3.ImageLoader
+import coil3.asDrawable
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import com.discord.oauth2rpc.API
@@ -17,10 +20,12 @@ import dagger.hilt.android.lifecycle.RetainedLifecycle
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
+import kotlinx.coroutines.withContext
 import okio.utf8Size
 import org.draken.usagi.R
 import org.draken.usagi.core.LocalizedAppContext
@@ -28,8 +33,11 @@ import org.draken.usagi.core.model.appUrl
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.prefs.AppSettings
+import org.draken.usagi.core.util.ext.isFileUri
 import org.draken.usagi.core.util.ext.lifecycleScope
 import org.draken.usagi.core.util.ext.printStackTraceDebug
+import org.draken.usagi.core.util.ext.toFileOrNull
+import org.draken.usagi.core.util.ext.toUriOrNull
 import org.draken.usagi.reader.ui.pager.ReaderUiState
 import org.draken.usagi.scrobbling.discord.data.DiscordRepository
 import tsuki.model.Manga
@@ -37,11 +45,13 @@ import tsuki.util.runCatchingCancellable
 import java.io.File
 import java.util.Collections
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val STATUS_ONLINE = "online"
 private const val STATUS_IDLE = "idle"
 private const val BUTTON_TEXT_LIMIT = 32
 private const val DEBOUNCE_TIMEOUT = 3_000L // 3 sec
+private val CHAPTER_REGEX = Regex("""^\D*\d+(\.\d+)?$""")
 
 @ViewModelScoped
 class DiscordRpc
@@ -101,13 +111,13 @@ class DiscordRpc
 			}
 
 			val title = state.getChapterTitle(context.resources)
-			val noTitle = state.chapter.title.isNullOrBlank() || title == context.getString(R.string.chapter_number, state.chapterNumber.toString())
+			val isGeneric = state.chapter.title.isNullOrBlank() || title.matches(CHAPTER_REGEX)
+			val p = context.getString(R.string.chapter_d_of_d, state.chapterNumber, state.chaptersTotal)
 			val (presenceState, largeText) =
-				if (noTitle && state.chapter.volume == 0) {
-					context.getString(R.string.chapter_d_of_d, state.chapterNumber, state.chaptersTotal) to
-						context.getString(R.string.reading_s, manga.title)
-				} else {
-					title to "Season ${state.chapter.volume}, Episode ${state.chapterNumber}"
+				when {
+					state.chapter.volume >= 1 -> title to "Season ${state.chapter.volume}, Episode ${state.chapterNumber}"
+					isGeneric -> p to context.getString(R.string.reading_s, manga.title)
+					else -> title to p
 				}
 
 			val presence =
@@ -145,16 +155,20 @@ class DiscordRpc
 					prevJob?.cancelAndJoin()
 					val debounceTime = lastUpdate + DEBOUNCE_TIMEOUT - SystemClock.elapsedRealtime()
 					if (debounceTime > 0) {
-						delay(debounceTime)
+						delay(debounceTime.milliseconds)
 					}
 					launch { getRpc() }
 					presence.setAssetsLargeImage(presence.assets["largeImage"]?.toMediaProxyUrl(isNsfw))
 					presence.setAssetsSmallImage(presence.assets["smallImage"]?.toMediaProxyUrl(false))
 					lastPresence = presence
 					getRpc()?.let { client ->
+						val activity =
+							presence.toJSON().let {
+								if (settings.isDiscordRpcUseTitle) it + ("status_display_type" to 2) else it
+							}
 						val data =
 							mutableMapOf<String, Any?>(
-								"activities" to listOf(presence.toJSON()),
+								"activities" to listOf(activity),
 								"status" to if (idle) STATUS_IDLE else STATUS_ONLINE,
 								"since" to (presence.timestamps?.get("start") ?: System.currentTimeMillis()),
 								"afk" to idle,
@@ -168,27 +182,48 @@ class DiscordRpc
 		suspend fun String.toMediaProxyUrl(isNsfw: Boolean): String? {
 			if (repository.isMediaProxyUrl(this)) return this
 			return mpCache[this] ?: runCatchingCancellable {
+				val registrar = getRegistrar() ?: return@runCatchingCancellable null
+				if (this == appIcon) {
+					return@runCatchingCancellable registrar.resolve(this, 0)
+				}
 				val file = getCacheFile(this)
-				val upload = file?.let { repository.getMediaProxyUrl(it) }
+				val upload = file?.let { withContext(NonCancellable + Dispatchers.IO) { repository.getMediaProxyUrl(it) } }
 				val contentRating = if (isNsfw) 1 else 0
 				if (upload != null) {
-					getRegistrar()?.resolve(upload, contentRating)
+					withContext(NonCancellable + Dispatchers.IO) { registrar.resolve(upload, contentRating) }
 				} else {
-					getRegistrar()?.resolve(this, contentRating)
+					withContext(NonCancellable + Dispatchers.IO) { registrar.resolve(this@toMediaProxyUrl, contentRating) }
 				}
-			}.onSuccess { url -> url?.let { mpCache[this] = it } }.onFailure { it.printStackTraceDebug() }.getOrNull()
+			}.onSuccess { url -> if (url != null && repository.isMediaProxyUrl(url)) mpCache[this] = url }
+				.onFailure { it.printStackTraceDebug() }
+				.getOrNull()
 		}
 
 		private suspend fun getCacheFile(url: String): File? {
-			var snapshot = imageLoader.diskCache?.openSnapshot(url)
-			if (snapshot == null) {
-				val request = ImageRequest.Builder(context).data(url).build()
-				val result = imageLoader.execute(request)
-				if (result is SuccessResult) {
-					snapshot = imageLoader.diskCache?.openSnapshot(url)
+			url
+				.toUriOrNull()
+				?.takeIf { it.isFileUri() }
+				?.toFileOrNull()
+				?.takeIf { it.exists() }
+				?.let { return it }
+			return (
+				imageLoader.diskCache?.openSnapshot(url) ?: run {
+					val r =
+						imageLoader.execute(ImageRequest.Builder(context).data(url).build())
+							as? SuccessResult ?: return null
+					imageLoader.diskCache?.openSnapshot(url)
+						?: return withContext(Dispatchers.IO) {
+							File(context.cacheDir, "rpc_tmp.png").apply {
+								outputStream().use {
+									r.image
+										.asDrawable(context.resources)
+										.toBitmap()
+										.compress(Bitmap.CompressFormat.PNG, 75, it)
+								}
+							}
+						}
 				}
-			}
-			return snapshot?.use { File(it.data.toString()) }
+			).use { File(it.data.toString()) }
 		}
 
 		private fun getRpc(): GatewayClient? =

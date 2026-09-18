@@ -33,6 +33,7 @@ import org.draken.usagi.list.ui.model.LoadingFooter
 import org.draken.usagi.list.ui.model.LoadingState
 import org.draken.usagi.list.ui.model.MangaGridModel
 import tsuki.model.Manga
+import tsuki.util.nullIfEmpty
 import tsuki.util.suspendlazy.getOrDefault
 import tsuki.util.suspendlazy.suspendLazy
 import javax.inject.Inject
@@ -51,6 +52,7 @@ class AlternativesViewModel
 
 		private var includeDisabledSources = MutableStateFlow(false)
 		private val results = MutableStateFlow<List<MangaAlternativeModel>>(emptyList())
+		private var customQuery = MutableStateFlow<String?>(null)
 
 		private var migrationJob: Job? = null
 		private var searchJob: Job? = null
@@ -106,6 +108,13 @@ class AlternativesViewModel
 			doSearch(throughDisabledSources = false)
 		}
 
+		fun search(query: String?) {
+			val newQuery = query?.trim()?.nullIfEmpty()
+			if (customQuery.value == newQuery) return
+			customQuery.value = newQuery
+			retry()
+		}
+
 		fun retry() {
 			searchJob?.cancel()
 			results.value = emptyList()
@@ -144,8 +153,9 @@ class AlternativesViewModel
 					prevJob?.cancelAndJoin()
 					val ref = mangaDetails.getOrDefault(manga)
 					val refCount = ref.chaptersCount()
+					val query = customQuery.value ?: ref.title
 					alternativesUseCase
-						.invoke(ref, throughDisabledSources)
+						.invoke(ref, throughDisabledSources, query)
 						.collect {
 							val model =
 								MangaAlternativeModel(

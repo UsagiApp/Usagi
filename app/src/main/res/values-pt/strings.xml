@@ -759,7 +759,7 @@
     <string name="send_backups_telegram">Envie backups no Telegram</string>
     <string name="test_connection">Conexão de teste</string>
     <string name="telegram_chat_id_summary">Insira o ID do chat para onde os backups devem ser enviados</string>
-    <string name="open_telegram_bot_summary">Pressione para abrir o bate-papo com o Kotatsu Backup Bot</string>
+    <string name="open_telegram_bot_summary">Pressione para abrir o bate-papo com o Usagi Backup Bot</string>
     <string name="delete_old_backups">Exclua backups antigos</string>
     <string name="delete_old_backups_summary">Exclua automaticamente arquivos de backup antigos para economizar espaço de armazenamento</string>
     <string name="translation">Tradução</string>

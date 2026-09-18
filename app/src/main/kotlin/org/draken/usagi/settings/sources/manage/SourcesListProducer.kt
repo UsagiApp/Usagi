@@ -17,8 +17,8 @@ import org.draken.usagi.R
 import org.draken.usagi.core.LocalizedAppContext
 import org.draken.usagi.core.db.TABLE_SOURCES
 import org.draken.usagi.core.model.getTitle
+import org.draken.usagi.core.model.isManageableSource
 import org.draken.usagi.core.model.isNsfw
-import org.draken.usagi.core.model.unwrap
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.lifecycleScope
 import org.draken.usagi.explore.data.MangaSourcesRepository
@@ -72,15 +72,7 @@ class SourcesListProducer
 		}
 
 		private suspend fun buildList(): List<SourceConfigItem> {
-			val enabledSources =
-				repository.getEnabledSources().filter {
-					val unwrapped = it.unwrap()
-					unwrapped !is org.draken.usagi.core.parser.external.ExternalMangaSource &&
-						unwrapped !is org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource &&
-						unwrapped !is org.draken.usagi.core.model.LocalMangaSource &&
-						unwrapped !is org.draken.usagi.core.model.TestMangaSource &&
-						unwrapped !is org.draken.usagi.core.model.UnknownMangaSource
-				}
+			val enabledSources = repository.getEnabledSources().filter { it.isManageableSource() }
 			val pinned = repository.getPinnedSources().mapToSet { it.name }
 			val isNsfwDisabled = settings.isNsfwContentDisabled
 			val isReorderAvailable = settings.sourcesSortOrder == SourcesSortOrder.MANUAL

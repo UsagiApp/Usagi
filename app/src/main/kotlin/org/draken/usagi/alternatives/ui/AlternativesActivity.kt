@@ -1,9 +1,14 @@
 package org.draken.usagi.alternatives.ui
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import coil3.ImageLoader
@@ -69,6 +74,36 @@ class AlternativesActivity :
 			router.openDetails(it)
 			finishAfterTransition()
 		}
+		addMenuProvider(
+			object : MenuProvider {
+				override fun onCreateMenu(
+					menu: Menu,
+					menuInflater: MenuInflater,
+				) {
+					menuInflater.inflate(R.menu.opt_search, menu)
+					val menuItem = menu.findItem(R.id.action_search)
+					val searchView = menuItem?.actionView as? SearchView
+					searchView?.queryHint = getString(R.string.search_manga)
+					searchView?.setOnQueryTextListener(
+						object : SearchView.OnQueryTextListener {
+							override fun onQueryTextSubmit(query: String?): Boolean {
+								viewModel.search(query)
+								return true
+							}
+
+							override fun onQueryTextChange(newText: String?): Boolean {
+								if (newText.isNullOrBlank()) {
+									viewModel.search(null)
+								}
+								return true
+							}
+						},
+					)
+				}
+
+				override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
+			},
+		)
 	}
 
 	override fun onApplyWindowInsets(

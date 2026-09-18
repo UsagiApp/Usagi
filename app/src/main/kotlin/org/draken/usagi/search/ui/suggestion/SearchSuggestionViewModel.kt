@@ -15,13 +15,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.plus
 import org.draken.usagi.core.prefs.AppSettings
+import org.draken.usagi.core.prefs.ListMode
 import org.draken.usagi.core.prefs.SearchSuggestionType
-import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.prefs.observeAsStateFlow
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.explore.data.MangaSourcesRepository
+import org.draken.usagi.list.domain.MangaListMapper
+import org.draken.usagi.list.ui.model.MangaGridModel
 import org.draken.usagi.search.domain.MangaSearchRepository
 import org.draken.usagi.search.ui.suggestion.model.SearchSuggestionItem
 import tsuki.model.MangaSource
@@ -29,6 +31,7 @@ import tsuki.model.MangaTag
 import tsuki.util.mapToSet
 import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val DEBOUNCE_TIMEOUT = 300L
 private const val MAX_MANGA_ITEMS = 12
@@ -46,6 +49,7 @@ class SearchSuggestionViewModel
 		private val repository: MangaSearchRepository,
 		private val settings: AppSettings,
 		private val sourcesRepository: MangaSourcesRepository,
+		private val mapper: MangaListMapper,
 	) : BaseViewModel() {
 		private val query = MutableStateFlow("")
 		private val invalidationTrigger = MutableStateFlow(0)
@@ -59,9 +63,9 @@ class SearchSuggestionViewModel
 
 		val suggestion: Flow<List<SearchSuggestionItem>> =
 			combine(
-				query.debounce(DEBOUNCE_TIMEOUT),
+				query.debounce(DEBOUNCE_TIMEOUT.milliseconds),
 				sourcesRepository.observeEnabledSources().map { it.mapToSet { x -> x.name } },
-				settings.observeAsFlow(AppSettings.KEY_SEARCH_SUGGESTION_TYPES) { searchSuggestionTypes },
+				settings.observe(AppSettings.KEY_SEARCH_SUGGESTION_TYPES, AppSettings.KEY_MANGA_LIST_BADGES).map { settings.searchSuggestionTypes },
 				invalidationTrigger,
 			)
 				{ a, b, c, _ ->
@@ -202,7 +206,7 @@ class SearchSuggestionViewModel
 				if (manga.isEmpty()) {
 					emptyList()
 				} else {
-					listOf(SearchSuggestionItem.MangaList(manga))
+					listOf(SearchSuggestionItem.MangaList(mapper.toListModelList(manga, ListMode.GRID).filterIsInstance<MangaGridModel>()))
 				}
 			}.getOrElse { e ->
 				e.printStackTraceDebug()

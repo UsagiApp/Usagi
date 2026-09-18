@@ -393,6 +393,8 @@
     <string name="show_on_shelf">Hiển thị trên kệ sách</string>
     <string name="mirror_switching">Tự động chuyển sang dự phòng</string>
     <string name="mirror_switching_summary">Tự động chuyển sang tên miền dự phòng của nguồn đọc (nếu có) khi gặp lỗi</string>
+    <string name="transfer_cookies_on_redirect">Tự động chuyển cookies sang tên miền mới (beta)</string>
+    <string name="transfer_cookies_on_redirect_summary">Tự động sao chép và chuyển cookies từ tên miền cũ sang tên miền mới nếu phát hiện chuyển hướng tên miền của nguồn đọc sang tên miền khác</string>
     <string name="paused">Đã tạm dừng</string>
     <string name="images_proxy_title">Proxy tối ưu hình ảnh</string>
     <string name="images_procy_description">Sử dụng dịch vụ wsrv.nl để giảm dung lượng ảnh và tăng tốc quá trình tải ảnh nếu khả thi</string>
@@ -764,7 +766,7 @@
     <string name="telegram_chat_id_summary">Nhập Chat ID từ Telegram của bạn, nơi mà Bot sẽ gửi bản sao lưu dữ liệu của ứng dụng cho bạn</string>
     <string name="test_connection">Kiểm tra kết nối</string>
     <string name="send_backups_telegram">Gửi bản sao lưu dữ liệu vào Telegram</string>
-    <string name="open_telegram_bot_summary">Ấn vào đây để mở đoạn Chat với Kotatsu Backup Bot (cần cài đặt Telegram)</string>
+    <string name="open_telegram_bot_summary">Ấn vào đây để mở đoạn Chat với Usagi Backup Bot (cần cài đặt Telegram)</string>
     <string name="clear_database">Xóa database</string>
     <string name="clear_database_summary">Xoá thông tin dữ liệu về manga chưa từng được sử dụng (cache)</string>
     <string name="all_sources_enabled">Toàn bộ nguồn đọc đã được bật</string>
@@ -849,6 +851,8 @@
     <string name="reading_s">Hiện đang đọc: %s</string>
     <string name="read_on_s">Đọc trên %s</string>
     <string name="rpc_skip_nsfw_summary">Không tự động kích hoạt Discord Rich Presence đối với truyện người lớn</string>
+    <string name="manga_title_rpc">Hiển thị tiêu đề trên Discord RPC</string>
+    <string name="manga_title_rpc_summary">Sử dụng tên truyện tranh thay thế cho tên của ứng dụng khi hiển thị trên Discord RPC</string>
     <string name="invalid_token">Token không hợp lệ: %s</string>
     <string name="show_floating_control_button">Hiển thị nút điều khiển nổi</string>
     <string name="unavailable">Không có sẵn</string>
@@ -935,4 +939,8 @@
     <string name="floating_navigation_bar">Thanh điều hướng nổi</string>
     <string name="floating_navigation_bar_summary">Hiển thị thanh điều hướng của màn hình chính ở dạng thanh nổi (như là Google Photos)</string>
     <string name="no_filters_available">Nguồn này không có bộ lọc nào ツ</string>
+    <string name="fix_excluded_sources">Loại bỏ nguồn cho tính năng thay thế tự động</string>
+    <string name="fix_excluded_sources_summary">Chỉ định các nguồn mà bạn không muốn dùng đến khi sử dụng tính năng thay thế truyện tự động</string>
+    <string name="duplicate_manga">Đã có sẵn trong thư viện</string>
+    <string name="duplicate_manga_summary">Truyện \"%1$s\" từ nguồn \"%2$s\" đã có trong thư viện yêu thích của bạn. Bạn có muốn tiếp tục?</string>
 </resources>

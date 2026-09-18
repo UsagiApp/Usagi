@@ -75,4 +75,10 @@
 		android:title="@string/proxy_bypass_enabled"
 		android:summary="@string/proxy_bypass_enabled_summary"/>
 
+	<SwitchPreferenceCompat
+		android:defaultValue="false"
+		android:key="transfer_cookies_on_redirect"
+		android:summary="@string/transfer_cookies_on_redirect_summary"
+		android:title="@string/transfer_cookies_on_redirect" />
+
 </PreferenceScreen>

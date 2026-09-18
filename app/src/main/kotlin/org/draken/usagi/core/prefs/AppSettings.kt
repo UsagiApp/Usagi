@@ -45,6 +45,7 @@ import java.util.EnumSet
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.enums.enumEntries
 
 @Singleton
 class AppSettings
@@ -321,6 +322,9 @@ class AppSettings
 		val isMirrorSwitchingEnabled: Boolean
 			get() = prefs.getBoolean(KEY_MIRROR_SWITCHING, false)
 
+		val isTransferCookiesOnRedirectEnabled: Boolean
+			get() = prefs.getBoolean(KEY_TRANSFER_COOKIES_ON_REDIRECT, false)
+
 		val isExitConfirmationEnabled: Boolean
 			get() = prefs.getBoolean(KEY_EXIT_CONFIRM, false)
 
@@ -465,6 +469,15 @@ class AppSettings
 				return string.split(',').mapToSet { it.trim() }
 			}
 
+		val fixSourcesBlacklist: Set<String>
+			get() {
+				val string = prefs.getString(KEY_FIX_EXCLUDE_SOURCES, null)?.trimEnd(' ', ',')
+				if (string.isNullOrEmpty()) {
+					return emptySet()
+				}
+				return string.split(',').mapToSet { it.trim() }
+			}
+
 		val isReaderBarEnabled: Boolean
 			get() = prefs.getBoolean(KEY_READER_BAR, true)
 
@@ -531,7 +544,7 @@ class AppSettings
 		val proxyType: Proxy.Type
 			get() {
 				val raw = prefs.getString(KEY_PROXY_TYPE, null) ?: return Proxy.Type.DIRECT
-				return enumValues<Proxy.Type>().find { it.name == raw } ?: Proxy.Type.DIRECT
+				return enumEntries<Proxy.Type>().find { it.name == raw } ?: Proxy.Type.DIRECT
 			}
 
 		val proxyAddress: String?
@@ -596,6 +609,10 @@ class AppSettings
 			get() = prefs.getBoolean(KEY_READER_AUTOSCROLL_FAB, true)
 			set(value) = prefs.edit { putBoolean(KEY_READER_AUTOSCROLL_FAB, value) }
 
+		var isReaderAutoscrollHoldMode: Boolean
+			get() = prefs.getBoolean(KEY_READER_AUTOSCROLL_HOLD, false)
+			set(value) = prefs.edit { putBoolean(KEY_READER_AUTOSCROLL_HOLD, value) }
+
 		val isPagesPreloadEnabled: Boolean
 			get() {
 				if (isBackgroundNetworkRestricted()) {
@@ -617,6 +634,9 @@ class AppSettings
 
 		val isDiscordRpcSkipNsfw: Boolean
 			get() = prefs.getBoolean(KEY_DISCORD_RPC_SKIP_NSFW, false)
+
+		val isDiscordRpcUseTitle: Boolean
+			get() = prefs.getBoolean(KEY_DISCORD_RPC_USE_TITLE, false)
 
 		var discordToken: String?
 			get() = prefs.getString(KEY_DISCORD_TOKEN, null)?.trim()?.nullIfEmpty()
@@ -842,6 +862,7 @@ class AppSettings
 			const val KEY_SUGGESTIONS_EXCLUDE_TAGS = "suggestions_exclude_tags"
 			const val KEY_SUGGESTIONS_DISABLED_SOURCES = "suggestions_disabled_sources"
 			const val KEY_SUGGESTIONS_NOTIFICATIONS = "suggestions_notifications"
+			const val KEY_FIX_EXCLUDE_SOURCES = "fix_exclude_sources"
 			const val KEY_SHIKIMORI = "shikimori"
 			const val KEY_ANILIST = "anilist"
 			const val KEY_MAL = "mal"
@@ -883,7 +904,9 @@ class AppSettings
 			const val KEY_SSL_BYPASS = "ssl_bypass"
 			const val KEY_READER_AUTOSCROLL_SPEED = "as_speed"
 			const val KEY_READER_AUTOSCROLL_FAB = "as_fab"
+			const val KEY_READER_AUTOSCROLL_HOLD = "as_hold"
 			const val KEY_MIRROR_SWITCHING = "mirror_switching"
+			const val KEY_TRANSFER_COOKIES_ON_REDIRECT = "transfer_cookies_on_redirect"
 			const val KEY_PROXY = "proxy"
 			const val KEY_PROXY_TYPE = "proxy_type_2"
 			const val KEY_PROXY_ADDRESS = "proxy_address"
@@ -932,6 +955,7 @@ class AppSettings
 			const val KEY_MANGA_LIST_BADGES = "manga_list_badges"
 			const val KEY_TAGS_WARNINGS = "tags_warnings"
 			const val KEY_DISCORD_RPC = "discord_rpc"
+			const val KEY_DISCORD_RPC_USE_TITLE = "discord_rpc_use_title"
 			const val KEY_DISCORD_RPC_SKIP_NSFW = "discord_rpc_skip_nsfw"
 			const val KEY_DISCORD_TOKEN = "discord_token"
 			const val KEY_DISCORD_REFRESH_TOKEN = "discord_refresh_token"

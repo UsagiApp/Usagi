@@ -15,6 +15,13 @@
 		android:title="@string/discord_token" />
 
 	<SwitchPreferenceCompat
+		android:defaultValue="false"
+		android:dependency="discord_rpc"
+		android:key="discord_rpc_use_title"
+		android:summary="@string/manga_title_rpc_summary"
+		android:title="@string/manga_title_rpc" />
+
+	<SwitchPreferenceCompat
 		android:dependency="discord_rpc"
 		android:key="discord_rpc_skip_nsfw"
 		android:summary="@string/rpc_skip_nsfw_summary"

@@ -766,7 +766,7 @@
     <string name="send_backups_telegram">Надсилати резервні копії до Telegram</string>
     <string name="test_connection">Протестувати з\'єднання</string>
     <string name="telegram_chat_id_summary">Введіть чат ID, куди слід надсилати резервні копії</string>
-    <string name="open_telegram_bot_summary">Натисніть, щоб відкрити чат з Kotatsu Backup Bot</string>
+    <string name="open_telegram_bot_summary">Натисніть, щоб відкрити чат з Usagi Backup Bot</string>
     <string name="clear_database">Очистити базу даних</string>
     <string name="clear_database_summary">Видалити інформацію про манґу, яка не використовується</string>
     <string name="enable_all_sources">Увімкнути всі джерела манґи</string>

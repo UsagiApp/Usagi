@@ -5,5 +5,8 @@
 	<item
 		android:id="@+id/action_save"
 		android:title="@string/save" />
+	<item
+		android:id="@+id/action_edit"
+		android:title="@string/edit" />
 
 </menu>

@@ -763,7 +763,7 @@
     <string name="clear_database_summary">Tanggalin ang impormasyon tungkol sa manga na hindi ginamit</string>
     <string name="send_backups_telegram">Magpadala ng mga backup sa Telegram</string>
     <string name="test_connection">I-test ang koneksyon</string>
-    <string name="open_telegram_bot_summary">Pindutin para buksan ang pinag-usapan gamit ang Kotatsu Backup Bot</string>
+    <string name="open_telegram_bot_summary">Pindutin para buksan ang pinag-usapan gamit ang Usagi Backup Bot</string>
     <string name="translation">Pagsasalin</string>
     <string name="telegram_chat_id_summary">Ilagay ang chat ID kung saan dapat ipadala ang mga backup</string>
     <string name="rating">Kaurian</string>

@@ -338,6 +338,15 @@ class ReaderActivity :
 
 	override fun onGridLongTouch(area: TapGridArea) {
 		if (isReaderResumed()) {
+			val direction =
+				when (area) {
+					TapGridArea.TOP_LEFT, TapGridArea.TOP_CENTER, TapGridArea.TOP_RIGHT, TapGridArea.CENTER_LEFT -> -1
+					TapGridArea.BOTTOM_LEFT, TapGridArea.BOTTOM_CENTER, TapGridArea.BOTTOM_RIGHT, TapGridArea.CENTER_RIGHT -> 1
+					TapGridArea.CENTER -> 0
+				}
+			if (direction != 0 && scrollTimer.start(direction)) {
+				return
+			}
 			controlDelegate.onGridLongTouch(area)
 		}
 	}

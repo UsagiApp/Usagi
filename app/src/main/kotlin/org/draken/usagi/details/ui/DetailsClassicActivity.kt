@@ -2,6 +2,7 @@ package org.draken.usagi.details.ui
 
 import android.app.assist.AssistContent
 import android.content.Context
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
@@ -137,6 +138,10 @@ class DetailsClassicActivity :
 		super.onCreate(savedInstanceState)
 		setContentView(ActivityDetailsClassicBinding.inflate(layoutInflater))
 		enableEdgeToEdge()
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+			@Suppress("DEPRECATION")
+			window.navigationBarColor = Color.TRANSPARENT
+		}
 		WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
 		supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -320,6 +325,7 @@ class DetailsClassicActivity :
 					source = manga.source,
 					anchor = v,
 					preview = CoilMemoryCacheKey.from(viewBinding.imageViewCover),
+					manga = manga,
 				)
 			}
 
@@ -331,6 +337,7 @@ class DetailsClassicActivity :
 					source = manga.source,
 					anchor = v,
 					preview = CoilMemoryCacheKey.from(viewBinding.backdrop),
+					manga = manga,
 				)
 			}
 

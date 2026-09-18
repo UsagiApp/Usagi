@@ -397,6 +397,8 @@
     <string name="ignore_ssl_errors">Ignore SSL errors</string>
     <string name="mirror_switching">Choose mirror automatically</string>
     <string name="mirror_switching_summary">Automatically switch domains for manga sources on errors if mirrors are available</string>
+    <string name="transfer_cookies_on_redirect">Automatically transfer cookies to the new domain (beta)</string>
+    <string name="transfer_cookies_on_redirect_summary">Automatically copy and transfer cookies from the old domain to the new domain if a redirection of the source comic\'s domain to a different domain is detected</string>
     <string name="pause">Pause</string>
     <string name="resume">Resume</string>
     <string name="paused">Paused</string>
@@ -739,6 +741,8 @@
     <string name="no_fix_required">No fix required for \"%s\"</string>
     <string name="no_alternatives_found">No alternatives found for \"%s\"</string>
     <string name="manga_fix_prompt">This function will find alternative sources for the selected manga. The task will take some time and will proceed in the background</string>
+    <string name="fix_excluded_sources">Auto-fix exclude sources</string>
+    <string name="fix_excluded_sources_summary">Specify sources that you do not want to use in auto-fix manga feature</string>
     <string name="content_type_novel">Novel</string>
     <string name="content_type_manhua">Manhua</string>
     <string name="content_type_manhwa">Manhwa</string>
@@ -816,7 +820,7 @@
     <string name="send_backups_telegram">Send backups in Telegram</string>
     <string name="test_connection">Test connection</string>
     <string name="telegram_chat_id_summary">Enter the chat ID where backups should be sent</string>
-    <string name="open_telegram_bot_summary">Press to open chat with Kotatsu Backup Bot</string>
+    <string name="open_telegram_bot_summary">Press to open chat with Usagi Backup Bot</string>
     <string name="clear_database">Clear database</string>
     <string name="clear_database_summary">Delete information about manga that is not used</string>
     <string name="enable_all_sources">Enable all manga sources</string>
@@ -903,6 +907,8 @@
     <string name="reading_s">Reading %s</string>
     <string name="read_on_s">Read on %s</string>
     <string name="rpc_skip_nsfw_summary">Do not use RPC for adult content</string>
+    <string name="manga_title_rpc">Show manga title in activity</string>
+    <string name="manga_title_rpc_summary">Show the manga title instead of the app name in Discord activity</string>
     <string name="invalid_token">Invalid token: %s</string>
     <string name="show_floating_control_button">Show floating control button</string>
     <string name="unavailable">Unavailable</string>
@@ -962,4 +968,7 @@
 	<string name="auto_update_plugins">Auto update plugins</string>
 	<string name="auto_update_plugins_summary">Automatically refresh and update all installed plugins at startup</string>
 	<string name="no_filters_available">This source has no filters</string>
+	<string name="duplicate_manga">Already in library</string>
+	<string name="duplicate_manga_summary">Manga \"%1$s\" from \"%2$s\" is already in your favorites. Do you want to continue?</string>
+	<string name="hold_to_scroll">Hold to scroll</string>
 </resources>

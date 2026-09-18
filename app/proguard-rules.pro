@@ -17,6 +17,7 @@
 -dontwarn com.google.j2objc.annotations.**
 -dontwarn com.google.re2j.**
 -dontwarn coil3.PlatformContext
+-dontwarn rx.internal.util.unsafe.**
 
 -keep class org.draken.usagi.settings.NotificationSettingsLegacyFragment
 -keep class org.draken.usagi.settings.about.changelog.ChangelogFragment
@@ -69,6 +70,8 @@
 -keep class androidx.preference.TwoStatePreference { public protected *; }
 -keep class eu.kanade.tachiyomi.** { public protected *; }
 -keep class keiyoushi.** { public protected *; }
+-keep class app.cash.quickjs.** { *; }
+-keepclassmembers class app.cash.quickjs.** { *; }
 -keep class rx.Observable { public protected *; }
 -keep class rx.Single { public protected *; }
 -keep class rx.Completable { public protected *; }
@@ -90,6 +93,17 @@
 -keep class rx.functions.Func7 { public protected *; }
 -keep class rx.functions.Func8 { public protected *; }
 -keep class rx.functions.Func9 { public protected *; }
+-keep class rx.internal.util.unsafe.** { *; }
+-keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
+    long producerIndex;
+    long consumerIndex;
+}
+-keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueProducerNodeRef {
+    rx.internal.util.atomic.LinkedQueueNode producerNode;
+}
+-keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueConsumerNodeRef {
+    rx.internal.util.atomic.LinkedQueueNode consumerNode;
+}
 -keep class uy.kohesive.injekt.** { public protected *; }
 -keep class * extends uy.kohesive.injekt.api.TypeReference { *; }
 -keep class * extends uy.kohesive.injekt.api.FullTypeReference { *; }

@@ -74,6 +74,7 @@ class FilterSheetFragment :
 	override fun onStart() {
 		super.onStart()
 		setHalfExpanded()
+		(dialog as? com.google.android.material.bottomsheet.BottomSheetDialog)?.behavior?.skipCollapsed = false
 	}
 
 	override fun onStateChanged(

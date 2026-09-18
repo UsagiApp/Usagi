@@ -12,6 +12,7 @@ import coil3.request.ImageRequest
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.CaptchaHandler.Companion.suppressCaptchaErrors
 import org.draken.usagi.core.image.CoilImageView
+import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.parser.favicon.faviconUri
 import org.draken.usagi.core.util.ext.isAnimationsEnabled
 import org.draken.usagi.core.util.ext.mangaSourceExtra
@@ -44,11 +45,11 @@ class FaviconView
 
 		fun setImageAsync(mangaSource: MangaSource): Disposable {
 			val fallbackFactory: (ImageRequest) -> Image? = { request ->
-				FaviconDrawable(request.context, iconStyle, mangaSource.name).asImage()
+				FaviconDrawable(request.context, iconStyle, mangaSource.getTitle(request.context)).asImage()
 			}
 			val placeholderFactory: (ImageRequest) -> Image? =
 				if (context.isAnimationsEnabled) {
-					{ request -> AnimatedFaviconDrawable(request.context, iconStyle, mangaSource.name).asImage() }
+					{ request -> AnimatedFaviconDrawable(request.context, iconStyle, mangaSource.getTitle(request.context)).asImage() }
 				} else {
 					fallbackFactory
 				}

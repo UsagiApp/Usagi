@@ -18,14 +18,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import org.draken.tsukimix.core.parser.external.ExtRuntime
 import org.draken.usagi.R
 import org.draken.usagi.core.model.LocalMangaSource
 import org.draken.usagi.core.model.MangaSource
+import org.draken.usagi.core.model.UnresolvedMangaSource
 import org.draken.usagi.core.model.getSummary
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.model.isNsfw
 import org.draken.usagi.core.model.parcelable.ParcelableManga
 import org.draken.usagi.core.model.parcelable.ParcelableMangaListFilter
+import org.draken.usagi.core.model.resolve
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.ui.BaseActivity
@@ -55,8 +58,7 @@ import tsuki.model.SortOrder
 import javax.inject.Inject
 import kotlin.math.absoluteValue
 import com.google.android.material.R as materialR
-import org.draken.tsukimix.core.parser.tachiyomi.TachiyomiExtensionManager as ExternalManager
-import org.draken.tsukimix.core.parser.tachiyomi.model.TachiyomiMangaSource as ExternalSource
+import org.draken.tsukimix.core.parser.external.model.Manga as ExternalSource
 import org.draken.usagi.filter.ui.external.sheet.FilterSheetFragment as ExternalSheetFragment
 
 @AndroidEntryPoint
@@ -78,7 +80,9 @@ class MangaListActivity :
 	private lateinit var source: MangaSource
 
 	@Inject
-	lateinit var externalManager: ExternalManager
+	lateinit var extRuntime: ExtRuntime
+
+	private var filterBadge: ViewBadge? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -97,9 +101,10 @@ class MangaListActivity :
 
 	override fun onResume() {
 		super.onResume()
-		val activeSource = resolve(source)
-		if (activeSource.name != source.name) {
-			source = activeSource
+		// should resolve source again after restart / crash
+		val active = resolve(source.resolve())
+		if (active.name != source.name || source is UnresolvedMangaSource) {
+			source = active
 			title = source.getTitle(this)
 			reload(source)
 		}
@@ -210,7 +215,7 @@ class MangaListActivity :
 		}
 	}
 
-	private fun resolve(source: MangaSource): MangaSource = (source as? ExternalSource)?.let(externalManager::resolve) ?: source
+	private fun resolve(source: MangaSource): MangaSource = (source as? ExternalSource)?.let(extRuntime::resolve) ?: source
 
 	private fun initFilter(filterOwner: FilterCoordinator.Owner) {
 		if (viewBinding.containerSide != null) {
@@ -226,8 +231,11 @@ class MangaListActivity :
 		val filter = filterOwner.filterCoordinator
 		val chipSort = viewBinding.buttonOrder
 		if (chipSort != null) {
-			val filterBadge = ViewBadge(chipSort, this)
-			filterBadge.setMaxCharacterCount(0)
+			val badge =
+				filterBadge ?: ViewBadge(chipSort, this).also {
+					it.setMaxCharacterCount(0)
+					filterBadge = it
+				}
 			val isDynamic = filter.isDynamicFilter
 			filter.observe().observe(this) { snapshot ->
 				if (isDynamic) {
@@ -236,11 +244,11 @@ class MangaListActivity :
 						?: snapshot.sortLabel
 						?: getString(snapshot.sortOrder.titleRes)
 					chipSort.isVisible = true
-					filterBadge.counter =
+					badge.counter =
 						if (snapshot.listFilter.tags.any { !it.key.startsWith(FilterMapper.SORT_KEY_PREFIX) }) 1 else 0
 				} else {
 					chipSort.setTextAndVisible(snapshot.sortOrder.titleRes)
-					filterBadge.counter = if (snapshot.listFilter.hasNonSearchOptions()) 1 else 0
+					badge.counter = if (snapshot.listFilter.hasNonSearchOptions()) 1 else 0
 				}
 			}
 		} else {

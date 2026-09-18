@@ -9,6 +9,7 @@ import androidx.preference.Preference
 import androidx.preference.TwoStatePreference
 import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
+import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.parser.MangaDynamicRepository
 import org.draken.usagi.core.prefs.AppSettings
@@ -17,7 +18,9 @@ import org.draken.usagi.core.ui.BasePreferenceFragment
 import org.draken.usagi.core.util.ext.getQuantityStringSafe
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.setDefaultValueCompat
+import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.explore.data.SourcesSortOrder
+import org.draken.usagi.settings.utils.MultiAutoCompleteTextViewPreference
 import tsuki.util.names
 import javax.inject.Inject
 
@@ -29,6 +32,9 @@ class SourcesSettingsFragment :
 
 	@Inject
 	lateinit var mangaDynamicRepository: MangaDynamicRepository
+
+	@Inject
+	lateinit var sourcesRepository: MangaSourcesRepository
 
 	override fun onCreatePreferences(
 		savedInstanceState: Bundle?,
@@ -44,6 +50,19 @@ class SourcesSettingsFragment :
 			entryValues = TriStateOption.entries.names()
 			setDefaultValueCompat(TriStateOption.ASK.name)
 		}
+		findPreference<MultiAutoCompleteTextViewPreference>(AppSettings.KEY_FIX_EXCLUDE_SOURCES)?.run {
+			autoCompleteProvider =
+				object : MultiAutoCompleteTextViewPreference.AutoCompleteProvider {
+					override suspend fun getSuggestions(query: String): List<String> =
+						sourcesRepository.allMangaSources
+							.map { it.getTitle(context) }
+							.filter { it.contains(query, true) }
+				}
+			summaryProvider =
+				MultiAutoCompleteTextViewPreference.SimpleSummaryProvider(
+					getString(R.string.fix_excluded_sources_summary),
+				)
+		}
 	}
 
 	override fun onViewCreated(
@@ -52,38 +71,32 @@ class SourcesSettingsFragment :
 	) {
 		super.onViewCreated(view, savedInstanceState)
 		findPreference<Preference>(AppSettings.KEY_REMOTE_SOURCES)?.let { pref ->
-			viewModel.enabledSourcesCount.observe(viewLifecycleOwner) {
-				pref.summary =
-					if (it >= 0) {
-						resources.getQuantityStringSafe(R.plurals.items, it, it)
-					} else {
-						null
-					}
-			}
-		}
-		findPreference<Preference>(AppSettings.KEY_SOURCES_CATALOG)?.let { pref ->
-			viewModel.availableSourcesCount.observe(viewLifecycleOwner) {
-				pref.summary =
-					when {
-						it == 0 -> getString(R.string.all_sources_enabled)
-						it > 0 -> getString(R.string.available_d, it)
-						else -> null
-					}
+			viewModel.sourceCounts.observe(viewLifecycleOwner) { (total, _) ->
+				pref.summary = resources.getQuantityStringSafe(R.plurals.items, total, total)
 				hideEmptyCatalog()
 			}
 		}
+
+		findPreference<Preference>(AppSettings.KEY_SOURCES_CATALOG)?.let { pref ->
+			viewModel.availableSourcesCount.observe(viewLifecycleOwner) {
+				updateCatalogSummary(pref)
+			}
+		}
+
 		findPreference<TwoStatePreference>(AppSettings.KEY_HANDLE_LINKS)?.let { pref ->
 			viewModel.isLinksEnabled.observe(viewLifecycleOwner) {
 				pref.isChecked = it
 			}
 		}
 		updateEnableAllDependencies()
+		viewModel.externalPluginCount.observe(viewLifecycleOwner) { updatePluginsSummary() }
 		updatePluginsSummary()
 		settings.subscribe(this)
 	}
 
 	override fun onResume() {
 		super.onResume()
+		viewModel.refreshExternalCounts()
 		updatePluginsSummary()
 	}
 
@@ -123,15 +136,28 @@ class SourcesSettingsFragment :
 	}
 
 	private fun updatePluginsSummary() {
-		val count = mangaDynamicRepository.get().size
+		val count = mangaDynamicRepository.get().size + viewModel.externalPluginCount.value
 		findPreference<Preference>("plugins_manager")?.summary =
 			resources.getQuantityStringSafe(R.plurals.items, count, count)
 		hideEmptyCatalog()
 	}
 
+	private fun updateCatalogSummary(pref: Preference) {
+		val count = viewModel.availableSourcesCount.value
+		pref.summary =
+			when {
+				count == 0 -> getString(R.string.all_sources_enabled)
+				count > 0 -> getString(R.string.available_d, count)
+				else -> null
+			}
+		hideEmptyCatalog()
+	}
+
 	private fun hideEmptyCatalog() {
+		val total = viewModel.sourceCounts.value.first
 		val catalog = viewModel.availableSourcesCount.value
-		val imported = mangaDynamicRepository.get().size
-		findPreference<Preference>(AppSettings.KEY_REMOTE_SOURCES)?.isVisible = !(catalog == 0 && imported == 0)
+		val imported = mangaDynamicRepository.get().size + viewModel.externalPluginCount.value
+		val hasSources = total > 0 || catalog > 0 || imported > 0
+		findPreference<Preference>(AppSettings.KEY_REMOTE_SOURCES)?.isVisible = hasSources
 	}
 }

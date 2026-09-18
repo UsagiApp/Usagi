@@ -48,7 +48,7 @@ class AutoFixUseCase
 						} else {
 							best
 						}
-					}.selectLastWithTimeout(4, 40, TimeUnit.SECONDS)
+					}.selectLastWithTimeout(4, 30, TimeUnit.SECONDS)
 			migrateUseCase(seed, replacement ?: throw NoAlternativesException(ParcelableManga(seed)))
 			return seed to replacement
 		}

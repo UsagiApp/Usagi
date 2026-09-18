@@ -760,7 +760,7 @@
     <string name="backup_tg_echo">Mensagem de teste</string>
     <string name="translation">Tradução</string>
     <string name="send_backups_telegram">Enviar backups no Telegram</string>
-    <string name="open_telegram_bot_summary">Pressione para abrir o chat com o Kotatsu Backup Bot</string>
+    <string name="open_telegram_bot_summary">Pressione para abrir o chat com o Usagi Backup Bot</string>
     <string name="incognito">Anônimo</string>
     <string name="telegram_chat_id_summary">Insira o ID do chat para onde os backups devem ser enviados</string>
     <string name="author">Autor</string>
@@ -931,4 +931,15 @@
     <string name="auto_update_plugins_summary">Atualizar automaticamente todos os plugins instalados na inicialização</string>
     <string name="downscale_image">Reduzir a imagem</string>
     <string name="downscale_off">Desligado</string>
+    <string name="transfer_cookies_on_redirect">Transferir cookies automaticamente para o novo domínio (beta)</string>
+    <string name="transfer_cookies_on_redirect_summary">Copiar e transferir automaticamente os cookies do domínio antigo para o novo, caso seja detectado um redirecionamento do domínio da história em quadrinhos original para um domínio diferente</string>
+    <string name="floating_navigation_bar">Barra de navegação flutuante</string>
+    <string name="floating_navigation_bar_summary">Exibir a navegação da tela principal como uma barra flutuante (como no Google Fotos)</string>
+    <string name="fix_excluded_sources">Correção automática de fontes excluídas</string>
+    <string name="fix_excluded_sources_summary">Especifique as fontes que você não deseja usar no recurso de correção automática de mangás</string>
+    <string name="no_filters_available">Essa fonte não possui filtros</string>
+    <string name="manga_title_rpc">Mostrar título do mangá na atividade</string>
+    <string name="manga_title_rpc_summary">Exibir o título do mangá em vez do nome do aplicativo na atividade do Discord</string>
+    <string name="duplicate_manga">Já está na biblioteca</string>
+    <string name="duplicate_manga_summary">O mangá \"%1$s\" de \"%2$s\" já está nos seus favoritos. Deseja continuar?</string>
 </resources>

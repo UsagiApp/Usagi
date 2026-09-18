@@ -28,7 +28,7 @@ class FavouritesListFragment :
 	PopupMenu.OnMenuItemClickListener {
 	override val viewModel by viewModels<FavouritesListViewModel>()
 
-	override val isSwipeRefreshEnabled = false
+	override val isSwipeRefreshEnabled = true
 
 	val categoryId
 		get() = viewModel.categoryId

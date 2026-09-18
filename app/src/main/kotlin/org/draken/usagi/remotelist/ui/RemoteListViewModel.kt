@@ -24,7 +24,6 @@ import org.draken.usagi.core.model.distinctById
 import org.draken.usagi.core.parser.MangaDataRepository
 import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
-import org.draken.usagi.core.parser.tachiyomi.ExternalMangaRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.ListMode
 import org.draken.usagi.core.util.ext.MutableEventFlow
@@ -48,6 +47,7 @@ import org.draken.usagi.local.domain.model.LocalManga
 import tsuki.model.Manga
 import tsuki.util.sizeOrZero
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val FILTER_MIN_INTERVAL = 250L
 
@@ -120,7 +120,7 @@ open class RemoteListViewModel
 		init {
 			filterCoordinator
 				.observe()
-				.debounce(FILTER_MIN_INTERVAL)
+				.debounce(FILTER_MIN_INTERVAL.milliseconds)
 				.onEach { filterState ->
 					loadingJob?.cancelAndJoin()
 					mangaList.value = null
@@ -140,6 +140,8 @@ open class RemoteListViewModel
 		}
 
 		override fun onRefresh() {
+			(repository as? org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository)?.invalidateSource()
+				?: (repository as? org.draken.usagi.core.parser.CachingMangaRepository)?.invalidateCache()
 			loadList(filterCoordinator.snapshot(), append = false)
 		}
 
@@ -238,7 +240,7 @@ open class RemoteListViewModel
 		fun getBrowserUrl(): String? =
 			when (val repo = repository) {
 				is MangaParserRepository -> "https://${repo.domain}"
-				is ExternalMangaRepository -> repo.getBrowserUrl()
+				is org.draken.usagi.core.parser.external.tachiyomi.ExternalMangaRepository -> repo.getBrowserUrl()
 				else -> null
 			}
 	}

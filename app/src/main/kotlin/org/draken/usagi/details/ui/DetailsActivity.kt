@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.assist.AssistContent
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.InsetDrawable
 import android.graphics.drawable.RippleDrawable
@@ -156,6 +157,10 @@ class DetailsActivity :
 		infoBinding = LayoutDetailsTableBinding.bind(viewBinding.root)
 		WindowCompat.setDecorFitsSystemWindows(window, false)
 		enableEdgeToEdge()
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+			@Suppress("DEPRECATION")
+			window.navigationBarColor = Color.TRANSPARENT
+		}
 		WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
 		backdropController =
 			BackdropController(
@@ -299,6 +304,7 @@ class DetailsActivity :
 					source = manga.source,
 					preview = CoilMemoryCacheKey.from(viewBinding.imageViewCover),
 					anchor = v,
+					manga = manga,
 				)
 			}
 
@@ -309,6 +315,7 @@ class DetailsActivity :
 					source = manga.source,
 					preview = CoilMemoryCacheKey.from(viewBinding.backdrop),
 					anchor = v,
+					manga = manga,
 				)
 			}
 

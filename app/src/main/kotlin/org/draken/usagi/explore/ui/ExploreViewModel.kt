@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
+import org.draken.tsukimix.core.parser.external.ExtRuntime
 import org.draken.usagi.R
 import org.draken.usagi.core.model.MangaSourceInfo
 import org.draken.usagi.core.os.AppShortcutManager
@@ -20,6 +21,7 @@ import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.prefs.observeAsStateFlow
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.util.ReversibleAction
+import org.draken.usagi.core.ui.util.ReversibleHandle
 import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.core.util.ext.combine
@@ -48,6 +50,7 @@ class ExploreViewModel
 		private val suggestionRepository: SuggestionRepository,
 		private val exploreRepository: ExploreRepository,
 		private val sourcesRepository: MangaSourcesRepository,
+		private val extRuntime: ExtRuntime,
 		private val shortcutManager: AppShortcutManager,
 		private val updatePluginsProvider: UpdatePluginsProvider,
 	) : BaseViewModel() {
@@ -112,8 +115,14 @@ class ExploreViewModel
 		fun disableSources(sources: Collection<MangaSource>) {
 			launchJob(Dispatchers.Default) {
 				val rollback = sourcesRepository.setSourcesEnabled(sources, isEnabled = false)
+				extRuntime.ensureReady(forceRefresh = true)
+				val synchronizedRollback =
+					ReversibleHandle {
+						rollback.reverse()
+						extRuntime.ensureReady(forceRefresh = true)
+					}
 				val message = if (sources.size == 1) R.string.source_disabled else R.string.sources_disabled
-				onActionDone.call(ReversibleAction(message, rollback))
+				onActionDone.call(ReversibleAction(message, synchronizedRollback))
 			}
 		}
 

@@ -6,7 +6,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
-import org.draken.usagi.core.model.isExternalSource
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import javax.inject.Inject
@@ -15,14 +14,10 @@ import javax.inject.Inject
 class RootSettingsViewModel
 	@Inject
 	constructor(
-		private val sourcesRepository: MangaSourcesRepository,
+		sourcesRepository: MangaSourcesRepository,
 	) : BaseViewModel() {
-		val totalSourcesCount: Int
-			get() = sourcesRepository.allMangaSources.count { !it.isExternalSource() }
-
-		val enabledSourcesCount =
+		val sourceCounts =
 			sourcesRepository
-				.observeEnabledSourcesCount()
-				.withErrorHandling()
-				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, -1)
+				.observeManageableSourcesCount()
+				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, 0 to 0)
 	}

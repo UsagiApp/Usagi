@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
 import org.draken.usagi.R
+import org.draken.usagi.alternatives.domain.MigrateUseCase
+import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.model.FavouriteCategory
 import org.draken.usagi.core.model.ids
 import org.draken.usagi.core.model.parcelable.ParcelableManga
@@ -20,12 +22,16 @@ import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.ui.BaseViewModel
+import org.draken.usagi.core.util.ext.MutableEventFlow
+import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.core.util.ext.require
 import org.draken.usagi.favourites.domain.FavouritesRepository
 import org.draken.usagi.favourites.ui.categories.select.model.MangaCategoryItem
 import org.draken.usagi.list.ui.model.EmptyState
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.list.ui.model.LoadingState
+import tsuki.model.Manga
+import tsuki.util.runCatchingCancellable
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,12 +41,16 @@ class FavoriteDialogViewModel
 		savedStateHandle: SavedStateHandle,
 		private val favouritesRepository: FavouritesRepository,
 		settings: AppSettings,
+		private val migrator: MigrateUseCase,
+		private val db: MangaDatabase,
 	) : BaseViewModel() {
 		val manga =
 			savedStateHandle.require<List<ParcelableManga>>(AppRouter.KEY_MANGA_LIST).map {
 				it.manga
 			}
 
+		val onDuplicate = MutableEventFlow<Pair<Manga, Long>>()
+		val onMigrated = MutableEventFlow<Manga>()
 		private val refreshTrigger = MutableStateFlow(Any())
 		val content =
 			combine(
@@ -55,8 +65,27 @@ class FavoriteDialogViewModel
 		fun setChecked(
 			categoryId: Long,
 			isChecked: Boolean,
+			force: Boolean = false,
 		) {
 			launchJob(Dispatchers.Default) {
+				if (isChecked && !force) {
+					manga.firstOrNull()?.let { m ->
+						val trackerId =
+							db.getScrobblingDao().find(m.id).firstNotNullOfOrNull { tracker ->
+								db.getScrobblingDao().findMangaId(tracker.scrobbler, tracker.targetId, m.id)
+							}
+						val dup =
+							if (trackerId != null) {
+								favouritesRepository.getAllManga().firstOrNull { it.id == trackerId }
+							} else {
+								val t = m.title.lowercase()
+								favouritesRepository.getAllManga().firstOrNull { f ->
+									f.id != m.id && f.title.lowercase().contains(t)
+								}
+							}
+						dup?.let { return@launchJob onDuplicate.call(it to categoryId) }
+					}
+				}
 				if (isChecked) {
 					favouritesRepository.addToCategory(categoryId, manga)
 				} else {
@@ -65,6 +94,12 @@ class FavoriteDialogViewModel
 				refreshTrigger.value = Any()
 			}
 		}
+
+		fun migrate(dup: Manga) =
+			launchJob(Dispatchers.Default) {
+				manga.firstOrNull()?.let { runCatchingCancellable { migrator(it, dup) } }
+				onMigrated.call(dup)
+			}
 
 		private suspend fun mapList(
 			categories: List<FavouriteCategory>,

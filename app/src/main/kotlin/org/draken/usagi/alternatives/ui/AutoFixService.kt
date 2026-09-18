@@ -14,6 +14,9 @@ import androidx.core.content.ContextCompat
 import coil3.ImageLoader
 import coil3.request.ImageRequest
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import org.draken.usagi.R
 import org.draken.usagi.alternatives.domain.AutoFixUseCase
@@ -53,17 +56,22 @@ class AutoFixService : CoroutineIntentService() {
 	override suspend fun IntentJobContext.processIntent(intent: Intent) {
 		val ids = requireNotNull(intent.getLongArrayExtra(DATA_IDS))
 		startForeground(this)
-		for (mangaId in ids) {
-			powerManager.withPartialWakeLock(TAG) {
-				val result =
-					runCatchingCancellable {
-						autoFixUseCase.invoke(mangaId)
+		coroutineScope {
+			ids
+				.map { mangaId ->
+					async {
+						powerManager.withPartialWakeLock(TAG) {
+							val result =
+								runCatchingCancellable {
+									autoFixUseCase.invoke(mangaId)
+								}
+							if (checkNotificationPermission(CHANNEL_ID)) {
+								val notification = buildNotification(startId, result)
+								notificationManager.notify(TAG, startId, notification)
+							}
+						}
 					}
-				if (checkNotificationPermission(CHANNEL_ID)) {
-					val notification = buildNotification(startId, result)
-					notificationManager.notify(TAG, startId, notification)
-				}
-			}
+				}.awaitAll()
 		}
 	}
 

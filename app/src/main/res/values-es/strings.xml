@@ -764,7 +764,7 @@
     <string name="rating">Calificación</string>
     <string name="source">Fuente</string>
     <string name="test_connection">Prueba de la conexión</string>
-    <string name="open_telegram_bot_summary">Presione para abrir el chat con Kotatsu Backup Bot</string>
+    <string name="open_telegram_bot_summary">Presione para abrir el chat con Usagi Backup Bot</string>
     <string name="send_backups_telegram">Enviar copias de seguridad por Telegram</string>
     <string name="telegram_chat_id_summary">Ingrese el ID del chat donde se deben enviar las copias de seguridad</string>
     <string name="nsfw_16">16+</string>
@@ -927,4 +927,11 @@
     <string name="reader_bottom_bar_opacity">Opacidad de la barra de acción</string>
     <string name="is_float_bar">Barra de acción flotante</string>
     <string name="is_float_bar_summary">Exhiba la barra de acción del lector (en el inferior) como una barra flotante en vez de una barra de muelle</string>
+    <string name="downscale_image">Reducir la escala de imágen</string>
+    <string name="downscale_off">Desactivando</string>
+    <string name="crash_oops">¡Ups!</string>
+    <string name="restart_app">Restablecer la aplicación</string>
+    <string name="transfer_cookies_on_redirect">Transferir automáticamente las cookies al nuevo dominio (beta)</string>
+    <string name="proxy_webview_unavailable">El proxy para WebView no es compatible</string>
+    <string name="floating_navigation_bar">Barra de navegación flotante</string>
 </resources>

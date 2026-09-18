@@ -57,7 +57,6 @@ import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.os.VoiceInputContract
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.NavItem
-import org.draken.usagi.core.ui.AppCrashActivity
 import org.draken.usagi.core.ui.BaseActivity
 import org.draken.usagi.core.ui.dialog.BigButtonsAlertDialog
 import org.draken.usagi.core.ui.util.FadingAppbarMediator
@@ -121,6 +120,10 @@ class MainActivity :
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+			@Suppress("DEPRECATION")
+			window.navigationBarColor = Color.TRANSPARENT
+		}
 		setContentView(ActivityMainBinding.inflate(layoutInflater))
 		setSupportActionBar(viewBinding.searchBar)
 

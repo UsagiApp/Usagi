@@ -213,12 +213,14 @@ class AppRouter private constructor(
 		source: MangaSource?,
 		anchor: View? = null,
 		preview: CoilMemoryCacheKey? = null,
+		manga: Manga? = null,
 	) {
 		startActivity(
 			Intent(contextOrNull(), ImageActivity::class.java)
 				.setData(url.toUri())
 				.putExtra(KEY_SOURCE, source?.name)
-				.putExtra(KEY_PREVIEW, preview),
+				.putExtra(KEY_PREVIEW, preview)
+				.putExtra(KEY_MANGA, manga?.let { ParcelableManga(it, withDescription = false) }),
 			anchor?.let { scaleUpActivityOptionsOf(it) },
 		)
 	}
@@ -232,6 +234,19 @@ class AppRouter private constructor(
 	}
 
 	fun openSourcesCatalog() = startActivity(SourcesCatalogActivity::class.java)
+
+	fun openPluginCatalog(
+		repositoryUrl: String,
+		repositoryName: String?,
+	) {
+		val context = contextOrNull() ?: return
+		startActivity(
+			Intent(context, SourcesCatalogActivity::class.java).apply {
+				putExtra(SourcesCatalogActivity.EXTRA_REPOSITORY_URL, repositoryUrl)
+				putExtra(SourcesCatalogActivity.EXTRA_REPOSITORY_NAME, repositoryName)
+			},
+		)
+	}
 
 	fun openDownloads() = startActivity(DownloadsActivity::class.java)
 

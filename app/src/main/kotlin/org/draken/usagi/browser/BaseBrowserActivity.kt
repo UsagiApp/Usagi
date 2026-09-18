@@ -2,6 +2,7 @@ package org.draken.usagi.browser
 
 import android.os.Bundle
 import android.view.View
+import android.webkit.CookieManager
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
@@ -81,6 +82,7 @@ abstract class BaseBrowserActivity :
 	}
 
 	override fun onPause() {
+		runCatching { CookieManager.getInstance().flush() }
 		viewBinding.webView.onPause()
 		super.onPause()
 	}
@@ -93,6 +95,7 @@ abstract class BaseBrowserActivity :
 	override fun onDestroy() {
 		super.onDestroy()
 		if (hasViewBinding()) {
+			runCatching { CookieManager.getInstance().flush() }
 			viewBinding.webView.stopLoading()
 			viewBinding.webView.destroy()
 		}

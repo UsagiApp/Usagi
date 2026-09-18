@@ -16,7 +16,6 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.isNotEmpty
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import tsuki.util.await
-import tsuki.util.requireBody
 import tsuki.util.runCatchingCancellable
 import java.io.File
 import java.net.HttpURLConnection
@@ -111,7 +110,7 @@ class AdBlock
 											dateFormat.parse(it)
 										}.getOrNull()
 									}?.time ?: System.currentTimeMillis()
-							response.requireBody().source().use { source ->
+							response.body.source().use { source ->
 								file.sink().use { sink ->
 									source.readAll(sink)
 								}

@@ -55,6 +55,7 @@ class ScrollTimerControlView
 			binding.switchScrollTimer.setOnCheckedChangeListener(this)
 			binding.sliderTimer.addOnChangeListener(this)
 			binding.buttonFab.setOnClickListener(this)
+			binding.buttonHold.setOnClickListener(this)
 			binding.sliderTimer.setLabelFormatter(this)
 			binding.buttonClose.setOnClickListener(this)
 			binding.buttonFab.isGone = resources.getBoolean(R.bool.is_tablet)
@@ -93,6 +94,14 @@ class ScrollTimerControlView
 				).observe(lifecycleOwner) {
 					binding.buttonFab.isChecked = it
 				}
+			settings
+				.observeAsStateFlow(
+					scope = lifecycleOwner.lifecycleScope + Dispatchers.Default,
+					key = AppSettings.KEY_READER_AUTOSCROLL_HOLD,
+					valueProducer = { isReaderAutoscrollHoldMode },
+				).observe(lifecycleOwner) {
+					binding.buttonHold.isChecked = it
+				}
 			updateDescription()
 		}
 
@@ -105,6 +114,7 @@ class ScrollTimerControlView
 			when (v.id) {
 				R.id.button_close -> hide()
 				R.id.button_fab -> settings.isReaderAutoscrollFabVisible = !settings.isReaderAutoscrollFabVisible
+				R.id.button_hold -> settings.isReaderAutoscrollHoldMode = !settings.isReaderAutoscrollHoldMode
 			}
 		}
 
