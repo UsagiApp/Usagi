@@ -14,6 +14,8 @@
 		style="@style/Widget.Usagi.Chip.Dropdown"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:ellipsize="end"
+		android:maxLines="1"
 		app:chipIcon="@drawable/ic_heart_outline"
 		app:ensureMinTouchTargetSize="false"
 		tools:text="@string/add_to_favourites" />
