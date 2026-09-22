@@ -262,7 +262,7 @@
     <string name="show_all">Tout afficher</string>
     <string name="status_on_hold">En attente</string>
     <string name="status_dropped">Abandonné</string>
-    <string name="data_deletion">Suppression des données</string>
+    <string name="data_deletion">Suppression de données</string>
     <string name="logout">Se déconnecter</string>
     <string name="status_completed">Terminé</string>
     <string name="status_re_reading">Relecture</string>
@@ -307,7 +307,7 @@
     <string name="automatic_scroll">Défilement automatique</string>
     <string name="reader_info_pattern">Ch. %1$d/%2$d Pg. %3$d/%4$d</string>
     <string name="reader_info_bar">Afficher la barre d\'infos dans le lecteur</string>
-    <string name="comics_archive">Archives des BD</string>
+    <string name="comics_archive">Archives de BD</string>
     <string name="folder_with_images">Dossier avec des images</string>
     <string name="import_completed">Importation terminée</string>
     <string name="import_completed_hint">Vous pouvez supprimer le fichier original du stockage pour gagner de l\'espace</string>
@@ -943,4 +943,5 @@
     <string name="rename">Renommer</string>
     <string name="data_removal">Suppression des données</string>
     <string name="plugin_name">Nom du plugin</string>
+    <string name="hold_to_scroll">Maintenez appuyé pour faire défiler</string>
 </resources>
