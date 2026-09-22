@@ -28,6 +28,12 @@
             android:title="@string/details_ui"
             app:useSimpleSummaryProvider="true" />
 
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="details_chapters_inline"
+            android:summary="@string/details_chapters_inline_summary"
+            android:title="@string/details_chapters_inline" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/details_backdrop">
