@@ -942,4 +942,5 @@
     <string name="manga_title_rpc_summary">Exibir o título do mangá em vez do nome do aplicativo na atividade do Discord</string>
     <string name="duplicate_manga">Já está na biblioteca</string>
     <string name="duplicate_manga_summary">O mangá \"%1$s\" de \"%2$s\" já está nos seus favoritos. Deseja continuar?</string>
+    <string name="hold_to_scroll">Mantenha pressionado para rolar</string>
 </resources>
