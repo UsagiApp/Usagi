@@ -22,6 +22,19 @@ class DialogErrorObserver(
 	) : this(host, fragment, null, null)
 
 	override suspend fun emit(value: Throwable) {
+		if (value is InputRequiredException && canResolve(value)) {
+			val resolved = resolveAndWait(value)
+			if (resolved) {
+				onResolved?.accept(true)
+				return
+			}
+			showErrorDialog(value, true)
+			return
+		}
+		showErrorDialog(value, false)
+	}
+
+	private fun showErrorDialog(value: Throwable, isRetry: Boolean) {
 		val listener = DialogListener(value)
 		val dialogBuilder =
 			MaterialAlertDialogBuilder(activity ?: host.context)
