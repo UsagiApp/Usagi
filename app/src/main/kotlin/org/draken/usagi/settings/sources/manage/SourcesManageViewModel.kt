@@ -59,7 +59,12 @@ class SourcesManageViewModel
 							}
 						}
 					repository.setPositions(newSourcesList)
+					listProducer.refresh()
 				}
+		}
+
+		fun setSuspend(isSuspend: Boolean) {
+			listProducer.isSuspend = isSuspend
 		}
 
 		fun canReorder(

@@ -38,6 +38,9 @@ class SourcesListProducer
 	) : InvalidationTracker.Observer(TABLE_SOURCES) {
 		private val scope = lifecycle.lifecycleScope
 		private var query: String = ""
+
+		@Volatile
+		var isSuspend: Boolean = false
 		val list = MutableStateFlow(emptyList<SourceConfigItem>())
 
 		private var job =
@@ -58,12 +61,18 @@ class SourcesListProducer
 		}
 
 		override fun onInvalidated(tables: Set<String>) {
+			if (isSuspend) return
 			val prevJob = job
 			job =
 				scope.launch(Dispatchers.Default) {
 					prevJob.cancelAndJoin()
 					list.update { buildList() }
 				}
+		}
+
+		fun refresh() {
+			isSuspend = false
+			onInvalidated(emptySet())
 		}
 
 		fun setQuery(value: String) {

@@ -46,6 +46,7 @@ import org.draken.usagi.settings.sources.adapter.SourceConfigListener
 import org.draken.usagi.settings.sources.model.SourceConfigItem
 import javax.inject.Inject
 
+@Suppress("DEPRECATION")
 @AndroidEntryPoint
 class SourcesManageFragment :
 	BaseFragment<FragmentSettingsSourcesBinding>(),
@@ -303,12 +304,23 @@ class SourcesManageFragment :
 
 		override fun isLongPressDragEnabled() = true
 
+		override fun onSelectedChanged(
+			view: RecyclerView.ViewHolder?,
+			state: Int,
+		) {
+			super.onSelectedChanged(view, state)
+			if (state == ItemTouchHelper.ACTION_STATE_DRAG) {
+				viewModel.setSuspend(true)
+			}
+		}
+
 		override fun clearView(
 			recyclerView: RecyclerView,
 			viewHolder: RecyclerView.ViewHolder,
 		) {
 			super.clearView(recyclerView, viewHolder)
 			viewModel.saveSourcesOrder(sourcesAdapter?.items ?: return)
+			viewModel.setSuspend(false)
 		}
 	}
 }
