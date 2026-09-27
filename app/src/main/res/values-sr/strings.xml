@@ -908,8 +908,6 @@
     <string name="floating_navigation_bar_summary">Прикажите навигацију на главном екрану као плутајућу траку (налик апликацији Google Photos)</string>
     <string name="fix_excluded_sources">Аутоматски поправи изузете изворе</string>
     <string name="fix_excluded_sources_summary">Одаберите изворе које не желите да користите у функцији аутоматског поправљања манге</string>
-    <string name="manga_title_rpc">Прикажите наслов манге у активности</string>
-    <string name="manga_title_rpc_summary">Прикажите назив манге уместо имена апликације у Дискорд статусу</string>
     <string name="details_appearance">Детаљи приказа</string>
     <string name="details_appearance_summary">Стил екрана, позадинска слика и ефекат замагљења</string>
     <string name="preview">Приказ</string>

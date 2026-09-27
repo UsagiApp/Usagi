@@ -162,13 +162,9 @@ class DiscordRpc
 					presence.setAssetsSmallImage(presence.assets["smallImage"]?.toMediaProxyUrl(false))
 					lastPresence = presence
 					getRpc()?.let { client ->
-						val activity =
-							presence.toJSON().let {
-								if (settings.isDiscordRpcUseTitle) it + ("status_display_type" to 2) else it
-							}
 						val data =
 							mutableMapOf<String, Any?>(
-								"activities" to listOf(activity),
+								"activities" to listOf(presence.toJSON() + ("status_display_type" to 2)),
 								"status" to if (idle) STATUS_IDLE else STATUS_ONLINE,
 								"since" to (presence.timestamps?.get("start") ?: System.currentTimeMillis()),
 								"afk" to idle,

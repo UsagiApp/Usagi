@@ -878,8 +878,6 @@
     <string name="reading_s">កំពុងអាន %s</string>
     <string name="read_on_s">អានលើ %s</string>
     <string name="rpc_skip_nsfw_summary">មិនប្រើ RPC សម្រាប់ខ្លឹមសារមនុស្សពេញវ័យ</string>
-    <string name="manga_title_rpc">បង្ហាញចំណងជើងម៉ងហ្គាក្នុងសកម្មភាព</string>
-    <string name="manga_title_rpc_summary">បង្ហាញចំណងជើងម៉ងហ្គាជំនួសឈ្មោះកម្មវិធីក្នុងសកម្មភាព Discord</string>
     <string name="invalid_token">Token មិនត្រឹមត្រូវ៖ %s</string>
     <string name="show_floating_control_button">បង្ហាញប៊ូតុងគ្រប់គ្រងអណ្តែត</string>
     <string name="unavailable">មិនអាចប្រើបាន</string>
