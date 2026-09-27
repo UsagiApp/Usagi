@@ -1,3 +1,5 @@
+@file:Suppress("CheckResult")
+
 package org.draken.usagi.reader.ui
 
 import android.net.Uri
@@ -343,12 +345,13 @@ class ReaderViewModel
 					val newChapterId =
 						if (delta != 0) {
 							val allChapters = mangaDetails.requireValue().allChapters
-							var index = allChapters.indexOfFirst { x -> x.id == prevState.chapterId }
+							val chapters = if (isChaptersReversed.value) allChapters.reversed() else allChapters
+							var index = chapters.indexOfFirst { x -> x.id == prevState.chapterId }
 							if (index < 0) {
 								return@launchLoadingJob
 							}
 							index += delta
-							(allChapters.getOrNull(index) ?: return@launchLoadingJob).id
+							(chapters.getOrNull(index) ?: return@launchLoadingJob).id
 						} else {
 							prevState.chapterId
 						}
@@ -462,10 +465,8 @@ class ReaderViewModel
 								val manga = details.toManga()
 								// obtain state
 								if (readingState.value == null) {
-									val newState = getStateFromIntent(manga)
-									if (newState == null) {
-										return@collect // manga not loaded yet if cannot get state
-									}
+									// manga not loaded yet if cannot get state
+									val newState = getStateFromIntent(manga) ?: return@collect
 									readingState.value = newState
 									val mode =
 										runCatchingCancellable {
