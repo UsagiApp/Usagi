@@ -921,8 +921,6 @@
     <string name="floating_navigation_bar_summary">Paparkan navigasi skrin utama sebagai bar terapung (seperti Google Photos)</string>
     <string name="fix_excluded_sources">Baiki sumber yang dikecualikan secara automatik</string>
     <string name="fix_excluded_sources_summary">Tentukan sumber yang anda tidak mahu digunakan dalam ciri pembaikan manga secara automatik</string>
-    <string name="manga_title_rpc">Paparkan tajuk manga dalam aktiviti</string>
-    <string name="manga_title_rpc_summary">Paparkan tajuk manga dan bukannya nama aplikasi dalam aktiviti Discord</string>
     <string name="reader_appearance">Antara muka pembaca</string>
     <string name="reader_appearance_summary">Sesuaikan susun atur, gerak isyarat dan kelegapan dalam antara muka pembaca</string>
     <string name="reader_top_bar_opacity">Kelegapan bar tajuk</string>
