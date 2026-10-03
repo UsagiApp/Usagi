@@ -52,14 +52,15 @@ class FavoriteDialogViewModel
 		val onDuplicate = MutableEventFlow<Pair<Manga, Long>>()
 		val onMigrated = MutableEventFlow<Manga>()
 		private val refreshTrigger = MutableStateFlow(Any())
+		private val checkMap = MutableStateFlow<Map<Long, Boolean>>(emptyMap())
 		val content =
 			combine(
 				favouritesRepository.observeCategories(),
 				refreshTrigger,
 				settings.observeAsFlow(AppSettings.KEY_TRACKER_ENABLED) { isTrackerEnabled },
-			) { categories, _, tracker ->
-				mapList(categories, tracker)
-			}.withErrorHandling()
+				checkMap,
+			) { categories, _, tracker, map -> mapList(categories, tracker, map) }
+				.withErrorHandling()
 				.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, listOf(LoadingState))
 
 		fun setChecked(
@@ -67,23 +68,36 @@ class FavoriteDialogViewModel
 			isChecked: Boolean,
 			force: Boolean = false,
 		) {
+			checkMap.value += categoryId to isChecked
 			launchJob(Dispatchers.Default) {
 				if (isChecked && !force) {
 					manga.firstOrNull()?.let { m ->
-						val trackerId =
-							db.getScrobblingDao().find(m.id).firstNotNullOfOrNull { tracker ->
-								db.getScrobblingDao().findMangaId(tracker.scrobbler, tracker.targetId, m.id)
-							}
+						val norm: (String) -> String = { s -> s.filter { it.isLetterOrDigit() }.lowercase() }
+						val titles =
+							buildList {
+								if (m.title.isNotBlank()) add(norm(m.title))
+								m.altTitles.forEach { if (it.isNotBlank()) add(norm(it)) }
+							}.filter { it.isNotBlank() }
 						val dup =
-							if (trackerId != null) {
-								favouritesRepository.getAllManga().firstOrNull { it.id == trackerId }
-							} else {
-								val t = m.title.lowercase()
-								favouritesRepository.getAllManga().firstOrNull { f ->
-									f.id != m.id && f.title.lowercase().contains(t)
+							db
+								.getScrobblingDao()
+								.find(m.id)
+								.firstNotNullOfOrNull {
+									db.getScrobblingDao().findMangaId(it.scrobbler, it.targetId, m.id)
+								}?.let { id -> favouritesRepository.getManga(categoryId).firstOrNull { it.id == id } }
+								?: favouritesRepository.getManga(categoryId).firstOrNull { f ->
+									if (f.id == m.id) {
+										false
+									} else if (f.title.isNotBlank() && norm(f.title).let { n -> n.isNotBlank() && titles.contains(n) }) {
+										true
+									} else {
+										f.altTitles.any { a -> a.isNotBlank() && norm(a).let { n -> n.isNotBlank() && titles.contains(n) } }
+									}
 								}
-							}
-						dup?.let { return@launchJob onDuplicate.call(it to categoryId) }
+						if (dup != null) {
+							checkMap.value -= categoryId
+							return@launchJob onDuplicate.call(dup to categoryId)
+						}
 					}
 				}
 				if (isChecked) {
@@ -91,6 +105,7 @@ class FavoriteDialogViewModel
 				} else {
 					favouritesRepository.removeFromCategory(categoryId, manga.ids())
 				}
+				checkMap.value -= categoryId
 				refreshTrigger.value = Any()
 			}
 		}
@@ -104,6 +119,7 @@ class FavoriteDialogViewModel
 		private suspend fun mapList(
 			categories: List<FavouriteCategory>,
 			tracker: Boolean,
+			map: Map<Long, Boolean>,
 		): List<ListModel> {
 			if (categories.isEmpty()) {
 				return listOf(
@@ -122,14 +138,17 @@ class FavoriteDialogViewModel
 				ids.forEach { id -> cats[id]?.add(m.id) }
 			}
 			return categories.map { cat ->
+				val state =
+					map[cat.id]?.let {
+						if (it) MaterialCheckBox.STATE_CHECKED else MaterialCheckBox.STATE_UNCHECKED
+					} ?: when (cats[cat.id]?.size ?: 0) {
+						0 -> MaterialCheckBox.STATE_UNCHECKED
+						manga.size -> MaterialCheckBox.STATE_CHECKED
+						else -> MaterialCheckBox.STATE_INDETERMINATE
+					}
 				MangaCategoryItem(
 					category = cat,
-					checkedState =
-						when (cats[cat.id]?.size ?: 0) {
-							0 -> MaterialCheckBox.STATE_UNCHECKED
-							manga.size -> MaterialCheckBox.STATE_CHECKED
-							else -> MaterialCheckBox.STATE_INDETERMINATE
-						},
+					checkedState = state,
 					isTrackerEnabled = tracker,
 				)
 			}
