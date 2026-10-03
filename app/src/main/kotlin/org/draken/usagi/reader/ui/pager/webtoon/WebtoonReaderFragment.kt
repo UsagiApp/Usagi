@@ -271,8 +271,9 @@ class WebtoonReaderFragment :
 		val x = (h?.downX?.takeIf { h.downY > 0 } ?: (loc[0] + width / 2f)) - loc[0]
 		val y = (h?.downY?.takeIf { it > 0 } ?: (loc[1] + height / 2f)) - loc[1]
 		h?.downY = 0f
-		val view = findChildViewUnder(x, y) ?: findChildViewUnder(width / 2f, height / 2f)
-			?: return RecyclerView.NO_POSITION
+		val view =
+			findChildViewUnder(x, y) ?: findChildViewUnder(width / 2f, height / 2f)
+				?: return RecyclerView.NO_POSITION
 		return getChildAdapterPosition(view)
 	}
 
