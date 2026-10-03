@@ -114,7 +114,7 @@ class ReaderActivity :
 
 	private lateinit var scrollTimer: ScrollTimer
 	private lateinit var pageSaveHelper: PageSaveHelper
-	private lateinit var touchHelper: TapGridDispatcher
+	lateinit var touchHelper: TapGridDispatcher
 	private lateinit var controlDelegate: ReaderControlDelegate
 	private var gestureInsets: Insets = Insets.NONE
 	private lateinit var readerManager: ReaderManager

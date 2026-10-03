@@ -24,6 +24,7 @@ import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.removeItemDecoration
 import org.draken.usagi.databinding.FragmentReaderWebtoonBinding
 import org.draken.usagi.reader.domain.PageLoader
+import org.draken.usagi.reader.ui.ReaderActivity
 import org.draken.usagi.reader.ui.ReaderState
 import org.draken.usagi.reader.ui.pager.BaseReaderAdapter
 import org.draken.usagi.reader.ui.pager.BaseReaderFragment
@@ -265,12 +266,13 @@ class WebtoonReaderFragment :
 	}
 
 	private fun RecyclerView.findCurrentPagePosition(): Int {
-		val centerX = width / 2f
-		val centerY = height - resources.getDimension(R.dimen.webtoon_pages_gap)
-		if (centerY <= 0) {
-			return RecyclerView.NO_POSITION
-		}
-		val view = findChildViewUnder(centerX, centerY) ?: return RecyclerView.NO_POSITION
+		val loc = IntArray(2).also(::getLocationOnScreen)
+		val h = (activity as? ReaderActivity)?.touchHelper
+		val x = (h?.downX?.takeIf { h.downY > 0 } ?: (loc[0] + width / 2f)) - loc[0]
+		val y = (h?.downY?.takeIf { it > 0 } ?: (loc[1] + height / 2f)) - loc[1]
+		h?.downY = 0f
+		val view = findChildViewUnder(x, y) ?: findChildViewUnder(width / 2f, height / 2f)
+			?: return RecyclerView.NO_POSITION
 		return getChildAdapterPosition(view)
 	}
 
