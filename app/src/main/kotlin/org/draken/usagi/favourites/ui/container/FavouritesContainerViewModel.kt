@@ -26,7 +26,7 @@ import javax.inject.Inject
 class FavouritesContainerViewModel
 	@Inject
 	constructor(
-		private val settings: AppSettings,
+		val settings: AppSettings,
 		private val favouritesRepository: FavouritesRepository,
 	) : BaseViewModel() {
 		val onActionDone = MutableEventFlow<ReversibleAction>()

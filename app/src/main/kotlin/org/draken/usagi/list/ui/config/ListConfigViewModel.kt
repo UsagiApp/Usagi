@@ -59,13 +59,13 @@ class ListConfigViewModel
 			}
 
 		val isGroupingSupported: Boolean
-			get() = section == ListConfigSection.History || section == ListConfigSection.Updated
+			get() = section == ListConfigSection.History || section == ListConfigSection.Updated || section is ListConfigSection.Favorites
 
 		val isGroupingAvailable: Boolean
 			get() =
 				when (section) {
 					ListConfigSection.History -> settings.historySortOrder.isGroupingSupported()
-					ListConfigSection.Updated -> true
+					ListConfigSection.Updated, is ListConfigSection.Favorites -> true
 					else -> false
 				}
 
@@ -74,12 +74,14 @@ class ListConfigViewModel
 				when (section) {
 					ListConfigSection.History -> settings.isHistoryGroupingEnabled
 					ListConfigSection.Updated -> settings.isUpdatedGroupingEnabled
+					is ListConfigSection.Favorites -> settings.isFavoritesGroupingEnabled
 					else -> false
 				}
 			set(value) =
 				when (section) {
 					ListConfigSection.History -> settings.isHistoryGroupingEnabled = value
 					ListConfigSection.Updated -> settings.isUpdatedGroupingEnabled = value
+					is ListConfigSection.Favorites -> settings.isFavoritesGroupingEnabled = value
 					else -> Unit
 				}
 

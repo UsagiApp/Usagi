@@ -256,6 +256,10 @@ class AppSettings
 			get() = prefs.getBoolean(KEY_HISTORY_GROUPING, true)
 			set(value) = prefs.edit { putBoolean(KEY_HISTORY_GROUPING, value) }
 
+		var isFavoritesGroupingEnabled: Boolean
+			get() = prefs.getBoolean(KEY_FAVORITES_GROUPING, true)
+			set(value) = prefs.edit { putBoolean(KEY_FAVORITES_GROUPING, value) }
+
 		var isUpdatedGroupingEnabled: Boolean
 			get() = prefs.getBoolean(KEY_UPDATED_GROUPING, true)
 			set(value) = prefs.edit { putBoolean(KEY_UPDATED_GROUPING, value) }
@@ -949,6 +953,7 @@ class AppSettings
 			const val KEY_DETAILS_BACKDROP_BLUR_AMOUNT = "details_backdrop_blur_amount"
 			const val KEY_BACKUP_TG_ENABLED = "backup_periodic_tg_enabled"
 			const val KEY_BACKUP_TG_CHAT = "backup_periodic_tg_chat_id"
+			const val KEY_FAVORITES_GROUPING = "favorites_grouping"
 			const val KEY_MANGA_LIST_BADGES = "manga_list_badges"
 			const val KEY_TAGS_WARNINGS = "tags_warnings"
 			const val KEY_DISCORD_RPC = "discord_rpc"
