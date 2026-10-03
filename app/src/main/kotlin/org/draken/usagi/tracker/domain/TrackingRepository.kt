@@ -143,7 +143,8 @@ class TrackingRepository
 				val track = getOrCreateTrack(updates.manga.id)
 				if (updates is MangaUpdates.Success && updates.isValid && updates.isNotEmpty()) {
 					val chaptersText = updates.newChapters.joinToString("\n") { x -> x.name }
-					if (db.getTrackLogsDao().findLast(updates.manga.id)?.chapters == chaptersText) {
+					val last = db.getTrackLogsDao().findLast(updates.manga.id)
+					if (last?.chapters == chaptersText) {
 						db.getTracksDao().upsert(
 							track.copy(
 								lastCheckTime = System.currentTimeMillis(),
@@ -155,11 +156,17 @@ class TrackingRepository
 						return@withTransaction false
 					}
 					progressUpdateUseCase(updates.manga)
+					val count = last?.chapters?.split('\n')?.count { it.isNotBlank() }
+					val isKeep = last?.isUnread == true && updates.newChapters.size == count
+					if (last?.isUnread == true && !isKeep) {
+						db.getTrackLogsDao().deleteById(last.id)
+					}
 					db.getTrackLogsDao().insert(
 						TrackLogEntity(
+							id = if (isKeep) last.id else 0L,
 							mangaId = updates.manga.id,
 							chapters = chaptersText,
-							createdAt = System.currentTimeMillis(),
+							createdAt = last?.createdAt.takeIf { isKeep } ?: System.currentTimeMillis(),
 							isUnread = true,
 						),
 					)
