@@ -140,10 +140,7 @@ class ChapterPagesMenuProvider(
 	}
 
 	private fun getCurrentTab(): Int {
-		var page = pager.currentItem
-		if (page > 0 && pager.adapter?.itemCount == 2) { // no Pages page
-			page++ // shift
-		}
-		return page
+		val adapter = pager.adapter as? ChaptersPagesAdapter ?: return TAB_CHAPTERS
+		return adapter.tabIdAt(pager.currentItem)
 	}
 }
