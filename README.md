@@ -6,7 +6,7 @@
 
 <br>
 
-**[Usagi](https://github.com/UsagiApp/Usagi) is a free and open-source manga reader for Android™**
+**[Usagi](#) is a free and open-source manga reader for Android™**
 
 ![Android 5.0](https://img.shields.io/badge/android-5.0+-brightgreen) ![Downloads count](https://img.shields.io/github/downloads/UsagiApp/Usagi/total?color=1976d2) [![weblate](https://hosted.weblate.org/widgets/usagi/-/strings/svg-badge.svg)](https://hosted.weblate.org/engage/usagi/) [![Discord](https://img.shields.io/discord/1484655684879519885?color=5865f2&label=discord)](https://discord.gg/4AHskjwtj4) [![Telegram](https://img.shields.io/badge/chat-telegram-60ACFF?)](https://t.me/usagiapp)
 
@@ -96,21 +96,27 @@
 
 ### In-App Screenshots
 
-<div align="center">
-    <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" alt="Mobile view" width="250"/>
-    <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" alt="Mobile view" width="250"/>
-    <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" alt="Mobile view" width="250"/>
-    <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" alt="Mobile view" width="250"/>
-    <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" alt="Mobile view" width="250"/>
-    <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" alt="Mobile view" width="250"/>
-</div>
-
-<br>
-
-<div align="center">
-    <img src="./fastlane/metadata/android/en-US/images/tenInchScreenshots/1.png" alt="Tablet view" width="400"/>
-    <img src="./fastlane/metadata/android/en-US/images/tenInchScreenshots/2.png" alt="Tablet view" width="400"/>
-</div>
+<table>
+  <tr>
+    <th width="33.33%" align="center">History</th>
+    <th width="33.33%" align="center">Explore</th>
+    <th width="33.33%" align="center">Details</th>
+  </tr>
+  <tr>
+    <td align="center" valign="top">
+      <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/1.png#gh-light-mode-only" alt="History screen with light mode on Google Pixel">
+      <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/4.png#gh-dark-mode-only" alt="History screen with dark mode on Google Pixel">
+    </td>
+    <td align="center" valign="top">
+      <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/2.png#gh-light-mode-only" alt="Explore screen with light mode on Google Pixel">
+      <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/5.png#gh-dark-mode-only" alt="Explore screen with dark mode on Google Pixel">
+    </td>
+    <td align="center" valign="top">
+      <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/3.png#gh-light-mode-only" alt="Details screen with dark mode on Google Pixel">
+      <img src="./fastlane/metadata/android/en-US/images/phoneScreenshots/6.png#gh-dark-mode-only" alt="Details screen with dark mode on Google Pixel">
+    </td>
+  </tr>
+</table>
 
 ### Localization
 
@@ -142,7 +148,7 @@ please head over to the [Weblate project page](https://hosted.weblate.org/engage
 
 <div align="left">
 
-All programs from Yumemi™ project are free, open-source programs under the GPL license. You may copy, distribute, and modify the software as long as you keep track of changes/dates in the source files. Any modifications to the software, including code licensed under the GPL (via a compiler), must also be provided under the GPL license.
+All programs under our Yumemi™ project are free, open-source programs under the GPL license. You may copy, distribute, and modify the software as long as you keep track of changes/dates in the source files. Any modifications to the software, including code licensed under the GPL (via a compiler), must also be provided under the GPL license.
 
 </div>
 
@@ -151,5 +157,7 @@ All programs from Yumemi™ project are free, open-source programs under the GPL
 <div align="left">
 
 The developer(s) of this application does not have any affiliation with the content providers available. If there is any content, it's provided by external libraries (added / imported by users); Usagi itself doesn't include any built-in content.
+
+This application has been registered and authenticated with Google. We assume no legal liability for any build or version that does not use [the digital signature specified above](#certificate-fingerprints).
 
 </div>
