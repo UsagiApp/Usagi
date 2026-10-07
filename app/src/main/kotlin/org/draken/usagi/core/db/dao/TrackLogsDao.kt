@@ -33,9 +33,6 @@ abstract class TrackLogsDao : MangaQueryBuilder.ConditionCallback {
 	@Query("DELETE FROM track_logs")
 	abstract suspend fun clear()
 
-	@Query("DELETE FROM track_logs WHERE id = :id")
-	abstract suspend fun deleteById(id: Long)
-
 	@Query("UPDATE track_logs SET unread = 0 WHERE id = :id")
 	abstract suspend fun markAsRead(id: Long)
 
