@@ -95,6 +95,15 @@ data class MangaDetails(
 				},
 		)
 
+	fun filterChaptersByOrder(chapterIds: LongArray?): MangaDetails {
+		if (chapterIds == null || chapterIds.isEmpty()) return this
+		val sort = allChapters.sortedBy { chapterIds.indexOf(it.id).takeIf { i -> i != -1 } ?: Int.MAX_VALUE }
+		return copy(
+			manga = toManga().copy(chapters = sort),
+			localManga = null,
+		)
+	}
+
 	private fun mergeChapters(): List<MangaChapter> {
 		val chapters = manga.chapters
 		val localChapters = local?.manga?.chapters.orEmpty()

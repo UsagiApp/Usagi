@@ -1,6 +1,13 @@
 package org.draken.usagi.core.util
 
-class AlphanumComparator : Comparator<String> {
+import java.text.Collator
+
+class AlphanumComparator : Comparator<String?> {
+	private val collator =
+		Collator.getInstance().apply {
+			strength = Collator.PRIMARY
+		}
+
 	override fun compare(
 		s1: String?,
 		s2: String?,
@@ -32,7 +39,7 @@ class AlphanumComparator : Comparator<String> {
 					}
 				}
 			} else {
-				result = thisChunk.compareTo(thatChunk)
+				result = collator.compare(thisChunk, thatChunk)
 			}
 			if (result != 0) return result
 		}

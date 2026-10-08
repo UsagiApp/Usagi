@@ -187,7 +187,11 @@ class PagesFragment :
 					.Builder(view.context)
 					.manga(parentViewModel.getMangaOrNull() ?: return)
 					.state(ReaderState(item.page.chapterId, item.page.index, 0))
-					.build(),
+					.chapter(
+						parentViewModel.chapters.value
+							.map { it.chapter.id }
+							.toLongArray(),
+					).build(),
 			)
 		}
 	}

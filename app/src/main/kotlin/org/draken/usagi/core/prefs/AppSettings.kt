@@ -294,6 +294,10 @@ class AppSettings
 			get() = prefs.getBoolean(KEY_GRID_VIEW_CHAPTERS, false)
 			set(value) = prefs.edit { putBoolean(KEY_GRID_VIEW_CHAPTERS, value) }
 
+		var sortChaptersByOrder: Boolean
+			get() = prefs.getBoolean(KEY_READER_SORT_CHAPTER_ORDER, false)
+			set(value) = prefs.edit { putBoolean(KEY_READER_SORT_CHAPTER_ORDER, value) }
+
 		val zoomMode: ZoomMode
 			get() = prefs.getEnumValue(KEY_ZOOM_MODE, ZoomMode.FIT_CENTER)
 
@@ -853,6 +857,7 @@ class AppSettings
 			const val KEY_DETAILS_UI = "details_ui"
 			const val KEY_REVERSE_CHAPTERS = "reverse_chapters"
 			const val KEY_GRID_VIEW_CHAPTERS = "grid_view_chapters"
+			const val KEY_READER_SORT_CHAPTER_ORDER = "sort_chapters_by_order"
 			const val KEY_INCOGNITO_NSFW = "incognito_nsfw"
 			const val KEY_PAGES_NUMBERS = "pages_numbers"
 			const val KEY_SCREENSHOTS_POLICY = "screenshots_policy"

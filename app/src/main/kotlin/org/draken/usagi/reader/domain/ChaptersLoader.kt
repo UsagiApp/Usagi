@@ -42,7 +42,7 @@ class ChaptersLoader
 			currentId: Long,
 			isNext: Boolean,
 		): Boolean {
-			val chapters = if (settings.isChaptersReverse) manga.allChapters.reversed() else manga.allChapters
+			val chapters = manga.allChapters
 			val predicate: (MangaChapter) -> Boolean = { it.id == currentId }
 			val index = if (isNext) chapters.indexOfFirst(predicate) else chapters.indexOfLast(predicate)
 			if (index == -1) return false

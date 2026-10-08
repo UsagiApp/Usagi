@@ -344,8 +344,7 @@ class ReaderViewModel
 					val prevState = readingState.requireValue()
 					val newChapterId =
 						if (delta != 0) {
-							val allChapters = mangaDetails.requireValue().allChapters
-							val chapters = if (isChaptersReversed.value) allChapters.reversed() else allChapters
+							val chapters = mangaDetails.requireValue().allChapters
 							var index = chapters.indexOfFirst { x -> x.id == prevState.chapterId }
 							if (index < 0) {
 								return@launchLoadingJob
@@ -456,7 +455,14 @@ class ReaderViewModel
 					var loadedDetails: MangaDetails? = null
 					try {
 						detailsLoadUseCase(intent, force = false)
-							.collect { details ->
+							.collect { original ->
+								val details =
+									if (settings.sortChaptersByOrder) {
+										val ids = savedStateHandle.get<LongArray>(ReaderIntent.EXTRA_CHAPTER)
+										original.filterChaptersByOrder(ids)
+									} else {
+										original
+									}
 								loadedDetails = details
 								if (mangaDetails.value == null) {
 									mangaDetails.value = details

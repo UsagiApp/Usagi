@@ -20,18 +20,53 @@
 		android:title="@string/on_device"
 		app:showAsAction="never" />
 
-	<item
-		android:id="@+id/action_reversed"
-		android:checkable="true"
-		android:orderInCategory="20"
-		android:title="@string/reverse"
-		app:showAsAction="never" />
+	<group
+		android:id="@+id/group_display"
+		android:checkableBehavior="all">
+		<item
+			android:id="@+id/action_grid_view"
+			android:checkable="true"
+			android:orderInCategory="20"
+			android:title="@string/chapters_grid_view"
+			app:showAsAction="never" />
+		<item
+			android:id="@+id/action_reversed"
+			android:checkable="true"
+			android:orderInCategory="21"
+			android:title="@string/reverse"
+			app:showAsAction="never" />
+	</group>
 
-	<item
-		android:id="@+id/action_grid_view"
-		android:checkable="true"
-		android:orderInCategory="30"
-		android:title="@string/chapters_grid_view"
-		app:showAsAction="never" />
-
+	<group
+		android:id="@+id/group_sort"
+		android:checkableBehavior="single">
+		<item
+			android:id="@+id/action_sort_header"
+			android:checkable="false"
+			android:enabled="false"
+			android:orderInCategory="29"
+			android:title="@string/sort_order"
+			app:showAsAction="never" />
+		<item
+			android:id="@+id/action_sort_default"
+			android:checked="true"
+			android:orderInCategory="30"
+			android:title="@string/system_default"
+			app:showAsAction="never" />
+		<item
+			android:id="@+id/action_sort_by_number"
+			android:orderInCategory="31"
+			android:title="@string/by_number"
+			app:showAsAction="never" />
+		<item
+			android:id="@+id/action_sort_by_name"
+			android:orderInCategory="32"
+			android:title="@string/by_name"
+			app:showAsAction="never" />
+		<item
+			android:id="@+id/action_sort_by_upload_date"
+			android:orderInCategory="33"
+			android:title="@string/by_upload_date"
+			app:showAsAction="never" />
+	</group>
 </menu>
