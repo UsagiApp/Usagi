@@ -173,7 +173,9 @@ class DetailsClassicActivity :
 			buttonRelatedMore.setOnClickListener(this@DetailsClassicActivity)
 			textViewDescription.addOnLayoutChangeListener(this@DetailsClassicActivity)
 			textViewDescription.viewTreeObserver.addOnDrawListener(this@DetailsClassicActivity)
-			textViewDescription.movementMethod = LinkMovementMethodCompat.getInstance()
+			if (settings.isDescriptionRedirectEnabled) {
+				textViewDescription.movementMethod = LinkMovementMethodCompat.getInstance()
+			}
 			chipsTags.onChipClickListener = this@DetailsClassicActivity
 			if (settings.isDescriptionExpanded) {
 				textViewDescription.maxLines = Int.MAX_VALUE - 1

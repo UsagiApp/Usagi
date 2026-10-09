@@ -202,7 +202,9 @@ class DetailsActivity :
 		viewBinding.swipeRefreshLayout.setOnRefreshListener(this)
 		viewBinding.textViewDescription.viewTreeObserver.addOnDrawListener(this)
 		infoBinding.textViewAuthor.movementMethod = LinkMovementMethodCompat.getInstance()
-		viewBinding.textViewDescription.movementMethod = LinkMovementMethodCompat.getInstance()
+		if (settings.isDescriptionRedirectEnabled) {
+			viewBinding.textViewDescription.movementMethod = LinkMovementMethodCompat.getInstance()
+		}
 		viewBinding.chipsTags.onChipClickListener = this
 		if (settings.isDescriptionExpanded) {
 			viewBinding.textViewDescription.maxLines = Int.MAX_VALUE - 1

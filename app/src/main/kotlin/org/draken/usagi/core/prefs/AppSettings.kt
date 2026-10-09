@@ -118,6 +118,9 @@ class AppSettings
 		val isDescriptionExpanded: Boolean
 			get() = !prefs.getBoolean(KEY_COLLAPSE_DESCRIPTION, true)
 
+		val isDescriptionRedirectEnabled: Boolean
+			get() = prefs.getBoolean(KEY_REDIRECT_DESCRIPTION, true)
+
 		val isBackdropEnabled: Boolean
 			get() = prefs.getBoolean(KEY_DETAILS_BACKDROP, true)
 
@@ -954,6 +957,7 @@ class AppSettings
 			const val KEY_LAST_AUTO_PLUGINS = "last_auto_plugins"
 			const val KEY_QUICK_FILTER = "quick_filter"
 			const val KEY_COLLAPSE_DESCRIPTION = "description_collapse"
+			const val KEY_REDIRECT_DESCRIPTION = "description_redirect"
 			const val KEY_DETAILS_BACKDROP = "details_backdrop"
 			const val KEY_DETAILS_BACKDROP_BLUR_AMOUNT = "details_backdrop_blur_amount"
 			const val KEY_BACKUP_TG_ENABLED = "backup_periodic_tg_enabled"

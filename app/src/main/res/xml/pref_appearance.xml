@@ -65,6 +65,11 @@
 
 	<PreferenceCategory android:title="@string/details">
 
+		<SwitchPreferenceCompat
+			android:defaultValue="true"
+			android:key="description_redirect"
+			android:title="@string/redirect_description" />
+
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="description_collapse"
