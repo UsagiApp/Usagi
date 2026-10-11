@@ -980,5 +980,4 @@
 	<string name="hold_scroll_middle_left">Middle left</string>
 	<string name="hold_scroll_middle_right">Middle right</string>
 	<string name="hold_scroll_bottom_row">Bottom row</string>
-	<string name="hold_scroll_direction_pattern">%1$s: %2$s</string>
 </resources>

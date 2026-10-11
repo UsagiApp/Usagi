@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.CompoundButton
-import androidx.annotation.StringRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -13,7 +12,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.transition.Slide
 import androidx.transition.TransitionManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.LabelFormatter
 import com.google.android.material.slider.Slider
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,7 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.plus
 import org.draken.usagi.R
 import org.draken.usagi.core.prefs.AppSettings
-import org.draken.usagi.core.prefs.HoldScrollDirection
 import org.draken.usagi.core.prefs.ReaderMode
 import org.draken.usagi.core.prefs.observeAsStateFlow
 import org.draken.usagi.core.util.ext.isAnimationsEnabled
@@ -59,10 +56,6 @@ class ScrollTimerControlView
 			binding.sliderTimer.addOnChangeListener(this)
 			binding.buttonFab.setOnClickListener(this)
 			binding.buttonHold.setOnClickListener(this)
-			binding.buttonDirectionTop.setOnClickListener(this)
-			binding.buttonDirectionMiddleLeft.setOnClickListener(this)
-			binding.buttonDirectionMiddleRight.setOnClickListener(this)
-			binding.buttonDirectionBottom.setOnClickListener(this)
 			binding.sliderTimer.setLabelFormatter(this)
 			binding.buttonClose.setOnClickListener(this)
 			binding.buttonFab.isGone = resources.getBoolean(R.bool.is_tablet)
@@ -108,39 +101,6 @@ class ScrollTimerControlView
 					valueProducer = { isReaderAutoscrollHoldMode },
 				).observe(lifecycleOwner) {
 					binding.buttonHold.isChecked = it
-					binding.layoutDirections.isGone = !it
-				}
-			settings
-				.observeAsStateFlow(
-					scope = lifecycleOwner.lifecycleScope + Dispatchers.Default,
-					key = AppSettings.KEY_READER_AUTOSCROLL_DIR_TOP,
-					valueProducer = { readerAutoscrollTopDirection },
-				).observe(lifecycleOwner) {
-					binding.buttonDirectionTop.text = formatDirection(R.string.hold_scroll_top_row, it)
-				}
-			settings
-				.observeAsStateFlow(
-					scope = lifecycleOwner.lifecycleScope + Dispatchers.Default,
-					key = AppSettings.KEY_READER_AUTOSCROLL_DIR_MID_LEFT,
-					valueProducer = { readerAutoscrollMiddleLeftDirection },
-				).observe(lifecycleOwner) {
-					binding.buttonDirectionMiddleLeft.text = formatDirection(R.string.hold_scroll_middle_left, it)
-				}
-			settings
-				.observeAsStateFlow(
-					scope = lifecycleOwner.lifecycleScope + Dispatchers.Default,
-					key = AppSettings.KEY_READER_AUTOSCROLL_DIR_MID_RIGHT,
-					valueProducer = { readerAutoscrollMiddleRightDirection },
-				).observe(lifecycleOwner) {
-					binding.buttonDirectionMiddleRight.text = formatDirection(R.string.hold_scroll_middle_right, it)
-				}
-			settings
-				.observeAsStateFlow(
-					scope = lifecycleOwner.lifecycleScope + Dispatchers.Default,
-					key = AppSettings.KEY_READER_AUTOSCROLL_DIR_BOTTOM,
-					valueProducer = { readerAutoscrollBottomDirection },
-				).observe(lifecycleOwner) {
-					binding.buttonDirectionBottom.text = formatDirection(R.string.hold_scroll_bottom_row, it)
 				}
 			updateDescription()
 		}
@@ -155,56 +115,8 @@ class ScrollTimerControlView
 				R.id.button_close -> hide()
 				R.id.button_fab -> settings.isReaderAutoscrollFabVisible = !settings.isReaderAutoscrollFabVisible
 				R.id.button_hold -> settings.isReaderAutoscrollHoldMode = !settings.isReaderAutoscrollHoldMode
-				R.id.button_direction_top ->
-					showDirectionDialog(R.string.hold_scroll_top_row, settings.readerAutoscrollTopDirection) {
-						settings.readerAutoscrollTopDirection = it
-					}
-
-				R.id.button_direction_middle_left ->
-					showDirectionDialog(R.string.hold_scroll_middle_left, settings.readerAutoscrollMiddleLeftDirection) {
-						settings.readerAutoscrollMiddleLeftDirection = it
-					}
-
-				R.id.button_direction_middle_right ->
-					showDirectionDialog(R.string.hold_scroll_middle_right, settings.readerAutoscrollMiddleRightDirection) {
-						settings.readerAutoscrollMiddleRightDirection = it
-					}
-
-				R.id.button_direction_bottom ->
-					showDirectionDialog(R.string.hold_scroll_bottom_row, settings.readerAutoscrollBottomDirection) {
-						settings.readerAutoscrollBottomDirection = it
-					}
 			}
 		}
-
-		private fun showDirectionDialog(
-			@StringRes titleRes: Int,
-			current: HoldScrollDirection,
-			onSelected: (HoldScrollDirection) -> Unit,
-		) {
-			val values = HoldScrollDirection.entries
-			MaterialAlertDialogBuilder(context)
-				.setTitle(titleRes)
-				.setSingleChoiceItems(
-					values.map { context.getString(it.labelResId) }.toTypedArray(),
-					current.ordinal,
-				) { dialog, which ->
-					onSelected(values[which])
-					dialog.dismiss()
-				}
-				.setNegativeButton(android.R.string.cancel, null)
-				.show()
-		}
-
-		private fun formatDirection(
-			@StringRes regionRes: Int,
-			direction: HoldScrollDirection,
-		): String =
-			context.getString(
-				R.string.hold_scroll_direction_pattern,
-				context.getString(regionRes),
-				context.getString(direction.labelResId),
-			)
 
 		override fun getFormattedValue(value: Float): String {
 			val valueFrom = binding.sliderTimer.valueFrom

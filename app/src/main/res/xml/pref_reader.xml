@@ -117,4 +117,34 @@
 
 	</PreferenceCategory>
 
+	<PreferenceCategory
+		android:title="@string/hold_to_scroll"
+		app:allowDividerAbove="true">
+
+		<ListPreference
+			android:entries="@array/hold_scroll_directions"
+			android:key="as_dir_top"
+			android:title="@string/hold_scroll_top_row"
+			app:useSimpleSummaryProvider="true" />
+
+		<ListPreference
+			android:entries="@array/hold_scroll_directions"
+			android:key="as_dir_mid_left"
+			android:title="@string/hold_scroll_middle_left"
+			app:useSimpleSummaryProvider="true" />
+
+		<ListPreference
+			android:entries="@array/hold_scroll_directions"
+			android:key="as_dir_mid_right"
+			android:title="@string/hold_scroll_middle_right"
+			app:useSimpleSummaryProvider="true" />
+
+		<ListPreference
+			android:entries="@array/hold_scroll_directions"
+			android:key="as_dir_bottom"
+			android:title="@string/hold_scroll_bottom_row"
+			app:useSimpleSummaryProvider="true" />
+
+	</PreferenceCategory>
+
 </PreferenceScreen>
