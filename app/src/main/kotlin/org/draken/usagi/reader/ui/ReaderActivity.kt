@@ -340,8 +340,12 @@ class ReaderActivity :
 		if (isReaderResumed()) {
 			val direction =
 				when (area) {
-					TapGridArea.TOP_LEFT, TapGridArea.TOP_CENTER, TapGridArea.TOP_RIGHT, TapGridArea.CENTER_LEFT -> -1
-					TapGridArea.BOTTOM_LEFT, TapGridArea.BOTTOM_CENTER, TapGridArea.BOTTOM_RIGHT, TapGridArea.CENTER_RIGHT -> 1
+					TapGridArea.TOP_LEFT, TapGridArea.TOP_CENTER, TapGridArea.TOP_RIGHT ->
+						settings.readerAutoscrollTopDirection.delta
+					TapGridArea.CENTER_LEFT -> settings.readerAutoscrollMiddleLeftDirection.delta
+					TapGridArea.CENTER_RIGHT -> settings.readerAutoscrollMiddleRightDirection.delta
+					TapGridArea.BOTTOM_LEFT, TapGridArea.BOTTOM_CENTER, TapGridArea.BOTTOM_RIGHT ->
+						settings.readerAutoscrollBottomDirection.delta
 					TapGridArea.CENTER -> 0
 				}
 			if (direction != 0 && scrollTimer.start(direction)) {
