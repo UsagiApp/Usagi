@@ -974,4 +974,10 @@
 	<string name="sort_chapters_by_order">Follow chapters order in reader</string>
 	<string name="sort_chapters_by_order_summary">Force the reader to follow the chapter order arranged instead of using the default chapter list</string>
 	<string name="redirect_description">Allow to redirect in description</string>
+	<string name="scroll_up">Scroll up</string>
+	<string name="scroll_down">Scroll down</string>
+	<string name="hold_scroll_top_row">Top row</string>
+	<string name="hold_scroll_middle_left">Middle left</string>
+	<string name="hold_scroll_middle_right">Middle right</string>
+	<string name="hold_scroll_bottom_row">Bottom row</string>
 </resources>

@@ -50,6 +50,11 @@
 		<item>@string/vertical</item>
 		<item>@string/webtoon</item>
 	</string-array>
+	<string-array name="hold_scroll_directions" translatable="false">
+		<item>@string/none</item>
+		<item>@string/scroll_up</item>
+		<item>@string/scroll_down</item>
+	</string-array>
 	<string-array name="scrobbling_statuses" translatable="false">
 		<item>@string/status_planned</item>
 		<item>@string/status_reading</item>
