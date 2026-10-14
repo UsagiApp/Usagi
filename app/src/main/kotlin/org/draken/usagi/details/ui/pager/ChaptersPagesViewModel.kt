@@ -26,6 +26,7 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsStateFlow
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.util.ReversibleAction
+import org.draken.usagi.core.util.AlphanumComparator
 import org.draken.usagi.core.util.LocaleStringComparator
 import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.core.util.ext.call
@@ -139,6 +140,7 @@ abstract class ChaptersPagesViewModel(
 				}
 			}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Lazily, emptyList())
 
+	val chaptersOrder = MutableStateFlow(0)
 	val chapters =
 		combine(
 			combine(
@@ -161,9 +163,17 @@ abstract class ChaptersPagesViewModel(
 					).orEmpty()
 			},
 			isChaptersReversed,
+			chaptersOrder,
 			chaptersQuery,
-		) { list, reversed, query ->
-			(if (reversed) list.asReversed() else list).filterSearch(query)
+		) { list, reversed, order, query ->
+			val sort =
+				when (order) {
+					1 -> list.sortedBy { it.chapter.number }
+					2 -> list.sortedWith(compareBy(AlphanumComparator()) { it.chapter.title })
+					3 -> list.sortedBy { it.chapter.uploadDate.takeIf { d -> d > 0 } ?: Long.MAX_VALUE }
+					else -> list
+				}
+			(if (reversed) sort.asReversed() else sort).filterSearch(query)
 		}.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, emptyList())
 
 	val quickFilter =
@@ -201,6 +211,10 @@ abstract class ChaptersPagesViewModel(
 
 	fun setChaptersInGridView(newValue: Boolean) {
 		settings.isChaptersGridView = newValue
+	}
+
+	fun setChaptersSortOrder(newValue: Int) {
+		chaptersOrder.value = newValue
 	}
 
 	fun setSelectedBranch(branch: String?) {

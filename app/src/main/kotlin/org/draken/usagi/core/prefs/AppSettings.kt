@@ -118,6 +118,9 @@ class AppSettings
 		val isDescriptionExpanded: Boolean
 			get() = !prefs.getBoolean(KEY_COLLAPSE_DESCRIPTION, true)
 
+		val isDescriptionRedirectEnabled: Boolean
+			get() = prefs.getBoolean(KEY_REDIRECT_DESCRIPTION, true)
+
 		val isBackdropEnabled: Boolean
 			get() = prefs.getBoolean(KEY_DETAILS_BACKDROP, true)
 
@@ -256,6 +259,10 @@ class AppSettings
 			get() = prefs.getBoolean(KEY_HISTORY_GROUPING, true)
 			set(value) = prefs.edit { putBoolean(KEY_HISTORY_GROUPING, value) }
 
+		var isFavoritesGroupingEnabled: Boolean
+			get() = prefs.getBoolean(KEY_FAVORITES_GROUPING, true)
+			set(value) = prefs.edit { putBoolean(KEY_FAVORITES_GROUPING, value) }
+
 		var isUpdatedGroupingEnabled: Boolean
 			get() = prefs.getBoolean(KEY_UPDATED_GROUPING, true)
 			set(value) = prefs.edit { putBoolean(KEY_UPDATED_GROUPING, value) }
@@ -289,6 +296,10 @@ class AppSettings
 		var isChaptersGridView: Boolean
 			get() = prefs.getBoolean(KEY_GRID_VIEW_CHAPTERS, false)
 			set(value) = prefs.edit { putBoolean(KEY_GRID_VIEW_CHAPTERS, value) }
+
+		var sortChaptersByOrder: Boolean
+			get() = prefs.getBoolean(KEY_READER_SORT_CHAPTER_ORDER, false)
+			set(value) = prefs.edit { putBoolean(KEY_READER_SORT_CHAPTER_ORDER, value) }
 
 		val zoomMode: ZoomMode
 			get() = prefs.getEnumValue(KEY_ZOOM_MODE, ZoomMode.FIT_CENTER)
@@ -613,6 +624,22 @@ class AppSettings
 			get() = prefs.getBoolean(KEY_READER_AUTOSCROLL_HOLD, false)
 			set(value) = prefs.edit { putBoolean(KEY_READER_AUTOSCROLL_HOLD, value) }
 
+		var readerAutoscrollTopDirection: HoldScrollDirection
+			get() = prefs.getEnumValue(KEY_READER_AUTOSCROLL_DIR_TOP, HoldScrollDirection.UP)
+			set(value) = prefs.edit { putEnumValue(KEY_READER_AUTOSCROLL_DIR_TOP, value) }
+
+		var readerAutoscrollMiddleLeftDirection: HoldScrollDirection
+			get() = prefs.getEnumValue(KEY_READER_AUTOSCROLL_DIR_MID_LEFT, HoldScrollDirection.UP)
+			set(value) = prefs.edit { putEnumValue(KEY_READER_AUTOSCROLL_DIR_MID_LEFT, value) }
+
+		var readerAutoscrollMiddleRightDirection: HoldScrollDirection
+			get() = prefs.getEnumValue(KEY_READER_AUTOSCROLL_DIR_MID_RIGHT, HoldScrollDirection.DOWN)
+			set(value) = prefs.edit { putEnumValue(KEY_READER_AUTOSCROLL_DIR_MID_RIGHT, value) }
+
+		var readerAutoscrollBottomDirection: HoldScrollDirection
+			get() = prefs.getEnumValue(KEY_READER_AUTOSCROLL_DIR_BOTTOM, HoldScrollDirection.DOWN)
+			set(value) = prefs.edit { putEnumValue(KEY_READER_AUTOSCROLL_DIR_BOTTOM, value) }
+
 		val isPagesPreloadEnabled: Boolean
 			get() {
 				if (isBackgroundNetworkRestricted()) {
@@ -634,9 +661,6 @@ class AppSettings
 
 		val isDiscordRpcSkipNsfw: Boolean
 			get() = prefs.getBoolean(KEY_DISCORD_RPC_SKIP_NSFW, false)
-
-		val isDiscordRpcUseTitle: Boolean
-			get() = prefs.getBoolean(KEY_DISCORD_RPC_USE_TITLE, false)
 
 		var discordToken: String?
 			get() = prefs.getString(KEY_DISCORD_TOKEN, null)?.trim()?.nullIfEmpty()
@@ -852,6 +876,7 @@ class AppSettings
 			const val KEY_DETAILS_UI = "details_ui"
 			const val KEY_REVERSE_CHAPTERS = "reverse_chapters"
 			const val KEY_GRID_VIEW_CHAPTERS = "grid_view_chapters"
+			const val KEY_READER_SORT_CHAPTER_ORDER = "sort_chapters_by_order"
 			const val KEY_INCOGNITO_NSFW = "incognito_nsfw"
 			const val KEY_PAGES_NUMBERS = "pages_numbers"
 			const val KEY_SCREENSHOTS_POLICY = "screenshots_policy"
@@ -905,6 +930,10 @@ class AppSettings
 			const val KEY_READER_AUTOSCROLL_SPEED = "as_speed"
 			const val KEY_READER_AUTOSCROLL_FAB = "as_fab"
 			const val KEY_READER_AUTOSCROLL_HOLD = "as_hold"
+			const val KEY_READER_AUTOSCROLL_DIR_TOP = "as_dir_top"
+			const val KEY_READER_AUTOSCROLL_DIR_MID_LEFT = "as_dir_mid_left"
+			const val KEY_READER_AUTOSCROLL_DIR_MID_RIGHT = "as_dir_mid_right"
+			const val KEY_READER_AUTOSCROLL_DIR_BOTTOM = "as_dir_bottom"
 			const val KEY_MIRROR_SWITCHING = "mirror_switching"
 			const val KEY_TRANSFER_COOKIES_ON_REDIRECT = "transfer_cookies_on_redirect"
 			const val KEY_PROXY = "proxy"
@@ -948,14 +977,15 @@ class AppSettings
 			const val KEY_LAST_AUTO_PLUGINS = "last_auto_plugins"
 			const val KEY_QUICK_FILTER = "quick_filter"
 			const val KEY_COLLAPSE_DESCRIPTION = "description_collapse"
+			const val KEY_REDIRECT_DESCRIPTION = "description_redirect"
 			const val KEY_DETAILS_BACKDROP = "details_backdrop"
 			const val KEY_DETAILS_BACKDROP_BLUR_AMOUNT = "details_backdrop_blur_amount"
 			const val KEY_BACKUP_TG_ENABLED = "backup_periodic_tg_enabled"
 			const val KEY_BACKUP_TG_CHAT = "backup_periodic_tg_chat_id"
+			const val KEY_FAVORITES_GROUPING = "favorites_grouping"
 			const val KEY_MANGA_LIST_BADGES = "manga_list_badges"
 			const val KEY_TAGS_WARNINGS = "tags_warnings"
 			const val KEY_DISCORD_RPC = "discord_rpc"
-			const val KEY_DISCORD_RPC_USE_TITLE = "discord_rpc_use_title"
 			const val KEY_DISCORD_RPC_SKIP_NSFW = "discord_rpc_skip_nsfw"
 			const val KEY_DISCORD_TOKEN = "discord_token"
 			const val KEY_DISCORD_REFRESH_TOKEN = "discord_refresh_token"

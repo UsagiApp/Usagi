@@ -934,4 +934,6 @@
     <string name="transfer_cookies_on_redirect">Transferir automáticamente las cookies al nuevo dominio (beta)</string>
     <string name="proxy_webview_unavailable">El proxy para WebView no es compatible</string>
     <string name="floating_navigation_bar">Barra de navegación flotante</string>
+    <string name="transfer_cookies_on_redirect_summary">Copiar y transferir automáticamente las cookies del antiguo dominio al nuevo dominio si se detecta una redirección del dominio del cómic fuente a otro dominio</string>
+    <string name="floating_navigation_bar_summary">Mostrar la navegación de pantalla principal como una barra flotante (como Google Photos)</string>
 </resources>

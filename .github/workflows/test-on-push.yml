@@ -17,13 +17,13 @@ jobs:
                 uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a # v6.0.2
 
             -   name: Set up Java enviroment 🔧
-                uses: actions/setup-java@1aa87b638dacaa70f1c903fa9ec9cbd91058e2ff # v5.2.0
+                uses: actions/setup-java@d0e6e4dbf773b98efde945f446d2099b2c0d8fd2 # v5.2.0
                 with:
                     java-version: '17'
                     distribution: 'temurin'
 
             -   name: Set up Gradle enviroment 📦
-                uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+                uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
                 with:
                     gradle-version: '9.1.0'
 

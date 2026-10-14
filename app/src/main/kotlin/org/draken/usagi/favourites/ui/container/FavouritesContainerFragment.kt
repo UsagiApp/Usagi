@@ -12,10 +12,13 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.TransitionManager
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
 import org.draken.usagi.core.nav.router
+import org.draken.usagi.core.prefs.AppSettings
+import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.ui.BaseFragment
 import org.draken.usagi.core.ui.util.ActionModeListener
 import org.draken.usagi.core.ui.util.RecyclerViewOwner
@@ -67,6 +70,12 @@ class FavouritesContainerFragment :
 		binding.stubEmpty.setOnInflateListener(this)
 		actionModeDelegate.addListener(this)
 		viewModel.categories.observe(viewLifecycleOwner, pagerAdapter)
+		viewModel.settings
+			.observeAsFlow(AppSettings.KEY_FAVORITES_GROUPING) { isFavoritesGroupingEnabled }
+			.observe(viewLifecycleOwner) { isEnabled ->
+				TransitionManager.beginDelayedTransition(binding.root as ViewGroup)
+				binding.tabs.isGone = !isEnabled || viewModel.isEmpty.value
+			}
 		viewModel.isEmpty.observe(viewLifecycleOwner, ::onEmptyStateChanged)
 		addMenuProvider(FavouritesContainerMenuProvider(router))
 		viewModel.onActionDone.observeEvent(viewLifecycleOwner, ReversibleActionObserver(binding.pager))
@@ -117,7 +126,7 @@ class FavouritesContainerFragment :
 	private fun onEmptyStateChanged(isEmpty: Boolean) {
 		viewBinding?.run {
 			pager.isGone = isEmpty
-			tabs.isGone = isEmpty
+			tabs.isGone = isEmpty || !viewModel.settings.isFavoritesGroupingEnabled
 			stubEmpty.isVisible = isEmpty
 		}
 	}

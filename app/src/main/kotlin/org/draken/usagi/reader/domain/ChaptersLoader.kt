@@ -6,6 +6,7 @@ import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.draken.usagi.core.parser.MangaRepository
+import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.details.data.MangaDetails
 import org.draken.usagi.reader.ui.pager.ReaderPage
 import tsuki.model.MangaChapter
@@ -19,6 +20,7 @@ class ChaptersLoader
 	@Inject
 	constructor(
 		private val mangaRepositoryFactory: MangaRepository.Factory,
+		private val settings: AppSettings,
 	) {
 		private val chapters = LongSparseArray<MangaChapter>()
 		private val chapterPages = ChapterPages()

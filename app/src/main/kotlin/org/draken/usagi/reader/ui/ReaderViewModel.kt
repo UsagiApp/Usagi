@@ -1,3 +1,5 @@
+@file:Suppress("CheckResult")
+
 package org.draken.usagi.reader.ui
 
 import android.net.Uri
@@ -342,13 +344,13 @@ class ReaderViewModel
 					val prevState = readingState.requireValue()
 					val newChapterId =
 						if (delta != 0) {
-							val allChapters = mangaDetails.requireValue().allChapters
-							var index = allChapters.indexOfFirst { x -> x.id == prevState.chapterId }
+							val chapters = mangaDetails.requireValue().allChapters
+							var index = chapters.indexOfFirst { x -> x.id == prevState.chapterId }
 							if (index < 0) {
 								return@launchLoadingJob
 							}
 							index += delta
-							(allChapters.getOrNull(index) ?: return@launchLoadingJob).id
+							(chapters.getOrNull(index) ?: return@launchLoadingJob).id
 						} else {
 							prevState.chapterId
 						}
@@ -453,7 +455,14 @@ class ReaderViewModel
 					var loadedDetails: MangaDetails? = null
 					try {
 						detailsLoadUseCase(intent, force = false)
-							.collect { details ->
+							.collect { original ->
+								val details =
+									if (settings.sortChaptersByOrder) {
+										val ids = savedStateHandle.get<LongArray>(ReaderIntent.EXTRA_CHAPTER)
+										original.filterChaptersByOrder(ids)
+									} else {
+										original
+									}
 								loadedDetails = details
 								if (mangaDetails.value == null) {
 									mangaDetails.value = details
@@ -462,10 +471,8 @@ class ReaderViewModel
 								val manga = details.toManga()
 								// obtain state
 								if (readingState.value == null) {
-									val newState = getStateFromIntent(manga)
-									if (newState == null) {
-										return@collect // manga not loaded yet if cannot get state
-									}
+									// manga not loaded yet if cannot get state
+									val newState = getStateFromIntent(manga) ?: return@collect
 									readingState.value = newState
 									val mode =
 										runCatchingCancellable {

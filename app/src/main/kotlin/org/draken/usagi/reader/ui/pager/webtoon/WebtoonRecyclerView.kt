@@ -102,7 +102,7 @@ class WebtoonRecyclerView
 						if (childCount > 1) {
 							val nextChild = getChildAt(1) as WebtoonFrameLayout
 							val unconsumed =
-								dy - consumedByChild - nextChild.top // will be consumed by scroll
+								dy - consumedByChild - nextChild.top.coerceAtLeast(0) // will be consumed by scroll
 							if (unconsumed > 0) {
 								consumedByChild += nextChild.dispatchVerticalScroll(unconsumed)
 							}
@@ -117,8 +117,8 @@ class WebtoonRecyclerView
 					if (consumedByChild > dy) {
 						if (childCount > 1) {
 							val nextChild = getChildAt(childCount - 2) as WebtoonFrameLayout
-							val unconsumed =
-								dy - consumedByChild + (height - nextChild.bottom) // will be consumed by scroll
+							// will be consumed by scroll
+							val unconsumed = dy - consumedByChild + (height - nextChild.bottom).coerceAtMost(0)
 							if (unconsumed < 0) {
 								consumedByChild += nextChild.dispatchVerticalScroll(unconsumed)
 							}

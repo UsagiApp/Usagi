@@ -80,6 +80,7 @@
 	</string-array>
 	<string-array name="values_list_badges" translatable="false">
 		<!-- MangaListMapper flags -->
+		<item>8</item>
 		<item>4</item>
 		<item>1</item>
 	</string-array>

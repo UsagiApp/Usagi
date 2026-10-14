@@ -166,6 +166,8 @@ open class CoilImageView
 			}
 			networkWaitingJob?.cancel()
 			networkWaitingJob = null
+			// a recycled view may still be waiting on the previous holder's request
+			previous?.dispose()
 			currentImageData = request.data
 			return coil.enqueue(request).also { currentRequest = it }
 		}

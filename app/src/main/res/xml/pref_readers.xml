@@ -16,6 +16,12 @@
 		android:summary="@string/detect_reader_mode_summary"
 		android:title="@string/detect_reader_mode" />
 
+	<SwitchPreferenceCompat
+		android:defaultValue="true"
+		android:key="sort_chapters_by_order"
+		android:summary="@string/sort_chapters_by_order_summary"
+		android:title="@string/sort_chapters_by_order" />
+
 	<ListPreference
 		android:entries="@array/zoom_modes"
 		android:key="zoom_mode"

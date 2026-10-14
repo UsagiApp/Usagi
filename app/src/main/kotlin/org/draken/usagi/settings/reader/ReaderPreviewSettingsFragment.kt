@@ -9,6 +9,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.prefs.AppSettings
+import org.draken.usagi.core.prefs.HoldScrollDirection
 import org.draken.usagi.core.prefs.ReaderAnimation
 import org.draken.usagi.core.prefs.ReaderBackground
 import org.draken.usagi.core.prefs.ReaderControl
@@ -56,6 +57,17 @@ class ReaderPreviewSettingsFragment : BasePreferenceFragment(R.string.reader_app
 		findPreference<ListPreference>(AppSettings.KEY_READER_ANIMATION)?.run {
 			entryValues = ReaderAnimation.entries.names()
 			setDefaultValueCompat(ReaderAnimation.DEFAULT.name)
+		}
+		listOf(
+			AppSettings.KEY_READER_AUTOSCROLL_DIR_TOP to HoldScrollDirection.UP,
+			AppSettings.KEY_READER_AUTOSCROLL_DIR_MID_LEFT to HoldScrollDirection.UP,
+			AppSettings.KEY_READER_AUTOSCROLL_DIR_MID_RIGHT to HoldScrollDirection.DOWN,
+			AppSettings.KEY_READER_AUTOSCROLL_DIR_BOTTOM to HoldScrollDirection.DOWN,
+		).forEach { (key, default) ->
+			findPreference<ListPreference>(key)?.run {
+				entryValues = HoldScrollDirection.entries.names()
+				setDefaultValueCompat(default.name)
+			}
 		}
 	}
 

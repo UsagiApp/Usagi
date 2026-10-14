@@ -77,6 +77,7 @@ class PluginManageAdapter(
 			binding.imageViewIcon.errorDrawable = fb
 			binding.imageViewIcon.fallbackDrawable = fb
 			if (avatar.isNullOrBlank()) {
+				binding.imageViewIcon.disposeImage()
 				binding.imageViewIcon.setImageResource(R.drawable.ic_services)
 			} else {
 				applyIconShape(binding.imageViewIcon, context)
@@ -122,6 +123,7 @@ class PluginManageAdapter(
 			binding.imageViewIcon.fallbackDrawable = fb
 			val icon = if (item.isLocal) item.installed.firstOrNull()?.iconUrl else githubAvatarUrl(item.repositoryLabel)
 			if (icon.isNullOrBlank()) {
+				binding.imageViewIcon.disposeImage()
 				binding.imageViewIcon.setImageDrawable(fb)
 			} else {
 				binding.imageViewIcon.setImageAsync(icon)

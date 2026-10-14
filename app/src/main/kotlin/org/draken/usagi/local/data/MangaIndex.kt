@@ -150,27 +150,6 @@ class MangaIndex(
 				.getString(KEY_ENTRIES),
 		)
 
-	fun sortChaptersByName() {
-		val jo = json.getJSONObject(KEY_CHAPTERS)
-		val list = ArrayList<JSONObject>(jo.length())
-		jo.keys().forEach { id ->
-			val item = jo.getJSONObject(id)
-			item.put(KEY_ID, id)
-			list.add(item)
-		}
-		val comparator =
-			org.draken.usagi.core.util
-				.AlphanumComparator()
-		list.sortWith(compareBy(comparator) { it.getString(KEY_NAME) })
-		val newJo = JSONObject()
-		list.forEachIndexed { i, obj ->
-			obj.put(KEY_NUMBER, i + 1)
-			val id = obj.remove(KEY_ID) as String
-			newJo.put(id, obj)
-		}
-		json.put(KEY_CHAPTERS, newJo)
-	}
-
 	fun clear() {
 		val keys = json.keys()
 		while (keys.hasNext()) {

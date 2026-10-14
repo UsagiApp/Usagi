@@ -157,7 +157,7 @@ class MangaListMapper
 			mangaId: Long,
 			@Options options: Int,
 		): Int =
-			if (settings.isTrackerEnabled) {
+			if (settings.isTrackerEnabled && options.isBadgeEnabled(CHAPTERS)) {
 				trackingRepository.getNewChaptersCount(mangaId)
 			} else {
 				0
@@ -222,7 +222,7 @@ class MangaListMapper
 		@Retention(AnnotationRetention.SOURCE)
 		annotation class Flags
 
-		@IntDef(NONE, SAVED, FAVORITE, PROGRESS)
+		@IntDef(NONE, SAVED, FAVORITE, PROGRESS, CHAPTERS)
 		@Retention(AnnotationRetention.SOURCE)
 		private annotation class Options
 
@@ -231,6 +231,7 @@ class MangaListMapper
 			private const val SAVED = 1
 			private const val PROGRESS = 2
 			private const val FAVORITE = 4
+			private const val CHAPTERS = 8
 
 			const val DEFAULTS = NONE
 			const val NO_SAVED = SAVED

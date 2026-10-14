@@ -161,7 +161,13 @@
 						android:layout_height="wrap_content"
 						android:layout_marginStart="16dp"
 						android:layout_marginTop="8dp"
+						android:layout_marginEnd="16dp"
+						android:ellipsize="end"
+						android:maxLines="1"
 						app:chipIcon="@drawable/ic_heart_outline"
+						app:layout_constrainedWidth="true"
+						app:layout_constraintEnd_toEndOf="parent"
+						app:layout_constraintHorizontal_bias="0.0"
 						app:layout_constraintStart_toEndOf="@id/imageView_cover"
 						app:layout_constraintTop_toBottomOf="@id/textView_subtitle"
 						tools:text="@string/add_to_favourites" />

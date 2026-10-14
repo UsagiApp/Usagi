@@ -29,4 +29,5 @@
     <string name="remote_sources">Manga sources</string>
     <string name="loading_">Loading…</string>
     <string name="computing_">Computing…</string>
+    <string name="duplicate_manga_summary">Le manga « %1$s » de « %2$s » figure déjà dans vos favoris. Voulez-vous continuer ?</string>
 </resources>

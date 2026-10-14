@@ -21,6 +21,8 @@
 
 -keep class org.draken.usagi.settings.NotificationSettingsLegacyFragment
 -keep class org.draken.usagi.settings.about.changelog.ChangelogFragment
+-keep class org.draken.usagi.settings.utils.EditTextDefaultSummaryProvider { <init>(...); public *; }
+-keep class org.draken.usagi.settings.utils.AutoCompleteTextViewPreference { <init>(...); public *; }
 
 -keep class org.draken.usagi.core.exceptions.* { *; }
 -keep class org.draken.usagi.core.prefs.ScreenshotsPolicy { *; }

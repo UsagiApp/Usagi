@@ -1,10 +1,14 @@
 package org.draken.usagi.details.ui.pager
 
+import android.text.Spannable
+import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuCompat
 import androidx.core.view.MenuProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.slider.LabelFormatter
@@ -13,12 +17,14 @@ import com.google.android.material.slider.TickVisibilityMode
 import org.draken.usagi.R
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.ui.sheet.BaseAdaptiveSheet
+import org.draken.usagi.core.util.ext.getThemeColor
 import org.draken.usagi.core.util.ext.setValueRounded
 import org.draken.usagi.core.util.progress.IntPercentLabelFormatter
 import org.draken.usagi.details.ui.pager.ChaptersPagesSheet.Companion.TAB_BOOKMARKS
 import org.draken.usagi.details.ui.pager.ChaptersPagesSheet.Companion.TAB_CHAPTERS
 import org.draken.usagi.details.ui.pager.ChaptersPagesSheet.Companion.TAB_PAGES
 import java.lang.ref.WeakReference
+import com.google.android.material.R as materialR
 
 class ChapterPagesMenuProvider(
 	private val viewModel: ChaptersPagesViewModel,
@@ -40,6 +46,7 @@ class ChapterPagesMenuProvider(
 		when (tab) {
 			TAB_CHAPTERS -> {
 				menuInflater.inflate(R.menu.opt_chapters, menu)
+				MenuCompat.setGroupDividerEnabled(menu, true)
 				menu.findItem(R.id.action_search)?.run {
 					setOnActionExpandListener(this@ChapterPagesMenuProvider)
 					(actionView as? SearchView)?.setupChaptersSearchView()
@@ -50,6 +57,20 @@ class ChapterPagesMenuProvider(
 				menu.findItem(R.id.action_downloaded)?.let { menuItem ->
 					menuItem.isVisible = viewModel.mangaDetails.value?.local != null
 					menuItem.isChecked = viewModel.isDownloadedOnly.value == true
+				}
+				when (viewModel.chaptersOrder.value) {
+					1 -> menu.findItem(R.id.action_sort_by_number)?.isChecked = true
+					2 -> menu.findItem(R.id.action_sort_by_name)?.isChecked = true
+					3 -> menu.findItem(R.id.action_sort_by_upload_date)?.isChecked = true
+					else -> menu.findItem(R.id.action_sort_default)?.isChecked = true
+				}
+				menu.findItem(R.id.action_sort_header)?.let { item ->
+					val title = item.title ?: return@let
+					val span = android.text.SpannableString(title)
+					val color = sheet.requireContext().getThemeColor(materialR.attr.colorOutline)
+					span.setSpan(ForegroundColorSpan(color), 0, title.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+					span.setSpan(RelativeSizeSpan(0.85f), 0, title.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+					item.title = span
 				}
 			}
 
@@ -77,6 +98,26 @@ class ChapterPagesMenuProvider(
 
 			R.id.action_downloaded -> {
 				viewModel.isDownloadedOnly.value = !menuItem.isChecked
+				true
+			}
+
+			R.id.action_sort_default -> {
+				viewModel.setChaptersSortOrder(0)
+				true
+			}
+
+			R.id.action_sort_by_number -> {
+				viewModel.setChaptersSortOrder(1)
+				true
+			}
+
+			R.id.action_sort_by_name -> {
+				viewModel.setChaptersSortOrder(2)
+				true
+			}
+
+			R.id.action_sort_by_upload_date -> {
+				viewModel.setChaptersSortOrder(3)
 				true
 			}
 

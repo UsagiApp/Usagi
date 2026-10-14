@@ -133,7 +133,11 @@ class ChaptersFragment :
 					.Builder(view.context)
 					.manga(viewModel.getMangaOrNull() ?: return)
 					.state(ReaderState(item.chapter.id, 0, 0))
-					.build(),
+					.chapter(
+						viewModel.chapters.value
+							.map { it.chapter.id }
+							.toLongArray(),
+					).build(),
 			)
 		}
 	}

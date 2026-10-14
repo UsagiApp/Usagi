@@ -108,6 +108,7 @@ class ChaptersPagesSheet :
 		viewModel.isChaptersReversed.observe(viewLifecycleOwner, menuInvalidator)
 		viewModel.isChaptersInGridView.observe(viewLifecycleOwner, menuInvalidator)
 		viewModel.isDownloadedOnly.observe(viewLifecycleOwner, menuInvalidator)
+		viewModel.chaptersOrder.observe(viewLifecycleOwner, menuInvalidator)
 
 		actionModeDelegate?.addListener(this, viewLifecycleOwner)
 		addSheetCallback(this, viewLifecycleOwner)
