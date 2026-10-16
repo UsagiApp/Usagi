@@ -62,7 +62,7 @@ class MigrateSourceService : CoroutineIntentService() {
 		}
 		val builder =
 			NotificationCompat
-				.Builder(this, CHANNEL_ID)
+				.Builder(this@MigrateSourceService, CHANNEL_ID)
 				.setPriority(NotificationCompat.PRIORITY_DEFAULT)
 				.setDefaults(0)
 				.setSilent(true)
@@ -72,7 +72,7 @@ class MigrateSourceService : CoroutineIntentService() {
 				.setSmallIcon(android.R.drawable.stat_notify_error)
 		ErrorReporterReceiver
 			.getNotificationAction(
-				context = this,
+				context = this@MigrateSourceService,
 				e = error,
 				notificationId = startId,
 				notificationTag = TAG,
