@@ -412,6 +412,7 @@
     <string name="suggestion_manga">Suggestion: %s</string>
     <string name="suggestions_notifications_summary">Sometimes show notifications with suggested manga</string>
     <string name="more">More</string>
+    <string name="less">Less</string>
     <string name="enable">Enable</string>
     <string name="no_thanks">No thanks</string>
     <string name="cancel_all_downloads_confirm">All active downloads will be cancelled, partially downloaded data will be lost</string>

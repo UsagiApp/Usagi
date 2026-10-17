@@ -345,15 +345,17 @@ class DetailsClassicActivity :
 
 			R.id.button_description_more -> {
 				val tv = viewBinding.textViewDescription
+				val btn = viewBinding.buttonDescriptionMore
+				val isFull = tv.maxLines == MAX_INT
+				tv.maxLines = if (isFull) resources.getInteger(R.integer.details_description_lines) else MAX_INT
+				btn.text = getString(if (!isFull) R.string.less else R.string.more)
 				if (tv.context.isAnimationsEnabled) {
-					tv.parentView?.let { parent ->
-						TransitionManager.beginDelayedTransition(parent)
+					tv.parentView?.let {
+						TransitionManager.beginDelayedTransition(
+							it,
+							androidx.transition.ChangeBounds().apply { excludeTarget(btn, true) },
+						)
 					}
-				}
-				if (tv.maxLines in 1 until Integer.MAX_VALUE) {
-					tv.maxLines = Integer.MAX_VALUE
-				} else {
-					tv.maxLines = resources.getInteger(R.integer.details_description_lines)
 				}
 			}
 
@@ -806,5 +808,6 @@ class DetailsClassicActivity :
 	companion object {
 		private const val FAV_LABEL_LIMIT = 16
 		private const val SCRIM_SCROLL_THRESHOLD_DP = 160f
+		private const val MAX_INT = Integer.MAX_VALUE
 	}
 }
