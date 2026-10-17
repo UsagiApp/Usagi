@@ -8,6 +8,7 @@ import android.view.ViewGroup.MarginLayoutParams
 import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isNotEmpty
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -268,12 +269,11 @@ class WebtoonReaderFragment :
 	private fun RecyclerView.findCurrentPagePosition(): Int {
 		val loc = IntArray(2).also(::getLocationOnScreen)
 		val h = (activity as? ReaderActivity)?.touchHelper
-		val x = (h?.downX?.takeIf { h.downY > 0 } ?: (loc[0] + width / 2f)) - loc[0]
-		val y = (h?.downY?.takeIf { it > 0 } ?: (loc[1] + height - 1f)) - loc[1]
-		h?.downY = 0f
+		val x = (h?.takeIf { it.downY > 0 }?.downX?.minus(loc[0])) ?: (width / 2f)
+		val y = (h?.takeIf { it.downY > 0 }?.downY?.minus(loc[1])) ?: (height - 1f)
 		val view =
-			findChildViewUnder(x, y) ?: findChildViewUnder(width / 2f, height - 1f)
-				?: return RecyclerView.NO_POSITION
+			findChildViewUnder(x, y)
+				?: if (isNotEmpty()) getChildAt(childCount - 1) else return RecyclerView.NO_POSITION
 		return getChildAdapterPosition(view)
 	}
 

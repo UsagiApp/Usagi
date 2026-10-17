@@ -43,9 +43,11 @@ class TapGridDispatcher(
 		when (e.actionMasked) {
 			ACTION_DOWN -> {
 				active = listener.onProcessTouch(e.rawX.toInt(), e.rawY.toInt())
-				downX = e.rawX
-				downY = e.rawY
-				if (mouse) return
+				if (mouse) {
+					downX = e.rawX
+					downY = e.rawY
+					return
+				}
 			}
 
 			ACTION_UP -> {
@@ -65,7 +67,12 @@ class TapGridDispatcher(
 		detector.onTouchEvent(e)
 	}
 
-	override fun onSingleTapConfirmed(e: MotionEvent) = if (!active) true else tap(e.rawX, e.rawY)
+	override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+		if (!active) return true
+		downX = e.rawX
+		downY = e.rawY
+		return tap(e.rawX, e.rawY)
+	}
 
 	override fun onDoubleTapEvent(e: MotionEvent): Boolean {
 		active = false // ignore long press after double tap
@@ -73,7 +80,10 @@ class TapGridDispatcher(
 	}
 
 	override fun onLongPress(e: MotionEvent) {
-		if (active) getArea(e.rawX, e.rawY)?.let(listener::onGridLongTouch)
+		if (!active) return
+		downX = e.rawX
+		downY = e.rawY
+		getArea(e.rawX, e.rawY)?.let(listener::onGridLongTouch)
 	}
 
 	private fun tap(
