@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.internal.platform.PlatformRegistry
-import org.conscrypt.Conscrypt
+import org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.model.PluginKeyResolver
@@ -94,7 +94,7 @@ open class BaseApp :
 		AppCompatDelegate.setDefaultNightMode(settings.theme)
 		// TLS 1.3 support for Android < 10
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-			Security.insertProviderAt(Conscrypt.newProvider(), 1)
+			Security.insertProviderAt(BouncyCastleJsseProvider(), 1)
 		}
 		setupActivityLifecycleCallbacks()
 		processLifecycleScope.launch(Dispatchers.IO) {
