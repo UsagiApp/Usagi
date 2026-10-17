@@ -16,7 +16,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.internal.platform.PlatformRegistry
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
+import org.bouncycastle.tls.crypto.impl.jcajce.JcaTlsCrypto
+import org.bouncycastle.tls.crypto.impl.jcajce.JcaTlsCryptoProvider
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.db.MangaDatabase
 import org.draken.usagi.core.model.PluginKeyResolver
@@ -30,6 +33,7 @@ import org.draken.usagi.local.data.LocalStorageChanges
 import org.draken.usagi.local.data.index.LocalMangaIndex
 import org.draken.usagi.local.domain.model.LocalManga
 import org.draken.usagi.settings.work.WorkScheduleManager
+import java.security.SecureRandom
 import java.security.Security
 import javax.inject.Inject
 import javax.inject.Provider
@@ -94,7 +98,14 @@ open class BaseApp :
 		AppCompatDelegate.setDefaultNightMode(settings.theme)
 		// TLS 1.3 support for Android < 10
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-			Security.insertProviderAt(BouncyCastleJsseProvider(), 1)
+			val bc = BouncyCastleProvider()
+			Security.removeProvider(BouncyCastleProvider.PROVIDER_NAME)
+			Security.insertProviderAt(bc, 1)
+			val crypto =
+				object : JcaTlsCryptoProvider() {
+					override fun create(random: SecureRandom?): JcaTlsCrypto = super.create(random ?: SecureRandom())
+				}.setProvider(bc)
+			Security.insertProviderAt(BouncyCastleJsseProvider(false, crypto), 2)
 		}
 		setupActivityLifecycleCallbacks()
 		processLifecycleScope.launch(Dispatchers.IO) {

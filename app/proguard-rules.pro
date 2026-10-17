@@ -14,6 +14,7 @@
 -dontwarn org.bouncycastle.**
 -keep class org.bouncycastle.jsse.** { *; }
 -keep class org.bouncycastle.jcajce.provider.** { *; }
+-keep class org.bouncycastle.jce.provider.** { *; }
 -dontwarn org.openjsse.**
 -dontwarn com.google.j2objc.annotations.**
 -dontwarn com.google.re2j.**
