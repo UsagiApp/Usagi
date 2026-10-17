@@ -11,11 +11,16 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.draken.usagi.R
+import org.draken.usagi.alternatives.ui.MigrateSourceService
+import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsFlow
@@ -33,6 +38,7 @@ import org.draken.usagi.core.util.ext.setTextAndVisible
 import org.draken.usagi.databinding.FragmentFavouritesContainerBinding
 import org.draken.usagi.databinding.ItemEmptyStateBinding
 import org.draken.usagi.favourites.ui.list.FavouritesListFragment
+import tsuki.model.MangaSource
 
 @AndroidEntryPoint
 class FavouritesContainerFragment :
@@ -77,7 +83,7 @@ class FavouritesContainerFragment :
 				binding.tabs.isGone = !isEnabled || viewModel.isEmpty.value
 			}
 		viewModel.isEmpty.observe(viewLifecycleOwner, ::onEmptyStateChanged)
-		addMenuProvider(FavouritesContainerMenuProvider(router))
+		addMenuProvider(FavouritesContainerMenuProvider(router, ::onMigrateRequested))
 		viewModel.onActionDone.observeEvent(viewLifecycleOwner, ReversibleActionObserver(binding.pager))
 	}
 
@@ -121,6 +127,61 @@ class FavouritesContainerFragment :
 		when (v.id) {
 			R.id.button_retry -> router.openFavoriteCategories()
 		}
+	}
+
+	private fun onMigrateRequested() {
+		viewLifecycleOwner.lifecycleScope.launch {
+			val context = context ?: return@launch
+			val groups = viewModel.favouritesBySource()
+			if (groups.isEmpty()) {
+				return@launch
+			}
+			val sources = groups.keys.sortedBy { it.getTitle(context).lowercase() }
+			MaterialAlertDialogBuilder(context)
+				.setTitle(R.string.migrate_from_source)
+				.setItems(sources.map { it.getTitle(context) }.toTypedArray()) { _, which ->
+					onMigrateSourceSelected(sources[which], groups.getValue(sources[which]))
+				}.setNegativeButton(android.R.string.cancel, null)
+				.show()
+		}
+	}
+
+	private fun onMigrateSourceSelected(
+		source: MangaSource,
+		ids: List<Long>,
+	) {
+		val context = context ?: return
+		val targets = viewModel.migrationTargets(source).sortedBy { it.getTitle(context).lowercase() }
+		if (targets.isEmpty()) {
+			return
+		}
+		MaterialAlertDialogBuilder(context)
+			.setTitle(R.string.migrate_to_source)
+			.setItems(targets.map { it.getTitle(context) }.toTypedArray()) { _, which ->
+				confirmMigration(source, targets[which], ids)
+			}.setNegativeButton(android.R.string.cancel, null)
+			.show()
+	}
+
+	private fun confirmMigration(
+		source: MangaSource,
+		target: MangaSource,
+		ids: List<Long>,
+	) {
+		val context = context ?: return
+		MaterialAlertDialogBuilder(context)
+			.setTitle(R.string.migrate)
+			.setMessage(
+				getString(
+					R.string.migrate_favourites_prompt,
+					ids.size,
+					source.getTitle(context),
+					target.getTitle(context),
+				),
+			).setNegativeButton(android.R.string.cancel, null)
+			.setPositiveButton(R.string.migrate) { _, _ ->
+				MigrateSourceService.start(context, ids, target)
+			}.show()
 	}
 
 	private fun onEmptyStateChanged(isEmpty: Boolean) {
