@@ -86,7 +86,7 @@
 	<!-- Reader -->
 	<dimen name="reader_toolbar_corner_radius">20dp</dimen>
 	<dimen name="reader_toolbar_float_margin_h">25dp</dimen>
-	<dimen name="reader_toolbar_float_gap">8dp</dimen>
+	<dimen name="reader_toolbar_float_gap">16dp</dimen>
 	<dimen name="reader_toast_above_bar_gap">8dp</dimen>
 	<dimen name="reader_toolbar_float_elevation">8dp</dimen>
 </resources>

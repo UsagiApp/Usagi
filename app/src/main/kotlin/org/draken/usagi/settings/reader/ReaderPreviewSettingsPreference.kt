@@ -86,7 +86,7 @@ class ReaderPreviewSettingsPreference
 			val floating = prefs.getBoolean(AppSettings.KEY_READER_IS_FLOAT_BAR, true)
 			val bar = bottomBar ?: return
 			val h = context.resources.getDimensionPixelSize(R.dimen.reader_toolbar_float_margin_h)
-			val gap = context.resources.getDimensionPixelSize(R.dimen.reader_toolbar_float_gap)
+			val gap = context.resources.getDimensionPixelSize(R.dimen.reader_toolbar_float_elevation)
 			(bar.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
 				if (floating) {
 					lp.leftMargin = h
