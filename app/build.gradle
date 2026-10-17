@@ -198,7 +198,7 @@ dependencies {
 		exclude group: 'org.json', module: 'json'
 	}
 
-	implementation libs.conscrypt.android
+	implementation libs.bctls.jdk18on
 
 	debugImplementation libs.leakcanary.android
 	debugImplementation libs.workinspector
