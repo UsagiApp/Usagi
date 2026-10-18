@@ -52,7 +52,7 @@ class PluginsManageViewModel
 		@param:ApplicationContext private val context: Context,
 		private val database: MangaDatabase,
 		private val savedFiltersRepository: SavedFiltersRepository,
-		private val updatePluginsProvider: UpdatePluginsProvider,
+		private val extProvider: UpdatePluginsProvider,
 		private val settings: AppSettings,
 		private val mangaDynamicRepository: MangaDynamicRepository,
 		private val pluginKeyResolver: PluginKeyResolver,
@@ -94,7 +94,7 @@ class PluginsManageViewModel
 									.map { p ->
 										async {
 											val repo = p.repository ?: return@async p
-											val tag = updatePluginsProvider.requestTag(repo) ?: return@async p
+											val tag = extProvider.requestTag(repo) ?: return@async p
 											p.copy(latestTag = tag)
 										}
 									}.awaitAll()
@@ -112,7 +112,7 @@ class PluginsManageViewModel
 
 		fun runAutoUpdate() {
 			if (settings.isAutoPluginsEnabled) {
-				launchJob(Dispatchers.Default) { updatePluginsProvider.runAutoUpdate(settings) }
+				launchJob(Dispatchers.Default) { extProvider.runAutoUpdate(settings) }
 			}
 		}
 
@@ -125,7 +125,7 @@ class PluginsManageViewModel
 				runCatchingCancellable {
 					val dir = mangaDynamicRepository.getDir()
 					PluginFileLoader.copyFromUri(context, uri, File(dir, safeName))
-					updatePluginsProvider.clearDto(safeName)
+					extProvider.clearDto(safeName)
 					reloadPlugins(dir)
 				}.isSuccess
 			}.also { if (it) refresh() }
@@ -174,34 +174,36 @@ class PluginsManageViewModel
 				pendingImportUrl = input
 				publishFiltered()
 				try {
-					if (updatePluginsProvider.importFromUrl(input)) {
+					if (extProvider.importFromUrl(input)) {
 						refresh()
 						operationResult.call(OperationResult.Success(R.string.load_success))
 						return@launchJob
 					}
+					val catalogs = async(Dispatchers.IO) { catalogProvider.load(input) }.await()
 					val releases =
-						updatePluginsProvider
-							.resolve(input)
-							?.let { repo ->
-								updatePluginsProvider.requestTag(repo)?.let { tag -> updatePluginsProvider.requestPlugins(repo, tag) }
-							}.orEmpty()
+						async(Dispatchers.IO) {
+							extProvider
+								.resolve(input)
+								?.let { repo ->
+									extProvider.requestTag(repo)?.let { t -> extProvider.requestPlugins(repo, t) }
+								}.orEmpty()
+						}.await()
+					if (catalogs.isNotEmpty()) {
+						catalogs.forEach { catalogProvider.restorePackage(it.packageName) }
+						catalogProvider.saveRepository(input)
+						refreshExtensionItems(catalogProvider.loadSaved() + catalogs)
+						operationResult.call(OperationResult.Success(R.string.load_success))
+						return@launchJob
+					}
 					if (releases.isNotEmpty() && releases.size <= 3) {
 						val select = releases.first()
 						val safeName = PluginFileLoader.resolve(select.fileName)
 						if (isInstalled(safeName) && !askOverwrite(safeName)) return@launchJob
-						if (updatePluginsProvider.installPlugin(select, safeName)) {
+						if (extProvider.installPlugin(select, safeName)) {
 							refresh()
 							operationResult.call(OperationResult.Success(R.string.load_success))
 							return@launchJob
 						}
-					}
-					val artifacts = catalogProvider.load(input)
-					if (artifacts.isNotEmpty()) {
-						artifacts.forEach { catalogProvider.restorePackage(it.packageName) }
-						catalogProvider.saveRepository(input)
-						refreshExtensionItems(catalogProvider.loadSaved() + artifacts)
-						operationResult.call(OperationResult.Success(R.string.load_success))
-						return@launchJob
 					}
 					operationResult.call(OperationResult.Failure(R.string.load_failed))
 				} finally {
@@ -232,10 +234,10 @@ class PluginsManageViewModel
 						operationResult.call(OperationResult.Failure(R.string.load_failed))
 						return@launchJob
 					}
-				val rel = updatePluginsProvider.requestRelease(repo, item.name)
+				val rel = extProvider.requestRelease(repo, item.name)
 				val ok =
 					if (rel != null && rel.tag != item.installedTag) {
-						updatePluginsProvider.installPlugin(rel, item.name)
+						extProvider.installPlugin(rel, item.name)
 					} else {
 						rel != null
 					}
@@ -291,7 +293,7 @@ class PluginsManageViewModel
 						hasLocal = true
 						try {
 							mangaDynamicRepository.deletePlugin(key)
-							updatePluginsProvider.clearDto(key)
+							extProvider.clearDto(key)
 						} catch (_: Throwable) {
 							ok = false
 						}
@@ -331,7 +333,7 @@ class PluginsManageViewModel
 				val ok =
 					runCatchingCancellable {
 						if (old.exists() && old.renameTo(new)) {
-							updatePluginsProvider.renameDto(item.name, name)
+							extProvider.renameDto(item.name, name)
 							reloadPlugins(dir)
 							true
 						} else {
@@ -456,7 +458,7 @@ class PluginsManageViewModel
 		private fun loadPluginsLocal(): List<PluginManageItem.Plugin> {
 			val plugins = mangaDynamicRepository.get().sorted()
 			if (plugins.isEmpty()) return emptyList()
-			val meta = updatePluginsProvider.readAndCleanDto(plugins.toSet())
+			val meta = extProvider.readAndCleanDto(plugins.toSet())
 			return plugins.map { f ->
 				val m = meta[f]
 				PluginManageItem.Plugin(f, m?.repository, m?.tag, null)

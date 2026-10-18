@@ -209,6 +209,18 @@ class UpdatePluginsProvider
 
 		fun find(assets: JSONArray?): List<Pair<String, String>> {
 			assets ?: return emptyList()
+			for (i in 0 until assets.length()) {
+				val asset = assets.optJSONObject(i) ?: continue
+				val name = asset.optString("name")
+				if (name.endsWith(".apk", true) ||
+					name.endsWith("index.min.json", true) ||
+					name.endsWith("index.json", true) ||
+					name.endsWith("repo.json", true) ||
+					name.endsWith("index.pb", true)
+				) {
+					return emptyList()
+				}
+			}
 			val list = mutableListOf<Pair<String, String>>()
 			for (i in 0 until assets.length()) {
 				val asset = assets.optJSONObject(i) ?: continue
