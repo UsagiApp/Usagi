@@ -61,7 +61,13 @@ class FilterSheetFragment :
 		binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 		binding.recyclerView.adapter = adapter
 		binding.buttonReset.setOnClickListener { viewModel.reset() }
-		binding.buttonDone.setOnClickListener { dismiss() }
+		binding.buttonDone.setOnClickListener {
+			// Commit any pending text input before closing: dismissing the sheet tears the
+			// view down immediately, so the field's focus-loss callback never runs and the
+			// typed value would be lost. Clearing focus fires the commit synchronously first.
+			binding.recyclerView.findFocus()?.clearFocus()
+			dismiss()
+		}
 		viewModel.items.observe(viewLifecycleOwner, adapter)
 		viewModel.isLoading.observe(viewLifecycleOwner) { binding.progressBar.isVisible = it }
 		viewModel.isEmptyState.observe(viewLifecycleOwner) { binding.textViewHolder.isVisible = it }
