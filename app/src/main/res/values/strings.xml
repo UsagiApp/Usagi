@@ -862,6 +862,9 @@
     <string name="suggestions_disabled_sources_summary">Show suggestions from all manga sources, including disabled ones</string>
     <string name="tags_warnings">Highlight dangerous genres</string>
     <string name="tags_warnings_summary">Highlight genres that may be inappropriate for most users</string>
+    <string name="excluded_tags">Exclude tags from all manga</string>
+    <string name="excluded_tags_summary">Manga containing any of these tags will not be shown in source lists, search results and related manga</string>
+    <string name="excluded_tags_empty">No tags excluded</string>
     <string name="error_non_file_uri">The selected path cannot be used because it does not denote a file or directory</string>
     <string name="manga_override_hint">These changes will affect how manga is displayed in the app</string>
     <string name="use_default_cover">Use default cover</string>

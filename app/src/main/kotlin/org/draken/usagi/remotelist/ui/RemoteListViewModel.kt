@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
@@ -80,7 +79,9 @@ open class RemoteListViewModel
 
 		override val content =
 			combine(
-				mangaList.map { it?.skipNsfwIfNeeded() },
+				combine(mangaList, tagExclusion) { list, exclusion ->
+					list?.let { exclusion.filter(it).skipNsfwIfNeeded() }
+				},
 				observeListModeWithTriggers(),
 				listError,
 				hasNextPage,

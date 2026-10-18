@@ -21,6 +21,7 @@ import org.draken.usagi.core.util.ext.setDefaultValueCompat
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.explore.data.SourcesSortOrder
 import org.draken.usagi.settings.utils.MultiAutoCompleteTextViewPreference
+import org.draken.usagi.settings.utils.TagsAutoCompleteProvider
 import tsuki.util.names
 import javax.inject.Inject
 
@@ -35,6 +36,9 @@ class SourcesSettingsFragment :
 
 	@Inject
 	lateinit var sourcesRepository: MangaSourcesRepository
+
+	@Inject
+	lateinit var tagsCompletionProvider: TagsAutoCompleteProvider
 
 	override fun onCreatePreferences(
 		savedInstanceState: Bundle?,
@@ -61,6 +65,13 @@ class SourcesSettingsFragment :
 			summaryProvider =
 				MultiAutoCompleteTextViewPreference.SimpleSummaryProvider(
 					getString(R.string.fix_excluded_sources_summary),
+				)
+		}
+		findPreference<MultiAutoCompleteTextViewPreference>(AppSettings.KEY_EXCLUDED_TAGS)?.run {
+			autoCompleteProvider = tagsCompletionProvider
+			summaryProvider =
+				MultiAutoCompleteTextViewPreference.SimpleSummaryProvider(
+					getString(R.string.excluded_tags_empty),
 				)
 		}
 	}

@@ -50,7 +50,9 @@ class RelatedListViewModel
 
 		override val content =
 			combine(
-				mangaList,
+				combine(mangaList, tagExclusion) { list, exclusion ->
+					list?.let(exclusion::filter)
+				},
 				observeListModeWithTriggers(),
 				listError,
 			) { list, mode, error ->

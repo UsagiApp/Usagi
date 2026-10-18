@@ -7,6 +7,7 @@ import org.draken.usagi.core.util.ext.asArrayList
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.history.data.HistoryRepository
+import org.draken.usagi.list.domain.ExcludedTags
 import org.draken.usagi.suggestions.domain.TagsBlacklist
 import tsuki.model.Manga
 import tsuki.model.MangaListFilter
@@ -25,6 +26,7 @@ class ExploreRepository
 	) {
 		suspend fun findRandomManga(tagsLimit: Int): Manga {
 			val tagsBlacklist = TagsBlacklist(settings.suggestionsTagsBlacklist, 0.4f)
+			val exclusion = ExcludedTags(settings.excludedTags)
 			val tags =
 				historyRepository.getPopularTags(tagsLimit).mapNotNull {
 					if (it in tagsBlacklist) null else it.title
@@ -32,13 +34,16 @@ class ExploreRepository
 			val sources = sourcesRepository.getEnabledSources()
 			check(sources.isNotEmpty()) { "No sources available" }
 			for (i in 0..4) {
-				val list = getList(sources.random(), tags, tagsBlacklist)
+				val list = getList(sources.random(), tags, tagsBlacklist, exclusion)
 				val manga = list.randomOrNull() ?: continue
 				val details =
 					runCatchingCancellable {
 						mangaRepositoryFactory.create(manga.source).getDetails(manga)
 					}.getOrNull() ?: continue
-				if ((settings.isSuggestionsExcludeNsfw && details.isNsfw()) || details in tagsBlacklist) {
+				if ((settings.isSuggestionsExcludeNsfw && details.isNsfw()) ||
+					details in tagsBlacklist ||
+					details in exclusion
+				) {
 					continue
 				}
 				return details
@@ -51,19 +56,20 @@ class ExploreRepository
 			tagsLimit: Int,
 		): Manga {
 			val tagsBlacklist = TagsBlacklist(settings.suggestionsTagsBlacklist, 0.4f)
+			val exclusion = ExcludedTags(settings.excludedTags)
 			val skipNsfw = settings.isSuggestionsExcludeNsfw && !source.isNsfw()
 			val tags =
 				historyRepository.getPopularTags(tagsLimit).mapNotNull {
 					if (it in tagsBlacklist) null else it.title
 				}
 			for (i in 0..4) {
-				val list = getList(source, tags, tagsBlacklist)
+				val list = getList(source, tags, tagsBlacklist, exclusion)
 				val manga = list.randomOrNull() ?: continue
 				val details =
 					runCatchingCancellable {
 						mangaRepositoryFactory.create(manga.source).getDetails(manga)
 					}.getOrNull() ?: continue
-				if ((skipNsfw && details.isNsfw()) || details in tagsBlacklist) {
+				if ((skipNsfw && details.isNsfw()) || details in tagsBlacklist || details in exclusion) {
 					continue
 				}
 				return details
@@ -75,6 +81,7 @@ class ExploreRepository
 			source: MangaSource,
 			tags: List<String>,
 			blacklist: TagsBlacklist,
+			exclusion: ExcludedTags,
 		): List<Manga> =
 			runCatchingCancellable {
 				val repository = mangaRepositoryFactory.create(source)
@@ -96,6 +103,9 @@ class ExploreRepository
 				}
 				if (blacklist.isNotEmpty()) {
 					list.removeAll { manga -> manga in blacklist }
+				}
+				if (exclusion.isNotEmpty) {
+					list.removeAll { manga -> manga in exclusion }
 				}
 				list.shuffle()
 				list
