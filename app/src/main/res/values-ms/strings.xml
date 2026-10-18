@@ -900,8 +900,8 @@
     <string name="set_plugin_name">Tetapkan nama untuk pemalam ini</string>
     <string name="confirm_delete_plugin">Adakah anda pasti mahu memadam %1$s?</string>
     <string name="delete_plugin">Padam pemalam</string>
-    <string name="import_from_github">Import daripada GitHub</string>
-    <string name="import_github_summary">Anda boleh memasukkan URL GitHub penuh atau Nama Pengguna/Repositori. Usagi akan mencari dan memasang pemalam daripada keluaran terkini secara automatik.</string>
+    <string name="import_from_url">Import daripada URL/URI</string>
+    <string name="import_url_summary">Anda boleh memasukkan URL GitHub penuh atau Nama Pengguna/Repositori. Usagi akan mencari dan memasang pemalam daripada keluaran terkini secara automatik.</string>
     <string name="load_from_storage">Import daripada storan setempat</string>
     <string name="load_storage_summary">Anda boleh memilih fail JAR daripada storan setempat, fail tersebut akan dikenali sebagai pemalam.</string>
     <string name="manage_plugins">Urus pemalam</string>

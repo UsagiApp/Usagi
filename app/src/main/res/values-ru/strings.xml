@@ -904,10 +904,10 @@
     <string name="details_backdrop">Большая обложка как фон</string>
     <string name="details_backdrop_summary">Показывать большую обложку сверху как фон (подобно Tachiyomi)</string>
     <string name="details_backdrop_blur">Интенсивность размытия фона</string>
-    <string name="import_from_github">Импортировать с GitHub</string>
+    <string name="import_from_url">Импортировать с URL/URI</string>
     <string name="delete_plugin">Удалить плагин</string>
     <string name="confirm_delete_plugin">Вы уверены что хотите удалить %1$s?</string>
-    <string name="import_github_summary">Вы можете ввести полную ссылку на GitHub либо &lt;Никнейм/Репозиторий&gt;. Usagi автоматически найдёт и установит плагин из последнего релиза.</string>
+    <string name="import_url_summary">Вы можете ввести полную ссылку на GitHub либо &lt;Никнейм/Репозиторий&gt;. Usagi автоматически найдёт и установит плагин из последнего релиза.</string>
     <string name="load_failed">Не удалось загрузить плагин</string>
     <string name="load_from_storage">Импортировать из локального хранилища</string>
     <string name="load_storage_summary">Вы можете выбрать JAR-файл из локального хранилища, этот файл будет распознан как плагин.</string>

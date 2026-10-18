@@ -897,7 +897,7 @@
     <string name="theme_name_totoro">Totoro</string>
     <string name="cover_only">Cubierta solamente</string>
     <string name="delete_plugin">Eliminar plugin</string>
-    <string name="import_github_summary">Puedes introducir una URL completa de GitHub o Nombre de usuario/Repositorio. Usagi encontrará e instalará automáticamente el plugin desde la última versión.</string>
+    <string name="import_url_summary">Puedes introducir una URL completa de GitHub o Nombre de usuario/Repositorio. Usagi encontrará e instalará automáticamente el plugin desde la última versión.</string>
     <string name="load_from_storage">Importación desde almacenamiento local</string>
     <string name="load_storage_summary">Puede seleccionar un archivo JAR desde el almacenamiento local, ese archivo será reconocido como un plugin.</string>
     <string name="load_success">Plugin importado y cargado correctamente</string>
@@ -913,7 +913,7 @@
     <string name="details_appearance">Apariencia de la pantalla de detalles</string>
     <string name="details_appearance_summary">Estilo de pantalla, imagen de fondo y efecto de desenfoque</string>
     <string name="confirm_delete_plugin">¿Seguro que quieres eliminar %1$s?</string>
-    <string name="import_from_github">Importar desde GitHub</string>
+    <string name="import_from_url">Importar desde URL/URI</string>
     <string name="load_failed">Ha fallado al cargar el plugin</string>
     <string name="overwrite_plugin_summary">Un archivo plugin llamado %1$s ya está instalado. ¿Reemplazarlo con éste?</string>
     <string name="plugin_name">Nombre de plugin</string>

@@ -901,10 +901,10 @@
     <string name="cover_only">Chỉ bìa</string>
     <string name="confirm_delete_plugin">Bạn có muốn xoá tiện ích %1$s không?</string>
     <string name="delete_plugin">Xoá tiện ích</string>
-    <string name="import_from_github">Nhập từ GitHub</string>
+    <string name="import_from_url">Nhập từ URL / URI</string>
     <string name="proxy_bypass_enabled">Bỏ qua kiểm duyệt mạng</string>
     <string name="proxy_bypass_enabled_summary">Đưa mạng của bạn qua lớp đường hầm tích hợp sẵn để ngăn nhà mạng chặn truy cập (beta)</string>
-    <string name="import_github_summary">Bạn có thể nhập URL đầy đủ của GitHub hoặc \"Username/Repository\". Usagi sẽ tự động tìm và cài đặt tiện ích từ bản phát hành mới nhất.</string>
+    <string name="import_url_summary">Bạn có thể nhập URL / URI đầy đủ. Usagi sẽ tự động tìm và cài đặt tiện ích mới nhất cho bạn.</string>
     <string name="load_failed">Đã có lỗi xảy ra khi tải tiện ích</string>
     <string name="load_from_storage">Nhập từ bộ nhớ trong</string>
     <string name="load_storage_summary">Bạn có thể lựa chọn một tệp JAR trong bộ nhớ nội bộ, tệp đó sẽ được ghi nhận như là một tiện ích.</string>

@@ -913,8 +913,8 @@
     <string name="is_float_bar_summary">បង្ហាញរបារសកម្មភាពកម្មវិធីអាន (ខាងក្រោម) ជារបារអណ្តែត ជំនួសឱ្យរបារភ្ជាប់</string>
     <string name="confirm_delete_plugin">តើប្រាកដជាចង់លុប %1$s ឬទេ?</string>
     <string name="delete_plugin">លុប plugin</string>
-    <string name="import_from_github">នាំចូលពី GitHub</string>
-    <string name="import_github_summary">អាចបញ្ចូល URL ពេញរបស់ GitHub ឬ Username/Repository។ Usagi នឹងរក និងដំឡើង plugin ពីការចេញផ្សាយចុងក្រោយដោយស្វ័យប្រវត្តិ។</string>
+    <string name="import_from_url">នាំចូលពី URL/URI</string>
+    <string name="import_url_summary">អាចបញ្ចូល URL ពេញរបស់ GitHub ឬ Username/Repository។ Usagi នឹងរក និងដំឡើង plugin ពីការចេញផ្សាយចុងក្រោយដោយស្វ័យប្រវត្តិ។</string>
     <string name="load_failed">ផ្ទុក plugin មិនបានសម្រេច</string>
     <string name="load_from_storage">នាំចូលពីអង្គផ្ទុកក្នុងឧបករណ៍</string>
     <string name="load_storage_summary">អាចជ្រើសរើសឯកសារ JAR ពីអង្គផ្ទុកក្នុងឧបករណ៍ ដោយឯកសារនោះនឹងត្រូវស្គាល់ជា plugin។</string>

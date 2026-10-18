@@ -860,8 +860,8 @@
     <string name="overwrite_plugin">Nadpisać plugin?</string>
     <string name="no_plugins_summary">Kliknij + powyżej żeby dodać dodatkowe pluginy</string>
     <string name="no_plugins">Brak zainstalowanych pluginów</string>
-    <string name="import_github_summary">Możesz wpisać pełny adres URL GitHub lub nazwę Użytkownika/Repozytorium. Usagi automatycznie znajdzie i zainstaluje najnowszy plugin.</string>
-    <string name="import_from_github">Zaimportuj z GitHuba</string>
+    <string name="import_url_summary">Możesz wpisać pełny adres URL GitHub lub nazwę Użytkownika/Repozytorium. Usagi automatycznie znajdzie i zainstaluje najnowszy plugin.</string>
+    <string name="import_from_url">Zaimportuj z URL/URI</string>
     <string name="download_default_directory">Domyślny folder do pobierania mangi</string>
     <string name="delete_plugin">Usuń plugin</string>
     <string name="privacy">Prywatność</string>

@@ -165,8 +165,8 @@ class PluginsManageFragment :
 		b.buttonFile.title = getString(R.string.load_from_storage)
 		b.buttonFile.subtitle = getString(R.string.load_storage_summary)
 		b.buttonFile.setIconResource(R.drawable.ic_storage)
-		b.buttonDir.title = getString(R.string.import_from_github)
-		b.buttonDir.subtitle = getString(R.string.import_github_summary)
+		b.buttonDir.title = getString(R.string.import_from_url)
+		b.buttonDir.subtitle = getString(R.string.import_url_summary)
 		b.buttonDir.setIconResource(R.drawable.ic_open_external)
 
 		val dialog =
@@ -182,7 +182,7 @@ class PluginsManageFragment :
 		b.buttonDir.setOnClickListener {
 			dialog.dismiss()
 			viewModel.importUrl(
-				askInput = { askText(R.string.import_from_github, "", R.string.import_github_summary) },
+				askInput = { askText(R.string.import_from_url, "", R.string.import_url_summary) },
 				askOverwrite = ::askOverwrite,
 			)
 		}

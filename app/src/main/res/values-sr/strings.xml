@@ -920,8 +920,8 @@
     <string name="is_float_bar_summary">Прикажите читалачку траку са радњама (на дну) као плутајућу траку уместо као усидрену траку</string>
     <string name="confirm_delete_plugin">Да ли сте сигурни да желите да обришете %1$s?</string>
     <string name="delete_plugin">Обришите додатак</string>
-    <string name="import_from_github">Увезите са GitHub-а</string>
-    <string name="import_github_summary">Можете да унесете потпуни GitHub URK или КорисничкоИме/Репозиторијум. Usagi ће аутоматски пронаћи и инсталирати најновију верзију додатка.</string>
+    <string name="import_from_url">Увезите са URL/URI</string>
+    <string name="import_url_summary">Можете да унесете потпуни URL URK или КорисничкоИме/Репозиторијум. Usagi ће аутоматски пронаћи и инсталирати најновију верзију додатка.</string>
     <string name="load_failed">Неуспешно учитавање додатка</string>
     <string name="load_from_storage">Увезите из локалног складишта</string>
     <string name="load_storage_summary">Можете да одаберете JAR датотеку из локалног складишта, та датотека ће бити препозната као додатак.</string>
