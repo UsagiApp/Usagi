@@ -4,7 +4,6 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.animation.Interpolator
 import android.widget.Scroller
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.OrientationHelper
@@ -153,19 +152,14 @@ class DoublePageSnapHelper(
 		val child: View = layoutManager.getChildAt(0) ?: return
 		if (layoutManager.canScrollHorizontally()) {
 			itemDimension = child.width
-			blockSize = getSpanCount(layoutManager) * (recyclerView.width / itemDimension)
 		} else if (layoutManager.canScrollVertically()) {
 			itemDimension = child.height
-			blockSize = getSpanCount(layoutManager) * (recyclerView.height / itemDimension)
 		}
+		blockSize = 2
 		maxPositionsToMove = blockSize * maxFlingBlocks
 	}
 
-	private fun getSpanCount(layoutManager: RecyclerView.LayoutManager): Int = if (layoutManager is GridLayoutManager) layoutManager.spanCount else 1
-
 	private fun roundDownToBlockSize(trialPosition: Int): Int = trialPosition and 1.inv()
-
-	private fun roundUpToBlockSize(trialPosition: Int): Int = roundDownToBlockSize(trialPosition + blockSize - 1)
 
 	override fun createScroller(layoutManager: RecyclerView.LayoutManager): RecyclerView.SmoothScroller? =
 		if (layoutManager !is ScrollVectorProvider) {

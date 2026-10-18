@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
-import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -15,11 +14,9 @@ import kotlinx.coroutines.yield
 import org.draken.usagi.R
 import org.draken.usagi.core.os.NetworkState
 import org.draken.usagi.core.prefs.AppSettings
-import org.draken.usagi.core.prefs.ReaderAnimation
 import org.draken.usagi.core.ui.list.lifecycle.RecyclerViewLifecycleDispatcher
 import org.draken.usagi.core.util.ext.firstVisibleItemPosition
 import org.draken.usagi.core.util.ext.observe
-import org.draken.usagi.core.util.ext.resetTransformations
 import org.draken.usagi.databinding.FragmentReaderDoubleBinding
 import org.draken.usagi.reader.domain.PageLoader
 import org.draken.usagi.reader.ui.ReaderState
@@ -59,6 +56,7 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 					addOnScrollListener(it)
 				}
 			addOnScrollListener(PageScrollListener())
+			addOnScrollListener(DoublePageAnimTransformer(viewModel.pageAnimation))
 			DoublePageSnapHelper(settings).attachToRecyclerView(this)
 		}
 		viewModel.pageAnimation.observe(viewLifecycleOwner) {
@@ -76,6 +74,20 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 		pages: List<ReaderPage>,
 		pendingState: ReaderState?,
 	) = coroutineScope {
+		val a =
+			if (pendingState == null && readerAdapter?.hasItems == true) {
+				val rv = viewBinding?.recyclerView
+				val lm = rv?.layoutManager as? LinearLayoutManager
+				val pos = lm?.findFirstVisibleItemPosition() ?: RecyclerView.NO_POSITION
+				if (pos != RecyclerView.NO_POSITION) {
+					readerAdapter?.getItemOrNull(pos)
+				} else {
+					null
+				}
+			} else {
+				null
+			}
+
 		val items =
 			launch {
 				requireAdapter().setItems(pages)
@@ -101,6 +113,13 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 			}
 		} else {
 			items.join()
+			if (a != null) {
+				val p = pages.indexOfFirst { it.chapterId == a.chapterId && it.id == a.id }
+				if (p != -1) {
+					val align = p.toPagePosition()
+					requireViewBinding().recyclerView.firstVisibleItemPosition = align
+				}
+			}
 		}
 	}
 
@@ -129,11 +148,11 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 
 	override fun switchPageBy(delta: Int) {
 		if (delta.absoluteValue > 1 || !isAnimationEnabled()) {
-			switchPageTo(getCurrentItem() + delta + delta, false)
+			switchPageTo(getCurrentItem() + delta, false)
 			return
 		}
 		val rv = viewBinding?.recyclerView ?: return
-		val distance = rv.width * delta
+		val distance = rv.width / 2 * delta
 		rv.smoothScrollBy(distance, 0, AccelerateDecelerateInterpolator())
 	}
 
@@ -188,61 +207,6 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 				firstPos = newFirstPos
 				lastPos = newLastPos
 				notifyPageChanged(newFirstPos, newLastPos)
-			}
-			if (viewModel.pageAnimation.value != ReaderAnimation.ADVANCED) {
-				recyclerView.children.forEach { it.resetTransformations() }
-				return
-			}
-			val w = recyclerView.width.toFloat()
-			val start = newFirstPos.toPagePosition()
-			val left = lm.findViewByPosition(start) ?: return
-			val offset = -left.left
-			if (w <= 0f || offset == 0) {
-				recyclerView.children.forEach { it.resetTransformations() }
-				return
-			}
-			val fraction = (offset / w).coerceIn(0f, 1f)
-			val half = w / 2f
-			recyclerView.children.forEach { v ->
-				when (recyclerView.getChildAdapterPosition(v)) {
-					start -> {
-						v.translationX = offset.toFloat()
-						v.translationZ = 0f
-						v.rotationY = 0f
-						v.alpha = 1f
-					}
-
-					start + 1 -> {
-						v.translationX = half - v.left
-						v.pivotX = 0f
-						v.pivotY = v.height / 2f
-						v.cameraDistance = 20000f
-						v.translationZ = 3f
-						v.rotationY = -180f * fraction
-						v.alpha = if (fraction < 0.5f) 1f else 0f
-					}
-
-					start + 2 -> {
-						v.translationX = -v.left.toFloat()
-						v.pivotX = v.width.toFloat()
-						v.pivotY = v.height / 2f
-						v.cameraDistance = 20000f
-						v.translationZ = 3f
-						v.rotationY = 180f * (1f - fraction)
-						v.alpha = if (fraction >= 0.5f) 1f else 0f
-					}
-
-					start + 3 -> {
-						v.translationX = half - v.left
-						v.translationZ = 0f
-						v.rotationY = 0f
-						v.alpha = 1f
-					}
-
-					else -> {
-						v.resetTransformations()
-					}
-				}
 			}
 		}
 	}
