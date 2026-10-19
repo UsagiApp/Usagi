@@ -42,8 +42,8 @@
 	<dimen name="search_suggestions_manga_spacing">6dp</dimen>
 
 	<dimen name="card_indicator_size">32dp</dimen>
-	<dimen name="card_indicator_size_small">24dp</dimen>
 	<dimen name="card_indicator_offset">8dp</dimen>
+	<dimen name="cover_error_text_min_size">10sp</dimen>
 
 	<dimen name="chapter_check_size">16dp</dimen>
 	<dimen name="chapter_check_offset">6dp</dimen>

@@ -10,6 +10,7 @@ import androidx.core.content.withStyledAttributes
 import androidx.core.view.isNotEmpty
 import androidx.core.view.isVisible
 import org.draken.usagi.R
+import kotlin.math.roundToInt
 
 class IconsView
 	@JvmOverloads
@@ -19,6 +20,9 @@ class IconsView
 	) : LinearLayout(context, attrs) {
 		private var iconSize = LayoutParams.WRAP_CONTENT
 		private var iconSpacing = 0
+		private var minIconSize = 0
+		private var maxIconSize = Int.MAX_VALUE
+		private var iconSizeFraction = 0f
 
 		val iconsCount: Int
 			get() {
@@ -35,7 +39,32 @@ class IconsView
 			context.withStyledAttributes(attrs, R.styleable.IconsView) {
 				iconSize = getDimensionPixelSize(R.styleable.IconsView_iconSize, iconSize)
 				iconSpacing = getDimensionPixelOffset(R.styleable.IconsView_iconSpacing, iconSpacing)
+				iconSizeFraction = getFloat(R.styleable.IconsView_iconSizeFraction, iconSizeFraction)
+				maxIconSize = getDimensionPixelSize(R.styleable.IconsView_maxIconSize, maxIconSize)
+				minIconSize = iconSize.coerceAtLeast(0)
 			}
+		}
+
+		override fun onMeasure(
+			widthMeasureSpec: Int,
+			heightMeasureSpec: Int,
+		) {
+			if (iconSizeFraction > 0f && MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.UNSPECIFIED) {
+				val size =
+					(MeasureSpec.getSize(widthMeasureSpec) * iconSizeFraction)
+						.roundToInt()
+						.coerceIn(minIconSize, maxIconSize)
+				if (size != iconSize) {
+					iconSize = size
+					repeat(childCount) { i ->
+						getChildAt(i).layoutParams.apply {
+							width = size
+							height = size
+						}
+					}
+				}
+			}
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 		}
 
 		fun setIcons(icons: Iterable<Drawable>) {

@@ -10,7 +10,6 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import org.draken.usagi.R
 import org.draken.usagi.core.prefs.AppSettings
-import org.draken.usagi.history.ui.util.ReadingProgressView
 import kotlin.math.roundToInt
 
 class DynamicItemSizeResolver(
@@ -29,9 +28,8 @@ class DynamicItemSizeResolver(
 	override fun attachToView(
 		view: View,
 		textView: TextView?,
-		progressView: ReadingProgressView?,
 	) {
-		val observer = SizeObserver(view, textView, progressView)
+		val observer = SizeObserver(view, textView)
 		view.addOnAttachStateChangeListener(observer)
 		lifecycleOwner.lifecycle.addObserver(observer)
 		if (view.isAttachedToWindow) {
@@ -42,7 +40,6 @@ class DynamicItemSizeResolver(
 	private inner class SizeObserver(
 		private val view: View,
 		private val textView: TextView?,
-		private val progressView: ReadingProgressView?,
 	) : DefaultLifecycleObserver,
 		SharedPreferences.OnSharedPreferenceChangeListener,
 		View.OnAttachStateChangeListener {
@@ -84,24 +81,6 @@ class DynamicItemSizeResolver(
 					lp.width = newWidth
 					view.layoutParams = lp
 				}
-			}
-			progressView?.adjustSize(newWidth)
-		}
-
-		private fun ReadingProgressView.adjustSize(width: Int) {
-			val lp = layoutParams
-			val size =
-				resources.getDimensionPixelSize(
-					if (width < widthThreshold) {
-						R.dimen.card_indicator_size_small
-					} else {
-						R.dimen.card_indicator_size
-					},
-				)
-			if (lp.width != size || lp.height != size) {
-				lp.width = size
-				lp.height = size
-				layoutParams = lp
 			}
 		}
 

@@ -5,7 +5,6 @@ import android.widget.TextView
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.TextViewCompat
 import org.draken.usagi.R
-import org.draken.usagi.history.ui.util.ReadingProgressView
 
 class StaticItemSizeResolver(
 	override val cellWidth: Int,
@@ -16,7 +15,6 @@ class StaticItemSizeResolver(
 	override fun attachToView(
 		view: View,
 		textView: TextView?,
-		progressView: ReadingProgressView?,
 	) {
 		if (widthThreshold == -1) {
 			widthThreshold = view.resources.getDimensionPixelSize(R.dimen.small_grid_width)
@@ -32,24 +30,6 @@ class StaticItemSizeResolver(
 		}
 		view.updateLayoutParams {
 			width = cellWidth
-		}
-		progressView?.adjustSize()
-	}
-
-	private fun ReadingProgressView.adjustSize() {
-		val lp = layoutParams
-		val size =
-			resources.getDimensionPixelSize(
-				if (cellWidth < widthThreshold) {
-					R.dimen.card_indicator_size_small
-				} else {
-					R.dimen.card_indicator_size
-				},
-			)
-		if (lp.width != size || lp.height != size) {
-			lp.width = size
-			lp.height = size
-			layoutParams = lp
 		}
 	}
 }

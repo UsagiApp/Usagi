@@ -1,6 +1,9 @@
 package org.draken.usagi.image.ui
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.util.AttributeSet
@@ -14,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toDrawable
+import coil3.asImage
 import coil3.network.HttpException
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
@@ -30,6 +34,7 @@ import org.draken.usagi.core.exceptions.CloudFlareProtectedException
 import org.draken.usagi.core.exceptions.UnsupportedSourceException
 import org.draken.usagi.core.image.CoilImageView
 import org.draken.usagi.core.ui.image.AnimatedPlaceholderDrawable
+import org.draken.usagi.core.ui.image.CoverPlaceholderColors
 import org.draken.usagi.core.ui.image.TextDrawable
 import org.draken.usagi.core.ui.image.TrimTransformation
 import org.draken.usagi.core.util.ext.bookmarkExtra
@@ -37,6 +42,7 @@ import org.draken.usagi.core.util.ext.decodeRegion
 import org.draken.usagi.core.util.ext.getThemeColor
 import org.draken.usagi.core.util.ext.isNetworkError
 import org.draken.usagi.core.util.ext.mangaExtra
+import org.draken.usagi.core.util.ext.mangaKey
 import org.draken.usagi.core.util.ext.mangaSourceExtra
 import org.draken.usagi.favourites.domain.model.Cover
 import org.draken.usagi.reader.ui.pager.ReaderPage
@@ -61,6 +67,8 @@ class CoverImageView
 		private var aspectRationHeight: Int = 0
 		private var aspectRationWidth: Int = 0
 		var trimImage: Boolean = false
+
+		private val placeholderColors by lazy(LazyThreadSafetyMode.NONE) { CoverPlaceholderColors(context) }
 
 		private val hasAspectRatio: Boolean
 			get() = aspectRationHeight > 0 && aspectRationWidth > 0
@@ -157,6 +165,7 @@ class CoverImageView
 			newRequestBuilder()
 				.data(coverUrl)
 				.mangaExtra(manga)
+				.mangaPlaceholder(manga)
 				.build(),
 		)
 
@@ -179,6 +188,15 @@ class CoverImageView
 					.build(),
 			)
 
+		private fun ImageRequest.Builder.mangaPlaceholder(manga: Manga?) =
+			apply {
+				if (manga != null && !(useExistingDrawable && drawable != null)) {
+					val placeholder = placeholderColors.background(manga.id).toDrawable().asImage()
+					error(placeholder)
+					fallback(placeholder)
+				}
+			}
+
 		override fun newRequestBuilder() =
 			super.newRequestBuilder().apply {
 				if (trimImage) {
@@ -188,6 +206,17 @@ class CoverImageView
 					size(CoverSizeResolver(this@CoverImageView))
 				}
 			}
+
+		@RequiresApi(Build.VERSION_CODES.M)
+		private class ScaledIconDrawable(
+			icon: Drawable,
+		) : LayerDrawable(arrayOf(icon)) {
+			override fun onBoundsChange(bounds: Rect) {
+				val size = (bounds.width() * ERROR_ICON_FRACTION).toInt()
+				setLayerSize(0, size, size)
+				super.onBoundsChange(bounds)
+			}
+		}
 
 		@RequiresApi(Build.VERSION_CODES.M)
 		private inner class ErrorForegroundListener : ImageRequest.Listener {
@@ -214,17 +243,24 @@ class CoverImageView
 				result: ErrorResult,
 			) {
 				super.onError(request, result)
+				val contentColor = request.extras[mangaKey]?.let { placeholderColors.content(it.id) }
 				foreground =
 					if (result.throwable.isNetworkError() && !networkState.isOnline()) {
 						ContextCompat.getDrawable(context, R.drawable.ic_offline)?.let {
-							LayerDrawable(arrayOf(it)).apply {
+							ScaledIconDrawable(it).apply {
 								setLayerGravity(0, Gravity.CENTER)
-								setTint(ContextCompat.getColor(context, R.color.dim_lite))
+								setTint(contentColor ?: ContextCompat.getColor(context, R.color.dim_lite))
 							}
 						}
 					} else {
 						result.throwable.getShortMessage()?.let { text ->
-							TextDrawable.create(context, text, materialR.attr.textAppearanceTitleSmall)
+							TextDrawable.create(context, text, materialR.attr.textAppearanceTitleSmall).apply {
+								widthFraction = ERROR_TEXT_FRACTION
+								minTextSize = resources.getDimension(R.dimen.cover_error_text_min_size)
+								if (contentColor != null) {
+									textColor = ColorStateList.valueOf(contentColor)
+								}
+							}
 						}
 					}
 			}
@@ -349,3 +385,6 @@ class CoverImageView
 			}
 		}
 	}
+
+private const val ERROR_TEXT_FRACTION = 0.16f
+private const val ERROR_ICON_FRACTION = 0.27f
