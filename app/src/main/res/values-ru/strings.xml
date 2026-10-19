@@ -932,4 +932,7 @@
     <string name="by_number">Число</string>
     <string name="by_upload_date">Дата загрузки</string>
     <string name="less">Меньше</string>
+    <string name="proxy_bypass_enabled">Обход интернет-блокировок</string>
+    <string name="proxy_bypass_enabled_summary">Маршрутизировать трафик приложения через встроенный туннель для обхода блокировок (бета)</string>
+    <string name="proxy_webview_unavailable">Прокси для WebView не поддерживается</string>
 </resources>
