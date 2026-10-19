@@ -89,7 +89,6 @@ class MainViewModel
 			launchJob {
 				if (settings.isFirstLaunch) {
 					settings.isFirstLaunch = false
-					settings.isCheckAppUpdateEnabled = false
 					onFirstStart.call(Unit)
 				}
 			}

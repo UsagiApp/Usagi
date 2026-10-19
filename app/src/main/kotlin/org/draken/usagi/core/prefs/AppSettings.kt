@@ -359,8 +359,9 @@ class AppSettings
 			get() = prefs.getBoolean(KEY_CHECK_APP_UPDATE, true)
 			set(value) = prefs.edit { putBoolean(KEY_CHECK_APP_UPDATE, value) }
 
-		val isUpdateReminderEnabled: Boolean
+		var isUpdateReminderEnabled: Boolean
 			get() = prefs.getBoolean(KEY_UPDATES_REMIND, true)
+			set(value) = prefs.edit { putBoolean(KEY_UPDATES_REMIND, value) }
 
 		val isPagesTabEnabled: Boolean
 			get() = prefs.getBoolean(KEY_PAGES_TAB, true)
