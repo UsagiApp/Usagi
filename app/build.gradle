@@ -198,8 +198,7 @@ dependencies {
 		exclude group: 'org.json', module: 'json'
 	}
 
-	implementation libs.bouncycastle.bctls
-	implementation libs.bouncycastle.bcprov
+	implementation libs.wolfssl
 
 	debugImplementation libs.leakcanary.android
 	debugImplementation libs.workinspector

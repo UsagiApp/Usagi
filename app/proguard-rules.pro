@@ -11,10 +11,8 @@
 }
 
 -dontwarn okhttp3.internal.platform.**
--dontwarn org.bouncycastle.**
--keep class org.bouncycastle.jsse.** { *; }
--keep class org.bouncycastle.jcajce.provider.** { *; }
--keep class org.bouncycastle.jce.provider.** { *; }
+-dontwarn org.draken.wolfssl.**
+-keep class org.draken.wolfssl.** { *; }
 -dontwarn org.openjsse.**
 -dontwarn com.google.j2objc.annotations.**
 -dontwarn com.google.re2j.**

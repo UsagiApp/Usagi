@@ -3,7 +3,6 @@ package org.draken.usagi.core.network.proxy.bypass
 import java.io.ByteArrayOutputStream
 import java.io.FilterOutputStream
 import java.io.OutputStream
-import kotlin.math.min
 import kotlin.random.Random
 
 class BypassStream(
@@ -98,67 +97,13 @@ class BypassStream(
 		if (isTlsHello(data, size)) {
 			val sni = findSni(data, size)
 			if (sni != null) {
-				writeTls(data, size, sni, out)
+				splitTcp(data, size, sni, out)
 			} else {
 				simpleSplit(data, size, out)
 			}
 		} else {
 			simpleSplit(data, size, out)
 		}
-	}
-
-	private fun writeTls(
-		data: ByteArray,
-		size: Int,
-		sni: SniInfo,
-		out: OutputStream,
-	) {
-		val payloadLen = u16(data, 3)
-		val recEnd = 5 + payloadLen
-		if (recEnd > size) {
-			splitTcp(data, size, sni, out)
-			return
-		}
-
-		val splits = splitPoints(sni, payloadLen)
-		var off = 5
-		for ((i, end) in splits.withIndex()) {
-			val fragLen = end - off
-			if (fragLen <= 0) continue
-			out.write(0x16)
-			out.write(data[1].toInt() and 0xFF)
-			out.write(data[2].toInt() and 0xFF)
-			out.write((fragLen shr 8) and 0xFF)
-			out.write(fragLen and 0xFF)
-			out.write(data, off, fragLen)
-			out.flush()
-			off = end
-			if (i < splits.size - 1) delay()
-		}
-		if (recEnd < size) {
-			out.write(data, recEnd, size - recEnd)
-			out.flush()
-		}
-	}
-
-	private fun splitPoints(
-		sni: SniInfo,
-		payLen: Int,
-	): List<Int> {
-		val payEnd = 5 + payLen
-		val pts = mutableListOf<Int>()
-		val before = sni.offset
-		if (before > 5 + MIN_FRAG) pts.add(before)
-		val mid = sni.offset + sni.length / 2
-		if (mid > (pts.lastOrNull() ?: 5) + MIN_FRAG && mid < payEnd - MIN_FRAG) pts.add(mid)
-		val after = sni.offset + sni.length
-		if (after > (pts.lastOrNull() ?: 5) + MIN_FRAG && after < payEnd - MIN_FRAG) pts.add(after)
-		pts.add(payEnd)
-		if (pts.size <= 1) {
-			val early = 5 + min(MIN_FRAG, payLen / 3)
-			if (early < payEnd - MIN_FRAG) pts.add(0, early)
-		}
-		return pts
 	}
 
 	private fun splitTcp(
@@ -278,7 +223,6 @@ class BypassStream(
 
 	companion object {
 		private const val MAX_HELLO = 32 * 1024
-		private const val MIN_FRAG = 4
 		private val METHOD = arrayOf("GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS", "CONNECT", "PATCH")
 	}
 }

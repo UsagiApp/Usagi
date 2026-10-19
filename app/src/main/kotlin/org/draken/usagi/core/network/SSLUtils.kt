@@ -3,11 +3,13 @@ package org.draken.usagi.core.network
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.AssetManager
+import android.os.Build
 import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.tls.HandshakeCertificates
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.util.ext.printStackTraceDebug
+import org.draken.wolfssl.WolfSSLSocketFactory
 import java.security.SecureRandom
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
@@ -33,9 +35,14 @@ fun OkHttpClient.Builder.disableCertificateVerification() =
 
 					override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
 				}
-			val sslContext = SSLContext.getInstance("SSL")
-			sslContext.init(null, arrayOf(trustAllCerts), SecureRandom())
-			val sslSocketFactory: SSLSocketFactory = sslContext.socketFactory
+			val sslSocketFactory: SSLSocketFactory =
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+					WolfSSLSocketFactory(trustAllCerts)
+				} else {
+					val sslContext = SSLContext.getInstance("TLS")
+					sslContext.init(null, arrayOf(trustAllCerts), SecureRandom())
+					sslContext.socketFactory
+				}
 			builder.sslSocketFactory(sslSocketFactory, trustAllCerts)
 			builder.hostnameVerifier { _, _ -> true }
 		}.onFailure {
@@ -57,7 +64,13 @@ fun OkHttpClient.Builder.installExtraCertificates(context: Context) =
 			}
 		}
 		val certificates = certificatesBuilder.build()
-		builder.sslSocketFactory(certificates.sslSocketFactory(), certificates.trustManager)
+		val socketFactory: SSLSocketFactory =
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+				WolfSSLSocketFactory(certificates.trustManager)
+			} else {
+				certificates.sslSocketFactory()
+			}
+		builder.sslSocketFactory(socketFactory, certificates.trustManager)
 	}
 
 private fun loadCert(
