@@ -6,7 +6,6 @@ import org.draken.usagi.core.model.getLocalizedTitle
 import org.draken.usagi.core.ui.model.DateTimeAgo
 import tsuki.model.MangaChapter
 
-@ExposedCopyVisibility
 data class ListHeader private constructor(
 	private val textRaw: Any,
 	@StringRes val buttonTextRes: Int,

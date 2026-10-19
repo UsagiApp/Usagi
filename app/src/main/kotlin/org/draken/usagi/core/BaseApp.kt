@@ -105,7 +105,6 @@ open class BaseApp :
 				object : JcaTlsCryptoProvider() {
 					override fun create(random: SecureRandom?): JcaTlsCrypto = super.create(random ?: SecureRandom())
 				}.setProvider(bc)
-			Security.removeProvider("BCJSSE")
 			Security.insertProviderAt(BouncyCastleJsseProvider(false, crypto), 2)
 		}
 		setupActivityLifecycleCallbacks()

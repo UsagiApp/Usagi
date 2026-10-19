@@ -1,7 +1,6 @@
 package org.draken.usagi.core.network
 
 import android.content.Context
-import android.os.Build
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -9,10 +8,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Cache
-import okhttp3.ConnectionSpec
 import okhttp3.CookieJar
 import okhttp3.OkHttpClient
-import okhttp3.TlsVersion
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.core.network.cookies.AndroidCookieJar
 import org.draken.usagi.core.network.cookies.MutableCookieJar
@@ -86,20 +83,6 @@ interface NetworkModule {
 					} else {
 						installExtraCertificates(contextProvider.get())
 					}
-					val connectionSpecs =
-						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-							listOf(
-								ConnectionSpec
-									.Builder(ConnectionSpec.MODERN_TLS)
-									.tlsVersions(TlsVersion.TLS_1_2)
-									.build(),
-								ConnectionSpec.MODERN_TLS,
-								ConnectionSpec.CLEARTEXT,
-							)
-						} else {
-							listOf(ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT)
-						}
-					connectionSpecs(connectionSpecs)
 					cache(cache)
 					addInterceptor(GZipInterceptor())
 					addInterceptor(CloudFlareInterceptor())
