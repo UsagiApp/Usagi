@@ -942,4 +942,16 @@
     <string name="data_removal">Suppression des données</string>
     <string name="plugin_name">Nom du plugin</string>
     <string name="hold_to_scroll">Maintenez appuyé pour faire défiler</string>
+    <string name="by_number">Nombre</string>
+    <string name="by_upload_date">Date de la mise à jour</string>
+    <string name="less">Moins</string>
+    <string name="sort_chapters_by_order">Suivez l\'ordre des chapitres dans le lecteur</string>
+    <string name="sort_chapters_by_order_summary">Obliger le lecteur à suivre l\'ordre des chapitres défini, plutôt que d\'utiliser la liste des chapitres par défaut</string>
+    <string name="redirect_description">Autoriser la redirection dans la description</string>
+    <string name="scroll_up">Remontez en haut de page</string>
+    <string name="scroll_down">Faire défiler vers le bas</string>
+    <string name="hold_scroll_top_row">Rangée du haut</string>
+    <string name="hold_scroll_middle_left">Au milieu à gauche</string>
+    <string name="hold_scroll_middle_right">Au milieu à droite</string>
+    <string name="hold_scroll_bottom_row">Rangée du bas</string>
 </resources>
