@@ -21,6 +21,7 @@ import org.draken.usagi.core.prefs.observeAsStateFlow
 import org.draken.usagi.core.ui.BaseViewModel
 import org.draken.usagi.core.ui.util.ReversibleAction
 import org.draken.usagi.core.util.ext.MutableEventFlow
+import org.draken.usagi.list.domain.ExcludedTags
 import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.ui.model.ListModel
 import org.draken.usagi.local.data.LocalStorageChanges
@@ -44,6 +45,15 @@ abstract class MangaListViewModel(
 			key = AppSettings.KEY_GRID_SIZE,
 			valueProducer = { gridSize / 100f },
 		)
+
+	protected val tagExclusion =
+		settings
+			.observeAsFlow(AppSettings.KEY_EXCLUDED_TAGS) { ExcludedTags(this.excludedTags) }
+			.stateIn(
+				viewModelScope + Dispatchers.Default,
+				SharingStarted.Eagerly,
+				ExcludedTags(settings.excludedTags),
+			)
 
 	val isIncognitoModeEnabled: Boolean
 		get() = settings.isIncognitoModeEnabled

@@ -147,6 +147,16 @@ class AppSettings
 			get() = prefs.getBoolean(KEY_DISABLE_NSFW, false)
 			set(value) = prefs.edit { putBoolean(KEY_DISABLE_NSFW, value) }
 
+		/** Comma-separated tag titles; manga carrying any of them is hidden from the lists. */
+		val excludedTags: Set<String>
+			get() {
+				val string = prefs.getString(KEY_EXCLUDED_TAGS, null)?.trimEnd(' ', ',')
+				if (string.isNullOrEmpty()) {
+					return emptySet()
+				}
+				return string.split(',').mapNotNullToSet { it.trim().takeIf { title -> title.isNotEmpty() } }
+			}
+
 		var appLocales: LocaleListCompat
 			get() {
 				val raw = prefs.getString(KEY_APP_LOCALE, null)
@@ -888,6 +898,7 @@ class AppSettings
 			const val KEY_SUGGESTIONS_DISABLED_SOURCES = "suggestions_disabled_sources"
 			const val KEY_SUGGESTIONS_NOTIFICATIONS = "suggestions_notifications"
 			const val KEY_FIX_EXCLUDE_SOURCES = "fix_exclude_sources"
+			const val KEY_EXCLUDED_TAGS = "excluded_tags"
 			const val KEY_SHIKIMORI = "shikimori"
 			const val KEY_ANILIST = "anilist"
 			const val KEY_MAL = "mal"

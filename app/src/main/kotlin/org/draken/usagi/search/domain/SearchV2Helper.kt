@@ -9,6 +9,7 @@ import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.contains
 import org.draken.usagi.core.util.ext.printStackTraceDebug
+import org.draken.usagi.list.domain.ExcludedTags
 import tsuki.model.Manga
 import tsuki.model.MangaListFilter
 import tsuki.model.MangaSource
@@ -95,6 +96,10 @@ class SearchV2Helper
 		) {
 			if (settings.isNsfwContentDisabled) {
 				removeAll { it.isNsfw() }
+			}
+			val exclusion = ExcludedTags(settings.excludedTags)
+			if (exclusion.isNotEmpty) {
+				removeAll { it in exclusion }
 			}
 			when (kind) {
 				SearchKind.TITLE -> {
