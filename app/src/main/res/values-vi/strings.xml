@@ -954,4 +954,7 @@
     <string name="hold_scroll_middle_right">Phần giữa phải</string>
     <string name="hold_scroll_bottom_row">Phần dưới cùng</string>
     <string name="less">Thu gọn</string>
+    <string name="excluded_tags">Áp dụng loại bỏ các thể loại ra khỏi tất cả truyện</string>
+    <string name="excluded_tags_summary">Truyện có chứa tất cả các thể loại này sẽ không được hiển thị trong danh sách khi duyệt với nguồn, tìm kiếm hay truyện tương tự</string>
+    <string name="excluded_tags_empty">Không có thể loại nào được ghi nhận</string>
 </resources>
