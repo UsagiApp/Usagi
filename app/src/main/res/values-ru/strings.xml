@@ -929,4 +929,7 @@
     <string name="no_filters_available">У этого источника нет фильтров</string>
     <string name="duplicate_manga">Уже в библиотеке</string>
     <string name="duplicate_manga_summary">Манга \"%1$s\" из \"%2$s\" уже добавлена в избранное. Хотите продолжить?</string>
+    <string name="by_number">Число</string>
+    <string name="by_upload_date">Дата загрузки</string>
+    <string name="less">Меньше</string>
 </resources>
