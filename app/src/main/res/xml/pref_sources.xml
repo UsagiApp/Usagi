@@ -50,6 +50,11 @@
         android:summary="@string/disable_nsfw_summary"
         android:title="@string/disable_nsfw" />
 
+    <org.draken.usagi.settings.utils.MultiAutoCompleteTextViewPreference
+        android:key="excluded_tags"
+        android:summary="@string/excluded_tags_summary"
+        android:title="@string/excluded_tags" />
+
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="sources_hide_broken"
