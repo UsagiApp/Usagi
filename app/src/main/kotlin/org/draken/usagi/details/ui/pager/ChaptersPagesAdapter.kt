@@ -13,40 +13,58 @@ class ChaptersPagesAdapter(
 	fragment: Fragment,
 	val isPagesTabEnabled: Boolean,
 	private val isClassicUi: Boolean,
+	val isChaptersTabEnabled: Boolean = true,
 ) : FragmentStateAdapter(fragment),
 	TabLayoutMediator.TabConfigurationStrategy {
-	override fun getItemCount(): Int = if (isPagesTabEnabled) 3 else 2
+	private val tabIds =
+		buildList {
+			if (isChaptersTabEnabled) add(ChaptersPagesSheet.TAB_CHAPTERS)
+			if (isPagesTabEnabled) add(ChaptersPagesSheet.TAB_PAGES)
+			add(ChaptersPagesSheet.TAB_BOOKMARKS)
+		}
+
+	override fun getItemCount(): Int = tabIds.size
 
 	override fun createFragment(position: Int): Fragment =
-		when (position) {
-			0 -> ChaptersFragment()
-			1 -> if (isPagesTabEnabled) PagesFragment() else BookmarksFragment()
-			2 -> BookmarksFragment()
-			else -> throw IllegalArgumentException("Invalid position $position")
+		when (tabIds[position]) {
+			ChaptersPagesSheet.TAB_CHAPTERS -> ChaptersFragment()
+			ChaptersPagesSheet.TAB_PAGES -> PagesFragment()
+			ChaptersPagesSheet.TAB_BOOKMARKS -> BookmarksFragment()
+			else -> error("Invalid tab ${tabIds[position]}")
 		}
 
 	override fun onConfigureTab(
 		tab: TabLayout.Tab,
 		position: Int,
 	) {
-		if (isClassicUi) {
-			tab.setText(
-				when (position) {
-					0 -> R.string.chapters
-					1 -> if (isPagesTabEnabled) R.string.pages else R.string.bookmarks
-					2 -> R.string.bookmarks
-					else -> 0
-				},
-			)
-		} else {
-			tab.setIcon(
-				when (position) {
-					0 -> R.drawable.ic_list
-					1 -> if (isPagesTabEnabled) R.drawable.ic_grid else R.drawable.ic_bookmark
-					2 -> R.drawable.ic_bookmark
-					else -> 0
-				},
-			)
+		when (tabIds[position]) {
+			ChaptersPagesSheet.TAB_CHAPTERS -> {
+				if (isClassicUi) {
+					tab.setText(R.string.chapters)
+				} else {
+					tab.setIcon(R.drawable.ic_list)
+				}
+			}
+
+			ChaptersPagesSheet.TAB_PAGES -> {
+				if (isClassicUi) {
+					tab.setText(R.string.pages)
+				} else {
+					tab.setIcon(R.drawable.ic_grid)
+				}
+			}
+
+			ChaptersPagesSheet.TAB_BOOKMARKS -> {
+				if (isClassicUi) {
+					tab.setText(R.string.bookmarks)
+				} else {
+					tab.setIcon(R.drawable.ic_bookmark)
+				}
+			}
 		}
 	}
+
+	fun indexOfTab(tabId: Int): Int = tabIds.indexOf(tabId).takeIf { it >= 0 } ?: 0
+
+	fun tabIdAt(position: Int): Int = tabIds[position]
 }

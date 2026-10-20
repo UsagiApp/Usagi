@@ -69,6 +69,7 @@ class ChaptersFragment :
 	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		val isClassic = activity is org.draken.usagi.details.ui.DetailsClassicActivity
+		val isInline = parentFragment == null
 		chaptersAdapter = ChaptersAdapter(this)
 		selectionController =
 			ListSelectionController(
@@ -87,10 +88,21 @@ class ChaptersFragment :
 					LinearLayoutManager(context)
 				}
 		}
+		if (isInline) {
+			binding.root.layoutParams =
+				(binding.root.layoutParams ?: ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)).apply {
+					height = ViewGroup.LayoutParams.WRAP_CONTENT
+				}
+			(binding.recyclerViewChapters.layoutParams as? android.widget.RelativeLayout.LayoutParams)?.apply {
+				height = ViewGroup.LayoutParams.WRAP_CONTENT
+				removeRule(android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM)
+			}
+			binding.recyclerViewChapters.isNestedScrollingEnabled = false
+		}
 		with(binding.recyclerViewChapters) {
 			addItemDecoration(TypedListSpacingDecoration(context, true))
 			checkNotNull(selectionController).attachToRecyclerView(this)
-			setHasFixedSize(true)
+			setHasFixedSize(!isInline)
 			PagerNestedScrollHelper(this).bind(viewLifecycleOwner)
 			adapter = chaptersAdapter
 			ChapterGridSpanHelper.attach(this)
