@@ -14,7 +14,13 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.chip.Chip
 import com.google.android.material.shape.MaterialShapeDrawable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
 import org.draken.usagi.R
@@ -23,19 +29,26 @@ import org.draken.usagi.core.ui.sheet.AdaptiveSheetBehavior.Companion.STATE_EXPA
 import org.draken.usagi.core.ui.sheet.AdaptiveSheetBehavior.Companion.STATE_SETTLING
 import org.draken.usagi.core.ui.sheet.AdaptiveSheetCallback
 import org.draken.usagi.core.ui.sheet.BaseAdaptiveSheet
+import org.draken.usagi.core.ui.widgets.ChipsView
 import org.draken.usagi.core.util.ext.consume
 import org.draken.usagi.core.util.ext.getThemeColor
 import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.databinding.SheetOptionsBinding
+import org.draken.usagi.filter.data.PersistableFilter
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.filter.ui.external.FilterAdapter
 import org.draken.usagi.filter.ui.external.FilterViewModel
+import org.draken.usagi.filter.ui.model.FilterProperty
+import org.draken.usagi.filter.ui.saved.SavedFilterActions
 import com.google.android.material.R as materialR
 
 @AndroidEntryPoint
 class FilterSheetFragment :
 	BaseAdaptiveSheet<SheetOptionsBinding>(),
-	AdaptiveSheetCallback {
+	AdaptiveSheetCallback,
+	ChipsView.OnChipClickListener,
+	ChipsView.OnChipLongClickListener,
+	ChipsView.OnChipCloseClickListener {
 	private val viewModel by viewModels<FilterViewModel>(
 		extrasProducer = {
 			defaultViewModelCreationExtras.withCreationCallback<FilterViewModel.Factory> { factory ->
@@ -44,6 +57,7 @@ class FilterSheetFragment :
 		},
 	)
 
+	private lateinit var savedFilterActions: SavedFilterActions
 	private var systemBarsBottom = 0
 
 	override fun onCreateViewBinding(
@@ -57,10 +71,29 @@ class FilterSheetFragment :
 	) {
 		super.onViewBindingCreated(binding, savedInstanceState)
 		if (dialog == null) binding.adjustForEmbeddedLayout()
+		val coordinator = FilterCoordinator.require(this)
+		savedFilterActions = SavedFilterActions(requireContext(), coordinator)
 		val adapter = FilterAdapter(viewModel)
 		binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 		binding.recyclerView.adapter = adapter
 		binding.buttonReset.setOnClickListener { viewModel.reset() }
+		binding.buttonSave.setOnClickListener {
+			// Commit any pending text input before capturing the current filter state.
+			binding.recyclerView.findFocus()?.clearFocus()
+			savedFilterActions.showSaveDialog()
+		}
+		binding.chipsSavedFilters.onChipClickListener = this
+		binding.chipsSavedFilters.onChipLongClickListener = this
+		binding.chipsSavedFilters.onChipCloseClickListener = this
+		coordinator.savedFilters.observe(viewLifecycleOwner, ::onSavedFiltersChanged)
+		combine(
+			coordinator.observe().map { coordinator.isSaveableFilter(it.listFilter) }.distinctUntilChanged(),
+			coordinator.savedFilters.map { it.selectedItems.isEmpty() }.distinctUntilChanged(),
+			Boolean::and,
+		).flowOn(Dispatchers.Default)
+			.observe(viewLifecycleOwner) {
+				binding.buttonSave.isEnabled = it
+			}
 		binding.buttonDone.setOnClickListener {
 			// Commit any pending text input before closing: dismissing the sheet tears the
 			// view down immediately, so the field's focus-loss callback never runs and the
@@ -133,6 +166,64 @@ class FilterSheetFragment :
 			weight = 0f
 			width = LinearLayout.LayoutParams.WRAP_CONTENT
 			gravity = Gravity.END or Gravity.CENTER_VERTICAL
+		}
+		buttonSave.updateLayoutParams<LinearLayout.LayoutParams> {
+			weight = 0f
+			width = LinearLayout.LayoutParams.WRAP_CONTENT
+			gravity = Gravity.END or Gravity.CENTER_VERTICAL
+		}
+	}
+
+	private fun onSavedFiltersChanged(value: FilterProperty<PersistableFilter>) {
+		val b = viewBinding ?: return
+		b.layoutSavedFilters.isVisible = !value.isEmpty()
+		if (value.isEmpty()) {
+			b.chipsSavedFilters.setChips(emptyList())
+			return
+		}
+		b.chipsSavedFilters.setChips(
+			value.availableItems.map { f ->
+				ChipsView.ChipModel(
+					title = f.name,
+					isChecked = f in value.selectedItems,
+					data = f,
+					isDropdown = true,
+				)
+			},
+		)
+	}
+
+	override fun onChipClick(
+		chip: Chip,
+		data: Any?,
+	) {
+		if (data is PersistableFilter) {
+			viewBinding?.recyclerView?.findFocus()?.clearFocus()
+			viewModel.applySavedFilter(data)
+		}
+	}
+
+	override fun onChipLongClick(
+		chip: Chip,
+		data: Any?,
+	): Boolean =
+		when (data) {
+			is PersistableFilter -> {
+				savedFilterActions.showMenu(chip, data)
+				true
+			}
+
+			else -> {
+				false
+			}
+		}
+
+	override fun onChipCloseClick(
+		chip: Chip,
+		data: Any?,
+	) {
+		if (data is PersistableFilter) {
+			savedFilterActions.showMenu(chip, data)
 		}
 	}
 

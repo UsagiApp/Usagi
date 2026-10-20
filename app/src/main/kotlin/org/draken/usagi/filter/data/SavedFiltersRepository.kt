@@ -119,8 +119,17 @@ class SavedFiltersRepository
 						val rewritten =
 							runCatching {
 								val filter = json.decodeFromString<PersistableFilter>(v)
+								val newSource = mangaSourceFromStoredKey(newSourceKey)
 								json.encodeToString(
-									filter.copy(source = mangaSourceFromStoredKey(newSourceKey)),
+									filter.copy(
+										source = newSource,
+										filter =
+											filter.filter.copy(
+												tags = filter.filter.tags.map { it.copy(source = newSource) }.toSet(),
+												tagsExclude =
+													filter.filter.tagsExclude.map { it.copy(source = newSource) }.toSet(),
+											),
+									),
 								)
 							}.getOrElse { v }
 						putString(k, rewritten)

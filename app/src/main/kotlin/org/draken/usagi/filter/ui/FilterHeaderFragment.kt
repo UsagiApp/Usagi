@@ -74,7 +74,7 @@ class FilterHeaderFragment :
 				if (chip.isChecked) {
 					filter.reset()
 				} else {
-					filter.setAdjusted(data.filter)
+					filter.applySavedFilter(data)
 				}
 			}
 
