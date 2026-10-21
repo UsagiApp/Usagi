@@ -817,7 +817,6 @@
     <string name="page_switch_timer">La page changera toutes les ~%d secondes</string>
     <string name="error_non_file_uri">Le chemin sélectionné ne peut pas être utilisé car il ne désigne pas un fichier ou un répertoire</string>
     <string name="pick_custom_file">Choisir un fichier personnalisé</string>
-    <string name="theme_name_expressive">Expressif (Test)</string>
     <string name="collapse">Réduire</string>
     <string name="expand">Développer</string>
     <string name="adblock">Bloquer les publicités dans le navigateur</string>
@@ -954,4 +953,7 @@
     <string name="hold_scroll_middle_left">Au milieu à gauche</string>
     <string name="hold_scroll_middle_right">Au milieu à droite</string>
     <string name="hold_scroll_bottom_row">Rangée du bas</string>
+    <string name="excluded_tags">Exclure les balises de tous les mangas</string>
+    <string name="excluded_tags_summary">Les mangas comportant l\'un de ces mots-clés n\'apparaîtront pas dans les listes de sources, les résultats de recherche ni parmi les mangas associés</string>
+    <string name="excluded_tags_empty">Aucune balise n\'est exclue</string>
 </resources>

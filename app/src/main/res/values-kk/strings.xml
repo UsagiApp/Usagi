@@ -548,7 +548,6 @@
     <string name="pinned_sources_only">Тек бекітілген дереккөздер</string>
     <string name="hide_empty_sources">Бос дереккөздерді жасыру</string>
     <string name="invalid_server_address_message">Жарамсыз сервер мекенжайы</string>
-    <string name="theme_name_expressive">Экспрессивті (сынақ нұсқасы)</string>
     <string name="proxy_bypass_enabled">Интернет цензурасын айналып өту</string>
     <string name="proxy_bypass_enabled_summary">Бұғатталған желілерде қолданба трафигін кіріктірілген айналып өту туннелі арқылы бағыттау (бета).</string>
 </resources>

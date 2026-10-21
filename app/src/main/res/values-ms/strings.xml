@@ -352,7 +352,6 @@
     <string name="enable_logging_summary">Catat beberapa tindakan untuk tujuan debug. Jangan menghidupkannya jika anda tidak pasti apa yang anda lakukan</string>
     <string name="show_suspicious_content">Tunjukkan kandungan yang mencurigakan</string>
     <string name="theme_name_dynamic">Dinamik</string>
-    <string name="theme_name_expressive">Ekspresif (ujian)</string>
     <string name="color_theme">Skema warna</string>
     <string name="show_in_grid_view">Tunjukkan dalam paparan grid</string>
     <string name="theme_name_miku">Miku</string>

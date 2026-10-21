@@ -29,6 +29,8 @@
 	<dimen name="toolbar_button_margin">10dp</dimen>
 	<dimen name="widget_cover_height">116dp</dimen>
 	<dimen name="widget_cover_width">84dp</dimen>
+	<dimen name="theme_preview_width">108dp</dimen>
+	<dimen name="theme_preview_height">240dp</dimen>
 	<dimen name="scrobbling_list_spacing">12dp</dimen>
 	<dimen name="explore_grid_width">120dp</dimen>
 	<dimen name="chapter_grid_width">80dp</dimen>
@@ -44,6 +46,12 @@
 	<dimen name="card_indicator_size">32dp</dimen>
 	<dimen name="card_indicator_offset">8dp</dimen>
 	<dimen name="cover_error_text_min_size">10sp</dimen>
+
+	<dimen name="color_picker_thumb_radius">10dp</dimen>
+	<dimen name="color_picker_thumb_stroke">2dp</dimen>
+	<dimen name="color_picker_hue_height">24dp</dimen>
+	<dimen name="color_picker_corner">12dp</dimen>
+	<dimen name="color_swatch_size">40dp</dimen>
 
 	<dimen name="chapter_check_size">16dp</dimen>
 	<dimen name="chapter_check_offset">6dp</dimen>

@@ -817,7 +817,6 @@
     <string name="collapse">Згортванне</string>
     <string name="expand">Пашыраць</string>
     <string name="clear_browser_data_summary">Выдаліць дадзеныя убудаванага браўзэра, такія як кэш і печыва. Увага: аўтарызацыя ў крыніцах мангі можа быць страчана</string>
-    <string name="theme_name_expressive">Выразны (Тэст)</string>
     <string name="additional_action_required">Патрабуюцца дадатковыя дзеянні</string>
     <string name="hide_from_main_screen">Схаваць з галоўнага экрана</string>
     <string name="adblock">Блакаваць рэкламу ў браўзэры</string>
