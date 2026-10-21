@@ -12,10 +12,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import org.draken.usagi.core.ui.BaseViewModel
+import org.draken.usagi.filter.data.PersistableFilter
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.filter.ui.external.model.FilterItem
+import tsuki.model.MangaListFilter
 
 @HiltViewModel(assistedFactory = FilterViewModel.Factory::class)
 class FilterViewModel
@@ -30,6 +36,7 @@ class FilterViewModel
 		private var sortPath: String? = null
 		private val pathMap = HashMap<String, Filter<*>>()
 		private val expandedPaths = HashSet<String>()
+		private var lastAppliedFilter: MangaListFilter? = null
 
 		private val itemsFlow = MutableStateFlow<List<FilterItem>>(emptyList())
 		private val loadedFlow = MutableStateFlow(false)
@@ -42,7 +49,16 @@ class FilterViewModel
 			}.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
 		init {
+			lastAppliedFilter = filter.snapshot().listFilter
 			load(resetExpanded = true)
+			filter.observe()
+				.map { it.listFilter }
+				.distinctUntilChanged()
+				.onEach { applied ->
+					if (applied != lastAppliedFilter) {
+						load(resetExpanded = true)
+					}
+				}.launchIn(viewModelScope)
 		}
 
 		private fun load(resetExpanded: Boolean) =
@@ -61,6 +77,13 @@ class FilterViewModel
 
 		fun reset() {
 			filter.reset()
+			lastAppliedFilter = filter.snapshot().listFilter
+			load(resetExpanded = true)
+		}
+
+		fun applySavedFilter(preset: PersistableFilter) {
+			filter.applySavedFilter(preset)
+			lastAppliedFilter = filter.snapshot().listFilter
 			load(resetExpanded = true)
 		}
 
@@ -126,7 +149,7 @@ class FilterViewModel
 		}
 
 		private fun apply() {
-			filter.applyDynamicFilters(working, defaults)
+			lastAppliedFilter = filter.applyDynamicFilters(working, defaults)
 			rebuild()
 		}
 

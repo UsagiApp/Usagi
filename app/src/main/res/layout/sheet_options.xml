@@ -13,6 +13,25 @@
 		android:layout_height="wrap_content"
 		app:title="@string/filter" />
 
+	<org.draken.usagi.filter.ui.FilterFieldLayout
+		android:id="@+id/layout_saved_filters"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="@dimen/margin_small"
+		android:visibility="gone"
+		app:title="@string/saved_filters"
+		tools:visibility="visible">
+
+		<org.draken.usagi.core.ui.widgets.ChipsView
+			android:id="@+id/chips_saved_filters"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="@dimen/margin_small"
+			android:layout_marginTop="@dimen/margin_small"
+			app:chipStyle="@style/Widget.Usagi.Chip.Filter" />
+
+	</org.draken.usagi.filter.ui.FilterFieldLayout>
+
 	<FrameLayout
 		android:id="@+id/layout_body"
 		android:layout_width="match_parent"
@@ -67,6 +86,17 @@
 			android:layout_marginEnd="@dimen/margin_small"
 			android:layout_weight="1"
 			android:text="@string/reset" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/button_save"
+			style="?materialButtonOutlinedStyle"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="@dimen/margin_small"
+			android:layout_weight="1"
+			android:enabled="false"
+			android:text="@string/save"
+			tools:enabled="true" />
 
 		<com.google.android.material.button.MaterialButton
 			android:id="@+id/button_done"

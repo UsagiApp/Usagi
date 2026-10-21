@@ -315,7 +315,7 @@ class FilterCoordinator
 			) { available, applied ->
 				FilterProperty(
 					availableItems = available,
-					selectedItems = setOfNotNull(available.find { it.filter == applied }),
+					selectedItems = setOfNotNull(available.find { it.matchesAppliedFilter(applied) }),
 				)
 			}.stateIn(coroutineScope, SharingStarted.Lazily, FilterProperty.EMPTY)
 
@@ -403,10 +403,12 @@ class FilterCoordinator
 		fun applyDynamicFilters(
 			working: FilterList,
 			defaults: FilterList,
-		) {
+		): MangaListFilter {
 			val tags = FilterMapper.encode(working, defaults, repository.source)
 			val query = listFilter.value.takeQueryIfSupported()
-			listFilter.value = MangaListFilter(query = query, tags = tags)
+			val applied = MangaListFilter(query = query, tags = tags)
+			listFilter.value = applied
+			return applied
 		}
 
 		/** Loads the current sort state for the compact sort picker (the source's own sort, or the built-in orders). */
@@ -511,9 +513,35 @@ class FilterCoordinator
 			set(newFilter)
 		}
 
+		/**
+		 * Applies a saved preset. Native filters are applied as-is; dynamic source presets keep the
+		 * current source sort, since sort is a separate setting surfaced outside the filter sheet.
+		 */
+		fun applySavedFilter(preset: PersistableFilter) {
+			var filter = preset.filter.normalizeTagSources()
+			if (isDynamicFilter) {
+				val currentSortTag = listFilter.value.tags.firstOrNull { it.key.startsWith(FilterMapper.SORT_KEY_PREFIX) }
+				filter =
+					filter.copy(
+						tags = (filter.tags.withoutSortTags() + listOfNotNull(currentSortTag)).toSet(),
+					)
+			}
+			setAdjusted(filter)
+		}
+
+		/** True when the current filter has state worth saving (a dynamic sort alone is not). */
+		fun isSaveableFilter(value: MangaListFilter = listFilter.value): Boolean =
+			(if (isDynamicFilter) value.copy(tags = value.tags.withoutSortTags()) else value).isNotEmpty()
+
 		fun saveCurrentFilter(name: String) =
 			coroutineScope.launch {
-				savedFiltersRepository.save(repository.source, name, listFilter.value)
+				val filter =
+					if (isDynamicFilter) {
+						listFilter.value.copy(tags = listFilter.value.tags.withoutSortTags())
+					} else {
+						listFilter.value
+					}
+				savedFiltersRepository.save(repository.source, name, filter)
 			}
 
 		fun renameSavedFilter(
@@ -527,6 +555,24 @@ class FilterCoordinator
 			coroutineScope.launch {
 				savedFiltersRepository.delete(repository.source, id)
 			}
+
+		private fun PersistableFilter.matchesAppliedFilter(applied: MangaListFilter): Boolean {
+			if (!isDynamicFilter) return filter == applied
+			val savedTags = filter.tags.withoutSortTags().map { it.key }.toSet()
+			val appliedTags = applied.tags.withoutSortTags().map { it.key }.toSet()
+			return savedTags == appliedTags &&
+				filter.copy(tags = emptySet(), tagsExclude = emptySet()) ==
+				applied.copy(tags = emptySet(), tagsExclude = emptySet())
+		}
+
+		private fun MangaListFilter.normalizeTagSources(): MangaListFilter =
+			copy(
+				tags = tags.map { it.copy(source = repository.source) }.toSet(),
+				tagsExclude = tagsExclude.map { it.copy(source = repository.source) }.toSet(),
+			)
+
+		private fun Set<MangaTag>.withoutSortTags(): Set<MangaTag> =
+			filterNot { it.key.startsWith(FilterMapper.SORT_KEY_PREFIX) }.toSet()
 
 		fun setQuery(value: String?) {
 			val newQuery = value?.trim()?.nullIfEmpty()
