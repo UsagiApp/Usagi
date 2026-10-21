@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
 import androidx.activity.viewModels
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -15,7 +16,9 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.transition.Fade
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.motion.MotionUtils
 import dagger.hilt.android.AndroidEntryPoint
 import org.draken.usagi.R
 import org.draken.usagi.backups.ui.periodical.PeriodicalBackupSettingsFragment
@@ -40,6 +43,7 @@ import org.draken.usagi.settings.sources.SourcesSettingsFragment
 import org.draken.usagi.settings.sources.manage.SourcesManageFragment
 import org.draken.usagi.settings.tracker.TrackerSettingsFragment
 import org.draken.usagi.settings.userdata.BackupsSettingsFragment
+import com.google.android.material.R as materialR
 
 @AndroidEntryPoint
 class SettingsActivity :
@@ -57,8 +61,22 @@ class SettingsActivity :
 		androidx.fragment.app.FragmentManager.OnBackStackChangedListener {
 			invalidateOptionsMenu()
 		}
+	private val transitionsCallback =
+		object : androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks() {
+			override fun onFragmentPreCreated(
+				fm: androidx.fragment.app.FragmentManager,
+				f: Fragment,
+				savedInstanceState: Bundle?,
+			) {
+				// Transitions aren't saved with the fragment.
+				if (savedInstanceState != null && f.id == R.id.container) {
+					f.setPageTransitions()
+				}
+			}
+		}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
+		supportFragmentManager.registerFragmentLifecycleCallbacks(transitionsCallback, false)
 		super.onCreate(savedInstanceState)
 		setContentView(ActivitySettingsBinding.inflate(layoutInflater))
 		setDisplayHomeAsUp(isEnabled = true, showUpAsClose = false)
@@ -79,6 +97,7 @@ class SettingsActivity :
 	}
 
 	override fun onDestroy() {
+		supportFragmentManager.unregisterFragmentLifecycleCallbacks(transitionsCallback)
 		supportFragmentManager.removeOnBackStackChangedListener(backStackListener)
 		super.onDestroy()
 	}
@@ -126,15 +145,33 @@ class SettingsActivity :
 		isFromRoot: Boolean,
 	) {
 		viewModel.discardSearch()
-		val hasFragment = supportFragmentManager.findFragmentById(R.id.container) != null
+		val currentFragment = supportFragmentManager.findFragmentById(R.id.container)
+		val fragment = supportFragmentManager.fragmentFactory.instantiate(classLoader, fragmentClass.name)
+		fragment.arguments = args
+		fragment.setPageTransitions()
+		currentFragment?.setPageTransitions()
 		supportFragmentManager.commit {
 			setReorderingAllowed(true)
-			replace(R.id.container, fragmentClass, args)
-			setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-			if (!isMasterDetails || (hasFragment && !isFromRoot)) {
+			replace(R.id.container, fragment)
+			if (!isMasterDetails || (currentFragment != null && !isFromRoot)) {
 				addToBackStack(null)
 			}
 		}
+	}
+
+	// Not setTransition(): its Animators flash the old page when a predictive back gesture is committed.
+	private fun Fragment.setPageTransitions() {
+		val context = this@SettingsActivity
+		val duration = MotionUtils.resolveThemeDuration(context, materialR.attr.motionDurationShort2, 100).toLong()
+		// Mostly done before the finger is lifted: androidx.transition ends the gesture with a slow spring.
+		val easing =
+			MotionUtils.resolveThemeInterpolator(
+				context,
+				materialR.attr.motionEasingEmphasizedDecelerateInterpolator,
+				DecelerateInterpolator(),
+			)
+		enterTransition = Fade().setDuration(duration).setInterpolator(easing)
+		exitTransition = Fade().setDuration(duration).setInterpolator(easing)
 	}
 
 	private fun toggleSearchMode(isEnabled: Boolean) {

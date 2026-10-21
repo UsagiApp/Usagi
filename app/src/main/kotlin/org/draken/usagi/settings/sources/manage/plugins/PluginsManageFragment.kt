@@ -146,9 +146,13 @@ class PluginsManageFragment :
 			.build()
 	}
 
+	override fun onStart() {
+		super.onStart()
+		(activity as? SettingsActivity)?.setSectionTitle(getString(R.string.manage_plugins))
+	}
+
 	override fun onResume() {
 		super.onResume()
-		(activity as? SettingsActivity)?.setSectionTitle(getString(R.string.manage_plugins))
 		viewModel.runAutoUpdate()
 		viewModel.refresh()
 	}
