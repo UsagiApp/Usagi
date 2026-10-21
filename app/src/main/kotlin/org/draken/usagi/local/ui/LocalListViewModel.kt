@@ -22,6 +22,7 @@ import org.draken.usagi.explore.domain.ExploreRepository
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.list.domain.ListFilterOption
 import org.draken.usagi.list.domain.MangaListMapper
+import org.draken.usagi.list.domain.MangaTagsEnricher
 import org.draken.usagi.list.domain.QuickFilterListener
 import org.draken.usagi.list.ui.model.EmptyState
 import org.draken.usagi.list.ui.model.ListModel
@@ -47,6 +48,7 @@ class LocalListViewModel
 		mangaListMapper: MangaListMapper,
 		private val deleteLocalMangaUseCase: DeleteLocalMangaUseCase,
 		exploreRepository: ExploreRepository,
+		tagsEnricher: MangaTagsEnricher,
 		@param:LocalStorageChanges private val localStorageChanges: SharedFlow<LocalManga?>,
 		private val localStorageManager: LocalStorageManager,
 		sourcesRepository: MangaSourcesRepository,
@@ -58,6 +60,7 @@ class LocalListViewModel
 			settings = settings,
 			mangaListMapper = mangaListMapper,
 			exploreRepository = exploreRepository,
+			tagsEnricher = tagsEnricher,
 			sourcesRepository = sourcesRepository,
 			mangaDataRepository = mangaDataRepository,
 			localStorageChanges = localStorageChanges,

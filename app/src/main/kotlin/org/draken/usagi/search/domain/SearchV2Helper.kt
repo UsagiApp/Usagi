@@ -10,6 +10,7 @@ import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.util.ext.contains
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.list.domain.ExcludedTags
+import org.draken.usagi.list.domain.MangaTagsEnricher
 import tsuki.model.Manga
 import tsuki.model.MangaListFilter
 import tsuki.model.MangaSource
@@ -26,6 +27,7 @@ class SearchV2Helper
 		@Assisted private val source: MangaSource,
 		private val mangaRepositoryFactory: MangaRepository.Factory,
 		private val dataRepository: MangaDataRepository,
+		private val tagsEnricher: MangaTagsEnricher,
 		private val settings: AppSettings,
 	) {
 		suspend operator fun invoke(
@@ -38,12 +40,18 @@ class SearchV2Helper
 			val repository = mangaRepositoryFactory.create(source)
 			val listFilter = repository.getFilter(query, kind) ?: return null
 			val sortOrder = repository.getSortOrder(kind)
-			val list = repository.getList(0, sortOrder, listFilter)
+			val exclusion = ExcludedTags(settings.excludedTags)
+			val list =
+				tagsEnricher.enrich(
+					repository = repository,
+					manga = repository.getList(0, sortOrder, listFilter),
+					exclusion = exclusion,
+				)
 			if (list.isEmpty()) {
 				return null
 			}
 			val result = list.toMutableList()
-			result.postFilter(query, kind)
+			result.postFilter(query, kind, exclusion)
 			result.sortByRelevance(query, kind)
 			return SearchResults(listFilter = listFilter, sortOrder = sortOrder, manga = result)
 		}
@@ -93,11 +101,11 @@ class SearchV2Helper
 		private fun MutableList<Manga>.postFilter(
 			query: String,
 			kind: SearchKind,
+			exclusion: ExcludedTags,
 		) {
 			if (settings.isNsfwContentDisabled) {
 				removeAll { it.isNsfw() }
 			}
-			val exclusion = ExcludedTags(settings.excludedTags)
 			if (exclusion.isNotEmpty) {
 				removeAll { it in exclusion }
 			}

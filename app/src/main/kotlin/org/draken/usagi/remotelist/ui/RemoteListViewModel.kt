@@ -33,6 +33,7 @@ import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.explore.domain.ExploreRepository
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.list.domain.MangaListMapper
+import org.draken.usagi.list.domain.MangaTagsEnricher
 import org.draken.usagi.list.ui.MangaListViewModel
 import org.draken.usagi.list.ui.model.ButtonFooter
 import org.draken.usagi.list.ui.model.EmptyState
@@ -60,6 +61,7 @@ open class RemoteListViewModel
 		settings: AppSettings,
 		protected val mangaListMapper: MangaListMapper,
 		private val exploreRepository: ExploreRepository,
+		private val tagsEnricher: MangaTagsEnricher,
 		sourcesRepository: MangaSourcesRepository,
 		mangaDataRepository: MangaDataRepository,
 		@LocalStorageChanges localStorageChanges: SharedFlow<LocalManga?>,
@@ -167,10 +169,14 @@ open class RemoteListViewModel
 				try {
 					listError.value = null
 					val list =
-						repository.getList(
-							offset = if (append) mangaList.value.sizeOrZero() else 0,
-							order = filterState.sortOrder,
-							filter = filterState.listFilter,
+						tagsEnricher.enrich(
+							repository = repository,
+							manga = repository.getList(
+								offset = if (append) mangaList.value.sizeOrZero() else 0,
+								order = filterState.sortOrder,
+								filter = filterState.listFilter,
+							),
+							exclusion = tagExclusion.value,
 						)
 					val prevList = mangaList.value.orEmpty()
 					if (!append) {
