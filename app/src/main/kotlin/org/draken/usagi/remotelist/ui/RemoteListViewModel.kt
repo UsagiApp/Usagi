@@ -171,11 +171,12 @@ open class RemoteListViewModel
 					val list =
 						tagsEnricher.enrich(
 							repository = repository,
-							manga = repository.getList(
-								offset = if (append) mangaList.value.sizeOrZero() else 0,
-								order = filterState.sortOrder,
-								filter = filterState.listFilter,
-							),
+							manga =
+								repository.getList(
+									offset = if (append) mangaList.value.sizeOrZero() else 0,
+									order = filterState.sortOrder,
+									filter = filterState.listFilter,
+								),
 							exclusion = tagExclusion.value,
 						)
 					val prevList = mangaList.value.orEmpty()

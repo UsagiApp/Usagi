@@ -96,21 +96,20 @@ class MangaTagsEnricherTest {
 		url: String = "/g/1/",
 		tags: Set<MangaTag> = emptySet(),
 		source: MangaSource = TestMangaSource,
-	) =
-		Manga(
-			id = 1L,
-			title = "Manga",
-			altTitles = emptySet(),
-			url = url,
-			publicUrl = "https://example.org$url",
-			rating = 0f,
-			contentRating = null,
-			coverUrl = null,
-			tags = tags,
-			state = null,
-			authors = emptySet(),
-			source = source,
-		)
+	) = Manga(
+		id = 1L,
+		title = "Manga",
+		altTitles = emptySet(),
+		url = url,
+		publicUrl = "https://example.org$url",
+		rating = 0f,
+		contentRating = null,
+		coverUrl = null,
+		tags = tags,
+		state = null,
+		authors = emptySet(),
+		source = source,
+	)
 
 	private class FakeMangaRepository(
 		source: MangaSource = TestMangaSource,
