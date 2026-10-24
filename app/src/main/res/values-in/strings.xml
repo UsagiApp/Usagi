@@ -720,7 +720,7 @@
     <string name="test_connection">Tes koneksi</string>
     <string name="send_backups_telegram">Kirim cadangan di Telegram</string>
     <string name="telegram_chat_id_summary">Masukkan ID chat untuk pengiriman cadangan</string>
-    <string name="open_telegram_bot_summary">Tekan untuk membuka chat dengan Bot Cadangan Usagi</string>
+    <string name="open_telegram_bot_summary">Tekan untuk membuka obrolan dengan Usagi Backup Bot</string>
     <string name="delete_old_backups">Hapus cadangan lama</string>
     <string name="delete_old_backups_summary">Otomatis menghapus berkas cadangan lama untuk menghemat ruang penyimpanan</string>
     <string name="debug">Debug</string>
@@ -936,4 +936,26 @@
     <string name="check_app_update">Periksa pembaruan secara otomatis</string>
     <string name="check_app_update_summary">Periksa pembaruan aplikasi secara otomatis saat memulai</string>
     <string name="no_filters_available">Sumber ini tidak memiliki filter</string>
+    <string name="by_number">Nomor</string>
+    <string name="by_upload_date">Tanggal unggah</string>
+    <string name="transfer_cookies_on_redirect">Transfer cookie secara otomatis ke domain baru (beta)</string>
+    <string name="transfer_cookies_on_redirect_summary">Salin dan transfer cookie secara otomatis dari domain lama ke domain baru jika terdeteksi pengalihan domain sumber komik ke domain lain</string>
+    <string name="less">Lebih sedikit</string>
+    <string name="fix_excluded_sources">Sumber yang dikecualikan dari perbaikan otomatis</string>
+    <string name="fix_excluded_sources_summary">Tentukan sumber yang tidak ingin digunakan dalam fitur perbaikan manga otomatis</string>
+    <string name="excluded_tags">Kecualikan tag dari semua manga</string>
+    <string name="excluded_tags_summary">Manga yang memiliki salah satu tag ini tidak akan ditampilkan dalam daftar sumber, hasil pencarian, dan manga terkait</string>
+    <string name="excluded_tags_empty">Tidak ada tag yang dikecualikan</string>
+    <string name="duplicate_manga">Sudah ada di koleksi</string>
+    <string name="duplicate_manga_summary">Manga \"%1$s\" dari \"%2$s\" sudah ada di favorit Anda. Apakah Anda ingin melanjutkan?</string>
+    <string name="hold_to_scroll">Tekan dan tahan untuk menggulir</string>
+    <string name="sort_chapters_by_order">Ikuti urutan bab di pembaca</string>
+    <string name="sort_chapters_by_order_summary">Paksa pembaca untuk mengikuti urutan bab yang telah diatur alih-alih menggunakan daftar bab bawaan</string>
+    <string name="redirect_description">Izinkan pengalihan melalui deskripsi</string>
+    <string name="scroll_up">Gulir ke atas</string>
+    <string name="scroll_down">Gulir ke bawah</string>
+    <string name="hold_scroll_top_row">Baris atas</string>
+    <string name="hold_scroll_middle_left">Kiri tengah</string>
+    <string name="hold_scroll_middle_right">Kanan tengah</string>
+    <string name="hold_scroll_bottom_row">Baris bawah</string>
 </resources>
