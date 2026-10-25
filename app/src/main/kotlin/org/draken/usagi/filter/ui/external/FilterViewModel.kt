@@ -51,7 +51,8 @@ class FilterViewModel
 		init {
 			lastAppliedFilter = filter.snapshot().listFilter
 			load(resetExpanded = true)
-			filter.observe()
+			filter
+				.observe()
 				.map { it.listFilter }
 				.distinctUntilChanged()
 				.onEach { applied ->

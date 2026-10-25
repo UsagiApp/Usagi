@@ -125,9 +125,14 @@ class SavedFiltersRepository
 										source = newSource,
 										filter =
 											filter.filter.copy(
-												tags = filter.filter.tags.map { it.copy(source = newSource) }.toSet(),
+												tags =
+													filter.filter.tags
+														.map { it.copy(source = newSource) }
+														.toSet(),
 												tagsExclude =
-													filter.filter.tagsExclude.map { it.copy(source = newSource) }.toSet(),
+													filter.filter.tagsExclude
+														.map { it.copy(source = newSource) }
+														.toSet(),
 											),
 									),
 								)

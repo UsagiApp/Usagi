@@ -67,7 +67,10 @@ class SavedFilterActions(
 	}
 
 	private fun showRenameDialog(preset: PersistableFilter) {
-		val existingNames = coordinator.savedFilters.value.availableItems.map { it.name }.toSet()
+		val existingNames =
+			coordinator.savedFilters.value.availableItems
+				.map { it.name }
+				.toSet()
 		buildAlertDialog(context) {
 			val input =
 				setEditText(

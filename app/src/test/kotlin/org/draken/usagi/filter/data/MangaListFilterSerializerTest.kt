@@ -26,6 +26,11 @@ class MangaListFilterSerializerTest {
 		assertEquals("preset", restored.name)
 		assertEquals(LocalMangaSource, restored.source)
 		assertEquals("search", restored.filter.query)
-		assertEquals(setOf("cb@0=1", "sel@2=3"), restored.filter.tags.map { it.key }.toSet())
+		assertEquals(
+			setOf("cb@0=1", "sel@2=3"),
+			restored.filter.tags
+				.map { it.key }
+				.toSet(),
+		)
 	}
 }

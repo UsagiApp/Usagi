@@ -16,13 +16,13 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.chip.Chip
 import com.google.android.material.shape.MaterialShapeDrawable
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.withCreationCallback
 import org.draken.usagi.R
 import org.draken.usagi.core.ui.sheet.AdaptiveSheetBehavior.Companion.STATE_DRAGGING
 import org.draken.usagi.core.ui.sheet.AdaptiveSheetBehavior.Companion.STATE_EXPANDED

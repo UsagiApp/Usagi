@@ -530,8 +530,7 @@ class FilterCoordinator
 		}
 
 		/** True when the current filter has state worth saving (a dynamic sort alone is not). */
-		fun isSaveableFilter(value: MangaListFilter = listFilter.value): Boolean =
-			(if (isDynamicFilter) value.copy(tags = value.tags.withoutSortTags()) else value).isNotEmpty()
+		fun isSaveableFilter(value: MangaListFilter = listFilter.value): Boolean = (if (isDynamicFilter) value.copy(tags = value.tags.withoutSortTags()) else value).isNotEmpty()
 
 		fun saveCurrentFilter(name: String) =
 			coroutineScope.launch {
@@ -558,8 +557,16 @@ class FilterCoordinator
 
 		private fun PersistableFilter.matchesAppliedFilter(applied: MangaListFilter): Boolean {
 			if (!isDynamicFilter) return filter == applied
-			val savedTags = filter.tags.withoutSortTags().map { it.key }.toSet()
-			val appliedTags = applied.tags.withoutSortTags().map { it.key }.toSet()
+			val savedTags =
+				filter.tags
+					.withoutSortTags()
+					.map { it.key }
+					.toSet()
+			val appliedTags =
+				applied.tags
+					.withoutSortTags()
+					.map { it.key }
+					.toSet()
 			return savedTags == appliedTags &&
 				filter.copy(tags = emptySet(), tagsExclude = emptySet()) ==
 				applied.copy(tags = emptySet(), tagsExclude = emptySet())
@@ -571,8 +578,7 @@ class FilterCoordinator
 				tagsExclude = tagsExclude.map { it.copy(source = repository.source) }.toSet(),
 			)
 
-		private fun Set<MangaTag>.withoutSortTags(): Set<MangaTag> =
-			filterNot { it.key.startsWith(FilterMapper.SORT_KEY_PREFIX) }.toSet()
+		private fun Set<MangaTag>.withoutSortTags(): Set<MangaTag> = filterNot { it.key.startsWith(FilterMapper.SORT_KEY_PREFIX) }.toSet()
 
 		fun setQuery(value: String?) {
 			val newQuery = value?.trim()?.nullIfEmpty()
