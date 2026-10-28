@@ -897,6 +897,8 @@
     <string name="details_backdrop_blur">Độ mờ (Blur) ảnh nền</string>
     <string name="details_appearance">Giao diện màn hình chi tiết</string>
     <string name="details_appearance_summary">Phong cách, ảnh nền và hiệu ứng mờ</string>
+    <string name="details_chapters_inline">Danh sách chương trong màn hình chi tiết</string>
+    <string name="details_chapters_inline_summary">Hiển thị danh sách chương ngay trong màn hình chi tiết thay vì cửa sổ kéo lên ở dưới</string>
     <string name="preview">Xem trước</string>
     <string name="cover_only">Chỉ bìa</string>
     <string name="confirm_delete_plugin">Bạn có muốn xoá tiện ích %1$s không?</string>
