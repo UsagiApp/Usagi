@@ -636,6 +636,13 @@
     <string name="migrate_confirmation">Manga \"%1$s\" from \"%2$s\" will be replaced with \"%3$s\" from \"%4$s\" in your history and favorites (if present)</string>
     <string name="manga_migration">Manga migration</string>
     <string name="migration_completed">Migration completed</string>
+    <string name="migrate_sources">Migrate sources</string>
+    <string name="migrate_from_source">Migrate from source</string>
+    <string name="migrate_to_source">Migrate to source</string>
+    <string name="migrate_favourites_prompt">%1$d manga will be moved from \"%2$s\" to \"%3$s\" along with their history and reading progress. Manga that cannot be found on the target source will be left unchanged</string>
+    <string name="migrating_favourites">Migrating favourites</string>
+    <string name="migration_progress">Migrated %1$d of %2$d</string>
+    <string name="migration_summary">Migrated: %1$d, no match: %2$d, failed: %3$d</string>
     <string name="delete_read_chapters">Delete read chapters</string>
     <string name="no_chapters_deleted">No chapters have been deleted</string>
     <string name="chapters_deleted_pattern">Removed %1$s, cleared %2$s</string>
