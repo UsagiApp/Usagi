@@ -1,4 +1,4 @@
-package org.draken.usagi.reader.ui
+﻿package org.draken.usagi.reader.ui
 
 import android.app.assist.AssistContent
 import android.content.DialogInterface
@@ -253,6 +253,11 @@ class ReaderActivity :
 		viewBinding.root.removeCallbacks(updateToastPositionRunnable)
 		afterUiRevealRunnable?.let { viewBinding.root.removeCallbacks(it) }
 		super.onDestroy()
+	}
+
+	override fun dispatchNavigateUp() {
+		viewModel.saveCurrentState(readerManager.currentReader?.getCurrentState())
+		super.dispatchNavigateUp()
 	}
 
 	override fun onPause() {
