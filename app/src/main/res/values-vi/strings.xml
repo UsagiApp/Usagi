@@ -488,7 +488,7 @@
     <string name="day">Ngày</string>
     <string name="alternatives">Thay thế</string>
     <string name="empty_stats_text">Không có thống kê cho khoảng thời gian đã chọn</string>
-    <string name="migrate_confirmation">Manga \"%1$s\" từ \"%2$s\" sẽ bị thay thế bởi \"%3$s\" từ \"%4$s\" trong lịch sử và yêu tích (nếu có)</string>
+    <string name="migrate_confirmation">Manga \"%1$s\" từ \"%2$s\" sẽ bị thay thế bởi \"%3$s\" từ \"%4$s\" trong lịch sử và yêu thích (nếu có)</string>
     <string name="manga_migration">Sáp nhập manga</string>
     <string name="migrate">Sáp nhập</string>
     <string name="delete_read_chapters">Xoá các chương đã đọc</string>
