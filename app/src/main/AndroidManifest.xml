@@ -377,6 +377,10 @@
 			android:foregroundServiceType="dataSync"
 			android:label="@string/fixing_manga" />
 		<service
+			android:name="org.draken.usagi.alternatives.ui.MigrateSourceService"
+			android:foregroundServiceType="dataSync"
+			android:label="@string/migrating_favourites" />
+		<service
 			android:name="org.draken.usagi.local.ui.LocalIndexUpdateService"
 			android:label="@string/local_manga_processing" />
 		<service

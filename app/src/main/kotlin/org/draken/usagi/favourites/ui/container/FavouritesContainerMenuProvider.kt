@@ -9,6 +9,7 @@ import org.draken.usagi.core.nav.AppRouter
 
 class FavouritesContainerMenuProvider(
 	private val router: AppRouter,
+	private val onMigrate: () -> Unit,
 ) : MenuProvider {
 	override fun onCreateMenu(
 		menu: Menu,
@@ -21,6 +22,10 @@ class FavouritesContainerMenuProvider(
 		when (menuItem.itemId) {
 			R.id.action_manage -> {
 				router.openFavoriteCategories()
+			}
+
+			R.id.action_migrate -> {
+				onMigrate()
 			}
 
 			else -> {
