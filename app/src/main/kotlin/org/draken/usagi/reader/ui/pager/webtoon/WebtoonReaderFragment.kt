@@ -8,8 +8,8 @@ import android.view.ViewGroup.MarginLayoutParams
 import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isNotEmpty
 import androidx.core.view.updateLayoutParams
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,7 +25,6 @@ import org.draken.usagi.core.util.ext.observe
 import org.draken.usagi.core.util.ext.removeItemDecoration
 import org.draken.usagi.databinding.FragmentReaderWebtoonBinding
 import org.draken.usagi.reader.domain.PageLoader
-import org.draken.usagi.reader.ui.ReaderActivity
 import org.draken.usagi.reader.ui.ReaderState
 import org.draken.usagi.reader.ui.pager.BaseReaderAdapter
 import org.draken.usagi.reader.ui.pager.BaseReaderFragment
@@ -63,6 +62,18 @@ class WebtoonReaderFragment :
 			setHasFixedSize(true)
 			adapter = readerAdapter
 			addOnPageScrollListener(this@WebtoonReaderFragment)
+			addOnScrollListener(
+				object : RecyclerView.OnScrollListener() {
+					override fun onScrollStateChanged(
+						recyclerView: RecyclerView,
+						newState: Int,
+					) {
+						if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+							reportCurrentPage()
+						}
+					}
+				},
+			)
 			recyclerLifecycleDispatcher =
 				RecyclerViewLifecycleDispatcher().also {
 					addOnScrollListener(it)
@@ -136,7 +147,7 @@ class WebtoonReaderFragment :
 		firstVisiblePosition: Int,
 		lastVisiblePosition: Int,
 	) {
-		viewModel.onCurrentPageChanged(firstVisiblePosition, lastVisiblePosition)
+		reportCurrentPage()
 	}
 
 	override suspend fun onPagesChanged(
@@ -267,14 +278,28 @@ class WebtoonReaderFragment :
 	}
 
 	private fun RecyclerView.findCurrentPagePosition(): Int {
-		val loc = IntArray(2).also(::getLocationOnScreen)
-		val h = (activity as? ReaderActivity)?.touchHelper
-		val x = (h?.takeIf { it.downY > 0 }?.downX?.minus(loc[0])) ?: (width / 2f)
-		val y = (h?.takeIf { it.downY > 0 }?.downY?.minus(loc[1])) ?: (height - 1f)
-		val view =
-			findChildViewUnder(x, y)
-				?: if (isNotEmpty()) getChildAt(childCount - 1) else return RecyclerView.NO_POSITION
-		return getChildAdapterPosition(view)
+		val lm = layoutManager as? LinearLayoutManager ?: return RecyclerView.NO_POSITION
+		val first = lm.findFirstVisibleItemPosition()
+		val last = lm.findLastVisibleItemPosition()
+		if (first == RecyclerView.NO_POSITION || last == RecyclerView.NO_POSITION) {
+			return RecyclerView.NO_POSITION
+		}
+		return when {
+			!canScrollVertically(1) -> last
+			!canScrollVertically(-1) -> first
+			else -> (first + last) / 2
+		}
+	}
+
+	private fun reportCurrentPage() {
+		val rv = viewBinding?.recyclerView ?: return
+		val lm = rv.layoutManager as? LinearLayoutManager ?: return
+		val last = lm.findLastVisibleItemPosition()
+		val current = rv.findCurrentPagePosition()
+		if (last == RecyclerView.NO_POSITION || current == RecyclerView.NO_POSITION) {
+			return
+		}
+		viewModel.onCurrentPageChanged(current, last)
 	}
 
 	private fun TextView.updateFeedback(progress: Float) {

@@ -616,7 +616,7 @@ class ReaderViewModel
 			}
 			val pagePercent = (pageIndex + 1) / pagesCount.toFloat()
 			val ppc = 1f / chaptersCount
-			return ppc * chapterIndex + ppc * pagePercent
+			return (ppc * chapterIndex + ppc * pagePercent).coerceAtMost(1f)
 		}
 
 		private fun observeIsWebtoonZoomEnabled() =

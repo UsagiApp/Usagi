@@ -214,6 +214,8 @@ class WebtoonRecyclerView
 		private class WebtoonScrollDispatcher {
 			private var firstPos = NO_POSITION
 			private var lastPos = NO_POSITION
+			private var atTop = false
+			private var atBottom = false
 
 			fun dispatchScroll(
 				rv: WebtoonRecyclerView,
@@ -227,9 +229,17 @@ class WebtoonRecyclerView
 				}
 				val newFirstPos = lm.findFirstVisibleItemPosition()
 				val newLastPos = lm.findLastVisibleItemPosition()
-				if (newFirstPos != firstPos || newLastPos != lastPos) {
+				val newAtTop = !rv.canScrollVertically(-1)
+				val newAtBottom = !rv.canScrollVertically(1)
+				if (newFirstPos != firstPos ||
+					newLastPos != lastPos ||
+					newAtTop != atTop ||
+					newAtBottom != atBottom
+				) {
 					firstPos = newFirstPos
 					lastPos = newLastPos
+					atTop = newAtTop
+					atBottom = newAtBottom
 					if (newFirstPos != NO_POSITION && newLastPos != NO_POSITION) {
 						rv.onPageScrollListeners.forEach { it.onScrollChanged(rv, dy, newFirstPos, newLastPos) }
 					}

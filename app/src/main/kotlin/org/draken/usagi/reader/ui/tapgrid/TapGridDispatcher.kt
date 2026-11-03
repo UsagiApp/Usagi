@@ -35,8 +35,8 @@ class TapGridDispatcher(
 	private val rootLoc = IntArray(2)
 	private val touchSlopSq = ViewConfiguration.get(rootView.context).scaledTouchSlop.let { it * it }
 	private var active = false
-	var downX = 0f
-	var downY = 0f
+	private var downX = 0f
+	private var downY = 0f
 
 	fun dispatchTouchEvent(e: MotionEvent) {
 		val mouse = e.getToolType(0) == TOOL_TYPE_MOUSE && e.source and SOURCE_MOUSE != 0
