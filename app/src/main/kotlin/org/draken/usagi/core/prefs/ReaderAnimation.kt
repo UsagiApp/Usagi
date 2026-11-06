@@ -8,4 +8,5 @@ enum class ReaderAnimation {
 	NONE,
 	DEFAULT,
 	ADVANCED,
+	BEST_APPEARANCE,
 }

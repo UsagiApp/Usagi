@@ -76,6 +76,8 @@ abstract class BaseReaderFragment<B : ViewBinding> :
 
 	protected fun isAnimationEnabled(): Boolean = context?.isAnimationsEnabled == true && viewModel.pageAnimation.value != ReaderAnimation.NONE
 
+	protected fun isCurlEnabled(): Boolean = isAnimationEnabled() && viewModel.pageAnimation.value == ReaderAnimation.BEST_APPEARANCE
+
 	abstract fun switchPageBy(delta: Int)
 
 	abstract fun switchPageTo(

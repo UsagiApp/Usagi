@@ -28,6 +28,8 @@ import org.draken.usagi.core.util.ext.resetTransformations
 import org.draken.usagi.databinding.FragmentReaderPagerBinding
 import org.draken.usagi.reader.domain.PageLoader
 import org.draken.usagi.reader.ui.ReaderState
+import org.draken.usagi.reader.ui.pager.curl.PageCurlController
+import org.draken.usagi.reader.ui.pager.curl.PagerCurlScene
 import org.draken.usagi.reader.ui.pager.standard.NoAnimPageTransformer
 import org.draken.usagi.reader.ui.pager.standard.PageAnimTransformer
 import org.draken.usagi.reader.ui.pager.standard.PageHolder
@@ -48,6 +50,7 @@ abstract class BasePagerReaderFragment :
 	lateinit var pageLoader: PageLoader
 
 	private var pagerLifecycleDispatcher: PagerLifecycleDispatcher? = null
+	private var pageCurl: PageCurlController? = null
 
 	override fun onCreateViewBinding(
 		inflater: LayoutInflater,
@@ -72,13 +75,17 @@ abstract class BasePagerReaderFragment :
 					registerOnPageChangeCallback(it)
 				}
 			adapter = readerAdapter
+			recyclerView?.let { rv ->
+				pageCurl =
+					PageCurlController(this, rv, PagerCurlScene(this), ::isCurlEnabled).also { it.attach() }
+			}
 		}
 
 		viewModel.pageAnimation.observe(viewLifecycleOwner) {
 			val transformer =
 				when (it) {
 					ReaderAnimation.NONE -> NoAnimPageTransformer(binding.pager.orientation)
-					ReaderAnimation.DEFAULT -> null
+					ReaderAnimation.DEFAULT, ReaderAnimation.BEST_APPEARANCE -> null
 					ReaderAnimation.ADVANCED -> onCreateAdvancedTransformer()
 				}
 			binding.pager.setPageTransformer(transformer)
@@ -91,6 +98,8 @@ abstract class BasePagerReaderFragment :
 	}
 
 	override fun onDestroyView() {
+		pageCurl?.detach()
+		pageCurl = null
 		pagerLifecycleDispatcher = null
 		requireViewBinding().pager.adapter = null
 		super.onDestroyView()
@@ -160,6 +169,7 @@ abstract class BasePagerReaderFragment :
 		)
 
 	override fun switchPageBy(delta: Int) {
+		if (delta.absoluteValue == 1 && pageCurl?.turn(delta) == true) return
 		with(requireViewBinding().pager) {
 			setCurrentItem(currentItem + delta, isAnimationEnabled())
 		}

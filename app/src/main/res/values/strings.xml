@@ -491,6 +491,7 @@
     <string name="too_many_requests_message_retry">Too many requests. Try again after %s</string>
     <string name="related_manga_summary">Show a list of related manga. In some cases it may be inaccurate or missing</string>
     <string name="advanced">Advanced</string>
+    <string name="best_appearance">Best appearance</string>
     <string name="manga_list">Manga list</string>
     <string name="error_corrupted_file">Invalid data is returned or file is corrupted</string>
     <string name="on_device">On device</string>
