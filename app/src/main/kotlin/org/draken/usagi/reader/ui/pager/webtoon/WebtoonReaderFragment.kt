@@ -8,8 +8,8 @@ import android.view.ViewGroup.MarginLayoutParams
 import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isNotEmpty
 import androidx.core.view.updateLayoutParams
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -267,14 +267,12 @@ class WebtoonReaderFragment :
 	}
 
 	private fun RecyclerView.findCurrentPagePosition(): Int {
-		val loc = IntArray(2).also(::getLocationOnScreen)
-		val h = (activity as? ReaderActivity)?.touchHelper
-		val x = (h?.takeIf { it.downY > 0 }?.downX?.minus(loc[0])) ?: (width / 2f)
-		val y = (h?.takeIf { it.downY > 0 }?.downY?.minus(loc[1])) ?: (height - 1f)
-		val view =
-			findChildViewUnder(x, y)
-				?: if (isNotEmpty()) getChildAt(childCount - 1) else return RecyclerView.NO_POSITION
-		return getChildAdapterPosition(view)
+		val last = (layoutManager as? LinearLayoutManager)?.findLastVisibleItemPosition() ?: return RecyclerView.NO_POSITION
+		val t = (activity as? ReaderActivity)?.touchHelper?.takeIf { it.downY > 0f } ?: return last
+		val (x, y) = IntArray(2).also(::getLocationOnScreen)
+		val view = findChildViewUnder(t.downX - x, t.downY - y)
+		t.downY = 0f
+		return view?.let(::getChildAdapterPosition)?.takeIf { it != RecyclerView.NO_POSITION } ?: last
 	}
 
 	private fun TextView.updateFeedback(progress: Float) {

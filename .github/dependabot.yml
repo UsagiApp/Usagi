@@ -18,14 +18,16 @@ updates:
             -   dependency-name: "androidx.hilt:hilt-work"
             -   dependency-name: "androidx.activity:activity-ktx"
             -   dependency-name: "androidx.biometric:biometric"
-            -   dependency-name: "org.conscrypt:conscrypt-android"
-                
+            # Keep compatible with A5
+            -   dependency-name: "io.coil-kt.coil3:*"
+            -   dependency-name: "com.google.android.material:material"
+
     -   package-ecosystem: "github-actions"
         directory: "/"
         schedule:
             interval: "weekly"
             day: "monday"
-        open-pull-requests-limit: 5
+        open-pull-requests-limit: 20
         labels:
             - "dependencies"
             - "github-actions"

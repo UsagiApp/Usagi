@@ -25,7 +25,7 @@ class TapGridDispatcher(
 
 	private val layoutChangeListener =
 		View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-			active = false
+			active = false.also { downY = 0f }
 		}
 
 	init {
@@ -45,7 +45,7 @@ class TapGridDispatcher(
 				active = listener.onProcessTouch(e.rawX.toInt(), e.rawY.toInt())
 				if (mouse) {
 					downX = e.rawX
-					downY = e.rawY
+					downY = if (active) e.rawY else 0f
 					return
 				}
 			}
@@ -54,14 +54,14 @@ class TapGridDispatcher(
 				if (mouse && active) {
 					val dx = e.rawX - downX
 					val dy = e.rawY - downY
-					if (dx * dx + dy * dy <= touchSlopSq) tap(e.rawX, e.rawY)
+					if (dx * dx + dy * dy <= touchSlopSq) tap(e.rawX, e.rawY) else downY = 0f
 					return
 				}
 			}
 
 			ACTION_CANCEL -> {
 				active = false
-				if (mouse) return
+				if (mouse) return run { downY = 0f }
 			}
 		}
 		detector.onTouchEvent(e)
@@ -83,15 +83,14 @@ class TapGridDispatcher(
 		if (!active) return
 		downX = e.rawX
 		downY = e.rawY
-		getArea(e.rawX, e.rawY)?.let(listener::onGridLongTouch)
+		getArea(e.rawX, e.rawY)?.let(listener::onGridLongTouch).also { downY = 0f }
 	}
 
 	private fun tap(
 		rawX: Float,
 		rawY: Float,
 	): Boolean {
-		val area = getArea(rawX, rawY) ?: return false
-		return listener.onGridTouch(area)
+		return (getArea(rawX, rawY)?.let(listener::onGridTouch) ?: false).also { downY = 0f }
 	}
 
 	private fun getArea(
