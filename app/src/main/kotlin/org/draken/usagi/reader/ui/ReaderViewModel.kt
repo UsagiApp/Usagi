@@ -381,8 +381,7 @@ class ReaderViewModel
 					if (pages.size != content.value.pages.size) {
 						return@launchJob // TODO
 					}
-					val centerPos = (lowerPos + upperPos) / 2
-					pages.getOrNull(centerPos)?.let { page ->
+					pages.getOrNull(upperPos)?.let { page ->
 						readingState.update { cs ->
 							cs?.copy(chapterId = page.chapterId, page = page.index)
 						}
