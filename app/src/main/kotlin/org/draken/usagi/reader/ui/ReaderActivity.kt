@@ -1,4 +1,4 @@
-﻿package org.draken.usagi.reader.ui
+package org.draken.usagi.reader.ui
 
 import android.app.assist.AssistContent
 import android.content.DialogInterface
@@ -218,7 +218,10 @@ class ReaderActivity :
 		viewModel.onShowToast.observeEvent(this) { msgId ->
 			Snackbar
 				.make(viewBinding.container, msgId, Snackbar.LENGTH_SHORT)
-				.setAnchorView(viewBinding.toolbarDocked)
+				.apply {
+					val anchor = viewBinding.toolbarDocked
+					if (anchor != null && isToolbarDockedShown) anchorView = anchor
+				}
 				.show()
 		}
 		viewModel.readerSettingsProducer.observe(this) {
@@ -253,11 +256,6 @@ class ReaderActivity :
 		viewBinding.root.removeCallbacks(updateToastPositionRunnable)
 		afterUiRevealRunnable?.let { viewBinding.root.removeCallbacks(it) }
 		super.onDestroy()
-	}
-
-	override fun dispatchNavigateUp() {
-		viewModel.saveCurrentState(readerManager.currentReader?.getCurrentState())
-		super.dispatchNavigateUp()
 	}
 
 	override fun onPause() {
@@ -602,7 +600,10 @@ class ReaderActivity :
 						R.string.screen_rotation_unlocked
 					},
 					Snackbar.LENGTH_SHORT,
-				).setAnchorView(viewBinding.toolbarDocked)
+				).apply {
+					val anchor = viewBinding.toolbarDocked
+					if (anchor != null && isToolbarDockedShown) anchorView = anchor
+				}
 				.show()
 		}
 	}
