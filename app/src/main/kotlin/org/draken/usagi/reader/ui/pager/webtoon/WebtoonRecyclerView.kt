@@ -248,12 +248,10 @@ class WebtoonRecyclerView
 
 			override fun onPull(deltaDistance: Float) {
 				val sign =
-					if (direction == DIRECTION_TOP) {
-						1f
-					} else if (direction == DIRECTION_BOTTOM) {
-						1f
-					} else {
-						0f
+					when (direction) {
+						DIRECTION_TOP -> 1f
+						DIRECTION_BOTTOM -> 1f
+						else -> 0f
 					}
 				if (sign != 0f) onPull(deltaDistance, 0.5f)
 			}

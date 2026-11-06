@@ -633,7 +633,7 @@ class DetailsActivity :
 			if (info.percent <= 0f) {
 				null
 			} else {
-				val displayPercent = if (ReadingProgress.isCompleted(info.percent)) 100 else (info.percent * 100f).toInt()
+				val displayPercent = if (ReadingProgress.isCompleted(info.percent)) 100 else (info.percent * 100f).roundToInt()
 				getString(R.string.percent_string_pattern, displayPercent.toString())
 			}
 		progress.setProgressCompat((progress.max * info.percent.coerceIn(0f, 1f)).roundToInt(), true)
