@@ -954,4 +954,7 @@
     <string name="hold_scroll_middle_left">Au milieu à gauche</string>
     <string name="hold_scroll_middle_right">Au milieu à droite</string>
     <string name="hold_scroll_bottom_row">Rangée du bas</string>
+    <string name="excluded_tags">Exclure les balises de tous les mangas</string>
+    <string name="excluded_tags_summary">Les mangas comportant l\'un de ces mots-clés n\'apparaîtront pas dans les listes de sources, les résultats de recherche ni parmi les mangas associés</string>
+    <string name="excluded_tags_empty">Aucune balise n\'est exclue</string>
 </resources>
