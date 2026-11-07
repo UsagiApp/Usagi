@@ -18,7 +18,7 @@ jobs:
                     submodules: recursive
 
             -   name: Set up JDK 🚀
-                uses: actions/setup-java@816722acf8fd27c9d1e9ae6ee6085da07e0d44c1 # v5.2.0
+                uses: actions/setup-java@8cd57eb6819cd70d5d2c135495e695b28eeffee0 # v5.2.0
                 with:
                     distribution: 'temurin'
                     java-version: '21'
