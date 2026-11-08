@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.Outline
 import android.util.AttributeSet
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.AttrRes
@@ -19,6 +20,7 @@ import org.draken.usagi.core.prefs.ProgressIndicatorMode.PERCENT_READ
 import org.draken.usagi.core.util.ext.getAnimationDuration
 import org.draken.usagi.list.domain.ReadingProgress
 import org.draken.usagi.list.domain.ReadingProgress.Companion.PROGRESS_NONE
+import kotlin.math.roundToInt
 
 class ReadingProgressView
 	@JvmOverloads
@@ -35,6 +37,9 @@ class ReadingProgressView
 
 		@StyleRes
 		private val drawableStyle: Int
+		private val sizeFraction: Float
+		private val minSize: Int
+		private val maxSize: Int
 
 		var progress: ReadingProgress? = null
 			set(value) {
@@ -42,26 +47,16 @@ class ReadingProgressView
 				cancelAnimation()
 				getProgressDrawable().also {
 					it.percent = value?.percent ?: PROGRESS_NONE
-					it.text =
-						when (value?.mode) {
-							null,
-							NONE,
-							-> ""
-
-							PERCENT_READ -> percentPattern.format(ReadingProgress.percentToString(value.percent))
-
-							PERCENT_LEFT -> "-" + percentPattern.format(ReadingProgress.percentToString(value.percentLeft))
-
-							CHAPTERS_READ -> value.chapters.toString()
-
-							CHAPTERS_LEFT -> "-" + value.chaptersLeft.toString()
-						}
+					it.text = value.getDisplayText(percentPattern)
 				}
 			}
 
 		init {
 			val ta = context.obtainStyledAttributes(attrs, R.styleable.ReadingProgressView, defStyleAttr, 0)
 			drawableStyle = ta.getResourceId(R.styleable.ReadingProgressView_progressStyle, R.style.ProgressDrawable)
+			sizeFraction = ta.getFloat(R.styleable.ReadingProgressView_sizeFraction, 0f)
+			minSize = ta.getDimensionPixelSize(R.styleable.ReadingProgressView_android_minWidth, 0)
+			maxSize = ta.getDimensionPixelSize(R.styleable.ReadingProgressView_android_maxWidth, Int.MAX_VALUE)
 			ta.recycle()
 			outlineProvider = OutlineProvider()
 			if (isInEditMode) {
@@ -72,6 +67,20 @@ class ReadingProgressView
 						mode = PERCENT_READ,
 					)
 			}
+		}
+
+		override fun onMeasure(
+			widthMeasureSpec: Int,
+			heightMeasureSpec: Int,
+		) {
+			if (sizeFraction <= 0f || MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.UNSPECIFIED) {
+				super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+				return
+			}
+			val lp = layoutParams as? ViewGroup.MarginLayoutParams
+			val available = MeasureSpec.getSize(widthMeasureSpec) + (lp?.leftMargin ?: 0) + (lp?.rightMargin ?: 0)
+			val size = (available * sizeFraction).roundToInt().coerceIn(minSize, maxSize)
+			setMeasuredDimension(size, size)
 		}
 
 		override fun onDetachedFromWindow() {
@@ -160,4 +169,19 @@ class ReadingProgressView
 				outline.setOval(0, 0, view.width, view.height)
 			}
 		}
+	}
+
+fun ReadingProgress?.getDisplayText(percentPattern: String): String =
+	when (this?.mode) {
+		null,
+		NONE,
+		-> ""
+
+		PERCENT_READ -> percentPattern.format(ReadingProgress.percentToString(percent))
+
+		PERCENT_LEFT -> "-" + percentPattern.format(ReadingProgress.percentToString(percentLeft))
+
+		CHAPTERS_READ -> chapters.toString()
+
+		CHAPTERS_LEFT -> "-" + chaptersLeft.toString()
 	}

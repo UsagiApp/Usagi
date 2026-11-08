@@ -33,4 +33,6 @@
 	<color name="background_sakura">#FFF8F8</color>
 	<color name="background_mamimi">#FFF8F7</color>
 	<color name="background_kanade">#F3F3F3</color>
+
+	<color name="theme_seed_default">#3949AB</color>
 </resources>

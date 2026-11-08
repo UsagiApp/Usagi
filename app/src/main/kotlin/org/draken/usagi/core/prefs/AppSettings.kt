@@ -7,9 +7,11 @@ import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.collection.ArraySet
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.os.LocaleListCompat
 import androidx.documentfile.provider.DocumentFile
@@ -56,6 +58,7 @@ class AppSettings
 		private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 		private val connectivityManager = context.connectivityManager
 		private val mangaListBadgesDefault = ArraySet(context.resources.getStringArray(R.array.values_list_badges))
+		private val themeSeedDefault = ContextCompat.getColor(context, R.color.theme_seed_default)
 
 		// For first launch
 		var isFirstLaunch: Boolean
@@ -76,6 +79,17 @@ class AppSettings
 
 		val isAmoledTheme: Boolean
 			get() = prefs.getBoolean(KEY_THEME_AMOLED, false)
+
+		val isExpressiveComponents: Boolean
+			get() = prefs.getBoolean(KEY_EXPRESSIVE_COMPONENTS, false)
+
+		val paletteStyle: PaletteStyle
+			get() = prefs.getEnumValue(KEY_PALETTE_STYLE, PaletteStyle.SYSTEM)
+
+		@get:ColorInt
+		var customThemeColor: Int
+			get() = prefs.getInt(KEY_CUSTOM_THEME_COLOR, themeSeedDefault)
+			set(value) = prefs.edit { putInt(KEY_CUSTOM_THEME_COLOR, value) }
 
 		var mainNavItems: List<NavItem>
 			get() {
@@ -809,8 +823,17 @@ class AppSettings
 			}
 		}
 
+		private fun migrateExpressiveColorScheme() {
+			if (prefs.getString(KEY_COLOR_THEME, null) != "EXPRESSIVE") return
+			prefs.edit {
+				putString(KEY_COLOR_THEME, ColorScheme.MONET.name)
+				putBoolean(KEY_EXPRESSIVE_COMPONENTS, true)
+			}
+		}
+
 		init {
 			migrateBackdropBlur()
+			migrateExpressiveColorScheme()
 		}
 
 		companion object {
@@ -826,6 +849,9 @@ class AppSettings
 			const val KEY_THEME = "theme"
 			const val KEY_COLOR_THEME = "color_theme"
 			const val KEY_THEME_AMOLED = "amoled_theme"
+			const val KEY_EXPRESSIVE_COMPONENTS = "expressive_components"
+			const val KEY_PALETTE_STYLE = "palette_style"
+			const val KEY_CUSTOM_THEME_COLOR = "custom_theme_color"
 			const val KEY_OFFLINE_DISABLED = "no_offline"
 			const val KEY_PAGES_CACHE_CLEAR = "pages_cache_clear"
 			const val KEY_HTTP_CACHE_CLEAR = "http_cache_clear"

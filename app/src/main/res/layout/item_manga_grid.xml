@@ -29,10 +29,13 @@
 
 		<org.draken.usagi.history.ui.util.ReadingProgressView
 			android:id="@+id/progressView"
-			android:layout_width="@dimen/card_indicator_size"
-			android:layout_height="@dimen/card_indicator_size"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
 			android:layout_gravity="bottom|end"
-			android:layout_margin="@dimen/card_indicator_offset" />
+			android:layout_margin="@dimen/card_indicator_offset"
+			android:maxWidth="48dp"
+			android:minWidth="24dp"
+			app:sizeFraction="0.36" />
 
 		<org.draken.usagi.core.ui.widgets.IconsView
 			android:id="@+id/iconsView"
@@ -44,7 +47,9 @@
 			android:orientation="horizontal"
 			android:padding="4dp"
 			app:iconSize="14dp"
-			app:iconSpacing="4dp" />
+			app:iconSizeFraction="0.16"
+			app:iconSpacing="4dp"
+			app:maxIconSize="24dp" />
 
 		<org.draken.usagi.core.ui.widgets.BadgeView
 			android:id="@+id/badge"

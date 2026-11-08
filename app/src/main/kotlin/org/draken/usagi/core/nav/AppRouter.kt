@@ -97,6 +97,7 @@ import org.draken.usagi.settings.sources.catalog.SourcesCatalogActivity
 import org.draken.usagi.settings.storage.MangaDirectorySelectDialog
 import org.draken.usagi.settings.storage.directories.MangaDirectoriesActivity
 import org.draken.usagi.settings.tracker.categories.TrackerCategoriesConfigSheet
+import org.draken.usagi.settings.utils.ThemeColorDialog
 import org.draken.usagi.stats.ui.StatsActivity
 import org.draken.usagi.stats.ui.sheet.MangaStatsSheet
 import org.draken.usagi.suggestions.ui.SuggestionsActivity
@@ -423,6 +424,10 @@ class AppRouter private constructor(
 
 	fun showDirectorySelectDialog() {
 		MangaDirectorySelectDialog().showDistinct()
+	}
+
+	fun showThemeColorDialog() {
+		ThemeColorDialog().showDistinct()
 	}
 
 	fun showFavoriteDialog(manga: Manga) = showFavoriteDialog(setOf(manga))

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:paddingTop="8dp">
+
+		<HorizontalScrollView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:clipToPadding="false"
+			android:paddingHorizontal="?dialogPreferredPadding"
+			android:scrollbars="none">
+
+			<LinearLayout
+				android:id="@+id/layout_swatches"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal" />
+
+		</HorizontalScrollView>
+
+		<org.draken.usagi.core.ui.widgets.HsvColorPickerView
+			android:id="@+id/picker"
+			android:layout_width="match_parent"
+			android:layout_height="220dp"
+			android:layout_marginHorizontal="?dialogPreferredPadding"
+			android:layout_marginTop="12dp" />
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="12dp"
+			android:gravity="center_vertical"
+			android:orientation="horizontal"
+			android:paddingHorizontal="?dialogPreferredPadding">
+
+			<org.draken.usagi.core.ui.widgets.ShapeView
+				android:id="@+id/view_preview"
+				android:layout_width="@dimen/color_swatch_size"
+				android:layout_height="@dimen/color_swatch_size"
+				app:cornerSize="20dp"
+				app:strokeColor="?colorOutline"
+				app:strokeWidth="1dp" />
+
+			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/layout_hex"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="16dp"
+				android:layout_weight="1"
+				android:hint="@string/hex_code"
+				app:prefixText="#">
+
+				<com.google.android.material.textfield.TextInputEditText
+					android:id="@+id/edit_hex"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:digits="0123456789abcdefABCDEF"
+					android:imeOptions="actionDone"
+					android:inputType="textCapCharacters|textNoSuggestions"
+					android:maxLength="6"
+					android:singleLine="true" />
+
+			</com.google.android.material.textfield.TextInputLayout>
+
+		</LinearLayout>
+
+	</LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

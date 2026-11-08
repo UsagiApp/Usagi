@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -18,7 +19,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:ellipsize="marquee"
-		android:labelFor="@id/scrollView"
+		android:labelFor="@id/recyclerView"
 		android:paddingStart="?android:attr/listPreferredItemPaddingStart"
 		android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
 		android:singleLine="true"
@@ -26,24 +27,17 @@
 		tools:ignore="LabelFor"
 		tools:text="@string/color_theme" />
 
-	<HorizontalScrollView
-		android:id="@+id/scrollView"
+	<androidx.recyclerview.widget.RecyclerView
+		android:id="@+id/recyclerView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="4dp"
 		android:clipToPadding="false"
-		android:descendantFocusability="blocksDescendants"
-		android:scrollbars="none">
-
-		<LinearLayout
-			android:id="@+id/linear"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:orientation="horizontal"
-			android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-			android:paddingEnd="?android:attr/listPreferredItemPaddingEnd" />
-
-	</HorizontalScrollView>
+		android:orientation="horizontal"
+		android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+		android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+		android:scrollbars="none"
+		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 	<TextView
 		android:id="@android:id/summary"

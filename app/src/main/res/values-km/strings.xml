@@ -371,7 +371,6 @@
     <string name="enable_logging_summary">កត់ត្រាសកម្មភាពមួយចំនួនសម្រាប់ការបំបាត់កំហុស។ មិនត្រូវបើកទេ ប្រសិនបើមិនប្រាកដថាកំពុងធ្វើអ្វី</string>
     <string name="show_suspicious_content">បង្ហាញខ្លឹមសារគួរឱ្យសង្ស័យ</string>
     <string name="theme_name_dynamic">ឌីណាមិក</string>
-    <string name="theme_name_expressive">បង្ហាញអារម្មណ៍ (សាកល្បង)</string>
     <string name="color_theme">ពណ៌ស្គីម</string>
     <string name="show_in_grid_view">បង្ហាញក្នុងទិដ្ឋភាពក្រឡា</string>
     <string name="theme_name_miku">Miku</string>

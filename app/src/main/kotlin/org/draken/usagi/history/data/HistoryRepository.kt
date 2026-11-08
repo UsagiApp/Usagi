@@ -162,12 +162,7 @@ class HistoryRepository
 			mode: ProgressIndicatorMode,
 		): ReadingProgress? {
 			val entity = db.getHistoryDao().find(mangaId) ?: return null
-			val fixedPercent = if (ReadingProgress.isCompleted(entity.percent)) 1f else entity.percent
-			return ReadingProgress(
-				percent = fixedPercent,
-				totalChapters = entity.chaptersCount,
-				mode = mode,
-			).takeIf { it.isValid() }
+			return ReadingProgress.of(entity.percent, entity.chaptersCount, mode)
 		}
 
 		suspend fun clear() {

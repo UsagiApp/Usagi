@@ -816,7 +816,6 @@
     <string name="manga_override_hint">Estos cambios afectarán a la forma en que se muestra el manga en la aplicación</string>
     <string name="pick_manga_page">Seleccionar página</string>
     <string name="incognito_for_nsfw">Modo incógnito para manga NSFW</string>
-    <string name="theme_name_expressive">Expresivo (Prueba)</string>
     <string name="additional_action_required">Se requieren medidas adicionales</string>
     <string name="hide_from_main_screen">Ocultar de la pantalla principal</string>
     <string name="changelog">Registro de cambios</string>

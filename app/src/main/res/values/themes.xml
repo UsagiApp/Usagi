@@ -93,8 +93,10 @@
 	<!-- Monet theme only support S+ -->
 	<style name="ThemeOverlay.Usagi.Monet" parent="ThemeOverlay.Material3.DynamicColors.Light" />
 
+	<style name="ThemeOverlay.Usagi.Custom" />
+
 	<!-- Expressive Monet theme -->
-	<style name="ThemeOverlay.Usagi.Expressive" parent="ThemeOverlay.Material3Expressive.DynamicColors.DayNight">
+	<style name="ThemeOverlay.Usagi.Expressive" parent="">
 		<item name="alertDialogTheme">@style/ThemeOverlay.Material3Expressive.Dialog.Alert</item>
 		<item name="materialAlertDialogTheme">@style/ThemeOverlay.Material3Expressive.MaterialAlertDialog</item>
 
@@ -171,7 +173,6 @@
 
 		<item name="actionBarSize">@dimen/m3_comp_app_bar_small_container_height</item>
 
-		<item name="dynamicColorThemeOverlay">@style/ThemeOverlay.Material3Expressive.DynamicColors.DayNight</item>
 	</style>
 
 	<!-- Changes only for night -->
