@@ -22,6 +22,7 @@ import org.draken.usagi.core.util.ext.call
 import org.draken.usagi.core.util.ext.printStackTraceDebug
 import org.draken.usagi.core.util.ext.require
 import org.draken.usagi.list.domain.MangaListMapper
+import org.draken.usagi.list.domain.MangaTagsEnricher
 import org.draken.usagi.list.ui.MangaListViewModel
 import org.draken.usagi.list.ui.model.EmptyState
 import org.draken.usagi.list.ui.model.LoadingState
@@ -39,6 +40,7 @@ class RelatedListViewModel
 		mangaRepositoryFactory: MangaRepository.Factory,
 		settings: AppSettings,
 		private val mangaListMapper: MangaListMapper,
+		private val tagsEnricher: MangaTagsEnricher,
 		mangaDataRepository: MangaDataRepository,
 		@LocalStorageChanges localStorageChanges: SharedFlow<LocalManga?>,
 	) : MangaListViewModel(settings, mangaDataRepository, localStorageChanges) {
@@ -83,7 +85,12 @@ class RelatedListViewModel
 			return launchLoadingJob(Dispatchers.Default) {
 				try {
 					listError.value = null
-					mangaList.value = repository.getRelated(seed)
+					mangaList.value =
+						tagsEnricher.enrich(
+							repository = repository,
+							manga = repository.getRelated(seed),
+							exclusion = tagExclusion.value,
+						)
 				} catch (e: CancellationException) {
 					throw e
 				} catch (e: Throwable) {

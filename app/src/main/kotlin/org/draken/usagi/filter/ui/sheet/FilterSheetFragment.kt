@@ -2,17 +2,13 @@ package org.draken.usagi.filter.ui.sheet
 
 import android.os.Build
 import android.os.Bundle
-import android.text.InputFilter
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
-import android.widget.Toast
-import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -29,12 +25,9 @@ import kotlinx.coroutines.flow.map
 import org.draken.usagi.R
 import org.draken.usagi.core.model.titleResId
 import org.draken.usagi.core.nav.router
-import org.draken.usagi.core.ui.dialog.buildAlertDialog
-import org.draken.usagi.core.ui.dialog.setEditText
 import org.draken.usagi.core.ui.model.titleRes
 import org.draken.usagi.core.ui.sheet.BaseAdaptiveSheet
 import org.draken.usagi.core.ui.widgets.ChipsView
-import org.draken.usagi.core.util.AlphanumComparator
 import org.draken.usagi.core.util.ext.consume
 import org.draken.usagi.core.util.ext.getDisplayMessage
 import org.draken.usagi.core.util.ext.getDisplayName
@@ -44,9 +37,9 @@ import org.draken.usagi.core.util.ext.setValueRounded
 import org.draken.usagi.core.util.ext.setValuesRounded
 import org.draken.usagi.databinding.SheetFilterBinding
 import org.draken.usagi.filter.data.PersistableFilter
-import org.draken.usagi.filter.data.PersistableFilter.Companion.MAX_TITLE_LENGTH
 import org.draken.usagi.filter.ui.FilterCoordinator
 import org.draken.usagi.filter.ui.model.FilterProperty
+import org.draken.usagi.filter.ui.saved.SavedFilterActions
 import tsuki.model.ContentRating
 import tsuki.model.ContentType
 import tsuki.model.Demographic
@@ -54,10 +47,8 @@ import tsuki.model.MangaState
 import tsuki.model.MangaTag
 import tsuki.model.SortOrder
 import tsuki.model.YEAR_UNKNOWN
-import tsuki.util.mapToSet
 import tsuki.util.toIntUp
 import java.util.Locale
-import java.util.TreeSet
 
 class FilterSheetFragment :
 	BaseAdaptiveSheet<SheetFilterBinding>(),
@@ -66,6 +57,8 @@ class FilterSheetFragment :
 	ChipsView.OnChipClickListener,
 	ChipsView.OnChipLongClickListener,
 	ChipsView.OnChipCloseClickListener {
+	private lateinit var savedFilterActions: SavedFilterActions
+
 	override fun onCreateViewBinding(
 		inflater: LayoutInflater,
 		container: ViewGroup?,
@@ -80,6 +73,7 @@ class FilterSheetFragment :
 			binding.adjustForEmbeddedLayout()
 		}
 		val filter = FilterCoordinator.require(this)
+		savedFilterActions = SavedFilterActions(requireContext(), filter)
 		filter.sortOrder.observe(viewLifecycleOwner, this::onSortOrderChanged)
 		filter.locale.observe(viewLifecycleOwner, this::onLocaleChanged)
 		filter.originalLocale.observe(viewLifecycleOwner, this::onOriginalLocaleChanged)
@@ -162,7 +156,7 @@ class FilterSheetFragment :
 	override fun onClick(v: View) {
 		when (v.id) {
 			R.id.button_done -> dismiss()
-			R.id.button_save -> onSaveFilterClick("")
+			R.id.button_save -> savedFilterActions.showSaveDialog()
 		}
 	}
 
@@ -271,7 +265,7 @@ class FilterSheetFragment :
 			}
 
 			is PersistableFilter -> {
-				filter.setAdjusted(data.filter)
+				filter.applySavedFilter(data)
 			}
 
 			is String -> {
@@ -294,7 +288,7 @@ class FilterSheetFragment :
 	): Boolean =
 		when (data) {
 			is PersistableFilter -> {
-				showSavedFilterMenu(chip, data)
+				savedFilterActions.showMenu(chip, data)
 				true
 			}
 
@@ -309,7 +303,7 @@ class FilterSheetFragment :
 	) {
 		when (data) {
 			is PersistableFilter -> {
-				showSavedFilterMenu(chip, data)
+				savedFilterActions.showMenu(chip, data)
 			}
 		}
 	}
@@ -549,96 +543,5 @@ class FilterSheetFragment :
 				)
 			}
 		b.chipsSavedFilters.setChips(chips)
-	}
-
-	private fun showSavedFilterMenu(
-		anchor: View,
-		preset: PersistableFilter,
-	) {
-		val menu = PopupMenu(context ?: return, anchor)
-		val filter = FilterCoordinator.require(this)
-		menu.inflate(R.menu.popup_saved_filter)
-		menu.setOnMenuItemClickListener { menuItem ->
-			when (menuItem.itemId) {
-				R.id.action_delete -> filter.deleteSavedFilter(preset.id)
-				R.id.action_rename -> onRenameFilterClick(preset)
-			}
-			true
-		}
-		menu.show()
-	}
-
-	private fun onSaveFilterClick(name: String) {
-		val filter = FilterCoordinator.require(this)
-		val existingNames =
-			filter.savedFilters.value.availableItems
-				.mapTo(TreeSet(AlphanumComparator()), PersistableFilter::name)
-		buildAlertDialog(context ?: return) {
-			val input =
-				setEditText(
-					entries = existingNames.toList(),
-					inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES,
-					singleLine = true,
-				)
-			input.setHint(R.string.enter_name)
-			input.setText(name)
-			input.filters += InputFilter.LengthFilter(MAX_TITLE_LENGTH)
-			setTitle(R.string.save_filter)
-			setPositiveButton(R.string.save) { _, _ ->
-				val text = input.text?.toString()?.trim()
-				if (text.isNullOrEmpty()) {
-					Toast.makeText(context, R.string.invalid_value_message, Toast.LENGTH_SHORT).show()
-					onSaveFilterClick("")
-				} else if (text in existingNames) {
-					askForFilterOverwrite(filter, text)
-				} else {
-					filter.saveCurrentFilter(text)
-				}
-			}
-			setNegativeButton(android.R.string.cancel, null)
-		}.show()
-	}
-
-	private fun onRenameFilterClick(preset: PersistableFilter) {
-		val filter = FilterCoordinator.require(this)
-		val existingNames =
-			filter.savedFilters.value.availableItems
-				.mapToSet { it.name }
-		buildAlertDialog(context ?: return) {
-			val input =
-				setEditText(
-					inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES,
-					singleLine = true,
-				)
-			input.filters += InputFilter.LengthFilter(MAX_TITLE_LENGTH)
-			input.setHint(R.string.enter_name)
-			input.setText(preset.name)
-			setTitle(R.string.rename)
-			setPositiveButton(R.string.save) { _, _ ->
-				val text = input.text?.toString()?.trim()
-				if (text.isNullOrEmpty() || text in existingNames) {
-					Toast.makeText(context, R.string.invalid_value_message, Toast.LENGTH_SHORT).show()
-				} else {
-					filter.renameSavedFilter(preset.id, text)
-				}
-			}
-			setNegativeButton(android.R.string.cancel, null)
-		}.show()
-	}
-
-	private fun askForFilterOverwrite(
-		filter: FilterCoordinator,
-		name: String,
-	) {
-		buildAlertDialog(context ?: return) {
-			setTitle(R.string.save_filter)
-			setMessage(getString(R.string.filter_overwrite_confirm, name))
-			setPositiveButton(R.string.overwrite) { _, _ ->
-				filter.saveCurrentFilter(name)
-			}
-			setNegativeButton(android.R.string.cancel) { _, _ ->
-				onSaveFilterClick(name)
-			}
-		}.show()
 	}
 }

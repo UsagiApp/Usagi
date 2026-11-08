@@ -218,8 +218,10 @@ class ReaderActivity :
 		viewModel.onShowToast.observeEvent(this) { msgId ->
 			Snackbar
 				.make(viewBinding.container, msgId, Snackbar.LENGTH_SHORT)
-				.setAnchorView(viewBinding.toolbarDocked)
-				.show()
+				.apply {
+					val anchor = viewBinding.toolbarDocked
+					if (anchor != null && isToolbarDockedShown) anchorView = anchor
+				}.show()
 		}
 		viewModel.readerSettingsProducer.observe(this) {
 			viewBinding.infoBar.applyColorScheme(isBlackOnWhite = it.background.isLight(this))
@@ -597,8 +599,10 @@ class ReaderActivity :
 						R.string.screen_rotation_unlocked
 					},
 					Snackbar.LENGTH_SHORT,
-				).setAnchorView(viewBinding.toolbarDocked)
-				.show()
+				).apply {
+					val anchor = viewBinding.toolbarDocked
+					if (anchor != null && isToolbarDockedShown) anchorView = anchor
+				}.show()
 		}
 	}
 

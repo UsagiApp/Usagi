@@ -81,9 +81,13 @@ abstract class BasePreferenceFragment(
 		return insets.consumeAllSystemBarsInsets()
 	}
 
+	override fun onStart() {
+		super.onStart()
+		setTitle(if (titleId != 0) getString(titleId) else null)
+	}
+
 	override fun onResume() {
 		super.onResume()
-		setTitle(if (titleId != 0) getString(titleId) else null)
 		arguments?.getString(SettingsActivity.ARG_PREF_KEY)?.let {
 			focusPreference(it)
 			arguments?.remove(SettingsActivity.ARG_PREF_KEY)

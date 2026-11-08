@@ -79,10 +79,9 @@ data class MangaDetails(
 			.ifNullOrEmpty { localManga?.manga?.coverUrl }
 			?.nullIfEmpty()
 
-	fun getLocale(): Locale? {
-		findAppropriateLocale(chapters.keys.singleOrNull())?.let {
-			return it
-		}
+	fun getLocale(branch: String? = null): Locale? {
+		val key = branch ?: chapters.keys.singleOrNull()
+		findAppropriateLocale(key)?.let { return it }
 		return manga.source.getLocale()
 	}
 

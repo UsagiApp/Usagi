@@ -266,6 +266,7 @@ class WebtoonReaderFragment :
 		}
 	}
 
+	// TODO: Refactor this func.
 	private fun RecyclerView.findCurrentPagePosition(): Int {
 		val loc = IntArray(2).also(::getLocationOnScreen)
 		val h = (activity as? ReaderActivity)?.touchHelper

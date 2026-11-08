@@ -86,8 +86,8 @@ class NavConfigFragment :
 		return insets.consumeAllSystemBarsInsets()
 	}
 
-	override fun onResume() {
-		super.onResume()
+	override fun onStart() {
+		super.onStart()
 		(activity as? SettingsActivity)?.setSectionTitle(getString(R.string.main_screen_sections))
 	}
 

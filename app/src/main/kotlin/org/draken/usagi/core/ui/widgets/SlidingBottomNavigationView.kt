@@ -142,6 +142,7 @@ class SlidingBottomNavigationView
 			clearAnimation()
 
 			currentState = STATE_UP
+			super.setTranslationY(0f)
 			animateTranslation(
 				0F,
 				SLIDE_UP_ANIMATION_DURATION,

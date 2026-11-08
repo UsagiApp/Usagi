@@ -38,11 +38,15 @@ class SourceSettingsFragment :
 	@Inject
 	lateinit var extRuntime: ExtRuntime
 
-	override fun onResume() {
-		super.onResume()
+	override fun onStart() {
+		super.onStart()
 		context?.let { ctx ->
 			setTitle(viewModel.source.resolve().getTitle(ctx))
 		}
+	}
+
+	override fun onResume() {
+		super.onResume()
 		viewModel.onResume()
 	}
 

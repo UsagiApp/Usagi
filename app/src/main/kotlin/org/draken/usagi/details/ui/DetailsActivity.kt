@@ -218,7 +218,8 @@ class DetailsActivity :
 			)
 		}
 		val appRouter = router
-		viewModel.mangaDetails.filterNotNull().observe(this, ::onMangaUpdated)
+		combine(viewModel.mangaDetails.filterNotNull(), viewModel.selectedBranch) { d, b -> d to b }
+			.observe(this) { (d, b) -> onMangaUpdated(d, b) }
 		viewModel.coverUrl.observe(this, ::loadCover)
 		viewModel.backdropUrl.observe(this, ::loadLargeCover)
 		viewModel.onMangaRemoved.observeEvent(this, ::onMangaRemoved)
@@ -523,7 +524,10 @@ class DetailsActivity :
 		adapter.items = scrobblings
 	}
 
-	private fun onMangaUpdated(details: MangaDetails) {
+	private fun onMangaUpdated(
+		details: MangaDetails,
+		branch: String? = null,
+	) {
 		val manga = details.toManga()
 		with(viewBinding) {
 			textViewTitle.text = manga.title
@@ -533,7 +537,7 @@ class DetailsActivity :
 			textViewDescription.setTextSafely(details.description.ifNullOrEmpty { getString(R.string.no_description) })
 		}
 		with(infoBinding) {
-			val translation = details.getLocale()
+			val translation = details.getLocale(branch)
 			textViewTranslation.textAndVisible = translation?.getDisplayLanguage(translation)?.toTitleCase(translation)
 			textViewTranslation.drawableStart =
 				translation
