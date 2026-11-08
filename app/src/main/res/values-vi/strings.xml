@@ -494,6 +494,13 @@
     <string name="delete_read_chapters">Xoá các chương đã đọc</string>
     <string name="no_chapters_deleted">Không có chương nào bị xoá</string>
     <string name="migration_completed">Sáp nhập thành công</string>
+    <string name="migrate_sources">Sáp nhập nguồn</string>
+    <string name="migrate_from_source">Sáp nhập từ nguồn</string>
+    <string name="migrate_to_source">Sáp nhập vào nguồn</string>
+    <string name="migrate_favourites_prompt">%1$d bộ truyện sẽ được sáp nhập từ \"%2$s\" vào \"%3$s\" cùng với lịch sử và tiến độ đọc. Các bộ truyện không tìm thấy trên nguồn đích sẽ được giữ nguyên</string>
+    <string name="migrating_favourites">Đang sáp nhập truyện yêu thích</string>
+    <string name="migration_progress">Đã sáp nhập %1$d trên %2$d</string>
+    <string name="migration_summary">Đã sáp nhập: %1$d, không tìm thấy: %2$d, lỗi: %3$d</string>
     <string name="delete_read_chapters_prompt">Hành động này sẽ xoá tất cả các chương đã đọc trong bộ nhớ trong. Bạn có thể tải lại sau, nhưng những chương đã xoá có thể mất vĩnh viễn</string>
     <string name="email_password_enter_hint">Nhập email và mật khẩu để tiếp tục</string>
     <string name="unknown">Không rõ</string>

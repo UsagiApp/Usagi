@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
 import org.draken.usagi.R
 import org.draken.usagi.core.model.FavouriteCategory
+import org.draken.usagi.core.model.isManageableSource
 import org.draken.usagi.core.prefs.AppSettings
 import org.draken.usagi.core.prefs.observeAsFlow
 import org.draken.usagi.core.ui.BaseViewModel
@@ -18,8 +19,10 @@ import org.draken.usagi.core.ui.util.ReversibleAction
 import org.draken.usagi.core.ui.util.ReversibleHandle
 import org.draken.usagi.core.util.ext.MutableEventFlow
 import org.draken.usagi.core.util.ext.call
+import org.draken.usagi.explore.data.MangaSourcesRepository
 import org.draken.usagi.favourites.domain.FavouritesRepository
 import org.draken.usagi.favourites.ui.list.FavouritesListFragment.Companion.NO_ID
+import tsuki.model.MangaSource
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,6 +31,7 @@ class FavouritesContainerViewModel
 	constructor(
 		val settings: AppSettings,
 		private val favouritesRepository: FavouritesRepository,
+		private val sourcesRepository: MangaSourcesRepository,
 	) : BaseViewModel() {
 		val onActionDone = MutableEventFlow<ReversibleAction>()
 
@@ -83,6 +87,10 @@ class FavouritesContainerViewModel
 				favouritesRepository.removeCategories(setOf(categoryId))
 			}
 		}
+
+		suspend fun favouritesBySource(): Map<MangaSource, List<Long>> = favouritesRepository.getAllManga().groupBy({ it.source }, { it.id })
+
+		fun migrationTargets(excluded: MangaSource): List<MangaSource> = sourcesRepository.allMangaSources.filter { it.name != excluded.name && it.isManageableSource() }
 
 		private fun observeAllFavouritesVisibility() =
 			settings.observeAsFlow(
