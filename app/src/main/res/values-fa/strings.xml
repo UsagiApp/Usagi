@@ -350,7 +350,6 @@
     <string name="enable_logging_summary">ثبت برخی عمیات برای اهداف اشکال زدایی. اگه نمیدونی داری چیکار میکنی این گزینه رو روشن نکن</string>
     <string name="show_suspicious_content">نمایش محتوای مشکوک</string>
     <string name="theme_name_dynamic">پویا</string>
-    <string name="theme_name_expressive">صریح (تست)</string>
     <string name="color_theme">طرح رنگ</string>
     <string name="show_in_grid_view">نمایش به حالت شبکه ای</string>
     <string name="theme_name_miku">میکو</string>

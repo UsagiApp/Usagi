@@ -816,7 +816,6 @@
     <string name="pick_custom_file">Выбрать пользовательский файл</string>
     <string name="page_switch_timer">Страница будет меняться каждые ~%d секунд</string>
     <string name="expand">Расширять</string>
-    <string name="theme_name_expressive">Выразительный (Тест)</string>
     <string name="additional_action_required">Требуются дополнительные действия</string>
     <string name="hide_from_main_screen">Скрыть с главного экрана</string>
     <string name="collapse_long_description">Свернуть длинное описание</string>

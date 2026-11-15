@@ -811,7 +811,6 @@
     <string name="incognito_for_nsfw">Режим нечувања за NSFW манге</string>
     <string name="additional_action_required">Потребна је додатна радња</string>
     <string name="use_default_cover">Користи подразумевану корицу</string>
-    <string name="theme_name_expressive">Експресивно (Тест)</string>
     <string name="incognito_mode_hint_nsfw">Ова манга може да садржи садржај за одрасле. Да ли желите да користите режим „нечувања“?</string>
     <string name="manga_override_hint">Ове промене ће утицати на то како се манга приказује у апликацији</string>
     <string name="pick_custom_file">Изабери прилагођену датотеку</string>

@@ -5,6 +5,18 @@
 		<item>@string/light</item>
 		<item>@string/dark</item>
 	</string-array>
+	<string-array name="palette_styles" translatable="false">
+		<item>@string/follow_system</item>
+		<item>@string/palette_style_tonal_spot</item>
+		<item>@string/palette_style_neutral</item>
+		<item>@string/palette_style_vibrant</item>
+		<item>@string/palette_style_expressive</item>
+		<item>@string/palette_style_fidelity</item>
+		<item>@string/palette_style_content</item>
+		<item>@string/palette_style_rainbow</item>
+		<item>@string/palette_style_fruit_salad</item>
+		<item>@string/palette_style_monochrome</item>
+	</string-array>
 	<string-array name="zoom_modes" translatable="false">
 		<item>@string/zoom_mode_fit_center</item>
 		<item>@string/zoom_mode_fit_height</item>
@@ -155,4 +167,20 @@
 		<item>@string/ask_every_time</item>
 		<item>@string/disable</item>
 	</string-array>
+	<array name="theme_seed_colors">
+		<item>@color/theme_seed_default</item>
+		<item>#FF1E88E5</item>
+		<item>#FF039BE5</item>
+		<item>#FF00897B</item>
+		<item>#FF43A047</item>
+		<item>#FF7CB342</item>
+		<item>#FFFDD835</item>
+		<item>#FFFB8C00</item>
+		<item>#FFE53935</item>
+		<item>#FFD81B60</item>
+		<item>#FF8E24AA</item>
+		<item>#FF5E35B1</item>
+		<item>#FF6D4C41</item>
+		<item>#FF546E7A</item>
+	</array>
 </resources>

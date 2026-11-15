@@ -94,6 +94,9 @@
 
 	<declare-styleable name="ReadingProgressView">
 		<attr name="progressStyle" format="reference" />
+		<attr name="sizeFraction" format="float" />
+		<attr name="android:minWidth" />
+		<attr name="android:maxWidth" />
 	</declare-styleable>
 
 	<declare-styleable name="FastScrollRecyclerView">
@@ -204,6 +207,8 @@
 	<declare-styleable name="IconsView">
 		<attr name="iconSize" />
 		<attr name="iconSpacing" format="dimension" />
+		<attr name="iconSizeFraction" format="float" />
+		<attr name="maxIconSize" format="dimension" />
 	</declare-styleable>
 
 	<declare-styleable name="FilterFieldLayout">

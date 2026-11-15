@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.draken.usagi.core.ui.widgets.ShapeView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/colorView"
+	android:layout_width="32dp"
+	android:layout_height="32dp"
+	app:cornerSize="16dp"
+	app:strokeColor="?colorOutline"
+	app:strokeWidth="1dp" />

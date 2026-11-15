@@ -793,7 +793,6 @@
     <string name="search_everywhere">எல்லா இடங்களிலும் தேடுங்கள்</string>
     <string name="error_disclaimer_report">நீங்கள் டெவலப்பர்களிடம் பிழை அறிக்கையைச் சமர்ப்பிக்கலாம். இது சிக்கலை ஆராய்ந்து சரிசெய்ய எங்களுக்கு உதவும்.</string>
     <string name="nsfw_16">16+</string>
-    <string name="theme_name_expressive">எடுப்பான தோற்றம் (சோதனை)</string>
     <string name="reader_navigation_inverted">வழிசெலுத்தல் கட்டுப்பாடுகள் தலைகீழ்</string>
     <string name="reader_navigation_inverted_summary">தொகுதி பொத்தான் மற்றும் திசை வன்பொருள் விசை வழிசெலுத்தலின் திசையை மாற்றவும் (இடது/மேல்/கீழ்/வலது)</string>
     <string name="exclude_nsfw_from_suggestions_summary">அகவை வந்த மங்கா பரிந்துரைகளில் காட்டப்படாது. இந்த விருப்பம் சில ஆதாரங்களுடன் தவறானது</string>

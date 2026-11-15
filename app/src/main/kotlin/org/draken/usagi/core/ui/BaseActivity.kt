@@ -26,6 +26,8 @@ import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.resolve.ExceptionResolver
 import org.draken.usagi.core.nav.AppRouter
 import org.draken.usagi.core.ui.util.ActionModeDelegate
+import org.draken.usagi.core.ui.util.applyPalette
+import org.draken.usagi.core.ui.util.getPaletteSeed
 import org.draken.usagi.core.util.ext.isWebViewUnavailable
 import org.draken.usagi.main.ui.protect.ScreenshotPolicyHelper
 import androidx.appcompat.R as appcompatR
@@ -59,6 +61,13 @@ abstract class BaseActivity<B : ViewBinding> :
 		val settings = entryPoint.settings
 		isAmoledTheme = settings.isAmoledTheme
 		setTheme(settings.colorScheme.styleResId)
+		val paletteSeed = getPaletteSeed(settings.colorScheme, settings.paletteStyle, settings.customThemeColor)
+		if (paletteSeed != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			applyPalette(paletteSeed, settings.paletteStyle)
+		}
+		if (settings.isExpressiveComponents) {
+			setTheme(R.style.ThemeOverlay_Usagi_Expressive)
+		}
 		if (isAmoledTheme) {
 			setTheme(R.style.ThemeOverlay_Usagi_Amoled)
 		}

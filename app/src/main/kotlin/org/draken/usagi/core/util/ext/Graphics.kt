@@ -3,6 +3,7 @@ package org.draken.usagi.core.util.ext
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Rect
+import java.util.Locale
 import kotlin.math.roundToInt
 
 fun Rect.scale(factor: Double) {
@@ -22,3 +23,5 @@ inline fun <R> Bitmap.use(block: (Bitmap) -> R) =
 	}
 
 fun ColorStateList.hasFocusStateSpecified(): Boolean = getColorForState(intArrayOf(android.R.attr.state_focused), defaultColor) != defaultColor
+
+fun Int.toHexColor(): String = String.format(Locale.ROOT, "#%06X", this and 0xFFFFFF)

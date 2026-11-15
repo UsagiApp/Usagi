@@ -661,7 +661,6 @@
     <string name="pages_saved">Сторінки збережені</string>
     <string name="nsfw_16">16+</string>
     <string name="invalid_server_address_message">Невірна адреса сервера</string>
-    <string name="theme_name_expressive">Експресивна (Тест)</string>
     <string name="too_many_requests_message_retry">Занадто багато запитів. Спробуйте ще раз через %s</string>
     <string name="reader_navigation_inverted">Інвертувати елементи керування навігацією</string>
     <string name="reader_navigation_inverted_summary">Поміняти місцями напрямок кнопки регулювання гучності та апаратної клавіші навігації (вліво/вгору/вниз/вправо)</string>

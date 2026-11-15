@@ -1,5 +1,6 @@
 package org.draken.usagi.core.prefs
 
+import android.os.Build
 import androidx.annotation.Keep
 import androidx.annotation.StringRes
 import androidx.annotation.StyleRes
@@ -14,7 +15,7 @@ enum class ColorScheme(
 ) {
 	DEFAULT(R.style.ThemeOverlay_Usagi_Totoro, R.string.theme_name_totoro),
 	MONET(R.style.ThemeOverlay_Usagi_Monet, R.string.theme_name_dynamic),
-	EXPRESSIVE(R.style.ThemeOverlay_Usagi_Expressive, R.string.theme_name_expressive),
+	CUSTOM(R.style.ThemeOverlay_Usagi_Custom, R.string.theme_name_custom),
 	MIKU(R.style.ThemeOverlay_Usagi_Miku, R.string.theme_name_miku),
 	RENA(R.style.ThemeOverlay_Usagi_Asuka, R.string.theme_name_asuka),
 	FROG(R.style.ThemeOverlay_Usagi_Mion, R.string.theme_name_mion),
@@ -38,7 +39,9 @@ enum class ColorScheme(
 			val list = ColorScheme.entries.toMutableList()
 			if (!DynamicColors.isDynamicColorAvailable()) {
 				list.remove(MONET)
-				list.remove(EXPRESSIVE)
+			}
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+				list.remove(CUSTOM)
 			}
 			return list
 		}

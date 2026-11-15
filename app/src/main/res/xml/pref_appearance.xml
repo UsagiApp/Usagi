@@ -9,6 +9,16 @@
         android:title="@string/color_theme" />
 
     <ListPreference
+        android:entries="@array/palette_styles"
+        android:key="palette_style"
+        android:title="@string/palette_style"
+        app:useSimpleSummaryProvider="true" />
+
+    <org.draken.usagi.settings.utils.ThemeColorPreference
+        android:key="custom_theme_color"
+        android:title="@string/theme_color" />
+
+    <ListPreference
         android:defaultValue="-1"
         android:entries="@array/themes"
         android:entryValues="@array/values_theme"
@@ -21,6 +31,12 @@
         android:key="amoled_theme"
         android:summary="@string/black_dark_theme_summary"
         android:title="@string/black_dark_theme" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="expressive_components"
+        android:summary="@string/expressive_components_summary"
+        android:title="@string/expressive_style" />
 
     <org.draken.usagi.settings.utils.ActivityListPreference
         android:key="app_locale"

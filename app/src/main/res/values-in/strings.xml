@@ -809,7 +809,6 @@
     <string name="pick_manga_page">Pilih halaman manga</string>
     <string name="pick_custom_file">Pilih file khusus</string>
     <string name="change_cover">Ganti sampul</string>
-    <string name="theme_name_expressive">Ekspresif (Test)</string>
     <string name="page_switch_timer">Halaman akan berganti setiap ~%d detik</string>
     <string name="expand">Memperluas</string>
     <string name="adblock">Blokir iklan di browser</string>

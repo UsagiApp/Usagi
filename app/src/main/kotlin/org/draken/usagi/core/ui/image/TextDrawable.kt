@@ -31,6 +31,10 @@ class TextDrawable(
 			measureTextBounds()
 		}
 
+	var widthFraction: Float = 0f
+
+	var minTextSize: Float = 0f
+
 	var textColor: ColorStateList = ColorStateList.valueOf(Color.BLACK)
 		set(value) {
 			field = value
@@ -47,6 +51,10 @@ class TextDrawable(
 	}
 
 	override fun onBoundsChange(bounds: Rect) {
+		if (widthFraction > 0f && !bounds.isEmpty) {
+			paint.textSize = (bounds.width() * widthFraction).coerceAtLeast(minTextSize)
+			paint.getTextBounds(text, 0, text.length, textBounds)
+		}
 		textPoint.set(
 			bounds.exactCenterX() - textBounds.exactCenterX(),
 			bounds.exactCenterY() - textBounds.exactCenterY(),

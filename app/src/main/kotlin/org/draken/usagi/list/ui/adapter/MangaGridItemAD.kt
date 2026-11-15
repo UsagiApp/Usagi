@@ -20,7 +20,7 @@ fun mangaGridItemAD(
 	{ inflater, parent -> ItemMangaGridBinding.inflate(inflater, parent, false) },
 ) {
 	AdapterDelegateClickListenerAdapter(this, clickListener).attach(itemView)
-	sizeResolver.attachToView(itemView, binding.textViewTitle, binding.progressView)
+	sizeResolver.attachToView(itemView, binding.textViewTitle)
 
 	bind { payloads ->
 		itemView.setTooltipCompat(item.getSummary(context))
