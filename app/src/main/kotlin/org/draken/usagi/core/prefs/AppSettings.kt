@@ -178,7 +178,7 @@ class AppSettings
 
 		@get:FloatRange(0.0, 1.0)
 		var readerDoublePagesSensitivity: Float
-			get() = prefs.getFloat(KEY_READER_DOUBLE_PAGES_SENSITIVITY, 0.5f)
+			get() = getFloatCompat(KEY_READER_DOUBLE_PAGES_SENSITIVITY, 0.5f)
 			set(
 				@FloatRange(0.0, 1.0) value,
 			) = prefs.edit { putFloat(KEY_READER_DOUBLE_PAGES_SENSITIVITY, value) }
@@ -525,8 +525,8 @@ class AppSettings
 			get() =
 				runCatching {
 					ReaderColorFilter(
-						brightness = prefs.getFloat(KEY_CF_BRIGHTNESS, ReaderColorFilter.EMPTY.brightness),
-						contrast = prefs.getFloat(KEY_CF_CONTRAST, ReaderColorFilter.EMPTY.contrast),
+						brightness = getFloatCompat(KEY_CF_BRIGHTNESS, ReaderColorFilter.EMPTY.brightness),
+						contrast = getFloatCompat(KEY_CF_CONTRAST, ReaderColorFilter.EMPTY.contrast),
 						isInverted = prefs.getBoolean(KEY_CF_INVERTED, ReaderColorFilter.EMPTY.isInverted),
 						isGrayscale = prefs.getBoolean(KEY_CF_GRAYSCALE, ReaderColorFilter.EMPTY.isGrayscale),
 						isBookBackground = prefs.getBoolean(KEY_CF_BOOK, ReaderColorFilter.EMPTY.isBookBackground),
@@ -616,7 +616,7 @@ class AppSettings
 
 		@get:FloatRange(from = 0.0, to = 1.0)
 		var readerAutoscrollSpeed: Float
-			get() = prefs.getFloat(KEY_READER_AUTOSCROLL_SPEED, 0f)
+			get() = getFloatCompat(KEY_READER_AUTOSCROLL_SPEED, 0f)
 			set(
 				@FloatRange(from = 0.0, to = 1.0) value,
 			) =
@@ -785,10 +785,43 @@ class AppSettings
 
 		fun getAllValues(): Map<String, *> = prefs.all
 
-		fun upsertAll(m: Map<String, *>) =
+		fun upsertAll(m: Map<String, *>) {
+			val currentValues = prefs.all
 			prefs.edit {
 				clear()
-				putAll(m)
+				putAll(
+					m.mapValues { (key, value) ->
+						// Whole-valued floats are stored without a decimal point in the backup JSON
+						// and are parsed back as integers, so restore them as floats.
+						when {
+							value is Number && key in FLOAT_KEYS -> value.toFloat()
+							value is Int && currentValues[key] is Float -> value.toFloat()
+							else -> value
+						}
+					},
+				)
+			}
+		}
+
+		/**
+		 * Reads a float preference, healing values that were saved with a different type
+		 * (for example integers restored from an old settings backup).
+		 */
+		private fun getFloatCompat(
+			key: String,
+			defaultValue: Float,
+		): Float =
+			try {
+				prefs.getFloat(key, defaultValue)
+			} catch (_: ClassCastException) {
+				val value =
+					when (val raw = prefs.all[key]) {
+						is Number -> raw.toFloat()
+						is String -> raw.toFloatOrNull()
+						else -> null
+					} ?: defaultValue
+				prefs.edit { putFloat(key, value) }
+				value
 			}
 
 		private fun isBackgroundNetworkRestricted(): Boolean =
@@ -973,6 +1006,17 @@ class AppSettings
 			const val KEY_CF_INVERTED = "cf_inverted"
 			const val KEY_CF_GRAYSCALE = "cf_grayscale"
 			const val KEY_CF_BOOK = "cf_book"
+
+			// Preferences saved with putFloat. Keep this list in sync when adding new float prefs,
+			// because JSON backups store whole-valued floats as integers.
+			private val FLOAT_KEYS =
+				setOf(
+					KEY_READER_DOUBLE_PAGES_SENSITIVITY,
+					KEY_READER_AUTOSCROLL_SPEED,
+					KEY_CF_BRIGHTNESS,
+					KEY_CF_CONTRAST,
+				)
+
 			const val KEY_PAGES_TAB = "pages_tab"
 			const val KEY_DETAILS_TAB = "details_tab"
 			const val KEY_DETAILS_LAST_TAB = "details_last_tab"
