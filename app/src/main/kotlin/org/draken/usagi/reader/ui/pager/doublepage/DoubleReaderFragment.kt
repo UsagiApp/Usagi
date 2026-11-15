@@ -14,6 +14,7 @@ import kotlinx.coroutines.yield
 import org.draken.usagi.R
 import org.draken.usagi.core.os.NetworkState
 import org.draken.usagi.core.prefs.AppSettings
+import org.draken.usagi.core.prefs.ReaderAnimation
 import org.draken.usagi.core.ui.list.lifecycle.RecyclerViewLifecycleDispatcher
 import org.draken.usagi.core.util.ext.firstVisibleItemPosition
 import org.draken.usagi.core.util.ext.observe
@@ -23,8 +24,11 @@ import org.draken.usagi.reader.ui.ReaderState
 import org.draken.usagi.reader.ui.pager.BaseReaderAdapter
 import org.draken.usagi.reader.ui.pager.BaseReaderFragment
 import org.draken.usagi.reader.ui.pager.ReaderPage
+import org.draken.usagi.reader.ui.pager.curl.DoublePageCurlScene
+import org.draken.usagi.reader.ui.pager.curl.PageCurlController
 import javax.inject.Inject
 import kotlin.math.absoluteValue
+import kotlin.math.sign
 
 @AndroidEntryPoint
 open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding>() {
@@ -38,6 +42,7 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 	lateinit var settings: AppSettings
 
 	private var recyclerLifecycleDispatcher: RecyclerViewLifecycleDispatcher? = null
+	private var pageCurl: PageCurlController? = null
 
 	override fun onCreateViewBinding(
 		inflater: LayoutInflater,
@@ -58,13 +63,22 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 			addOnScrollListener(PageScrollListener())
 			addOnScrollListener(DoublePageAnimTransformer(viewModel.pageAnimation))
 			DoublePageSnapHelper(settings).attachToRecyclerView(this)
+			pageCurl =
+				PageCurlController(this, this, DoublePageCurlScene(this, ::scrollToSpread), ::isCurlEnabled)
+					.also { it.attach() }
 		}
 		viewModel.pageAnimation.observe(viewLifecycleOwner) {
+			(binding.recyclerView.layoutManager as? DoublePageLayoutManager)?.let { lm ->
+				lm.prefetchFullSpread = it == ReaderAnimation.BEST_APPEARANCE
+				binding.recyclerView.requestLayout()
+			}
 			binding.recyclerView.scrollBy(0, 0)
 		}
 	}
 
 	override fun onDestroyView() {
+		pageCurl?.detach()
+		pageCurl = null
 		recyclerLifecycleDispatcher = null
 		requireViewBinding().recyclerView.adapter = null
 		super.onDestroyView()
@@ -151,6 +165,7 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 			switchPageTo(getCurrentItem() + delta, false)
 			return
 		}
+		if (pageCurl?.turn(delta.sign) == true) return
 		val rv = viewBinding?.recyclerView ?: return
 		val distance = rv.width / 2 * delta
 		rv.smoothScrollBy(distance, 0, AccelerateDecelerateInterpolator())
@@ -160,9 +175,12 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 		position: Int,
 		smooth: Boolean,
 	) {
+		scrollToSpread(position)
+	}
+
+	private fun scrollToSpread(position: Int) {
 		val lm = viewBinding?.recyclerView?.layoutManager as? LinearLayoutManager ?: return
-		val targetPosition = position.toPagePosition()
-		lm.scrollToPositionWithOffset(targetPosition, 0)
+		lm.scrollToPositionWithOffset(position.toPagePosition(), 0)
 	}
 
 	override fun getCurrentState(): ReaderState? =

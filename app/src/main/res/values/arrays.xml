@@ -79,6 +79,7 @@
 		<item>@string/disabled</item>
 		<item>@string/system_default</item>
 		<item>@string/advanced</item>
+		<item>@string/best_appearance</item>
 	</string-array>
 	<string-array name="backup_frequency" translatable="false">
 		<item>@string/frequency_every_6_hours</item>
