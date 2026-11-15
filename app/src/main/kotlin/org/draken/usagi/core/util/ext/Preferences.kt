@@ -70,12 +70,14 @@ fun <T> SharedPreferences.observe(
 	}.distinctUntilChanged()
 
 fun SharedPreferences.Editor.putAll(values: Map<String, *>) {
+	// JSON has no float type, so all decimal numbers are parsed back as Double
 	values.forEach { e ->
 		when (val v = e.value) {
 			is Boolean -> putBoolean(e.key, v)
 			is Int -> putInt(e.key, v)
 			is Long -> putLong(e.key, v)
 			is Float -> putFloat(e.key, v)
+			is Double -> putFloat(e.key, v.toFloat())
 			is String -> putString(e.key, v)
 			is JSONArray -> putStringSet(e.key, v.toStringSet())
 		}
