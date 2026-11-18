@@ -294,7 +294,7 @@ class SourcesCatalogActivity :
 	}
 
 	private fun showLocalesMenu(anchor: View) {
-		val locales = viewModel.locales.value.sortedWith(compareBy { viewModel.localeDisplayName(it) })
+		val locales = viewModel.sortLocales()
 		PopupMenu(this, anchor)
 			.apply {
 				locales.forEachIndexed { i, loc -> menu.add(Menu.NONE, Menu.NONE, i, viewModel.localeDisplayName(loc)) }

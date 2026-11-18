@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.annotation.WorkerThread
 import androidx.core.net.toUri
-import androidx.core.os.ConfigurationCompat
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,6 +49,7 @@ import tsuki.model.ContentType
 import tsuki.model.MangaSource
 import tsuki.util.toTitleCase
 import java.io.File
+import java.text.Collator
 import java.util.EnumSet
 import java.util.Locale
 import javax.inject.Inject
@@ -166,16 +166,20 @@ class SourcesCatalogViewModel
 			}
 		}
 
-		fun performSearch(query: String?) {
-			searchQuery.value = query
-		}
-
-		fun setLocale(value: String?) {
-			appliedFilter.value = appliedFilter.value.copy(locale = value)
-		}
-
-		fun refreshExtensionRuntime() {
-			launchJob(Dispatchers.Default) { runCatching { runtime.ensureReady(forceRefresh = true) } }
+		fun addSource(source: MangaSource) {
+			launchJob(Dispatchers.Default) {
+				val plugin = (source as? PluginMangaSource) ?: (source as? MangaSourceInfo)?.mangaSource as? PluginMangaSource
+				val all =
+					repository.allMangaSources
+						.filter { s ->
+							val p = (s as? PluginMangaSource) ?: (s as? MangaSourceInfo)?.mangaSource as? PluginMangaSource
+							p?.jarName == plugin?.jarName &&
+								s.isExternalSource() == source.isExternalSource() &&
+								s.title.equals(source.title, true)
+						}.ifEmpty { listOf(source) }
+				val rollback = repository.setSourcesEnabled(all, true)
+				onActionDone.call(ReversibleAction(R.string.source_enabled, rollback))
+			}
 		}
 
 		fun createDownloadRequest(
@@ -201,13 +205,32 @@ class SourcesCatalogViewModel
 			return req
 		}
 
-		suspend fun openExtensionSource(item: SourceCatalogItem.Extension): MangaSource? {
-			var source = runCatching { getImportedExtensionSource(item) }.getOrNull()
-			if (source == null && !item.isInstalled && !item.isLoaded && !item.isPreInstalledApk) {
-				if (performInstall(item)) source = runCatching { getImportedExtensionSource(item) }.getOrNull()
+		fun install(item: SourceCatalogItem.Extension) {
+			launchJob {
+				if (!performInstall(item)) {
+					onActionError.call(R.string.load_failed)
+				}
 			}
-			if (source != null) enableExtensionSource(source)
-			return source
+		}
+
+		fun localeDisplayName(value: String?): String {
+			val code = value?.trim().orEmpty()
+			return when {
+				code.isEmpty() -> {
+					context.getString(R.string.all_languages)
+				}
+
+				code.equals("all", true) -> {
+					context.getString(R.string.various_languages)
+				}
+
+				else -> {
+					val loc = code.replace('_', '-').toLocale()
+					listOf(loc, Locale.ENGLISH).firstNotNullOfOrNull { lang ->
+						loc.getDisplayName(lang).takeUnless { it.isLocaleCode(loc) }?.toTitleCase(lang)
+					} ?: code
+				}
+			}
 		}
 
 		fun openSource(item: SourceCatalogItem.Extension) {
@@ -221,66 +244,46 @@ class SourcesCatalogViewModel
 			}
 		}
 
-		fun localeDisplayName(value: String?): String {
-			val code = value?.trim().orEmpty()
-			if (code.isEmpty()) return context.getString(R.string.all_languages)
-			if (code.equals("all", true)) return context.getString(R.string.various_languages)
-			val loc = code.replace('_', '-').toLocale()
-			val name = loc.getDisplayName(loc).trim()
-			if (!name.isLocaleCode(loc)) return name.toTitleCase(loc)
-			val en = loc.getDisplayName(Locale.ENGLISH).trim()
-			return en.takeUnless { it.isLocaleCode(loc) }?.toTitleCase(Locale.ENGLISH)
-				?: code.ifEmpty { context.getString(R.string.unknown) }
+		fun performSearch(query: String?) {
+			searchQuery.value = query
 		}
 
-		private fun String.isLocaleCode(loc: Locale): Boolean {
-			val norm = trim().lowercase(Locale.ROOT)
-			return norm.isEmpty() ||
-				norm == loc.language.lowercase(Locale.ROOT) ||
-				norm == loc.toLanguageTag().lowercase(Locale.ROOT)
+		fun refreshExtensionRuntime() {
+			launchJob(Dispatchers.Default) { runCatching { runtime.ensureReady(forceRefresh = true) } }
 		}
 
-		private fun scopedArtifacts(artifacts: List<ExtArtifact>): List<ExtArtifact> {
-			val scoped = scopedRepositoryUrl ?: return emptyList()
-			val norm = catalogProvider.normalizeUrl(scoped) ?: scoped
-			val filtered = artifacts.filter { (catalogProvider.normalizeUrl(it.repositoryUrl) ?: it.repositoryUrl) == norm }
-			if (filtered.isNotEmpty()) return filtered
-			val installed =
-				directManager.installed.value.filter {
-					it.repositoryUrl == scoped || it.packageName == scoped.removePrefix("local://")
+		fun setContentType(
+			value: ContentType,
+			isAdd: Boolean,
+		) {
+			val f = appliedFilter.value
+			val types =
+				EnumSet.noneOf(ContentType::class.java).apply {
+					addAll(f.types)
+					if (isAdd) add(value) else remove(value)
 				}
-			return installed.map { it.toArtifact() }
+			appliedFilter.value = f.copy(types = types)
 		}
 
-		fun install(item: SourceCatalogItem.Extension) {
-			launchJob {
-				if (!performInstall(item)) {
-					onActionError.call(R.string.load_failed)
-				}
-			}
+		fun setLocale(value: String?) {
+			appliedFilter.value = appliedFilter.value.copy(locale = value)
 		}
 
-		private suspend fun performInstall(item: SourceCatalogItem.Extension): Boolean =
-			try {
-				installingPackages.update { it + item.artifact.packageName }
-				if (item.isInstalled && !item.hasUpdate && !item.isLoaded) {
-					val s = getImportedExtensionSource(item) ?: return false
-					repository.setSourcesEnabled(setOf(s), true)
-					runtime.ensureReady(forceRefresh = true)
-					true
-				} else {
-					val ok = directManager.install(item.artifact)
-					if (ok) {
-						runtime.ensureReady(forceRefresh = true)
-						getImportedExtensionSource(item)?.let { repository.setSourcesEnabled(setOf(it), true) }
-					}
-					ok
-				}
-			} catch (_: Throwable) {
-				false
-			} finally {
-				installingPackages.update { it - item.artifact.packageName }
-			}
+		fun setNewOnly(value: Boolean) {
+			appliedFilter.value = appliedFilter.value.copy(isNewOnly = value)
+		}
+
+		fun setPlugin(value: String?) {
+			appliedFilter.value = appliedFilter.value.copy(plugin = value)
+		}
+
+		fun sortLocales(): List<String?> {
+			val primary = Locale.getDefault().language
+			return locales.value.sortedWith(
+				compareBy<String?>({ !it.isNullOrBlank() }, { !it.equals("all", true) }, { it?.toLocale()?.language != primary })
+					.thenBy(Collator.getInstance()) { localeDisplayName(it) },
+			)
+		}
 
 		fun uninstall(item: SourceCatalogItem.Extension) {
 			launchJob {
@@ -292,6 +295,11 @@ class SourcesCatalogViewModel
 					}.getOrDefault(false)
 				if (!ok) onActionError.call(R.string.load_failed)
 			}
+		}
+
+		suspend fun enableExtensionSource(source: MangaSource) {
+			repository.setSourcesEnabled(setOf(source), true)
+			runtime.ensureReady(forceRefresh = true)
 		}
 
 		suspend fun getImportedExtensionSource(item: SourceCatalogItem.Extension): MangaSource? {
@@ -321,63 +329,13 @@ class SourcesCatalogViewModel
 				}
 		}
 
-		suspend fun enableExtensionSource(source: MangaSource) {
-			repository.setSourcesEnabled(setOf(source), true)
-			runtime.ensureReady(forceRefresh = true)
-		}
-
-		private fun ExtMangaSource.matches(item: SourceCatalogItem.Extension) = matchesCatalog(item.artifact, item.source)
-
-		private fun ExtMangaSource.matchesCatalog(
-			art: ExtArtifact,
-			src: ExtSource,
-		) = pkgName == art.packageName &&
-			displayName.equals(src.name, true) &&
-			canonicalLanguageCode(locale) == canonicalLanguageCode(src.language)
-
-		private data class CatalogExtState(
-			val installed: List<ExtInstalled>,
-			val loadedSourceIds: Set<Long>,
-			val preInstalledSources: List<ExtMangaSource>,
-			val loading: Boolean,
-			val installingPackages: Set<String>,
-		)
-
-		fun addSource(source: MangaSource) {
-			launchJob(Dispatchers.Default) {
-				val plugin = (source as? PluginMangaSource) ?: (source as? MangaSourceInfo)?.mangaSource as? PluginMangaSource
-				val all =
-					repository.allMangaSources
-						.filter { s ->
-							val p = (s as? PluginMangaSource) ?: (s as? MangaSourceInfo)?.mangaSource as? PluginMangaSource
-							p?.jarName == plugin?.jarName &&
-								s.isExternalSource() == source.isExternalSource() &&
-								s.title.equals(source.title, true)
-						}.ifEmpty { listOf(source) }
-				val rollback = repository.setSourcesEnabled(all, true)
-				onActionDone.call(ReversibleAction(R.string.source_enabled, rollback))
+		suspend fun openExtensionSource(item: SourceCatalogItem.Extension): MangaSource? {
+			var source = runCatching { getImportedExtensionSource(item) }.getOrNull()
+			if (source == null && !item.isInstalled && !item.isLoaded && !item.isPreInstalledApk) {
+				if (performInstall(item)) source = runCatching { getImportedExtensionSource(item) }.getOrNull()
 			}
-		}
-
-		fun setContentType(
-			value: ContentType,
-			isAdd: Boolean,
-		) {
-			val f = appliedFilter.value
-			val types =
-				EnumSet.noneOf(ContentType::class.java).apply {
-					addAll(f.types)
-					if (isAdd) add(value) else remove(value)
-				}
-			appliedFilter.value = f.copy(types = types)
-		}
-
-		fun setNewOnly(value: Boolean) {
-			appliedFilter.value = appliedFilter.value.copy(isNewOnly = value)
-		}
-
-		fun setPlugin(value: String?) {
-			appliedFilter.value = appliedFilter.value.copy(plugin = value)
+			if (source != null) enableExtensionSource(source)
+			return source
 		}
 
 		private suspend fun buildSourcesList(
@@ -544,6 +502,28 @@ class SourcesCatalogViewModel
 			}
 		}
 
+		private suspend fun performInstall(item: SourceCatalogItem.Extension): Boolean =
+			try {
+				installingPackages.update { it + item.artifact.packageName }
+				if (item.isInstalled && !item.hasUpdate && !item.isLoaded) {
+					val s = getImportedExtensionSource(item) ?: return false
+					repository.setSourcesEnabled(setOf(s), true)
+					runtime.ensureReady(forceRefresh = true)
+					true
+				} else {
+					val ok = directManager.install(item.artifact)
+					if (ok) {
+						runtime.ensureReady(forceRefresh = true)
+						getImportedExtensionSource(item)?.let { repository.setSourcesEnabled(setOf(it), true) }
+					}
+					ok
+				}
+			} catch (_: Throwable) {
+				false
+			} finally {
+				installingPackages.update { it - item.artifact.packageName }
+			}
+
 		@WorkerThread
 		private fun getContentTypes(isNsfwDisabled: Boolean): List<ContentType> {
 			val all =
@@ -556,6 +536,37 @@ class SourcesCatalogViewModel
 				}
 			return if (isNsfwDisabled) all.filterNot { it == ContentType.HENTAI } else all
 		}
+
+		private fun scopedArtifacts(artifacts: List<ExtArtifact>): List<ExtArtifact> {
+			val scoped = scopedRepositoryUrl ?: return emptyList()
+			val norm = catalogProvider.normalizeUrl(scoped) ?: scoped
+			val filtered = artifacts.filter { (catalogProvider.normalizeUrl(it.repositoryUrl) ?: it.repositoryUrl) == norm }
+			if (filtered.isNotEmpty()) return filtered
+			val installed =
+				directManager.installed.value.filter {
+					it.repositoryUrl == scoped || it.packageName == scoped.removePrefix("local://")
+				}
+			return installed.map { it.toArtifact() }
+		}
+
+		private fun String.isLocaleCode(loc: Locale) = isEmpty() || equals(loc.language, true) || equals(loc.toLanguageTag(), true)
+
+		private fun ExtMangaSource.matches(item: SourceCatalogItem.Extension) = matchesCatalog(item.artifact, item.source)
+
+		private fun ExtMangaSource.matchesCatalog(
+			art: ExtArtifact,
+			src: ExtSource,
+		) = pkgName == art.packageName &&
+			displayName.equals(src.name, true) &&
+			canonicalLanguageCode(locale) == canonicalLanguageCode(src.language)
+
+		private data class CatalogExtState(
+			val installed: List<ExtInstalled>,
+			val loadedSourceIds: Set<Long>,
+			val preInstalledSources: List<ExtMangaSource>,
+			val loading: Boolean,
+			val installingPackages: Set<String>,
+		)
 
 		companion object {
 			const val APK_MIME_TYPE = "application/vnd.android.package-archive"
