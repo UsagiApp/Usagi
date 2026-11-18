@@ -1,10 +1,13 @@
 package org.draken.usagi.core.parser.favicon
 
+import android.graphics.Canvas
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.net.Uri
 import android.os.Build
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.drawable.toDrawable
 import coil3.ImageLoader
 import coil3.asImage
 import coil3.decode.DataSource
@@ -158,8 +161,14 @@ class FaviconFetcher(
 				val provider = authority?.let { pm.resolveContentProvider(it, 0) }
 				provider?.loadIcon(pm) ?: pm.getApplicationIcon(packageName)
 			}
+		val drawable = icon.nonAdaptive()
+		val w = drawable.intrinsicWidth.takeIf { it > 0 } ?: options.size.width.pxOrElse { 192 }
+		val h = drawable.intrinsicHeight.takeIf { it > 0 } ?: options.size.height.pxOrElse { 192 }
+		val bmp = createBitmap(w, h)
+		drawable.setBounds(0, 0, w, h)
+		drawable.draw(Canvas(bmp))
 		return ImageFetchResult(
-			image = icon.nonAdaptive().asImage(),
+			image = bmp.toDrawable(options.context.resources).asImage(),
 			isSampled = false,
 			dataSource = DataSource.DISK,
 		)
