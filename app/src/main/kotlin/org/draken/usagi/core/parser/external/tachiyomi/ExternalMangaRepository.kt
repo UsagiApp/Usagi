@@ -82,7 +82,7 @@ class ExternalMangaRepository(
 			}
 
 	override var defaultSortOrder = SortOrder.POPULARITY
-		set(value) = Unit
+		set(_) = Unit
 
 	override val filterCapabilities =
 		MangaListFilterCapabilities(
@@ -116,7 +116,7 @@ class ExternalMangaRepository(
 					when {
 						!q.isNullOrBlank() || filter?.isEmpty() == false -> {
 							val f = runCatching { external.getFilterList() }.getOrDefault(FilterList())
-							FilterMapper.decode(f, filter)
+							filter.let { FilterMapper.decode(f, it) }
 							external.getSearchManga(page, q ?: "", f)
 						}
 

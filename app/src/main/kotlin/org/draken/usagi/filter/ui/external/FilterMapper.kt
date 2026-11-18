@@ -166,11 +166,51 @@ object FilterMapper {
 	) {
 		if (filter.tags.isEmpty()) return
 		val byPath = HashMap<String, Encoded>(filter.tags.size)
+		val plain = LinkedHashSet<String>()
 		for (tag in filter.tags) {
-			parseKey(tag.key)?.let { byPath[it.path] = it }
+			val encoded = parseKey(tag.key)
+			if (encoded != null) {
+				byPath[encoded.path] = encoded
+			} else {
+				plain += tag.key
+			}
 		}
-		if (byPath.isEmpty()) return
-		decodeInto(target.toList(), prefix = "", byPath = byPath)
+		if (byPath.isNotEmpty()) decodeInto(target.toList(), prefix = "", byPath = byPath)
+		if (plain.isNotEmpty()) applyPlain(target.toList(), plain)
+	}
+
+	/**
+	 * Walks the filter tree and checks any [Filter.CheckBox] / [Filter.TriState] whose name
+	 * matches one of the [titles] (case-insensitive). Used when tags come from the details screen
+	 * or quick-filter chips, where the key is the raw genre name rather than an encoded path.
+	 */
+	private fun applyPlain(
+		filters: List<Filter<*>>,
+		titles: Set<String>,
+	) {
+		for (filter in filters) {
+			when (filter) {
+				is Filter.CheckBox -> {
+					if (titles.any { it.equals(filter.name, true) }) {
+						filter.state = true
+					}
+				}
+
+				is Filter.TriState -> {
+					if (titles.any { it.equals(filter.name, true) }) {
+						filter.state = Filter.TriState.STATE_INCLUDE
+					}
+				}
+
+				is Filter.Group<*> -> {
+					applyPlain(filter.state.filterIsInstance<Filter<*>>(), titles)
+				}
+
+				else -> {
+					Unit
+				}
+			}
+		}
 	}
 
 	private fun decodeInto(
