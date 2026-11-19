@@ -2,6 +2,7 @@ package org.draken.usagi.core.network.webview
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Build
 import android.util.AndroidRuntimeException
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -9,6 +10,8 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.MainThread
+import androidx.annotation.RequiresApi
+import androidx.annotation.WorkerThread
 import androidx.webkit.ScriptHandler
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
@@ -20,6 +23,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.draken.usagi.core.exceptions.CloudFlareException
 import org.draken.usagi.core.network.CommonHeaders
@@ -29,11 +33,11 @@ import org.draken.usagi.core.parser.MangaParserRepository
 import org.draken.usagi.core.parser.MangaRepository
 import org.draken.usagi.core.util.ext.configureForParser
 import org.draken.usagi.core.util.ext.printStackTraceDebug
+import org.draken.usagi.core.util.ext.sanitizeHeaderValue
 import tsuki.model.MangaSource
 import tsuki.util.runCatchingCancellable
 import tsuki.webview.InterceptedRequest
 import tsuki.webview.InterceptionConfig
-import java.io.ByteArrayInputStream
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -41,6 +45,7 @@ import javax.inject.Provider
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.time.Duration.Companion.milliseconds
 
 @Singleton
 class WebViewExecutor
@@ -92,46 +97,56 @@ class WebViewExecutor
 		suspend fun interceptRequests(
 			url: String,
 			config: InterceptionConfig,
-		): List<InterceptedRequest> =
-			mutex.withLock {
+		): List<InterceptedRequest> {
+			val parsedUrl = url.toHttpUrlOrNull() ?: throw IllegalArgumentException("Only http/https URLs are supported")
+			val timeoutMs = config.timeoutMs.coerceAtMost(MAX_INTERCEPT_TIMEOUT_MS)
+			val maxRequests = config.maxRequests.coerceAtMost(MAX_INTERCEPT_REQUESTS)
+			return mutex.withLock {
 				withContext(Dispatchers.Main.immediate) {
 					val webView = obtainWebView()
 					val captured = mutableListOf<InterceptedRequest>()
 					var scriptHandler: ScriptHandler? = null
 					try {
-						config.userAgent?.let { webView.settings.userAgentString = it }
+						config.userAgent?.sanitizeHeaderValue()?.takeIf { it.isNotBlank() }?.let {
+							webView.settings.userAgentString = it
+						}
 						if (config.blockImages) {
 							webView.settings.loadsImagesAutomatically = false
 							webView.settings.blockNetworkImage = true
 						}
 						val script = config.pageScript?.takeIf { it.isNotBlank() }
-						val useDocumentStart =
-							script != null &&
-								config.injectOnStart &&
-								WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)
-						if (useDocumentStart) {
-							scriptHandler = WebViewCompat.addDocumentStartJavaScript(webView, script, allowedOriginsFor(url))
+						if (script != null &&
+							config.injectOnStart &&
+							WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)
+						) {
+							scriptHandler =
+								WebViewCompat.addDocumentStartJavaScript(webView, script, allowedOriginsFor(parsedUrl))
 						}
-						withTimeoutOrNull(config.timeoutMs) {
-							suspendCancellableCoroutine<Unit> { cont ->
+						withTimeoutOrNull(timeoutMs.milliseconds) {
+							suspendCancellableCoroutine { cont ->
 								val completed = AtomicBoolean(false)
 								webView.webViewClient =
 									InterceptionWebViewClient(
 										config = config,
+										maxRequests = maxRequests,
 										script = script,
-										documentStartAttached = useDocumentStart,
+										documentStartAttached = scriptHandler != null,
 										captured = captured,
 									) {
 										if (completed.compareAndSet(false, true) && cont.isActive) {
 											cont.resume(Unit)
 										}
 									}
-								webView.loadUrl(url)
+								webView.loadUrl(parsedUrl.toString())
 							}
 						}
 						synchronized(captured) { captured.toList() }
 					} finally {
-						scriptHandler?.remove()
+						if (scriptHandler != null &&
+							WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)
+						) {
+							scriptHandler.remove()
+						}
 						if (config.blockImages) {
 							webView.settings.blockNetworkImage = false
 							webView.settings.loadsImagesAutomatically = true
@@ -140,6 +155,7 @@ class WebViewExecutor
 					}
 				}
 			}
+		}
 
 		suspend fun tryResolveCaptcha(
 			exception: CloudFlareException,
@@ -206,51 +222,59 @@ class WebViewExecutor
 			clearHistory()
 		}
 
-		private fun allowedOriginsFor(url: String): Set<String> {
-			val httpUrl = url.toHttpUrlOrNull() ?: return setOf("*")
+		private fun allowedOriginsFor(httpUrl: HttpUrl): Set<String> {
+			val host = httpUrl.host
 			val port = httpUrl.port
 			val isDefaultPort = (httpUrl.scheme == "https" && port == 443) || (httpUrl.scheme == "http" && port == 80)
 			if (!isDefaultPort) {
-				return setOf("${httpUrl.scheme}://${httpUrl.host}:$port")
+				return setOf("${httpUrl.scheme}://$host:$port")
 			}
-			return setOf("${httpUrl.scheme}://${httpUrl.host}", "${httpUrl.scheme}://*.${httpUrl.host}")
+			val isDomainName = !host.contains(':') && !host.all { it.isDigit() || it == '.' }
+			return if (isDomainName) {
+				setOf("${httpUrl.scheme}://$host", "${httpUrl.scheme}://*.$host")
+			} else {
+				setOf("${httpUrl.scheme}://$host")
+			}
 		}
 
 		private class InterceptionWebViewClient(
 			private val config: InterceptionConfig,
+			private val maxRequests: Int,
 			private val script: String?,
 			private val documentStartAttached: Boolean,
 			private val captured: MutableList<InterceptedRequest>,
 			private val onLimitReached: () -> Unit,
 		) : WebViewClient() {
+			@Deprecated("Deprecated in Java")
+			override fun shouldOverrideUrlLoading(
+				view: WebView?,
+				url: String?,
+			): Boolean = url == null || handleUrlOverride(url, "GET", emptyMap())
+
+			@RequiresApi(Build.VERSION_CODES.N)
 			override fun shouldOverrideUrlLoading(
 				view: WebView?,
 				request: WebResourceRequest?,
 			): Boolean {
 				val req = request ?: return false
-				if (config.urlPattern == null) return false
-				return captureIfMatches(
+				return handleUrlOverride(
 					url = req.url.toString(),
 					method = req.method ?: "GET",
 					headers = req.requestHeaders.orEmpty(),
 				)
 			}
 
+			@WorkerThread
 			override fun shouldInterceptRequest(
 				view: WebView?,
 				request: WebResourceRequest?,
 			): WebResourceResponse? {
 				val req = request ?: return null
-				val reqUrl = req.url.toString()
-				val matched =
-					captureIfMatches(
-						url = reqUrl,
-						method = req.method ?: "GET",
-						headers = req.requestHeaders.orEmpty(),
-					)
-				if (matched && config.urlPattern != null && reqUrl.contains(".intercept/")) {
-					return WebResourceResponse("text/plain", "utf-8", ByteArrayInputStream(ByteArray(0)))
-				}
+				captureIfMatches(
+					url = req.url.toString(),
+					method = req.method ?: "GET",
+					headers = req.requestHeaders.orEmpty(),
+				)
 				return super.shouldInterceptRequest(view, request)
 			}
 
@@ -273,6 +297,18 @@ class WebViewExecutor
 				}
 			}
 
+			private fun handleUrlOverride(
+				url: String,
+				method: String,
+				headers: Map<String, String>,
+			): Boolean {
+				if (url.toHttpUrlOrNull() == null) {
+					return true
+				}
+				if (config.urlPattern == null) return false
+				return captureIfMatches(url, method, headers)
+			}
+
 			private fun captureIfMatches(
 				url: String,
 				method: String,
@@ -284,7 +320,7 @@ class WebViewExecutor
 				}
 				val limitReached =
 					synchronized(captured) {
-						if (captured.size >= config.maxRequests) {
+						if (captured.size >= maxRequests) {
 							true
 						} else {
 							captured.add(
@@ -295,7 +331,7 @@ class WebViewExecutor
 									timestamp = System.currentTimeMillis(),
 								),
 							)
-							captured.size >= config.maxRequests
+							captured.size >= maxRequests
 						}
 					}
 				if (limitReached) {
@@ -303,5 +339,10 @@ class WebViewExecutor
 				}
 				return true
 			}
+		}
+
+		private companion object {
+			const val MAX_INTERCEPT_TIMEOUT_MS = 60_000L
+			const val MAX_INTERCEPT_REQUESTS = 500
 		}
 	}
