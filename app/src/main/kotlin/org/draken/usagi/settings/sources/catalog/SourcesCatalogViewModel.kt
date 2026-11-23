@@ -1,10 +1,7 @@
 package org.draken.usagi.settings.sources.catalog
 
-import android.app.DownloadManager
 import android.content.Context
-import android.net.Uri
 import androidx.annotation.WorkerThread
-import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,7 +45,6 @@ import org.draken.usagi.list.ui.model.LoadingState
 import tsuki.model.ContentType
 import tsuki.model.MangaSource
 import tsuki.util.toTitleCase
-import java.io.File
 import java.text.Collator
 import java.util.EnumSet
 import java.util.Locale
@@ -180,29 +176,6 @@ class SourcesCatalogViewModel
 				val rollback = repository.setSourcesEnabled(all, true)
 				onActionDone.call(ReversibleAction(R.string.source_enabled, rollback))
 			}
-		}
-
-		fun createDownloadRequest(
-			item: SourceCatalogItem.Extension,
-			destinationDir: File?,
-		): DownloadManager.Request? {
-			val apkUrl =
-				item.artifact.apkUrl
-					?.trim()
-					?.takeIf { it.isNotEmpty() } ?: return null
-			val uri = apkUrl.toUri()
-			val name =
-				uri.lastPathSegment?.takeIf { it.endsWith(".apk", true) }
-					?: "${item.artifact.packageName}-${item.artifact.versionName
-						?: item.artifact.versionCode ?: "latest"}.apk"
-			val req =
-				DownloadManager
-					.Request(uri)
-					.setTitle(item.displayName)
-					.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-					.setMimeType(APK_MIME_TYPE)
-			if (destinationDir != null) req.setDestinationUri(Uri.fromFile(File(destinationDir, name)))
-			return req
 		}
 
 		fun install(item: SourceCatalogItem.Extension) {
@@ -569,7 +542,6 @@ class SourcesCatalogViewModel
 		)
 
 		companion object {
-			const val APK_MIME_TYPE = "application/vnd.android.package-archive"
 			const val EXTRA_REPOSITORY_URL = "repository_url"
 			const val EXTRA_REPOSITORY_NAME = "repository_name"
 		}

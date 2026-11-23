@@ -53,7 +53,6 @@ fun sourceCatalogItemExtensionAD(
 	onClick: (SourceCatalogItem.Extension, android.view.View) -> Unit,
 	onInstall: (SourceCatalogItem.Extension, android.view.View) -> Unit,
 	onUninstall: (SourceCatalogItem.Extension, android.view.View) -> Unit,
-	onSideload: (SourceCatalogItem.Extension, android.view.View) -> Unit,
 ) = adapterDelegateViewBinding<SourceCatalogItem.Extension, ListModel, ItemSourceCatalogBinding>(
 	{ inf, p -> ItemSourceCatalogBinding.inflate(inf, p, false) },
 ) {
@@ -64,10 +63,6 @@ fun sourceCatalogItemExtensionAD(
 			item.isInstalled || item.isLoaded || item.isPreInstalledApk -> onUninstall(item, v)
 			else -> onInstall(item, v)
 		}
-	}
-	binding.imageViewAdd.setOnLongClickListener { v ->
-		if (!item.isPreInstalledApk) onSideload(item, v)
-		true
 	}
 	val pad =
 		context.getThemeDimensionPixelOffset(

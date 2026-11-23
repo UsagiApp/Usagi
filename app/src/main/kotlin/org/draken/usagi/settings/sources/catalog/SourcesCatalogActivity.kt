@@ -1,21 +1,13 @@
 package org.draken.usagi.settings.sources.catalog
 
-import android.annotation.SuppressLint
-import android.app.DownloadManager
-import android.content.ActivityNotFoundException
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.view.Menu
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import com.google.android.material.appbar.AppBarLayout
@@ -48,21 +40,8 @@ class SourcesCatalogActivity :
 	override val appBar: AppBarLayout get() = viewBinding.appbar
 
 	private val viewModel by viewModels<SourcesCatalogViewModel>()
-	private val downloadManager by lazy { getSystemService(DOWNLOAD_SERVICE) as DownloadManager }
-	private val sideloadDownloadIds = mutableSetOf<Long>()
 	private var fadingAppbarMediator: FadingAppbarMediator? = null
 	private var navBarBottomInset = 0
-	private val downloadReceiver =
-		object : BroadcastReceiver() {
-			override fun onReceive(
-				context: Context,
-				intent: Intent,
-			) {
-				if (intent.action != DownloadManager.ACTION_DOWNLOAD_COMPLETE) return
-				val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L)
-				if (id != 0L && sideloadDownloadIds.remove(id)) openDownloadedApk(id)
-			}
-		}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -77,7 +56,6 @@ class SourcesCatalogActivity :
 				onExtensionClick = { item, _ -> viewModel.openSource(item) },
 				onExtensionInstall = { item, _ -> install(item) },
 				onExtensionUninstall = { item, _ -> uninstall(item) },
-				onExtensionSideload = ::showSideloadMenu,
 			)
 		with(viewBinding.recyclerView) {
 			setHasFixedSize(true)
@@ -100,24 +78,9 @@ class SourcesCatalogActivity :
 		addMenuProvider(SourcesCatalogMenuProvider(this, viewModel), this, androidx.lifecycle.Lifecycle.State.RESUMED)
 	}
 
-	override fun onStart() {
-		super.onStart()
-		ContextCompat.registerReceiver(
-			this,
-			downloadReceiver,
-			IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
-			ContextCompat.RECEIVER_EXPORTED,
-		)
-	}
-
 	override fun onResume() {
 		super.onResume()
 		viewModel.refreshExtensionRuntime()
-	}
-
-	override fun onStop() {
-		runCatching { unregisterReceiver(downloadReceiver) }
-		super.onStop()
 	}
 
 	override fun onDestroy() {
@@ -190,54 +153,6 @@ class SourcesCatalogActivity :
 			startActivity(Intent(action, Uri.fromParts("package", item.artifact.packageName, null)))
 		} else {
 			viewModel.uninstall(item)
-		}
-	}
-
-	private fun showSideloadMenu(
-		item: SourceCatalogItem.Extension,
-		anchor: View,
-	) {
-		PopupMenu(this, anchor)
-			.apply {
-				menu.add(Menu.NONE, Menu.NONE, 0, R.string.download)
-				setOnMenuItemClickListener {
-					downloadApk(item)
-					true
-				}
-			}.show()
-	}
-
-	private fun downloadApk(item: SourceCatalogItem.Extension) {
-		val req =
-			viewModel.createDownloadRequest(item, getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)) ?: run {
-				showSnackbar(getString(R.string.operation_not_supported), Snackbar.LENGTH_LONG)
-				return
-			}
-		val id =
-			runCatching { downloadManager.enqueue(req) }.getOrElse {
-				showSnackbar(getString(R.string.error), Snackbar.LENGTH_LONG)
-				return
-			}
-		sideloadDownloadIds += id
-		showSnackbar(getString(R.string.download), Snackbar.LENGTH_SHORT)
-	}
-
-	@SuppressLint("RequestInstallPackagesPolicy")
-	@Suppress("DEPRECATION")
-	private fun openDownloadedApk(downloadId: Long) {
-		val apkUri =
-			downloadManager.getUriForDownloadedFile(downloadId) ?: run {
-				showSnackbar(getString(R.string.error), Snackbar.LENGTH_LONG)
-				return
-			}
-		val intent =
-			Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
-				flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
-				setDataAndType(apkUri, APK_MIME_TYPE)
-				putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
-			}
-		runCatching { startActivity(intent) }.onFailure {
-			if (it is ActivityNotFoundException) showSnackbar(getString(R.string.error), Snackbar.LENGTH_LONG)
 		}
 	}
 
@@ -318,7 +233,6 @@ class SourcesCatalogActivity :
 	}
 
 	companion object {
-		const val APK_MIME_TYPE = SourcesCatalogViewModel.APK_MIME_TYPE
 		const val EXTRA_REPOSITORY_URL = SourcesCatalogViewModel.EXTRA_REPOSITORY_URL
 		const val EXTRA_REPOSITORY_NAME = SourcesCatalogViewModel.EXTRA_REPOSITORY_NAME
 	}

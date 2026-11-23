@@ -15,7 +15,6 @@ class SourcesCatalogAdapter(
 	onExtensionClick: (SourceCatalogItem.Extension, View) -> Unit,
 	onExtensionInstall: (SourceCatalogItem.Extension, View) -> Unit,
 	onExtensionUninstall: (SourceCatalogItem.Extension, View) -> Unit,
-	onExtensionSideload: (SourceCatalogItem.Extension, View) -> Unit,
 ) : BaseListAdapter<ListModel>(),
 	FastScroller.SectionIndexer {
 	init {
@@ -26,7 +25,6 @@ class SourcesCatalogAdapter(
 				onExtensionClick,
 				onExtensionInstall,
 				onExtensionUninstall,
-				onExtensionSideload,
 			),
 		)
 		addDelegate(ListItemType.HINT_EMPTY, sourceCatalogItemHintAD())
