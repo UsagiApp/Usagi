@@ -89,9 +89,7 @@ class TapGridDispatcher(
 	private fun tap(
 		rawX: Float,
 		rawY: Float,
-	): Boolean {
-		return (getArea(rawX, rawY)?.let(listener::onGridTouch) ?: false).also { downY = 0f }
-	}
+	): Boolean = (getArea(rawX, rawY)?.let(listener::onGridTouch) ?: false).also { downY = 0f }
 
 	private fun getArea(
 		rawX: Float,

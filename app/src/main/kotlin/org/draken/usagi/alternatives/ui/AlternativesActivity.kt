@@ -87,16 +87,14 @@ class AlternativesActivity :
 					searchView?.setOnQueryTextListener(
 						object : SearchView.OnQueryTextListener {
 							override fun onQueryTextSubmit(query: String?): Boolean {
+								searchView.setOnQueryTextListener(null)
+								menuItem.collapseActionView()
+								searchView.setOnQueryTextListener(this)
 								viewModel.search(query)
 								return true
 							}
 
-							override fun onQueryTextChange(newText: String?): Boolean {
-								if (newText.isNullOrBlank()) {
-									viewModel.search(null)
-								}
-								return true
-							}
+							override fun onQueryTextChange(newText: String?): Boolean = true.also { if (newText.isNullOrBlank()) viewModel.search(null) }
 						},
 					)
 				}

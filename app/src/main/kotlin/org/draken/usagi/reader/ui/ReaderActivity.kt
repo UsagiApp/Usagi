@@ -221,8 +221,7 @@ class ReaderActivity :
 				.apply {
 					val anchor = viewBinding.toolbarDocked
 					if (anchor != null && isToolbarDockedShown) anchorView = anchor
-				}
-				.show()
+				}.show()
 		}
 		viewModel.readerSettingsProducer.observe(this) {
 			viewBinding.infoBar.applyColorScheme(isBlackOnWhite = it.background.isLight(this))
@@ -603,8 +602,7 @@ class ReaderActivity :
 				).apply {
 					val anchor = viewBinding.toolbarDocked
 					if (anchor != null && isToolbarDockedShown) anchorView = anchor
-				}
-				.show()
+				}.show()
 		}
 	}
 
