@@ -22,13 +22,7 @@
 	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-	<uses-permission
-		android:name="android.permission.REQUEST_INSTALL_PACKAGES"
-		tools:ignore="RequestInstallPackagesPolicy" />
 	<uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
-	<uses-permission
-		android:name="android.permission.QUERY_ALL_PACKAGES"
-		tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
 	<uses-permission
 		android:name="android.permission.WRITE_EXTERNAL_STORAGE"
 		android:maxSdkVersion="29" />
@@ -44,6 +38,10 @@
 		<intent>
 			<action android:name="android.speech.action.RECOGNIZE_SPEECH" />
 		</intent>
+		<intent>
+			<action android:name="app.kotatsu.parser.PROVIDE_MANGA" />
+		</intent>
+		<package android:name="com.android.systemui" />
 	</queries>
 
 	<application
