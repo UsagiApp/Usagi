@@ -28,6 +28,8 @@ import tsuki.config.MangaSourceConfig
 import tsuki.model.MangaSource
 import tsuki.network.UserAgents
 import tsuki.util.map
+import tsuki.webview.InterceptedRequest
+import tsuki.webview.InterceptionConfig
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -57,6 +59,11 @@ class MangaLoaderContextImpl
 			withTimeout(jsTimeout) {
 				webViewExecutor.evaluateJs(baseUrl, script)
 			}
+
+		override suspend fun interceptWebViewRequests(
+			url: String,
+			config: InterceptionConfig,
+		): List<InterceptedRequest> = webViewExecutor.interceptRequests(url, config)
 
 		override fun getDefaultUserAgent(): String = webViewExecutor.defaultUserAgent ?: UserAgents.FIREFOX_MOBILE
 
