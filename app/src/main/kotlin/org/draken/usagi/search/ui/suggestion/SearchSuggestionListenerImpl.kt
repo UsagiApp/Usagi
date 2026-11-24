@@ -29,13 +29,16 @@ class SearchSuggestionListenerImpl(
 		if (submit && query.isNotEmpty()) {
 			if (kind == SearchKind.SIMPLE && MangaLinkResolver.isValidLink(query)) {
 				router.openDetails(query.toUri())
+				searchView.hide()
 			} else {
+				if (searchView.text.toString() != query) {
+					searchView.setText(query)
+				}
 				router.openSearch(query, kind)
 				if (kind != SearchKind.TAG) {
 					viewModel.saveQuery(query)
 				}
 			}
-			searchView.hide()
 		} else {
 			searchView.setText(query)
 		}
