@@ -18,8 +18,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import org.draken.usagi.BuildConfig
 import org.draken.usagi.R
+import org.draken.usagi.core.util.ext.report
 import org.draken.usagi.databinding.ActivityCrashBinding
 import org.draken.usagi.main.ui.MainActivity
+import java.io.PrintWriter
 import android.R as androidR
 import com.google.android.material.R as materialR
 
@@ -42,18 +44,10 @@ class AppCrashActivity : BaseActivity<ActivityCrashBinding>() {
 			}
 		viewBinding.crashTextView.text = report
 		viewBinding.buttonReport.setOnClickListener {
-			runCatching {
-				val intent =
-					Intent(Intent.ACTION_SEND).apply {
-						type = "*/*"
-						putExtra(
-							Intent.EXTRA_SUBJECT,
-							"Usagi v${BuildConfig.VERSION_NAME} (${Build.MANUFACTURER} ${Build.MODEL}) w/ ${Build.VERSION.RELEASE}",
-						)
-						putExtra(Intent.EXTRA_TEXT, report)
-					}
-				startActivity(Intent.createChooser(intent, getString(R.string.report)))
-			}
+			GlobalExceptionHandler.install(this)
+			object : Throwable() {
+				override fun printStackTrace(s: PrintWriter) = s.print(report)
+			}.report()
 		}
 		viewBinding.buttonRestart.setOnClickListener {
 			startActivity(

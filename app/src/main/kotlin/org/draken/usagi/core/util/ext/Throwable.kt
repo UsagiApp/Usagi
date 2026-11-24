@@ -1,9 +1,12 @@
 package org.draken.usagi.core.util.ext
 
 import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.res.Resources
 import android.database.sqlite.SQLiteFullException
+import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.core.app.ShareCompat
 import coil3.network.HttpException
 import com.davemorrissey.labs.subscaleview.decoder.ImageDecodeException
 import kotlinx.coroutines.CancellationException
@@ -12,6 +15,7 @@ import okhttp3.internal.http2.StreamResetException
 import okio.FileNotFoundException
 import okio.IOException
 import okio.ProtocolException
+import org.draken.usagi.BuildConfig
 import org.draken.usagi.R
 import org.draken.usagi.core.exceptions.BadBackupFormatException
 import org.draken.usagi.core.exceptions.CaughtException
@@ -30,6 +34,7 @@ import org.draken.usagi.core.exceptions.UnsupportedSourceException
 import org.draken.usagi.core.exceptions.WrapperIOException
 import org.draken.usagi.core.exceptions.WrongPasswordException
 import org.draken.usagi.core.exceptions.resolve.ExceptionResolver
+import org.draken.usagi.core.ui.GlobalExceptionHandler
 import org.draken.usagi.scrobbling.common.domain.ScrobblerAuthRequiredException
 import org.jsoup.HttpStatusException
 import tsuki.ErrorMessages.FILTER_BOTH_LOCALE_GENRES_NOT_SUPPORTED
@@ -327,8 +332,16 @@ fun Throwable.isNetworkError(): Boolean =
 		this is HttpException && response.code == HttpURLConnection.HTTP_GATEWAY_TIMEOUT
 
 fun Throwable.report(silent: Boolean = false) {
-	if (!silent) {
-		throw this // TODO
+	val context = (Thread.getDefaultUncaughtExceptionHandler() as? GlobalExceptionHandler)?.context ?: return
+	runCatching {
+		val builder =
+			ShareCompat
+				.IntentBuilder(context)
+				.setType("text/plain")
+				.setSubject("Usagi v${BuildConfig.VERSION_NAME} (${Build.MANUFACTURER} ${Build.MODEL}) w/ ${Build.VERSION.RELEASE}")
+				.setText(stackTraceToString())
+		val intent = if (silent) builder.intent else builder.setChooserTitle(R.string.report).createChooserIntent()
+		context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 	}
 }
 

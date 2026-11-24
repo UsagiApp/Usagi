@@ -12,6 +12,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.drop
 import org.draken.usagi.R
+import org.draken.usagi.core.exceptions.resolve.ExceptionResolver
 import org.draken.usagi.core.model.getTitle
 import org.draken.usagi.core.nav.router
 import org.draken.usagi.core.ui.list.ListSelectionController
@@ -108,6 +109,13 @@ class RemoteListFragment :
 			}
 		}
 	}
+
+	override fun onRetryClick(error: Throwable) =
+		if (ExceptionResolver.getResolveStringId(error) == R.string.open_in_browser) {
+			viewModel.onRetry()
+		} else {
+			super.onRetryClick(error)
+		}
 
 	override fun onSecondaryErrorActionClick(error: Throwable) {
 		openInBrowser(error.getCauseUrl())

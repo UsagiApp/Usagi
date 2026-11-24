@@ -9,7 +9,7 @@ import org.draken.usagi.core.prefs.AppSettings
 import kotlin.system.exitProcess
 
 class GlobalExceptionHandler(
-	private val context: Context,
+	val context: Context,
 	private val settingsProvider: (() -> AppSettings?)? = null,
 	private val defaultHandler: Thread.UncaughtExceptionHandler?,
 ) : Thread.UncaughtExceptionHandler {

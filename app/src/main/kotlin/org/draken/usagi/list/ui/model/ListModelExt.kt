@@ -13,7 +13,7 @@ fun Throwable.toErrorState(
 	exception = this,
 	icon = getDisplayIcon(),
 	canRetry = canRetry,
-	buttonText = ExceptionResolver.getResolveStringId(this).ifZero { R.string.try_again },
+	buttonText = ExceptionResolver.getResolveStringId(this).let { if (it == secondaryAction) 0 else it }.ifZero { R.string.try_again },
 	secondaryButtonText = secondaryAction,
 )
 
