@@ -633,6 +633,7 @@ class DetailsActivity :
 			if (info.percent <= 0f) {
 				null
 			} else {
+				// TODO: Refactor this value with WebtoonReaderFragment
 				val displayPercent = if (ReadingProgress.isCompleted(info.percent)) 100 else (info.percent * 100f).toInt()
 				getString(R.string.percent_string_pattern, displayPercent.toString())
 			}
